@@ -31,7 +31,7 @@ export default {
 
 <template>
   <Menubar class="flex items-center w-full bg-background px-4 py-2">
-    <RouterLink to="/" class="flex items-center space-x-2 group mr-4 border-primary transition-all">
+    <RouterLink to="/" class="flex items-center space-x-2 group mr-4 border-primary transition-all  hover:border-b-2 border-b-primary">
       <IconLogo class="w-8 h-8" />
       <div class="flex items-baseline space-x-1">
         <span class="text-lg font-bold text-foreground">DATEX Workbench</span>
