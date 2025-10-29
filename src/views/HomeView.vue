@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import HelloWorld from '@/components/HelloWorld.vue'
 </script>
 
 <template>
   <main>
-    <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />
+    <p class="mt-5 ">
+      Just test of the main window content. We are awaiting here windows. Thanks for your patience.
+    </p>
+
   </main>
 </template>
