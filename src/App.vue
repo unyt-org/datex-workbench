@@ -6,13 +6,12 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarHeader,
-  SidebarProvider
-} from "@/components/ui/sidebar";
-
+  SidebarProvider,
+} from '@/components/ui/sidebar'
 </script>
 
 <template>
-  <HeaderProvider/>
+  <HeaderProvider />
   <SidebarProvider>
     <Sidebar variant="inset">
       <SidebarHeader>DATEX sidebar</SidebarHeader>
@@ -22,6 +21,6 @@ import {
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
-    <RouterView/>
+    <RouterView />
   </SidebarProvider>
 </template>

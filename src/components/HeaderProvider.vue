@@ -4,11 +4,13 @@ import IconLogo from '@/components/icons/IconLogo.vue'
 import {
   Menubar,
   MenubarContent,
-  MenubarItem, MenubarMenu,
+  MenubarItem,
+  MenubarMenu,
   MenubarSub,
   MenubarSubContent,
-  MenubarSubTrigger, MenubarTrigger
-} from "@/components/ui/menubar";
+  MenubarSubTrigger,
+  MenubarTrigger,
+} from '@/components/ui/menubar'
 export default {
   name: 'HeaderComponent',
   components: {
@@ -28,9 +30,11 @@ export default {
 
 <template>
   <Menubar class="flex items-center w-full bg-background px-4 py-2">
-    <RouterLink to="/"
-                class="flex items-center space-x-2 group mr-4 border-primary transition-all  hover:border-b-2 border-b-primary">
-      <IconLogo class="w-8 h-8"/>
+    <RouterLink
+      to="/"
+      class="flex items-center space-x-2 group mr-4 border-primary transition-all hover:border-b-2 border-b-primary"
+    >
+      <IconLogo class="w-8 h-8" />
       <div class="flex items-baseline space-x-1">
         <span class="text-lg font-bold text-foreground">DATEX Workbench</span>
         <span class="text-xs unyt-blue font-semibold">beta</span>
@@ -76,7 +80,7 @@ export default {
       </MenubarContent>
     </MenubarMenu>
     <div class="ml-auto">
-      <ThemeSwitch/>
+      <ThemeSwitch />
     </div>
   </Menubar>
 </template>
