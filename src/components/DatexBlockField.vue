@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
   <Tooltip>
   <TooltipTrigger class="Block" :style="{
       backgroundColor: props.backgroundColor,
-      gridColumn: `span ${props.span}`
+      gridColumn: `span ${props.span > 6? 6 : props.span}`
     }">{{ props.text }}</TooltipTrigger>
   <TooltipContent>
     <p>
@@ -36,7 +36,7 @@ const props = withDefaults(defineProps<Props>(), {
 .Block {
   grid-column: span 2;
   border-radius: 0.5rem;
-  padding: 1rem;
-  color: white;
+  padding: 0.5rem;
+  color: lightpink;
 }
 </style>
