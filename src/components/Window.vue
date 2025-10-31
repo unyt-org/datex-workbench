@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive } from 'vue'
 import Window from './Window.vue'
 
 const props = defineProps({
@@ -15,7 +15,12 @@ const drag = reactive({
   startY: 0,
 })
 
-// Start dragging from a corner
+// --- live gutter drag state ---
+const dragState = reactive({
+  active: false,
+  nearCollapse: null, // "left" | "right" | "top" | "bottom" | null
+})
+
 const startCornerDrag = (e, corner) => {
   if (props.node.type !== 'panel') return
   drag.active = true
@@ -28,18 +33,14 @@ const startCornerDrag = (e, corner) => {
   window.addEventListener('mouseup', stopCornerDrag)
 }
 
-// While dragging, create / resize the split dynamically
 const onCornerDrag = (e) => {
   if (!drag.active) return
   const dx = e.clientX - drag.startX
   const dy = e.clientY - drag.startY
 
-  // detect direction
   if (!drag.direction) {
     if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
       drag.direction = Math.abs(dx) > Math.abs(dy) ? 'vertical' : 'horizontal'
-
-      // convert this node into a split
       props.node.type = 'split'
       props.node.direction = drag.direction
       props.node.splitRatio = 0.5
@@ -50,7 +51,6 @@ const onCornerDrag = (e) => {
     } else return
   }
 
-  // adjust ratio live
   const rect = document.body.getBoundingClientRect()
   if (props.node.direction === 'vertical') {
     const ratio = (e.clientX - rect.left) / rect.width
@@ -69,16 +69,70 @@ const stopCornerDrag = () => {
 }
 
 // --- handle gutter drag ---
-const startGutterDrag = () => (props.node.dragging = true)
-const stopGutterDrag = () => (props.node.dragging = false)
+const startGutterDrag = () => {
+  dragState.active = true
+  props.node.dragging = true
+  dragState.nearCollapse = null
+}
+
+const stopGutterDrag = () => {
+  if (!props.node.dragging) return
+
+  props.node.dragging = false
+  dragState.active = false
+
+  if (dragState.nearCollapse) {
+    if (dragState.nearCollapse === 'left' || dragState.nearCollapse === 'top') {
+      collapseSplit(props.node, 1)
+    } else {
+      collapseSplit(props.node, 0)
+    }
+  }
+
+  dragState.nearCollapse = null
+}
+
 const onGutterDrag = (e) => {
   if (!props.node.dragging) return
   const rect = e.currentTarget.getBoundingClientRect()
+  let ratio
+
   if (props.node.direction === 'vertical') {
-    props.node.splitRatio = Math.min(0.95, Math.max(0.05, (e.clientX - rect.left) / rect.width))
+    ratio = (e.clientX - rect.left) / rect.width
   } else {
-    props.node.splitRatio = Math.min(0.95, Math.max(0.05, (e.clientY - rect.top) / rect.height))
+    ratio = (e.clientY - rect.top) / rect.height
   }
+
+  ratio = Math.min(0.95, Math.max(0.05, ratio))
+  props.node.splitRatio = ratio
+
+  // mark which side is near collapse
+  if (ratio <= 0.08) {
+    dragState.nearCollapse = props.node.direction === 'vertical' ? 'left' : 'top'
+  } else if (ratio >= 0.92) {
+    dragState.nearCollapse = props.node.direction === 'vertical' ? 'right' : 'bottom'
+  } else {
+    dragState.nearCollapse = null
+  }
+}
+
+const collapseSplit = (splitNode, keepIndex) => {
+  const keep = splitNode.children[keepIndex]
+
+  if (keep.type === 'split') {
+    splitNode.type = keep.type
+    splitNode.direction = keep.direction
+    splitNode.splitRatio = keep.splitRatio
+    splitNode.children = keep.children
+  } else {
+    splitNode.type = 'panel'
+    splitNode.label = keep.label || 'Collapsed Panel'
+    delete splitNode.direction
+    delete splitNode.splitRatio
+    delete splitNode.children
+  }
+
+  splitNode.dragging = false
 }
 </script>
 
@@ -86,16 +140,14 @@ const onGutterDrag = (e) => {
   <!-- PANEL -->
   <div
     v-if="node.type === 'panel'"
-    class="w-full h-full relative bg-neutral-50 dark:bg-neutral-950 overflow-hidden"
+    class="w-full h-full relative bg-neutral-50 dark:bg-neutral-950 overflow-hidden transition-opacity"
   >
-    <!-- top-left label -->
     <div class="absolute top-0 left-0 bg-gray text-xs px-2 py-1 rounded-br">
       {{ node.label || 'Panel' }}
     </div>
 
-    <!-- slot content -->
-    <div class="w-full h-full flex items-center justify-center background-primary-100">
-      <slot>Example content</slot>
+    <div class="w-full h-full flex items-center justify-center">
+      <slot>{{ Date.now() }}</slot>
     </div>
 
     <!-- four draggable corners -->
@@ -112,7 +164,6 @@ const onGutterDrag = (e) => {
       @mousedown="(e) => startCornerDrag(e, corner)"
     >
       <svg class="block w-4 h-4" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
-        <!-- triangle shape -->
         <path
           v-if="corner === 'top-left'"
           d="M0,8 A8,8 0 0 1 8,0 L0,0 Z"
@@ -144,25 +195,35 @@ const onGutterDrag = (e) => {
   <!-- SPLIT -->
   <div
     v-else
-    class="w-full h-full select-none flex"
+    class="w-full h-full select-none flex transition-all"
     :class="node.direction === 'vertical' ? 'flex-row' : 'flex-col'"
     @mousemove="onGutterDrag"
     @mouseup="stopGutterDrag"
   >
-    <div class="flex-none" :style="{ flexBasis: `${node.splitRatio * 100}%` }">
+    <!-- first child -->
+    <div
+      class="flex-none transition-opacity duration-150"
+      :class="{ 'opacity-30': dragState.nearCollapse === 'left' || dragState.nearCollapse === 'top' }"
+      :style="{ flexBasis: `${node.splitRatio * 100}%` }"
+    >
       <Window :node="node.children[0]" />
     </div>
 
+    <!-- gutter -->
     <div
-      :class="
+      :class="[
         node.direction === 'vertical'
           ? 'cursor-col-resize w-1 hover:bg-neutral-300 dark:hover:bg-neutral-700 rounded-l-md'
-          : 'cursor-row-resize h-1 hover:background-primary-600'
-      "
+          : 'cursor-row-resize h-1 hover:bg-neutral-700',
+      ]"
       @mousedown="startGutterDrag"
     ></div>
 
-    <div class="flex-auto">
+    <!-- second child -->
+    <div
+      class="flex-auto transition-opacity duration-150"
+      :class="{ 'opacity-30': dragState.nearCollapse === 'right' || dragState.nearCollapse === 'bottom' }"
+    >
       <Window :node="node.children[1]" />
     </div>
   </div>
