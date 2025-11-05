@@ -27,20 +27,32 @@ onMounted(() => {
   </div>
 </template>
 
-<style>
+<style scoped>
 .BlockProtocolSection {
-  background-color: var(--color-background);
+  background-color: var(--color-secondary);
   border-radius: 0.5rem;
   margin-bottom: 0.5rem;
   padding: 0.5rem;
 }
 
 .SectionName {
-  font-size: x-large;
+  font-size: 2rem;
 }
 
 .FieldsGrid {
-  display: grid;
-  grid-template-columns: repeat(5, 20%);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.4ch;
+  /** each Field itself is padded with 0.3ch+0.3ch
+      plus gap of flex items of 0.4ch
+      ensures that all monospace byte characters stay aligned vertically
+  */
+  align-items: flex-start;
+  align-content: flex-start;
+  justify-content: flex-start;
+
+  font-family: monospace;
+  font-size: 1rem;
 }
 </style>

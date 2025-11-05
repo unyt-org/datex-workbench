@@ -31,14 +31,21 @@ function bufferToHex(buffer: ArrayBuffer) {
   </div>
 </template>
 
-<style>
-.BlockProtocolField {
-  grid-column: span 1;
-}
+<style scoped>
 
 .FieldBytes {
   background-color: var(--color-chart-3);
-  margin: 0.1rem;
+  text-align: left;
   border-radius: 0.3rem;
+  padding: 0.1ch 0.3ch;
+  /** each Field itself is padded with 0.3ch+0.3ch
+      plus gap of flex items of 0.4ch
+      ensures that all monospace byte characters stay aligned vertically
+  */
+
+  user-select: text !important; /* Force text selection so you can copy if needed*/
+  -webkit-user-select: text !important; /* Safari */
+  -moz-user-select: text !important; /* Firefox */
+  -ms-user-select: text !important; /* IE/Edge */
 }
 </style>

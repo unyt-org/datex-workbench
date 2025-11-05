@@ -2,12 +2,12 @@
 import { parseStructure } from '@unyt/speck'
 import DatexBlockSection from '@/components/DatexBlockSection.vue'
 
-const jsonData = await (
+const jsonDataExample = await (
   await fetch(
     'https://raw.githubusercontent.com/unyt-org/datex-specification/refs/heads/main/assets/structures/dxb.json',
   )
 ).json()
-const blockData: Uint8Array = new Uint8Array(
+const blockDataExample: Uint8Array = new Uint8Array(
   await (
     await fetch(
       'https://raw.githubusercontent.com/unyt-org/datex-core/main/tests/structs/receivers_with_keys/block.bin',
@@ -15,8 +15,7 @@ const blockData: Uint8Array = new Uint8Array(
   ).arrayBuffer(),
 )
 
-const structureTest = parseStructure(jsonData, blockData)
-console.log(structureTest)
+const structure = parseStructure(jsonDataExample, blockDataExample)
 </script>
 
 <!-- sections: Routing Header, Block Header, Encrypted Header, Body -->
@@ -25,7 +24,7 @@ console.log(structureTest)
 <template>
   <div class="BlockProtocolContainer">
     <DatexBlockSection
-      v-for="(section, index) in structureTest"
+      v-for="(section, index) in structure"
       :key="index"
       :section="section"
     ></DatexBlockSection>
@@ -34,8 +33,8 @@ console.log(structureTest)
 
 <style scoped>
 .BlockProtocolContainer {
-  padding: 0.5rem;
-  background-color: var(--color-muted);
   width: 100%;
+  padding: 0.7rem;
+  background-color: var(--color-background);
 }
 </style>
