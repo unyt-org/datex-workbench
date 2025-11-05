@@ -17,7 +17,7 @@ onMounted(() => {
 <template>
   <div class="BlockProtocolSection">
     <div class="SectionName">{{ section.name }}</div>
-    <div class="FieldsGrid">
+    <div class="FieldsFlexBox">
       <DatexBlockField
         v-for="(field, index) in section.fields"
         :key="index"
@@ -39,7 +39,7 @@ onMounted(() => {
   font-size: 2rem;
 }
 
-.FieldsGrid {
+.FieldsFlexBox {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
