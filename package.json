@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",
-    "@unyt/datex": "^0.0.7",
+    "@unyt/datex": "^0.0.8",
     "@vueuse/core": "^14.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
