@@ -3,6 +3,16 @@ import HeaderProvider from '@/components/HeaderProvider.vue';
 import { RouterView } from 'vue-router';
 </script>
 
+<!-- <template>
+  <HeaderProvider />
+  <SidebarProvider>
+    <RouterView />
+    <Suspense>
+      <DatexBlockProtocolViewer />
+    </Suspense>
+  </SidebarProvider>
+</template> -->
+
 <template>
     <div class="flex flex-col h-screen">
         <!-- Header -->

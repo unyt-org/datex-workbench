@@ -53,6 +53,6 @@ onMounted(() => {
   justify-content: flex-start;
 
   font-family: monospace;
-  font-size: 1rem;
+  font-size: 0.9rem;
 }
 </style>

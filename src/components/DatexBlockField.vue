@@ -51,7 +51,7 @@ const hasParsedValue = (obj: object): boolean => 'parsedValue' in obj;
     </Tooltip>
   </div>
 
-  <div v-else class="BlockProtocolField" v-for="(subField, index) in field.subFields" :key="index">
+  <div v-else v-for="(subField, index) in field.subFields" :key="index" class="BlockProtocolField">
     <Tooltip>
       <TooltipTrigger class="FieldBytes">
         <div>
@@ -59,6 +59,8 @@ const hasParsedValue = (obj: object): boolean => 'parsedValue' in obj;
         </div>
       </TooltipTrigger>
       <TooltipContent>
+        <div>{{ field.name }}</div>
+        <br />
         <div>{{ subField[0].name }}</div>
         <div v-if="hasParsedValue(subField[0])">Value: {{ subField[0].parsedValue }}</div>
       </TooltipContent>
