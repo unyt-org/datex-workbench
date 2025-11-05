@@ -2,7 +2,6 @@
 import { reactive, toRaw } from 'vue'
 import Window from './Window.vue'
 import { getNewPanelId } from "@/utils/idPanelGenerator.ts";
-import WindowGeneralView from "@/views/WindowGeneralView.vue";
 import { useLayoutTree } from "@/composable/useLayoutTree.ts";
 
 
@@ -11,17 +10,15 @@ const props = defineProps({
 })
 
 const cloneNodeWithNewId = (node) => {
-  const raw = toRaw(node)
-  const clone = {
-    ...raw,
-    id: getNewPanelId(),
+  const rawClone = structuredClone(toRaw(node))
+
+  rawClone.id = getNewPanelId()
+
+  if (rawClone.children) {
+    rawClone.children = rawClone.children.map(cloneNodeWithNewId)
   }
 
-  if (clone.children) {
-    clone.children = clone.children.map((c) => cloneNodeWithNewId(c))
-  }
-
-  return reactive(clone)
+  return reactive(rawClone)
 }
 
 const dropPreview = reactive({
@@ -154,19 +151,38 @@ const onGutterDrag = (e) => {
 }
 
 const collapseSplit = (nodeToKeep) => {
+  console.debug('[collapseSplit] called with nodeToKeep:', toRaw(nodeToKeep))
+
   const parent = findParentById(nodeToKeep.id)
-  if (!parent) return console.warn('Parent not found for collapse')
+  if (!parent) {
+    console.warn('[collapseSplit] Parent not found for node:', nodeToKeep.id)
+    return
+  }
+  console.debug('[collapseSplit] Found parent:', toRaw(parent))
 
   const index = parent.children.findIndex(c => c.id === nodeToKeep.id)
-  if (index === -1) return console.warn('Node to keep not found in parent children')
+  if (index === -1) {
+    console.warn('[collapseSplit] Node not found in parent.children', {
+      parentId: parent.id,
+      nodeId: nodeToKeep.id,
+      childIds: parent.children.map(c => c.id),
+    })
+    return
+  }
 
-  parent.children[index] = reactive(structuredClone(toRaw(nodeToKeep)))
+  // оставляем только один child
+  parent.children = [reactive(structuredClone(toRaw(nodeToKeep)))]
+  console.debug('[collapseSplit] Parent children replaced with one node')
 
+  // если сам parent теперь split и остался один ребёнок — схлопываем
   if (parent.type === 'split' && parent.children.length === 1) {
     const single = parent.children[0]
+    console.debug('[collapseSplit] Collapsing single-child split', toRaw(single))
+
     parent.type = single.type
     parent.label = single.label
     parent.data = single.data
+
     if (single.type === 'split') {
       parent.direction = single.direction
       parent.splitRatio = single.splitRatio
@@ -177,6 +193,8 @@ const collapseSplit = (nodeToKeep) => {
       delete parent.children
     }
   }
+
+  console.debug('[collapseSplit] Final parent:', toRaw(parent))
 }
 
 const chooseAreaForDrop = (x, y) => {
@@ -243,12 +261,43 @@ const onDrop = (e: DragEvent) => {
 
   // --- Replace (center drop)
   if (mode === 'replace') {
+    console.debug('[onDrop] Replace mode triggered', { sourceId, targetId: props.node.id })
+
+    const sourceParent = findParentById(sourceId)
+    console.debug('[onDrop] Found sourceParent:', toRaw(sourceParent))
+
     props.node.type = sourceNode.type
     props.node.label = sourceNode.label
     props.node.data = structuredClone(toRaw(sourceNode.data))
-    props.node.id = sourceNode.id
+    props.node.id = getNewPanelId()
+    console.debug('[onDrop] Replaced target node with source node data')
 
-    collapseSplit(sourceNode, 0)
+    if (sourceParent) {
+      sourceParent.children = sourceParent.children.filter(c => c.id !== sourceId)
+      console.debug('[onDrop] Removed sourceNode from its parent')
+
+      if (sourceParent.type === 'split' && sourceParent.children.length === 1) {
+        const single = sourceParent.children[0]
+        sourceParent.type = single.type
+        sourceParent.label = single.label
+        sourceParent.data = single.data
+
+        if (single.type === 'split') {
+          sourceParent.direction = single.direction
+          sourceParent.splitRatio = single.splitRatio
+          sourceParent.children = single.children
+        } else {
+          delete sourceParent.direction
+          delete sourceParent.splitRatio
+          delete sourceParent.children
+        }
+
+        console.debug('[onDrop] Collapsed sourceParent because only one child remained')
+      }
+    } else {
+      console.warn('[onDrop] Source parent not found — nothing collapsed')
+    }
+
     return
   }
 
@@ -326,7 +375,7 @@ const findNodeById = (node, id) => {
          px-2 select-none cursor-grab active:cursor-grabbing"
       draggable="true"
       @dragstart="(e) => {
-    e.dataTransfer?.setData('text/plain', node.id || 'panel')
+    e.dataTransfer?.setData('text/plain', node.id)
   }"
     >
       <div class="flex items-center gap-1">
@@ -340,7 +389,7 @@ const findNodeById = (node, id) => {
           <circle cx="10" cy="10" r="2"/>
           <circle cx="15" cy="10" r="2"/>
         </svg>
-        <span>{{ node.label || 'Panel' }}</span>
+        <span>{{ node.id}}</span>
       </div>
     </div>
 
