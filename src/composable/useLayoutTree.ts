@@ -1,6 +1,6 @@
-import { reactive, toRaw } from 'vue'
-import { getNewPanelId } from '@/utils/idPanelGenerator'
 import { type LayoutNode, NodeType, type PanelNode, type SplitNode } from '@/types/layout'
+import { getNewPanelId } from '@/utils/idPanelGenerator.ts'
+import { reactive, toRaw } from 'vue'
 
 /** Default type for panel data */
 type DefaultData = Record<string, any>
