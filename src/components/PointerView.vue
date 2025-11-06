@@ -46,6 +46,17 @@ const TYPE_CONFIGS: Record<string, TypeConfig> = {
     isExpandable: false
   },
   
+  'endpoint': {
+    displayName: 'endpoint',
+    preview: (value: any) => {
+      // Handle endpoint object or string representation
+      if (typeof value === 'string') return value
+      if (value && typeof value === 'object' && 'name' in value) return `@${value.name}`
+      return String(value)
+    },
+    isExpandable: false
+  },
+  
   'boolean': {
     displayName: 'boolean',
     preview: (value: boolean) => value ? 'true' : 'false',
@@ -111,7 +122,13 @@ function getTypeName(difContainer: DIF.Definitions.DIFContainer): string {
   if (typeof value === 'number') return Number.isInteger(value) ? 'integer' : 'decimal'
   if (Array.isArray(value)) return 'list'
   if (value instanceof Map) return 'map'
-  if (typeof value === 'object') return 'object'
+  if (typeof value === 'object') {
+    // Check if it's an endpoint (has typical endpoint properties)
+    if ('name' in value || 'endpoint' in value || 'location' in value) {
+      return 'endpoint'
+    }
+    return 'object'
+  }
   
   return 'object'
 }
