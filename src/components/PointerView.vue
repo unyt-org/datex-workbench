@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import type { HTMLAttributes } from 'vue'
 import { Input } from '@/components/ui/input'
-import { Search } from 'lucide-vue-next'
+import { Search, ChevronRight, ChevronDown } from 'lucide-vue-next'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sidebar,
@@ -11,13 +11,12 @@ import {
   SidebarGroupContent,
   SidebarMenu,
 } from '@/components/ui/sidebar'
-import TreeNode from './TreeNode.vue'
-import type { PointerNode } from '@/types/pointer'
+import type { DIF } from '@/lib/runtime'
 
 // Props interface
 interface PointerViewProps {
   class?: HTMLAttributes['class']
-  pointers: PointerNode[]
+  pointers: Map<string, DIF.Definitions.DIFContainer>
   selectedPointerId?: string | null
   searchPlaceholder?: string
   defaultExpanded?: boolean
@@ -27,14 +26,124 @@ interface PointerViewProps {
 const props = withDefaults(defineProps<PointerViewProps>(), {
   searchPlaceholder: 'Search...',
   defaultExpanded: false,
-  pointers: () => [],
 })
+
+// ========================================
+// DIF Type Helpers
+// ========================================
+
+// Supported type configuration - easy to extend
+interface TypeConfig {
+  displayName: string
+  preview: (value: any) => string
+  isExpandable: boolean
+}
+
+const TYPE_CONFIGS: Record<string, TypeConfig> = {
+  'text': {
+    displayName: 'text',
+    preview: (value: string) => value.length > 30 ? `"${value.substring(0, 30)}..."` : `"${value}"`,
+    isExpandable: false
+  },
+  
+  'boolean': {
+    displayName: 'boolean',
+    preview: (value: boolean) => value ? 'true' : 'false',
+    isExpandable: false
+  },
+  
+  'integer': {
+    displayName: 'integer',
+    preview: (value: number) => String(value),
+    isExpandable: false
+  },
+  
+  'decimal': {
+    displayName: 'decimal',
+    preview: (value: number) => String(value),
+    isExpandable: false
+  },
+  
+  'null': {
+    displayName: 'null',
+    preview: () => 'null',
+    isExpandable: false
+  },
+  
+  'list': {
+    displayName: 'list',
+    preview: (value: any[]) => `[${value.length}]`,
+    isExpandable: true
+  },
+  
+  'map': {
+    displayName: 'map',
+    preview: (value: any[]) => `Map(${value.length})`,
+    isExpandable: true
+  },
+  
+  'object': {
+    displayName: 'object',
+    preview: (value: Record<string, any>) => {
+      const keys = Object.keys(value)
+      return keys.length > 0 ? `{${keys.length} properties}` : '{...}'
+    },
+    isExpandable: true
+  },
+  
+  'pointer': {
+    displayName: 'pointer',
+    preview: (value: string) => value,
+    isExpandable: false
+  },
+}
+
+// Get type name from DIF value
+function getTypeName(difContainer: DIF.Definitions.DIFContainer): string {
+  if (typeof difContainer === 'string') return 'pointer'
+  
+  // Since DIF type is undefined, we need to infer from the value
+  const value = difContainer.value
+  
+  if (value === null || value === undefined) return 'null'
+  if (typeof value === 'string') return 'text'
+  if (typeof value === 'boolean') return 'boolean'
+  if (typeof value === 'number') return Number.isInteger(value) ? 'integer' : 'decimal'
+  if (Array.isArray(value)) return 'list'
+  if (value instanceof Map) return 'map'
+  if (typeof value === 'object') return 'object'
+  
+  return 'object'
+}
+
+// Get display name for a type
+function getTypeDisplayName(typeName: string): string {
+  return TYPE_CONFIGS[typeName]?.displayName || typeName
+}
+
+// Check if a pointer is expandable
+function isExpandable(difContainer: DIF.Definitions.DIFContainer): boolean {
+  const typeName = getTypeName(difContainer)
+  return TYPE_CONFIGS[typeName]?.isExpandable ?? false
+}
+
+// Get preview value for display
+function getValuePreview(difContainer: DIF.Definitions.DIFContainer): string {
+  if (typeof difContainer === 'string') {
+    return difContainer
+  }
+  
+  const value = difContainer.value
+  const typeName = getTypeName(difContainer)
+  
+  return TYPE_CONFIGS[typeName]?.preview(value) || String(value)
+}
 
 
 // Emits to communicate with parent
 const emit = defineEmits<{
-  'node-click': [node: PointerNode]
-  'node-expand': [nodeId: string, expanded: boolean]
+  'pointer-click': [pointerId: string, value: DIF.Definitions.DIFContainer]
+  'pointer-expand': [pointerId: string, expanded: boolean]
   'search': [query: string]
   'update:selectedPointerId': [id: string | null]
 }>()
@@ -43,7 +152,7 @@ const emit = defineEmits<{
 
 // State
 const searchQuery = ref('')
-const expandedNodes = ref<Set<string>>(new Set())
+const expandedPointers = ref<Set<string>>(new Set())
 
 // Computed values
 const normalizedSearchQuery = computed(() => searchQuery.value.trim().toLowerCase())
@@ -57,62 +166,21 @@ const hasSearchQuery = computed(() => searchTokens.value.length > 0)
 // ========================================
 
 /**
- * Recursively filters tree nodes based on search query
- * A node is included if:
- * 1. Its label matches the search
- * 2. Any of its children match the search
- */
-function filterNodes(nodes: PointerNode[]): PointerNode[] {
-  if (!hasSearchQuery.value) {
-    return nodes // No search query, return all nodes
-  }
-
-  return nodes.reduce((filtered: PointerNode[], node) => {
-    // Check if this node's label matches any search token
-    const labelLower = node.label.toLowerCase()
-    const nodeMatches = searchTokens.value.some(token => 
-      labelLower.includes(token)
-    )
-
-    // Recursively filter children
-    const filteredChildren = node.children 
-      ? filterNodes(node.children) 
-      : []
-
-    // Include this node if:
-    // - The node itself matches, OR
-    // - Any of its children match
-    if (nodeMatches || filteredChildren.length > 0) {
-      filtered.push({
-        ...node,
-        children: filteredChildren.length > 0 ? filteredChildren : node.children
-      })
-    }
-
-    return filtered
-  }, [])
-}
-
-/**
- * Filtered pointers based on search query
- * Auto-expands matching nodes when searching
+ * Filters pointers Map based on search query
+ * A pointer is included if its ID matches the search
  */
 const filteredPointers = computed(() => {
-  const filtered = filterNodes(props.pointers)
-  
-  // Auto-expand all nodes when searching to show matches
-  if (hasSearchQuery.value && filtered.length > 0) {
-    const expandAll = (nodes: PointerNode[]) => {
-      nodes.forEach(node => {
-        expandedNodes.value.add(node.id)
-        if (node.children) {
-          expandAll(node.children)
-        }
-      })
-    }
-    expandAll(filtered)
+  if (!hasSearchQuery.value) {
+    return props.pointers
   }
-  
+
+  const filtered = new Map<string, DIF.Definitions.DIFContainer>()
+  for (const [pointerId, value] of props.pointers) {
+    const idLower = pointerId.toLowerCase()
+    if (searchTokens.value.some(token => idLower.includes(token))) {
+      filtered.set(pointerId, value)
+    }
+  }
   return filtered
 })
 
@@ -123,26 +191,53 @@ function handleSearchInput(event: Event) {
   emit('search', target.value)
 }
 
-// Toggle node expansion
-function toggleNode(nodeId: string) {
-  if (expandedNodes.value.has(nodeId)) {
-    expandedNodes.value.delete(nodeId)
-    emit('node-expand', nodeId, false)
+// Toggle pointer expansion
+function togglePointer(pointerId: string, event?: Event) {
+  // Stop propagation to prevent triggering click handler
+  event?.stopPropagation()
+  
+  if (expandedPointers.value.has(pointerId)) {
+    expandedPointers.value.delete(pointerId)
+    emit('pointer-expand', pointerId, false)
   } else {
-    expandedNodes.value.add(nodeId)
-    emit('node-expand', nodeId, true)
+    expandedPointers.value.add(pointerId)
+    emit('pointer-expand', pointerId, true)
   }
 }
 
-// Handle node click
-function handleNodeClick(node: PointerNode) {
-  emit('node-click', node)
-  emit('update:selectedPointerId', node.id)
+// Handle pointer click
+function handlePointerClick(pointerId: string, value: DIF.Definitions.DIFContainer) {
+  emit('pointer-click', pointerId, value)
+  emit('update:selectedPointerId', pointerId)
 }
 
-// Check if node is expanded
-function isExpanded(nodeId: string): boolean {
-  return expandedNodes.value.has(nodeId)
+// Check if pointer is expanded
+function isExpanded(pointerId: string): boolean {
+  return expandedPointers.value.has(pointerId)
+}
+
+/**
+ * Get children entries for an expanded pointer
+ */
+function getChildren(difContainer: DIF.Definitions.DIFContainer): Array<[string, DIF.Definitions.DIFValueContainer]> {
+  if (typeof difContainer === 'string') return []
+  
+  const value = difContainer.value
+  
+  // Check the actual value type to determine how to extract children
+  if (Array.isArray(value)) {
+    return (value as DIF.Definitions.DIFArray).map((item, index) => [String(index), item])
+  }
+  
+  if (value instanceof Map) {
+    return Array.from((value as Map<any, any>).entries()).map(([k, v], index) => [`[${index}]`, v])
+  }
+  
+  if (typeof value === 'object' && value !== null) {
+    return Object.entries(value as DIF.Definitions.DIFObject)
+  }
+  
+  return []
 }
 
 defineExpose({
@@ -150,7 +245,7 @@ defineExpose({
   normalizedSearchQuery,
   searchTokens,
   hasSearchQuery,
-  expandedNodes,
+  expandedPointers,
 })
 </script>
 
@@ -187,23 +282,66 @@ defineExpose({
             <SidebarGroupContent>
               <SidebarMenu>
                 <!-- 
-                  Render filtered pointers based on search query
-                  TreeNode will handle rendering all nested children automatically!
+                  Render pointers from the Map
+                  Display top-level pointers with expand/collapse functionality
                 -->
-                <TreeNode
-                  v-for="pointer in filteredPointers"
-                  :key="pointer.id"
-                  :node="pointer"
-                  :level="0"
-                  :selected-node-id="selectedPointerId"
-                  :expanded-nodes="expandedNodes"
-                  @toggle="toggleNode"
-                  @click="handleNodeClick"
-                />
+                <div
+                  v-for="[pointerId, value] in filteredPointers"
+                  :key="pointerId"
+                >
+                  <!-- Top-level pointer -->
+                  <div
+                    class="flex items-center gap-1 p-2 hover:bg-accent cursor-pointer rounded-md"
+                    :class="{ 'bg-accent': selectedPointerId === pointerId }"
+                    @click="handlePointerClick(pointerId, value)"
+                  >
+                    <!-- Expand/Collapse chevron for expandable items -->
+                    <button
+                      v-if="isExpandable(value)"
+                      @click="togglePointer(pointerId, $event)"
+                      class="shrink-0 hover:bg-accent-foreground/10 rounded p-0.5"
+                    >
+                      <ChevronRight
+                        v-if="!isExpanded(pointerId)"
+                        class="h-4 w-4"
+                      />
+                      <ChevronDown
+                        v-else
+                        class="h-4 w-4"
+                      />
+                    </button>
+                    <div v-else class="w-5 shrink-0"></div>
+                    
+                    <!-- Pointer ID and preview -->
+                    <div class="flex items-center gap-2 flex-1 min-w-0">
+                      <span class="font-mono text-sm text-primary">{{ pointerId }}</span>
+                      <span class="text-xs text-muted-foreground">{{ getTypeName(value) }}</span>
+                      <span class="text-sm text-foreground/70 truncate">{{ getValuePreview(value) }}</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Children (when expanded) -->
+                  <div
+                    v-if="isExpanded(pointerId) && isExpandable(value)"
+                    class="ml-6 border-l border-border pl-2"
+                  >
+                    <div
+                      v-for="[childKey, childValue] in getChildren(value)"
+                      :key="childKey"
+                      class="p-2 hover:bg-accent/50 cursor-pointer rounded-md"
+                    >
+                      <div class="flex items-center gap-2">
+                        <span class="text-sm font-medium">{{ childKey }}:</span>
+                        <span class="text-xs text-muted-foreground">{{ getTypeName(childValue) }}</span>
+                        <span class="text-sm text-foreground/70 truncate">{{ getValuePreview(childValue) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 
                 <!-- Empty state when no results -->
                 <div 
-                  v-if="hasSearchQuery && filteredPointers.length === 0"
+                  v-if="hasSearchQuery && filteredPointers.size === 0"
                   class="p-4 text-sm text-muted-foreground text-center"
                 >
                   No results found for "{{ searchQuery }}"

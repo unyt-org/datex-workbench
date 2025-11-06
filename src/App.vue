@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
+import { ref, onMounted } from 'vue'
 import HeaderProvider from '@/components/HeaderProvider.vue'
 import PointerView from '@/components/PointerView.vue'
 import {
@@ -10,146 +11,14 @@ import {
   SidebarProvider,
   SidebarInset,
 } from '@/components/ui/sidebar'
+import { getPointers, type DIF } from '@/lib/runtime'
 
-// ========================================
-// 🎨 Sample Data for Testing PointerView
-// ========================================
-// This matches the design from your screenshot
-const samplePointers = [
-  {
-    id: 'dept-1',
-    label: 'Departments',
-    path: '/departments',
-    children: [
-      {
-        id: 'electronics',
-        label: 'Electronics',
-        path: '/departments/electronics',
-        children: [
-          {
-            id: 'mobile-div',
-            label: 'Mobile Division',
-            path: '/departments/electronics/mobile',
-            children: [
-              {
-                id: 'john-doe',
-                label: 'John Doe',
-                path: '/employees/john-doe',
-                valuePreview: '#10b981', // Green color
-              },
-              {
-                id: 'nucky-thompson',
-                label: 'Nucky Thompson',
-                path: '/employees/nucky-thompson',
-                valuePreview: '#f59e0b', // Orange color
-              },
-              {
-                id: 'nucky-thompson',
-                label: 'Nucky Thompson',
-                path: '/employees/nucky-thompson',
-                valuePreview: '#f59e0b', // Orange color
-              },
-              {
-                id: 'nucky-thompson',
-                label: 'Nucky Thompson',
-                path: '/employees/nucky-thompson',
-                valuePreview: '#f59e0b', // Orange color
-              },
-              {
-                id: 'nucky-thompson',
-                label: 'Nucky Thompson',
-                path: '/employees/nucky-thompson',
-                valuePreview: '#f59e0b', // Orange color
-              }
-            ]
-          },
-          {
-            id: 'laptop',
-            label: 'Laptop',
-            path: '/departments/electronics/laptop',
-          },
-          {
-            id: 'monitors',
-            label: 'Monitors',
-            path: '/departments/electronics/monitors',
-          },
-          {
-            id: 'monitors',
-            label: 'Monitors',
-            path: '/departments/electronics/monitors',
-          },
-          {
-            id: 'monitors',
-            label: 'Monitors',
-            path: '/departments/electronics/monitors',
-          },
-          {
-            id: 'monitors',
-            label: 'Monitors',
-            path: '/departments/electronics/monitors',
-          },
-          {
-            id: 'monitors',
-            label: 'Monitors',
-            path: '/departments/electronics/monitors',
-          }
-        ]
-      },
-      {
-        id: 'food-beverage',
-        label: 'Food & Beverage',
-        path: '/departments/food-beverage',
-        children: [
-          {
-            id: 'grocery',
-            label: 'Grocery & Gourmet Food',
-            path: '/departments/food-beverage/grocery',
-          }
-        ]
-      },
-      {
-        id: 'health-beauty',
-        label: 'Health & Beauty',
-        path: '/departments/health-beauty',
-      },
-      {
-        id: 'home-kitchen',
-        label: 'Home & Kitchen',
-        path: '/departments/home-kitchen',
-      },
-      {
-        id: 'home-improvement',
-        label: 'Home Improvement',
-        path: '/departments/home-improvement',
-      },
-      {
-        id: 'industrial',
-        label: 'Industrial & Scientific',
-        path: '/departments/industrial',
-      },
-      {
-        id: 'office',
-        label: 'Office Products',
-        path: '/departments/office',
-      },
-      {
-        id: 'patio',
-        label: 'Patio lawn & Garden',
-        path: '/departments/patio',
-      },
-      {
-        id: 'pet',
-        label: 'Pet Supplies',
-        path: '/departments/pet',
-      },
-      {
-        id: 'sports',
-        label: 'Sports & Outdoors',
-        path: '/departments/sports',
-      }
-    ]
-  }
-]
+// Get pointers from runtime
+const pointers = ref<Map<string, DIF.Definitions.DIFContainer>>(new Map())
+
+onMounted(() => {
+  pointers.value = getPointers()
+})
 </script>
 
 <!-- <template>
