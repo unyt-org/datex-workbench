@@ -1,8 +1,17 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import type { HTMLAttributes } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Search } from 'lucide-vue-next'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarRail,
+} from '@/components/ui/sidebar'
+import TreeNode from './TreeNode.vue'
 
 interface PointerNode {
   id: string
@@ -26,10 +35,11 @@ interface PointerViewProps {
 const props = withDefaults(defineProps<PointerViewProps>(), {
   searchPlaceholder: 'Search...',
   defaultExpanded: false,
+  pointers: () => [],
 })
 
 
-// Emits to communcate with parent
+// Emits to communicate with parent
 const emit = defineEmits<{
   'node-click': [node: PointerNode]
   'node-expand': [nodeId: string, expanded: boolean]
@@ -41,6 +51,58 @@ const emit = defineEmits<{
 
 // State
 const searchQuery = ref('')
+const expandedNodes = ref<Set<string>>(new Set())
+
+// ========================================
+// 🎯 Resizable Sidebar Logic
+// ========================================
+const sidebarWidth = ref(300) // Initial width in pixels
+const minWidth = 200 // Minimum width
+const maxWidth = 600 // Maximum width
+const isResizing = ref(false)
+const resizeHandle = ref<HTMLElement | null>(null)
+
+// Start resizing
+function startResize(e: MouseEvent) {
+  isResizing.value = true
+  e.preventDefault()
+  document.body.style.cursor = 'col-resize'
+  document.body.style.userSelect = 'none'
+}
+
+// Handle mouse move during resize
+function handleResize(e: MouseEvent) {
+  if (!isResizing.value) return
+  
+  // Calculate new width based on mouse position
+  const newWidth = e.clientX
+  
+  // Clamp width between min and max
+  if (newWidth >= minWidth && newWidth <= maxWidth) {
+    sidebarWidth.value = newWidth
+  }
+}
+
+// Stop resizing
+function stopResize() {
+  isResizing.value = false
+  document.body.style.cursor = ''
+  document.body.style.userSelect = ''
+}
+
+// Add event listeners on mount
+onMounted(() => {
+  document.addEventListener('mousemove', handleResize)
+  document.addEventListener('mouseup', stopResize)
+})
+
+// Remove event listeners on unmount
+onUnmounted(() => {
+  document.removeEventListener('mousemove', handleResize)
+  document.removeEventListener('mouseup', stopResize)
+})
+
+// Computed values
 const normalizedSearchQuery = computed(() => searchQuery.value.trim().toLowerCase())
 const searchTokens = computed(() =>
   normalizedSearchQuery.value ? normalizedSearchQuery.value.split(/\s+/) : []
@@ -54,43 +116,98 @@ function handleSearchInput(event: Event) {
   emit('search', target.value)
 }
 
+// Toggle node expansion
+function toggleNode(nodeId: string) {
+  if (expandedNodes.value.has(nodeId)) {
+    expandedNodes.value.delete(nodeId)
+    emit('node-expand', nodeId, false)
+  } else {
+    expandedNodes.value.add(nodeId)
+    emit('node-expand', nodeId, true)
+  }
+}
+
+// Handle node click
+function handleNodeClick(node: PointerNode) {
+  emit('node-click', node)
+  emit('update:selectedPointerId', node.id)
+}
+
+// Check if node is expanded
+function isExpanded(nodeId: string): boolean {
+  return expandedNodes.value.has(nodeId)
+}
+
 defineExpose({
   searchQuery,
   normalizedSearchQuery,
   searchTokens,
   hasSearchQuery,
+  expandedNodes,
 })
-// TODO: Implement tree expansion logic
-// TODO: Implement observer for view updates
 </script>
 
 <template>
   <div 
-    class="pointer-view flex flex-col h-full bg-background"
+    class="relative flex"
     :class="props.class"
   >
-    <!-- Search Field with Icon -->
-    <div class="p-4 border-b border-border">
-      <div class="relative">
-        <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-        <Input
-          v-model="searchQuery"
-          type="text"
-          :placeholder="props.searchPlaceholder"
-          class="pl-9"
-          @input="handleSearchInput"
-        />
-      </div>
-    </div>
+    <!-- Resizable Sidebar -->
+    <Sidebar 
+      collapsible="none"
+      :style="{ width: `${sidebarWidth}px` }"
+      class="border-r border-border"
+    >
+      <SidebarContent class="gap-0">
+        <!-- Search Header -->
+        <SidebarGroup class="py-0">
+          <div class="p-4">
+            <div class="relative">
+              <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+              <Input
+                v-model="searchQuery"
+                type="text"
+                :placeholder="props.searchPlaceholder"
+                class="pl-9 bg-sidebar-accent"
+                @input="handleSearchInput"
+              />
+            </div>
+          </div>
+        </SidebarGroup>
 
-    <!-- TODO: Add expandable tree with shadcn/ui components -->
-    <!-- TODO: Add scrollable container -->
-    <div class="text-sm text-muted-foreground p-4">
-      Search query: {{ searchQuery }}
-      <br />
-      Normalized: {{ normalizedSearchQuery }}
-      <br />
-      Tokens: {{ searchTokens.join(', ') }}
-    </div>
+        <!-- Tree Structure -->
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <!-- 
+                Render each top-level pointer using the recursive TreeNode component
+                TreeNode will handle rendering all nested children automatically!
+              -->
+              <TreeNode
+                v-for="pointer in pointers"
+                :key="pointer.id"
+                :node="pointer"
+                :level="0"
+                :selected-node-id="selectedPointerId"
+                :expanded-nodes="expandedNodes"
+                @toggle="toggleNode"
+                @click="handleNodeClick"
+              />
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
+    
+    <!-- 
+      Resize Handle 
+      This is the draggable area on the right edge of the sidebar
+    -->
+    <div
+      ref="resizeHandle"
+      class="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-primary/20 transition-colors z-10"
+      :class="{ 'bg-primary/30': isResizing }"
+      @mousedown="startResize"
+    />
   </div>
 </template>
