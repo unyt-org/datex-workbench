@@ -42,6 +42,24 @@ const samplePointers = [
                 label: 'Nucky Thompson',
                 path: '/employees/nucky-thompson',
                 valuePreview: '#f59e0b', // Orange color
+              },
+              {
+                id: 'nucky-thompson',
+                label: 'Nucky Thompson',
+                path: '/employees/nucky-thompson',
+                valuePreview: '#f59e0b', // Orange color
+              },
+              {
+                id: 'nucky-thompson',
+                label: 'Nucky Thompson',
+                path: '/employees/nucky-thompson',
+                valuePreview: '#f59e0b', // Orange color
+              },
+              {
+                id: 'nucky-thompson',
+                label: 'Nucky Thompson',
+                path: '/employees/nucky-thompson',
+                valuePreview: '#f59e0b', // Orange color
               }
             ]
           },
@@ -49,6 +67,26 @@ const samplePointers = [
             id: 'laptop',
             label: 'Laptop',
             path: '/departments/electronics/laptop',
+          },
+          {
+            id: 'monitors',
+            label: 'Monitors',
+            path: '/departments/electronics/monitors',
+          },
+          {
+            id: 'monitors',
+            label: 'Monitors',
+            path: '/departments/electronics/monitors',
+          },
+          {
+            id: 'monitors',
+            label: 'Monitors',
+            path: '/departments/electronics/monitors',
+          },
+          {
+            id: 'monitors',
+            label: 'Monitors',
+            path: '/departments/electronics/monitors',
           },
           {
             id: 'monitors',

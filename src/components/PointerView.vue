@@ -3,6 +3,7 @@ import { computed, ref, onMounted, onUnmounted } from 'vue'
 import type { HTMLAttributes } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Search } from 'lucide-vue-next'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sidebar,
   SidebarContent,
@@ -175,27 +176,29 @@ defineExpose({
           </div>
         </SidebarGroup>
 
-        <!-- Tree Structure (Scrollable) -->
-        <SidebarGroup class="flex-1 overflow-y-auto">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <!-- 
-                Render each top-level pointer using the recursive TreeNode component
-                TreeNode will handle rendering all nested children automatically!
-              -->
-              <TreeNode
-                v-for="pointer in pointers"
-                :key="pointer.id"
-                :node="pointer"
-                :level="0"
-                :selected-node-id="selectedPointerId"
-                :expanded-nodes="expandedNodes"
-                @toggle="toggleNode"
-                @click="handleNodeClick"
-              />
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <!-- Tree Structure (Scrollable with ScrollArea) -->
+        <ScrollArea class="flex-1">
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <!-- 
+                  Render each top-level pointer using the recursive TreeNode component
+                  TreeNode will handle rendering all nested children automatically!
+                -->
+                <TreeNode
+                  v-for="pointer in pointers"
+                  :key="pointer.id"
+                  :node="pointer"
+                  :level="0"
+                  :selected-node-id="selectedPointerId"
+                  :expanded-nodes="expandedNodes"
+                  @toggle="toggleNode"
+                  @click="handleNodeClick"
+                />
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </ScrollArea>
       </SidebarContent>
     </Sidebar>
     
