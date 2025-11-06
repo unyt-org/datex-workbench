@@ -1,34 +1,99 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { HTMLAttributes } from 'vue'
+
+interface PointerNode {
+  id: string
+  label: string
+  path: string
+  type?: string
+  valuePreview?: string
+  children?: PointerNode[]
+}
 
 // Props interface
 interface PointerViewProps {
   class?: HTMLAttributes['class']
-  // TODO: Define props for pointer data
+  pointers: PointerNode[]
+  selectedPointerId?: string | null
+  searchPlaceholder?: string
+  defaultExpanded?: boolean
 }
 
 // Define props with defaults
-const props = defineProps<PointerViewProps>()
+const props = withDefaults(defineProps<PointerViewProps>(), {
+  searchPlaceholder: 'Search...',
+  defaultExpanded: false,
+})
+
+
+// Emits to communcate with parent
+const emit = defineEmits<{
+  'node-click': [node: PointerNode]
+  'node-expand': [nodeId: string, expanded: boolean]
+  'search': [query: string]
+  'update:selectedPointerId': [id: string | null]
+}>()
+
+
 
 // State
 const searchQuery = ref('')
+const normalizedSearchQuery = computed(() => searchQuery.value.trim().toLowerCase())
+const searchTokens = computed(() =>
+  normalizedSearchQuery.value ? normalizedSearchQuery.value.split(/\s+/) : []
+)
+const hasSearchQuery = computed(() => searchTokens.value.length > 0)
 
-// TODO: Implement search reactivity
+// Search handler - emits to parent for external state management if needed
+function handleSearchInput(event: Event) {
+  const target = event.target as HTMLInputElement
+  searchQuery.value = target.value
+  emit('search', target.value)
+}
+
+defineExpose({
+  searchQuery,
+  normalizedSearchQuery,
+  searchTokens,
+  hasSearchQuery,
+})
 // TODO: Implement tree expansion logic
 // TODO: Implement observer for view updates
 </script>
 
 <template>
   <div 
-    class="pointer-view flex flex-col h-full"
+    class="pointer-view flex flex-col h-full bg-background"
     :class="props.class"
   >
-    <!-- TODO: Add search field with shadcn/ui Input component -->
+    <!-- Search Field -->
+    <div class="p-4 border-b border-border">
+      <div class="relative">
+        <!-- Search Icon -->
+        <Search 
+          class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" 
+        />
+        
+        <!-- Input Field with v-model for two-way binding -->
+        <Input
+          v-model="searchQuery"
+          type="text"
+          :placeholder="props.searchPlaceholder"
+          class="pl-9 bg-secondary/50 border-border focus-visible:ring-primary"
+          @input="handleSearchInput"
+        />
+      </div>
+    </div>
+
     <!-- TODO: Add expandable tree with shadcn/ui components -->
     <!-- TODO: Add scrollable container -->
     <div class="text-sm text-muted-foreground p-4">
-      PointerView component - Implementation in progress
+      Search query: {{ searchQuery }}
+      <br />
+      Normalized: {{ normalizedSearchQuery }}
+      <br />
+      Tokens: {{ searchTokens.join(', ') }}
     </div>
   </div>
 </template>
