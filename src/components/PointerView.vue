@@ -13,15 +13,7 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar'
 import TreeNode from './TreeNode.vue'
-
-interface PointerNode {
-  id: string
-  label: string
-  path: string
-  type?: string
-  valuePreview?: string
-  children?: PointerNode[]
-}
+import type { PointerNode } from '@/types/pointer'
 
 // Props interface
 interface PointerViewProps {
@@ -110,6 +102,70 @@ const searchTokens = computed(() =>
 )
 const hasSearchQuery = computed(() => searchTokens.value.length > 0)
 
+// ========================================
+// Search Filtering Logic
+// ========================================
+
+/**
+ * Recursively filters tree nodes based on search query
+ * A node is included if:
+ * 1. Its label matches the search
+ * 2. Any of its children match the search
+ */
+function filterNodes(nodes: PointerNode[]): PointerNode[] {
+  if (!hasSearchQuery.value) {
+    return nodes // No search query, return all nodes
+  }
+
+  return nodes.reduce((filtered: PointerNode[], node) => {
+    // Check if this node's label matches any search token
+    const labelLower = node.label.toLowerCase()
+    const nodeMatches = searchTokens.value.some(token => 
+      labelLower.includes(token)
+    )
+
+    // Recursively filter children
+    const filteredChildren = node.children 
+      ? filterNodes(node.children) 
+      : []
+
+    // Include this node if:
+    // - The node itself matches, OR
+    // - Any of its children match
+    if (nodeMatches || filteredChildren.length > 0) {
+      filtered.push({
+        ...node,
+        children: filteredChildren.length > 0 ? filteredChildren : node.children
+      })
+    }
+
+    return filtered
+  }, [])
+}
+
+/**
+ * Filtered pointers based on search query
+ * Auto-expands matching nodes when searching
+ */
+const filteredPointers = computed(() => {
+  const filtered = filterNodes(props.pointers)
+  
+  // Auto-expand all nodes when searching to show matches
+  if (hasSearchQuery.value && filtered.length > 0) {
+    const expandAll = (nodes: PointerNode[]) => {
+      nodes.forEach(node => {
+        expandedNodes.value.add(node.id)
+        if (node.children) {
+          expandAll(node.children)
+        }
+      })
+    }
+    expandAll(filtered)
+  }
+  
+  return filtered
+})
+
 // Search handler - emits to parent for external state management if needed
 function handleSearchInput(event: Event) {
   const target = event.target as HTMLInputElement
@@ -182,11 +238,11 @@ defineExpose({
             <SidebarGroupContent>
               <SidebarMenu>
                 <!-- 
-                  Render each top-level pointer using the recursive TreeNode component
+                  Render filtered pointers based on search query
                   TreeNode will handle rendering all nested children automatically!
                 -->
                 <TreeNode
-                  v-for="pointer in pointers"
+                  v-for="pointer in filteredPointers"
                   :key="pointer.id"
                   :node="pointer"
                   :level="0"
@@ -195,6 +251,14 @@ defineExpose({
                   @toggle="toggleNode"
                   @click="handleNodeClick"
                 />
+                
+                <!-- Empty state when no results -->
+                <div 
+                  v-if="hasSearchQuery && filteredPointers.length === 0"
+                  class="p-4 text-sm text-muted-foreground text-center"
+                >
+                  No results found for "{{ searchQuery }}"
+                </div>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

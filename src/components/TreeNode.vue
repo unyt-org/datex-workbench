@@ -6,16 +6,7 @@ import {
   SidebarMenuButton,
   SidebarMenuSub,
 } from '@/components/ui/sidebar'
-
-// This defines what a "node" in our tree looks like
-interface PointerNode {
-  id: string           
-  label: string        
-  path: string         
-  type?: string        
-  valuePreview?: string 
-  children?: PointerNode[] 
-}
+import type { PointerNode } from '@/types/pointer'
 
 // ========================================
 // Component Props
