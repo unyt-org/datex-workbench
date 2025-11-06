@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { parseStructure } from '@unyt/speck'
 import DatexBlockSection from '@/components/DatexBlockSection.vue'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 
 const jsonDataExample = await (
   await fetch(
@@ -14,7 +20,6 @@ const blockDataExample: Uint8Array = new Uint8Array(
     )
   ).arrayBuffer(),
 )
-
 const structure = parseStructure(jsonDataExample, blockDataExample)
 </script>
 
@@ -22,13 +27,16 @@ const structure = parseStructure(jsonDataExample, blockDataExample)
 <!-- fields in sections: Magic Number, Checksum, TTL, ... -->
 
 <template>
-  <div class="BlockProtocolContainer">
-    <DatexBlockSection
-      v-for="(section, index) in structure"
-      :key="index"
-      :section="section"
-    ></DatexBlockSection>
-  </div>
+  <Accordion type="multiple" class="BlockProtocolContainer">
+    <div v-for="(section, index) in structure" :key="index" :section="section">
+      <AccordionItem :value="`item-${index}`">
+        <AccordionTrigger style="font-size: 2rem">{{ section.name }}</AccordionTrigger>
+        <AccordionContent>
+          <DatexBlockSection :section="section"> </DatexBlockSection>
+        </AccordionContent>
+      </AccordionItem>
+    </div>
+  </Accordion>
 </template>
 
 <style scoped>
