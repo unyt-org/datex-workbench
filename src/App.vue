@@ -1,6 +1,14 @@
 <script setup lang="ts">
-import HeaderProvider from '@/components/HeaderProvider.vue';
-import { RouterView } from 'vue-router';
+import { RouterView } from 'vue-router'
+import HeaderProvider from '@/components/HeaderProvider.vue'
+import PointerView from '@/components/PointerView.vue'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarProvider,
+} from '@/components/ui/sidebar'
 </script>
 
 <!-- <template>
