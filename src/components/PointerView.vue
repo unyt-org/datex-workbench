@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { HTMLAttributes } from 'vue'
+import { Input } from '@/components/ui/input'
+import { Search } from 'lucide-vue-next'
 
 interface PointerNode {
   id: string
@@ -67,20 +69,15 @@ defineExpose({
     class="pointer-view flex flex-col h-full bg-background"
     :class="props.class"
   >
-    <!-- Search Field -->
+    <!-- Search Field with Icon -->
     <div class="p-4 border-b border-border">
       <div class="relative">
-        <!-- Search Icon -->
-        <Search 
-          class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" 
-        />
-        
-        <!-- Input Field with v-model for two-way binding -->
+        <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
         <Input
           v-model="searchQuery"
           type="text"
           :placeholder="props.searchPlaceholder"
-          class="pl-9 bg-secondary/50 border-border focus-visible:ring-primary"
+          class="pl-9"
           @input="handleSearchInput"
         />
       </div>
