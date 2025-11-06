@@ -1,13 +1,6 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
 import HeaderProvider from '@/components/HeaderProvider.vue'
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarHeader,
-  SidebarProvider,
-} from '@/components/ui/sidebar'
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
@@ -52,6 +45,6 @@ import {
 <style scoped>
 /* optional: prevent scrollbars in sidebars */
 :deep(.sidebar-content) {
-  //overflow-y: auto;
+  /* overflow-y: auto; */
 }
 </style>
