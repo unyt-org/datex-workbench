@@ -1,0 +1,64 @@
+name: Bump Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Semver bump (patch, minor, major)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install
+        run: npm ci
+
+      - name: Bump version (no tag)
+        id: bump
+        run: |
+          echo "BUMP=${{ github.event.inputs.bump }}"
+          npm version "${{ github.event.inputs.bump }}" --no-git-tag-version
+          echo "version=$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
+
+      - name: Create release branch, commit & push
+        run: |
+          NEW_VERSION=${{ steps.bump.outputs.version }}
+          BRANCH=release/${NEW_VERSION}
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "${BRANCH}"
+          git add package.json package-lock.json || true
+          git commit -m "chore(release): bump to ${NEW_VERSION}" || echo "no changes to commit"
+          git push -u origin "${BRANCH}"
+
+      - name: Create draft PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: release/${{ steps.bump.outputs.version }}
+          base: main
+          title: 'Release ${{ steps.bump.outputs.version }}'
+          body: |
+            Automated semver bump to ${{ steps.bump.outputs.version }}.
+          draft: true
