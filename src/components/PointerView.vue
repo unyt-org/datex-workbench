@@ -54,7 +54,7 @@ const searchQuery = ref('')
 const expandedNodes = ref<Set<string>>(new Set())
 
 // ========================================
-// 🎯 Resizable Sidebar Logic
+// Resizable Sidebar Logic
 // ========================================
 const sidebarWidth = ref(300) // Initial width in pixels
 const minWidth = 200 // Minimum width
@@ -149,18 +149,18 @@ defineExpose({
 
 <template>
   <div 
-    class="relative flex"
+    class="relative flex h-screen"
     :class="props.class"
   >
-    <!-- Resizable Sidebar -->
+    <!-- Resizable Sidebar with Fixed Height -->
     <Sidebar 
       collapsible="none"
       :style="{ width: `${sidebarWidth}px` }"
-      class="border-r border-border"
+      class="border-r border-border h-full flex flex-col"
     >
-      <SidebarContent class="gap-0">
-        <!-- Search Header -->
-        <SidebarGroup class="py-0">
+      <SidebarContent class="gap-0 flex flex-col h-full overflow-hidden">
+        <!-- Search Header (Fixed at top) -->
+        <SidebarGroup class="py-0 shrink-0">
           <div class="p-4">
             <div class="relative">
               <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
@@ -175,8 +175,8 @@ defineExpose({
           </div>
         </SidebarGroup>
 
-        <!-- Tree Structure -->
-        <SidebarGroup>
+        <!-- Tree Structure (Scrollable) -->
+        <SidebarGroup class="flex-1 overflow-y-auto">
           <SidebarGroupContent>
             <SidebarMenu>
               <!-- 
