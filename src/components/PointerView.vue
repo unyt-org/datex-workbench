@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref } from 'vue'
 import type { HTMLAttributes } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Search } from 'lucide-vue-next'
@@ -10,7 +10,6 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
-  SidebarRail,
 } from '@/components/ui/sidebar'
 import TreeNode from './TreeNode.vue'
 import type { PointerNode } from '@/types/pointer'
@@ -45,55 +44,6 @@ const emit = defineEmits<{
 // State
 const searchQuery = ref('')
 const expandedNodes = ref<Set<string>>(new Set())
-
-// ========================================
-// Resizable Sidebar Logic
-// ========================================
-const sidebarWidth = ref(300) // Initial width in pixels
-const minWidth = 200 // Minimum width
-const maxWidth = 600 // Maximum width
-const isResizing = ref(false)
-const resizeHandle = ref<HTMLElement | null>(null)
-
-// Start resizing
-function startResize(e: MouseEvent) {
-  isResizing.value = true
-  e.preventDefault()
-  document.body.style.cursor = 'col-resize'
-  document.body.style.userSelect = 'none'
-}
-
-// Handle mouse move during resize
-function handleResize(e: MouseEvent) {
-  if (!isResizing.value) return
-  
-  // Calculate new width based on mouse position
-  const newWidth = e.clientX
-  
-  // Clamp width between min and max
-  if (newWidth >= minWidth && newWidth <= maxWidth) {
-    sidebarWidth.value = newWidth
-  }
-}
-
-// Stop resizing
-function stopResize() {
-  isResizing.value = false
-  document.body.style.cursor = ''
-  document.body.style.userSelect = ''
-}
-
-// Add event listeners on mount
-onMounted(() => {
-  document.addEventListener('mousemove', handleResize)
-  document.addEventListener('mouseup', stopResize)
-})
-
-// Remove event listeners on unmount
-onUnmounted(() => {
-  document.removeEventListener('mousemove', handleResize)
-  document.removeEventListener('mouseup', stopResize)
-})
 
 // Computed values
 const normalizedSearchQuery = computed(() => searchQuery.value.trim().toLowerCase())
@@ -205,15 +155,14 @@ defineExpose({
 </script>
 
 <template>
+  <!-- Full Screen PointerView -->
   <div 
-    class="relative flex h-screen"
+    class="h-screen w-full flex flex-col bg-background"
     :class="props.class"
   >
-    <!-- Resizable Sidebar with Fixed Height -->
     <Sidebar 
       collapsible="none"
-      :style="{ width: `${sidebarWidth}px` }"
-      class="border-r border-border h-full flex flex-col"
+      class="w-full h-full flex flex-col"
     >
       <SidebarContent class="gap-0 flex flex-col h-full overflow-hidden">
         <!-- Search Header (Fixed at top) -->
@@ -265,16 +214,5 @@ defineExpose({
         </ScrollArea>
       </SidebarContent>
     </Sidebar>
-    
-    <!-- 
-      Resize Handle 
-      This is the draggable area on the right edge of the sidebar
-    -->
-    <div
-      ref="resizeHandle"
-      class="absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-primary/20 transition-colors z-10"
-      :class="{ 'bg-primary/30': isResizing }"
-      @mousedown="startResize"
-    />
   </div>
 </template>
