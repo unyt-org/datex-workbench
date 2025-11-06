@@ -16,7 +16,6 @@ onMounted(() => {
 
 <template>
   <div class="BlockProtocolSection">
-    <div class="SectionName">{{ section.name }}</div>
     <div class="FieldsFlexBox">
       <DatexBlockField
         v-for="(field, index) in section.fields"
