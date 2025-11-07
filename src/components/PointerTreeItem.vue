@@ -81,27 +81,10 @@ const TYPE_CONFIGS: Record<string, TypeConfig> = {
     preview: (value: any[]) => `Map(${value.length})`,
     isExpandable: true
   },
-  
-  'object': {
-    displayName: 'object',
-    preview: (value: Record<string, any>) => {
-      const keys = Object.keys(value)
-      return keys.length > 0 ? `{${keys.length} properties}` : '{...}'
-    },
-    isExpandable: true
-  },
-  
-  'pointer': {
-    displayName: 'pointer',
-    preview: (value: string) => value,
-    isExpandable: false
-  },
 }
 
 // Get type name from DIF value
 function getTypeName(difContainer: DIF.Definitions.DIFContainer): string {
-  if (typeof difContainer === 'string') return 'pointer'
-  
   const value = difContainer.value
   
   if (value === null || value === undefined) return 'null'
@@ -114,10 +97,9 @@ function getTypeName(difContainer: DIF.Definitions.DIFContainer): string {
     if ('name' in value || 'endpoint' in value || 'location' in value) {
       return 'endpoint'
     }
-    return 'object'
   }
   
-  return 'object'
+  return 'null' // fallback to null for unknown types
 }
 
 // Check if expandable
@@ -128,20 +110,14 @@ function isExpandable(difContainer: DIF.Definitions.DIFContainer): boolean {
 
 // Get value preview
 function getValuePreview(difContainer: DIF.Definitions.DIFContainer): string {
-  if (typeof difContainer === 'string') {
-    return difContainer
-  }
-  
   const value = difContainer.value
   const typeName = getTypeName(difContainer)
   
-  return TYPE_CONFIGS[typeName]?.preview(value) || String(value)
+  return TYPE_CONFIGS[typeName]?.preview(value) || 'null'
 }
 
 // Get children
 function getChildren(difContainer: DIF.Definitions.DIFContainer): Array<[string, DIF.Definitions.DIFValueContainer]> {
-  if (typeof difContainer === 'string') return []
-  
   const value = difContainer.value
   
   if (Array.isArray(value)) {
@@ -155,10 +131,6 @@ function getChildren(difContainer: DIF.Definitions.DIFContainer): Array<[string,
                         typeof k === 'object' ? JSON.stringify(k) : String(k)
       return [keyDisplay, v]
     })
-  }
-  
-  if (typeof value === 'object' && value !== null) {
-    return Object.entries(value as DIF.Definitions.DIFObject)
   }
   
   return []
