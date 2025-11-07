@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { ChevronRight, ChevronDown } from 'lucide-vue-next'
 import type { DIF } from '@/lib/runtime'
+import { TYPE_CONFIGS, getTypeName } from '@/lib/pointer-types'
 
 // Props
 interface PointerTreeItemProps {
@@ -11,12 +12,16 @@ interface PointerTreeItemProps {
   value: DIF.Definitions.DIFContainer
   expandedNodes: Set<string>
   showFullIds?: boolean
+  showDataTypes?: boolean
+  showIndices?: boolean
   depth?: number
 }
 
 const props = withDefaults(defineProps<PointerTreeItemProps>(), {
   depth: 0,
   showFullIds: false,
+  showDataTypes: false,
+  showIndices: true,
 })
 
 // Emits
@@ -25,117 +30,59 @@ const emit = defineEmits<{
   'node-toggle': [nodeId: string]
 }>()
 
-// Type configuration (same as PointerView)
-interface TypeConfig {
-  displayName: string
-  preview: (value: any) => string
-  isExpandable: boolean
-}
-
-const TYPE_CONFIGS: Record<string, TypeConfig> = {
-  'text': {
-    displayName: 'text',
-    preview: (value: string) => 'text',
-    isExpandable: false
-  },
-  
-  'endpoint': {
-    displayName: 'endpoint',
-    preview: (value: any) => 'endpoint',
-    isExpandable: false
-  },
-  
-  'boolean': {
-    displayName: 'boolean',
-    preview: (value: boolean) => value ? 'true' : 'false',
-    isExpandable: false
-  },
-  
-  'integer': {
-    displayName: 'integer',
-    preview: (value: number) => 'integer',
-    isExpandable: false
-  },
-  
-  'decimal': {
-    displayName: 'decimal',
-    preview: (value: number) => 'decimal',
-    isExpandable: false
-  },
-  
-  'null': {
-    displayName: 'null',
-    preview: () => 'null',
-    isExpandable: false
-  },
-  
-  'list': {
-    displayName: 'list',
-    preview: (value: any[]) => `[...]`,
-    isExpandable: true
-  },
-  
-  'map': {
-    displayName: 'map',
-    preview: (value: any) => '{...}',
-    isExpandable: true
-  },
-}
-
-// Get type name from DIF value
-function getTypeName(difContainer: DIF.Definitions.DIFContainer): string {
-  // Check if DIF container has a type property (e.g., '0c0000' for map)
-  if (typeof difContainer === 'object' && 'type' in difContainer && difContainer.type) {
-    const difType = difContainer.type as string
-    
-    // Map DIF type codes to our type names
-    if (difType === '0c0000') return 'map'
-    // Add more type mappings here as needed
-  }
-  
-  const value = difContainer.value
-  
-  if (value === null || value === undefined) return 'null'
-  if (typeof value === 'string') return 'text'
-  if (typeof value === 'boolean') return 'boolean'
-  if (typeof value === 'number') return Number.isInteger(value) ? 'integer' : 'decimal'
-  if (Array.isArray(value)) return 'list'
-  if (value instanceof Map) return 'map'
-  if (typeof value === 'object') {
-    if ('name' in value || 'endpoint' in value || 'location' in value) {
-      return 'endpoint'
-    }
-  }
-  
-  return 'null' // fallback to null for unknown types
-}
-
 // Check if expandable
 function isExpandable(difContainer: DIF.Definitions.DIFContainer): boolean {
   const typeName = getTypeName(difContainer)
   return TYPE_CONFIGS[typeName]?.isExpandable ?? false
 }
 
+// Extract the actual value from a DIF container, unwrapping nested value properties
+function extractValue(difContainer: any): any {
+  if (difContainer && typeof difContainer === 'object' && 'value' in difContainer) {
+    return difContainer.value
+  }
+  return difContainer
+}
+
 // Get value preview
 function getValuePreview(difContainer: DIF.Definitions.DIFContainer): string {
-  const value = difContainer.value
+  const value = extractValue(difContainer)
   const typeName = getTypeName(difContainer)
   
-  return TYPE_CONFIGS[typeName]?.preview(value) || 'null'
+  // Build the preview string
+  let preview = ''
+  
+  // Add data type if showDataTypes is enabled
+  if (props.showDataTypes) {
+    preview = `"${typeName}" = `
+  }
+  
+  // For non-expandable types, show the actual value
+  if (!TYPE_CONFIGS[typeName]?.isExpandable) {
+    if (typeName === 'text') preview += `"${value}"`
+    else if (typeName === 'boolean') preview += value ? 'true' : 'false'
+    else if (typeName === 'integer' || typeName === 'decimal') preview += String(value)
+    else if (typeName === 'null') preview += 'null'
+    else preview += TYPE_CONFIGS[typeName]?.preview(value) || 'null'
+  } else {
+    preview += TYPE_CONFIGS[typeName]?.preview(value) || 'null'
+  }
+  
+  return preview
 }
 
 // Get children
 function getChildren(difContainer: DIF.Definitions.DIFContainer): Array<[string, DIF.Definitions.DIFValueContainer]> {
   // Check if it's a DIF map type (type: '0c0000')
-  if (typeof difContainer === 'object' && 'type' in difContainer && difContainer.type === '0c0000') {
-    const value = difContainer.value
+  if (typeof difContainer === 'object' && difContainer !== null && 'type' in difContainer && difContainer.type === '0c0000') {
+    const value = extractValue(difContainer)
     // DIF maps store their value as an object with key-value pairs
     if (typeof value === 'object' && value !== null) {
       return Object.entries(value).map(([k, v]) => [k, v])
     }
   }
   
-  const value = difContainer.value
+  const value = extractValue(difContainer)
   
   if (Array.isArray(value)) {
     return (value as DIF.Definitions.DIFArray).map((item, index) => [String(index), item])
@@ -157,20 +104,6 @@ function getChildren(difContainer: DIF.Definitions.DIFContainer): Array<[string,
 function getChildId(parentId: string, childKey: string): string {
   return `${parentId}.${childKey}`
 }
-
-// Split pointer ID into $ and rest for colored display
-const pointerIdParts = computed(() => {
-  if (props.depth > 0) return null // Only for top-level
-  
-  const id = props.label
-  if (id.startsWith('$')) {
-    return {
-      dollar: '$',
-      rest: id.slice(1)
-    }
-  }
-  return { dollar: '', rest: id }
-})
 
 // Computed
 const expanded = computed(() => props.expandedNodes.has(props.nodeId))
@@ -213,17 +146,17 @@ function handleClick() {
       
       <!-- Content -->
       <div class="flex items-center gap-2 flex-1 min-w-0">
-        <!-- For top-level pointers (depth 0): show pointer ID with blue $ -->
+        <!-- For top-level pointers (depth 0): show pointer ID in blue -->
         <span 
-          v-if="depth === 0 && pointerIdParts"
-          class="font-mono text-sm"
+          v-if="depth === 0"
+          class="font-mono text-sm unyt-blue font-semibold"
         >
-          <span class="unyt-blue font-semibold">{{ pointerIdParts.dollar }}</span><span class="text-primary">{{ pointerIdParts.rest }}</span>
+          {{ label }}
         </span>
         
         <!-- For nested items (depth > 0): show key -->
         <span 
-          v-if="depth > 0"
+          v-if="depth > 0 && showIndices"
           class="text-sm font-medium"
         >
           {{ label }}:
@@ -252,6 +185,8 @@ function handleClick() {
         :value="childValue"
         :expanded-nodes="expandedNodes"
         :show-full-ids="showFullIds"
+        :show-data-types="showDataTypes"
+        :show-indices="showIndices"
         :depth="depth + 1"
         @node-click="emit('node-click', $event, childValue)"
         @node-toggle="emit('node-toggle', $event)"

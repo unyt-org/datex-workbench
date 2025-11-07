@@ -1,23 +1,27 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import type { HTMLAttributes } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Search, Hash } from 'lucide-vue-next'
+import { Search, Settings, Filter } from 'lucide-vue-next'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
-  Sidebar,
-  SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
 } from '@/components/ui/sidebar'
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 import PointerTreeItem from './PointerTreeItem.vue'
 import type { DIF } from '@/lib/runtime'
 
@@ -25,91 +29,41 @@ import type { DIF } from '@/lib/runtime'
 interface PointerViewProps {
   class?: HTMLAttributes['class']
   pointers: Map<string, DIF.Definitions.DIFContainer>
-  selectedPointerId?: string | null
   searchPlaceholder?: string
-  defaultExpanded?: boolean
 }
 
 // Define props with defaults
 const props = withDefaults(defineProps<PointerViewProps>(), {
   searchPlaceholder: 'Search...',
-  defaultExpanded: false,
 })
 
 // Emits to communicate with parent
 const emit = defineEmits<{
   'pointer-click': [pointerId: string, value: DIF.Definitions.DIFContainer]
   'pointer-expand': [pointerId: string, expanded: boolean]
-  'search': [query: string]
-  'update:selectedPointerId': [id: string | null]
 }>()
 
 // State
 const searchQuery = ref('')
 const expandedPointers = ref<Set<string>>(new Set())
 const showFullPointerIds = ref(false)
+const showDataTypes = ref(false)
+const showIndices = ref(true)
 
-// Computed values
-const normalizedSearchQuery = computed(() => searchQuery.value.trim().toLowerCase())
-const searchTokens = computed(() =>
-  normalizedSearchQuery.value ? normalizedSearchQuery.value.split(/\s+/) : []
-)
-const hasSearchQuery = computed(() => searchTokens.value.length > 0)
-
-// ========================================
-// Pointer ID Formatting
-// ========================================
-
-/**
- * Format pointer ID based on display mode
- * Full: $0000000000000005
- * Short: $...005
- */
+// Format pointer ID based on display mode
 function formatPointerId(pointerId: string): string {
   if (showFullPointerIds.value) {
     return pointerId
   }
   
-  // Extract the numeric part after $
-  const numericPart = pointerId.slice(1) // Remove $
+  const numericPart = pointerId.slice(1)
   
-  // Show last 3 digits with ellipsis
-  if (numericPart.length > 3) {
-    const lastThree = numericPart.slice(-3)
-    return `$...${lastThree}`
+  if (numericPart.length > 4) {
+    const lastFour = numericPart.slice(-4)
+    return `$${lastFour}`
   }
   
   return pointerId
-}
-
-// ========================================
-// Search Filtering Logic
-// ========================================
-
-/**
- * Filters pointers Map based on search query
- * A pointer is included if its ID matches the search
- */
-const filteredPointers = computed(() => {
-  if (!hasSearchQuery.value) {
-    return props.pointers
-  }
-
-  const filtered = new Map<string, DIF.Definitions.DIFContainer>()
-  for (const [pointerId, value] of props.pointers) {
-    const idLower = pointerId.toLowerCase()
-    if (searchTokens.value.some(token => idLower.includes(token))) {
-      filtered.set(pointerId, value)
-    }
-  }
-  return filtered
-})
-
-// Search handler - emits to parent for external state management if needed
-function handleSearchInput(event: Event) {
-  const target = event.target as HTMLInputElement
-  searchQuery.value = target.value
-  emit('search', target.value)
 }
 
 // Toggle pointer expansion
@@ -126,23 +80,7 @@ function togglePointer(pointerId: string) {
 // Handle pointer click
 function handlePointerClick(pointerId: string, value: DIF.Definitions.DIFContainer) {
   emit('pointer-click', pointerId, value)
-  emit('update:selectedPointerId', pointerId)
 }
-
-// Toggle pointer ID display mode
-function togglePointerIdDisplay() {
-  showFullPointerIds.value = !showFullPointerIds.value
-}
-
-defineExpose({
-  searchQuery,
-  normalizedSearchQuery,
-  searchTokens,
-  hasSearchQuery,
-  expandedPointers,
-  showFullPointerIds,
-  formatPointerId,
-})
 </script>
 
 <template>
@@ -151,83 +89,128 @@ defineExpose({
     class="h-screen w-full flex flex-col bg-background"
     :class="props.class"
   >
-    <Sidebar 
-      collapsible="none"
-      class="w-full h-full flex flex-col"
-    >
-      <SidebarContent class="gap-0 flex flex-col h-full overflow-hidden">
-        <!-- Search Header (Fixed at top) -->
-        <SidebarGroup class="py-0 shrink-0">
-          <div class="p-4">
-            <div class="flex items-center gap-2">
-              <!-- Toggle Pointer ID Display Button -->
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger as-child>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      @click="togglePointerIdDisplay"
-                      :class="{ 'bg-accent': !showFullPointerIds }"
-                    >
-                      <Hash class="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{{ showFullPointerIds ? 'Show short IDs' : 'Show full IDs' }}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              
-              <!-- Search Input -->
-              <div class="relative flex-1">
-                <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                <Input
-                  v-model="searchQuery"
-                  type="text"
-                  :placeholder="props.searchPlaceholder"
-                  class="pl-9 bg-sidebar-accent"
-                  @input="handleSearchInput"
-                />
-              </div>
-            </div>
-          </div>
-        </SidebarGroup>
-
-        <!-- Tree Structure (Scrollable with ScrollArea) -->
-        <ScrollArea class="flex-1">
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <!-- 
-                  Render pointers using recursive PointerTreeItem component
-                  This enables infinite depth expansion
-                -->
-                <PointerTreeItem
-                  v-for="[pointerId, value] in filteredPointers"
-                  :key="pointerId"
-                  :node-id="pointerId"
-                  :label="formatPointerId(pointerId)"
-                  :full-label="pointerId"
-                  :value="value"
-                  :expanded-nodes="expandedPointers"
-                  :show-full-ids="showFullPointerIds"
-                  @node-click="handlePointerClick"
-                  @node-toggle="togglePointer"
-                />
-                
-                <!-- Empty state when no results -->
-                <div 
-                  v-if="hasSearchQuery && filteredPointers.size === 0"
-                  class="p-4 text-sm text-muted-foreground text-center"
-                >
-                  No results found for "{{ searchQuery }}"
+    <!-- Search Header (Fixed at top) -->
+    <div class="border-b shrink-0">
+      <div class="p-4">
+        <div class="flex items-center gap-2">
+          <!-- Settings Popover -->
+          <Popover>
+            <PopoverTrigger as-child>
+              <Button
+                variant="outline"
+                size="icon"
+                title="Display Settings"
+              >
+                <Settings class="h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent class="w-80" align="start">
+              <div class="space-y-4">
+                <div class="space-y-2">
+                  <h4 class="font-medium leading-none">Display Settings</h4>
+                  <p class="text-sm text-muted-foreground">
+                    Customize how pointers are displayed
+                  </p>
                 </div>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </ScrollArea>
-      </SidebarContent>
-    </Sidebar>
+                
+                <div class="space-y-4">
+                  <!-- Show Full IDs Toggle -->
+                  <div class="flex items-center justify-between space-x-2">
+                    <div class="flex flex-col space-y-1 flex-1">
+                      <span class="font-medium">Full Pointer IDs</span>
+                      <span class="text-sm font-normal text-muted-foreground">
+                        Show complete pointer identifiers
+                      </span>
+                    </div>
+                    <Switch v-model="showFullPointerIds" />
+                  </div>
+
+                  <!-- Show Data Types Toggle -->
+                  <div class="flex items-center justify-between space-x-2">
+                    <div class="flex flex-col space-y-1 flex-1">
+                      <span class="font-medium">Data Types</span>
+                      <span class="text-sm font-normal text-muted-foreground">
+                        Display type annotations before values
+                      </span>
+                    </div>
+                    <Switch v-model="showDataTypes" />
+                  </div>
+
+                  <!-- Show Indices Toggle -->
+                  <div class="flex items-center justify-between space-x-2">
+                    <div class="flex flex-col space-y-1 flex-1">
+                      <span class="font-medium">Keys & Indices</span>
+                      <span class="text-sm font-normal text-muted-foreground">
+                        Show object keys and array indices
+                      </span>
+                    </div>
+                    <Switch v-model="showIndices" />
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+          
+          <!-- Search Input -->
+          <div class="relative flex-1">
+            <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <Input
+              v-model="searchQuery"
+              type="text"
+              :placeholder="props.searchPlaceholder"
+              class="pl-9"
+            />
+          </div>
+
+          <!-- Filter Button with Dropdown -->
+          <DropdownMenu>
+            <DropdownMenuTrigger as-child>
+              <Button
+                variant="outline"
+                size="icon"
+              >
+                <Filter class="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            
+            <DropdownMenuContent align="end" class="w-48">
+              <!-- Filter content will be implemented later -->
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tree Structure (Scrollable) -->
+    <ScrollArea class="flex-1">
+      <SidebarGroup>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <PointerTreeItem
+              v-for="[pointerId, value] in props.pointers"
+              :key="pointerId"
+              :node-id="pointerId"
+              :label="formatPointerId(pointerId)"
+              :full-label="pointerId"
+              :value="value"
+              :expanded-nodes="expandedPointers"
+              :show-full-ids="showFullPointerIds"
+              :show-data-types="showDataTypes"
+              :show-indices="showIndices"
+              @node-click="handlePointerClick"
+              @node-toggle="togglePointer"
+            />
+            
+            <!-- Empty state -->
+            <div 
+              v-if="props.pointers.size === 0"
+              class="p-4 text-sm text-muted-foreground text-center"
+            >
+              No pointers available
+            </div>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    </ScrollArea>
   </div>
 </template>
