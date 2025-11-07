@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// import DatexBlockField from './DatexBlockField.vue'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 const props = defineProps({
@@ -9,6 +8,8 @@ const props = defineProps({
   },
 })
 
+const bytesCutoff: number = 30
+
 const box = ref<HTMLDivElement | null>(null)
 const width = ref(0)
 const bytes = ref(0)
@@ -16,7 +17,7 @@ const bytes = ref(0)
 let observer: ResizeObserver
 
 onMounted(() => {
-  console.log('Field object:', props.section)
+  // console.log('Field object:', props.section)
   if (box.value) {
     observer = new ResizeObserver((entries) => {
       const el = entries[0].target
@@ -48,67 +49,104 @@ function getChUnitInElement(el: Element) {
   return chWidth
 }
 
-const Uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0')
+const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0')
 
 // this will later hopefully be replaced by shadcn Tooltip hovering
-// document.querySelectorAll('.fieldWrapper').forEach((e, i) => {
+// document.querySelectorAll('.field-wrapper').forEach((e, i) => {
 //   e.addEventListener('mousemove', () => console.log(i))
 // })
 </script>
 
 <template>
-  <div class="BlockProtocolSection">
+  <div class="block-protocol-section">
     <!-- this way we use the calculated value for how many bytes fit in the witdh of the column -->
-    <!-- <div ref="box" :style="`grid-template-columns: repeat(${bytes}, 3ch);`" id="BytesGrid"> -->
-    <div id="BytesGrid" ref="box" :style="`grid-template-columns: repeat(auto-fit, 3ch);`">
-      <div class="fieldWrapper" v-for="(field, indexOuter) in section.fields" :key="indexOuter">
-        <div
-          v-for="(byte, indexInner) in field.bytes"
-          :key="indexInner"
-          :style="`background-color: var(--color-chart-${(indexOuter % 5) + 1});`"
-        >
-          {{ Uint8ToHexString(byte) }}
+    <!-- <div ref="box" :style="`grid-template-columns: repeat(${bytes}, 3ch);`" id="bytes-grid"> -->
+    <div class="bytes-grid" ref="box">
+      <!-- when clicking on a field, grey out all others -->
+      <div
+        class="field-wrapper"
+        v-for="(field, indexOuter) in section.fields"
+        @click="console.log(`Name: ${field.name}, Value: ${field.parsedValue}`)"
+        :key="indexOuter"
+      >
+        <!-- after the if statement, these for loops could become new templates because they will grow with more complexity -->
+        <div v-if="field.bytes.length < bytesCutoff" style="display: contents">
+          <div
+            v-for="(byte, indexInner) in field.bytes"
+            :key="indexInner"
+            :style="`background-color: var(--color-chart-${(indexOuter % 5) + 1});`"
+          >
+            {{ uint8ToHexString(byte) }}
+          </div>
+        </div>
+        <!-- try only rendering the first few bytes and the rest with display:none -->
+        <div v-else style="display: contents">
+          <div
+            v-for="(byte, indexInner) in field.bytes.slice(0, bytesCutoff)"
+            :key="indexInner"
+            :style="`background-color: var(--color-chart-${(indexOuter % 5) + 1});`"
+          >
+            {{ uint8ToHexString(byte) }}
+          </div>
+          <div :style="`background-color: var(--color-chart-${(indexOuter % 5) + 1});`">..</div>
         </div>
       </div>
     </div>
-    <div>Width: {{ width }}px</div>
-    <div>Bytes that fit: {{ bytes }}</div>
+    <!-- <div>Width: {{ width }}px</div>
+    <div>Bytes that fit: {{ bytes }}</div> -->
   </div>
 </template>
 
+<!-- lang="postcss" um tailwind zu benutzen-->
 <style scoped>
-.fieldWrapper {
-  display: contents;
-}
+/* lieber so */
+/* .block-protocol-section{} */
 
-/* this currently doesn't do anything because the childs set their style dynamicly */
-.fieldWrapper div:hover {
-  background-color: red;
-}
+/* hier auch tailwind benutzen */
 
-.fieldWrapper div:first-child {
-  border-bottom-left-radius: 0.7ch;
-  border-top-left-radius: 0.7ch;
-}
-
-.fieldWrapper div:last-child {
-  border-bottom-right-radius: 0.7ch;
-  border-top-right-radius: 0.7ch;
-}
-
-.BlockProtocolSection {
+.block-protocol-section {
   background-color: var(--color-secondary);
-  border-radius: 0.5rem;
-  margin-bottom: 0.5rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 0.5ch;
   padding: 0.5rem;
 
   font-family: monospace;
   font-size: 0.9rem;
 }
 
-#BytesGrid {
+.bytes-grid {
   display: grid;
+  grid-row-gap: 0.75ch;
+  grid-template-columns: repeat(auto-fit, 3.5ch);
   font-family: monospace;
   width: 100%;
+}
+
+.field-wrapper {
+  display: contents;
+}
+
+.field-wrapper div {
+  padding-left: 0.75ch;
+}
+
+/* this currently doesn't do anything because the childs set their style dynamicly */
+/* .field-wrapper div:hover {
+  background-color: red;
+} */
+
+/* nochmal genau die margins und paddings prüfen */
+.field-wrapper div:first-child {
+  border-bottom-left-radius: var(--radius-sm);
+  border-top-left-radius: var(--radius-sm);
+  margin-left: 0.25ch;
+  padding-left: 0.5ch;
+}
+
+.field-wrapper div:last-child {
+  border-bottom-right-radius: var(--radius-sm);
+  border-top-right-radius: var(--radius-sm);
+  margin-right: 0.25ch;
+  padding-right: 0.25ch;
 }
 </style>
