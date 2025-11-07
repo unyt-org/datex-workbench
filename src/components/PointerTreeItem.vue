@@ -32,17 +32,13 @@ interface TypeConfig {
 const TYPE_CONFIGS: Record<string, TypeConfig> = {
   'text': {
     displayName: 'text',
-    preview: (value: string) => value.length > 30 ? `"${value.substring(0, 30)}..."` : `"${value}"`,
+    preview: (value: string) => 'text',
     isExpandable: false
   },
   
   'endpoint': {
     displayName: 'endpoint',
-    preview: (value: any) => {
-      if (typeof value === 'string') return value
-      if (value && typeof value === 'object' && 'name' in value) return `@${value.name}`
-      return String(value)
-    },
+    preview: (value: any) => 'endpoint',
     isExpandable: false
   },
   
@@ -54,13 +50,13 @@ const TYPE_CONFIGS: Record<string, TypeConfig> = {
   
   'integer': {
     displayName: 'integer',
-    preview: (value: number) => String(value),
+    preview: (value: number) => 'integer',
     isExpandable: false
   },
   
   'decimal': {
     displayName: 'decimal',
-    preview: (value: number) => String(value),
+    preview: (value: number) => 'decimal',
     isExpandable: false
   },
   
@@ -72,25 +68,13 @@ const TYPE_CONFIGS: Record<string, TypeConfig> = {
   
   'list': {
     displayName: 'list',
-    preview: (value: any[]) => `[${value.length}]`,
+    preview: (value: any[]) => `[...]`,
     isExpandable: true
   },
   
   'map': {
     displayName: 'map',
-    preview: (value: any) => {
-      // Handle DIF map (object with key-value pairs)
-      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-        const size = Object.keys(value).length
-        return `Map(${size})`
-      }
-      // Handle native Map instance
-      if (value instanceof Map) {
-        return `Map(${value.size})`
-      }
-      // Fallback
-      return 'Map(0)'
-    },
+    preview: (value: any) => '{...}',
     isExpandable: true
   },
 }
@@ -212,13 +196,29 @@ function handleClick() {
       
       <!-- Content -->
       <div class="flex items-center gap-2 flex-1 min-w-0">
+        <!-- For top-level pointers (depth 0): show pointer ID -->
         <span 
-          :class="depth === 0 ? 'font-mono text-sm text-primary' : 'text-sm font-medium'"
+          v-if="depth === 0"
+          class="font-mono text-sm text-primary"
         >
-          {{ label }}<span v-if="depth > 0">:</span>
+          {{ label }}
         </span>
-        <span class="text-xs text-muted-foreground">{{ getTypeName(value) }}</span>
-        <span class="text-sm text-foreground/70 truncate">{{ getValuePreview(value) }}</span>
+        
+        <!-- For nested items (depth > 0): show key -->
+        <span 
+          v-if="depth > 0"
+          class="text-sm font-medium"
+        >
+          {{ label }}:
+        </span>
+        
+        <!-- Show type-based preview or opening bracket when expanded -->
+        <span v-if="!expanded" class="text-sm text-foreground/70 truncate">
+          {{ getValuePreview(value) }}
+        </span>
+        <span v-else-if="isExpandable(value)" class="text-sm text-foreground/70">
+          {{ getTypeName(value) === 'list' ? '[' : '{' }}
+        </span>
       </div>
     </div>
     
@@ -238,6 +238,11 @@ function handleClick() {
         @node-click="emit('node-click', $event, childValue)"
         @node-toggle="emit('node-toggle', $event)"
       />
+      
+      <!-- Closing bracket -->
+      <div class="p-2 text-sm text-foreground/70">
+        {{ getTypeName(value) === 'list' ? ']' : '}' }}
+      </div>
     </div>
   </div>
 </template>
