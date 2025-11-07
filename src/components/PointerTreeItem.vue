@@ -7,13 +7,16 @@ import type { DIF } from '@/lib/runtime'
 interface PointerTreeItemProps {
   nodeId: string
   label: string
+  fullLabel?: string
   value: DIF.Definitions.DIFContainer
   expandedNodes: Set<string>
+  showFullIds?: boolean
   depth?: number
 }
 
 const props = withDefaults(defineProps<PointerTreeItemProps>(), {
-  depth: 0
+  depth: 0,
+  showFullIds: false,
 })
 
 // Emits
@@ -155,6 +158,20 @@ function getChildId(parentId: string, childKey: string): string {
   return `${parentId}.${childKey}`
 }
 
+// Split pointer ID into $ and rest for colored display
+const pointerIdParts = computed(() => {
+  if (props.depth > 0) return null // Only for top-level
+  
+  const id = props.label
+  if (id.startsWith('$')) {
+    return {
+      dollar: '$',
+      rest: id.slice(1)
+    }
+  }
+  return { dollar: '', rest: id }
+})
+
 // Computed
 const expanded = computed(() => props.expandedNodes.has(props.nodeId))
 
@@ -196,12 +213,12 @@ function handleClick() {
       
       <!-- Content -->
       <div class="flex items-center gap-2 flex-1 min-w-0">
-        <!-- For top-level pointers (depth 0): show pointer ID -->
+        <!-- For top-level pointers (depth 0): show pointer ID with blue $ -->
         <span 
-          v-if="depth === 0"
-          class="font-mono text-sm text-primary"
+          v-if="depth === 0 && pointerIdParts"
+          class="font-mono text-sm"
         >
-          {{ label }}
+          <span class="unyt-blue font-semibold">{{ pointerIdParts.dollar }}</span><span class="text-primary">{{ pointerIdParts.rest }}</span>
         </span>
         
         <!-- For nested items (depth > 0): show key -->
@@ -234,6 +251,7 @@ function handleClick() {
         :label="childKey"
         :value="childValue"
         :expanded-nodes="expandedNodes"
+        :show-full-ids="showFullIds"
         :depth="depth + 1"
         @node-click="emit('node-click', $event, childValue)"
         @node-toggle="emit('node-toggle', $event)"
@@ -246,3 +264,9 @@ function handleClick() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.unyt-blue {
+  color: rgb(42, 170, 215);
+}
+</style>

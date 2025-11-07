@@ -2,7 +2,8 @@
 import { computed, ref } from 'vue'
 import type { HTMLAttributes } from 'vue'
 import { Input } from '@/components/ui/input'
-import { Search } from 'lucide-vue-next'
+import { Button } from '@/components/ui/button'
+import { Search, Hash } from 'lucide-vue-next'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Sidebar,
@@ -11,6 +12,12 @@ import {
   SidebarGroupContent,
   SidebarMenu,
 } from '@/components/ui/sidebar'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import PointerTreeItem from './PointerTreeItem.vue'
 import type { DIF } from '@/lib/runtime'
 
@@ -40,6 +47,7 @@ const emit = defineEmits<{
 // State
 const searchQuery = ref('')
 const expandedPointers = ref<Set<string>>(new Set())
+const showFullPointerIds = ref(false)
 
 // Computed values
 const normalizedSearchQuery = computed(() => searchQuery.value.trim().toLowerCase())
@@ -47,6 +55,32 @@ const searchTokens = computed(() =>
   normalizedSearchQuery.value ? normalizedSearchQuery.value.split(/\s+/) : []
 )
 const hasSearchQuery = computed(() => searchTokens.value.length > 0)
+
+// ========================================
+// Pointer ID Formatting
+// ========================================
+
+/**
+ * Format pointer ID based on display mode
+ * Full: $0000000000000005
+ * Short: $...005
+ */
+function formatPointerId(pointerId: string): string {
+  if (showFullPointerIds.value) {
+    return pointerId
+  }
+  
+  // Extract the numeric part after $
+  const numericPart = pointerId.slice(1) // Remove $
+  
+  // Show last 3 digits with ellipsis
+  if (numericPart.length > 3) {
+    const lastThree = numericPart.slice(-3)
+    return `$...${lastThree}`
+  }
+  
+  return pointerId
+}
 
 // ========================================
 // Search Filtering Logic
@@ -95,12 +129,19 @@ function handlePointerClick(pointerId: string, value: DIF.Definitions.DIFContain
   emit('update:selectedPointerId', pointerId)
 }
 
+// Toggle pointer ID display mode
+function togglePointerIdDisplay() {
+  showFullPointerIds.value = !showFullPointerIds.value
+}
+
 defineExpose({
   searchQuery,
   normalizedSearchQuery,
   searchTokens,
   hasSearchQuery,
   expandedPointers,
+  showFullPointerIds,
+  formatPointerId,
 })
 </script>
 
@@ -118,15 +159,37 @@ defineExpose({
         <!-- Search Header (Fixed at top) -->
         <SidebarGroup class="py-0 shrink-0">
           <div class="p-4">
-            <div class="relative">
-              <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-              <Input
-                v-model="searchQuery"
-                type="text"
-                :placeholder="props.searchPlaceholder"
-                class="pl-9 bg-sidebar-accent"
-                @input="handleSearchInput"
-              />
+            <div class="flex items-center gap-2">
+              <!-- Toggle Pointer ID Display Button -->
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger as-child>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      @click="togglePointerIdDisplay"
+                      :class="{ 'bg-accent': !showFullPointerIds }"
+                    >
+                      <Hash class="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{{ showFullPointerIds ? 'Show short IDs' : 'Show full IDs' }}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <!-- Search Input -->
+              <div class="relative flex-1">
+                <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                <Input
+                  v-model="searchQuery"
+                  type="text"
+                  :placeholder="props.searchPlaceholder"
+                  class="pl-9 bg-sidebar-accent"
+                  @input="handleSearchInput"
+                />
+              </div>
             </div>
           </div>
         </SidebarGroup>
@@ -144,9 +207,11 @@ defineExpose({
                   v-for="[pointerId, value] in filteredPointers"
                   :key="pointerId"
                   :node-id="pointerId"
-                  :label="pointerId"
+                  :label="formatPointerId(pointerId)"
+                  :full-label="pointerId"
                   :value="value"
                   :expanded-nodes="expandedPointers"
+                  :show-full-ids="showFullPointerIds"
                   @node-click="handlePointerClick"
                   @node-toggle="togglePointer"
                 />
