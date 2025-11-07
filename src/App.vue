@@ -18,6 +18,7 @@ const pointers = ref<Map<string, DIF.Definitions.DIFContainer>>(new Map())
 
 onMounted(() => {
   pointers.value = getPointers()
+  console.log('Loaded pointers:', pointers.value)
 })
 </script>
 

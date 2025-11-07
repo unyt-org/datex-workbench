@@ -78,13 +78,34 @@ const TYPE_CONFIGS: Record<string, TypeConfig> = {
   
   'map': {
     displayName: 'map',
-    preview: (value: any[]) => `Map(${value.length})`,
+    preview: (value: any) => {
+      // Handle DIF map (object with key-value pairs)
+      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        const size = Object.keys(value).length
+        return `Map(${size})`
+      }
+      // Handle native Map instance
+      if (value instanceof Map) {
+        return `Map(${value.size})`
+      }
+      // Fallback
+      return 'Map(0)'
+    },
     isExpandable: true
   },
 }
 
 // Get type name from DIF value
 function getTypeName(difContainer: DIF.Definitions.DIFContainer): string {
+  // Check if DIF container has a type property (e.g., '0c0000' for map)
+  if (typeof difContainer === 'object' && 'type' in difContainer && difContainer.type) {
+    const difType = difContainer.type as string
+    
+    // Map DIF type codes to our type names
+    if (difType === '0c0000') return 'map'
+    // Add more type mappings here as needed
+  }
+  
   const value = difContainer.value
   
   if (value === null || value === undefined) return 'null'
@@ -118,6 +139,15 @@ function getValuePreview(difContainer: DIF.Definitions.DIFContainer): string {
 
 // Get children
 function getChildren(difContainer: DIF.Definitions.DIFContainer): Array<[string, DIF.Definitions.DIFValueContainer]> {
+  // Check if it's a DIF map type (type: '0c0000')
+  if (typeof difContainer === 'object' && 'type' in difContainer && difContainer.type === '0c0000') {
+    const value = difContainer.value
+    // DIF maps store their value as an object with key-value pairs
+    if (typeof value === 'object' && value !== null) {
+      return Object.entries(value).map(([k, v]) => [k, v])
+    }
+  }
+  
   const value = difContainer.value
   
   if (Array.isArray(value)) {
