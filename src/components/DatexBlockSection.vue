@@ -23,49 +23,14 @@ onMounted(() => {
       width.value = el.clientWidth
 
       // Measure 1ch within this element’s context
-      const ch = getChUnitInElement(el)
+      const chWidth = getChUnitInElement(el)
 
       // Calculate how many 3ch columns fit
-      bytes.value = Math.floor(width.value / (ch * 3))
-
-      // lineArray.value = someCalc()
+      bytes.value = Math.floor(width.value / (chWidth * 3))
     })
     observer.observe(box.value)
   }
 })
-
-// function someCalc() {
-//   const objectsByLine = []
-//   const sectionCopy = structuredClone(props.section)
-//   console.log(`Bytes that fit ${bytes.value}`)
-
-//   while (sectionCopy.fields.length) {
-//     const testObject = structuredClone(props.section)
-//     testObject.fields = []
-//     let counter: number = bytes.value
-//     while (counter > 0) {
-//       const removedArrayElement = sectionCopy.fields.shift()
-//       if (removedArrayElement == undefined) break
-//       if (removedArrayElement.bytes.length > counter) {
-//         const part1 = removedArrayElement.bytes.subarray(0, counter)
-//         const part2 = removedArrayElement.bytes.subarray(counter)
-
-//         const part1Object = structuredClone(removedArrayElement)
-//         part1Object.bytes = part1
-//         testObject.fields.push(part1Object)
-
-//         const part2Object = structuredClone(removedArrayElement)
-//         part2Object.bytes = part2
-//         sectionCopy.fields.unshift(part2Object)
-//         break
-//       }
-//       testObject.fields.push(removedArrayElement)
-//       counter -= removedArrayElement.bytes.length
-//     }
-//     objectsByLine.push(testObject)
-//   }
-//   return objectsByLine
-// }
 
 onBeforeUnmount(() => {
   if (observer && box.value) observer.unobserve(box.value)
@@ -76,34 +41,30 @@ function getChUnitInElement(el: Element) {
   test.style.display = 'inline-block'
   test.style.visibility = 'hidden'
   test.style.width = '1ch'
-  test.textContent = ' ' // just to make it render
+  test.textContent = ' '
   el.appendChild(test)
   const chWidth = test.offsetWidth
   el.removeChild(test)
   return chWidth
 }
 
-function bufferToHex(buffer: ArrayBuffer) {
-  return Array.from(new Uint8Array(buffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join(' ')
-}
-
 const Uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0')
 
-document.querySelectorAll('.inv').forEach((e, i) => {
-  e.addEventListener('mousemove', () => console.log(e))
-})
+// this will later hopefully be replaced by shadcn Tooltip hovering
+// document.querySelectorAll('.fieldWrapper').forEach((e, i) => {
+//   e.addEventListener('mousemove', () => console.log(i))
+// })
 </script>
 
 <template>
   <div class="BlockProtocolSection">
-    <div ref="box" :style="`grid-template-columns: repeat(${bytes}, 3ch);`" id="GridTest">
-      <div v-for="(field, indexOuter) in section.fields" :key="indexOuter" class="inv">
+    <!-- this way we use the calculated value for how many bytes fit in the witdh of the column -->
+    <!-- <div ref="box" :style="`grid-template-columns: repeat(${bytes}, 3ch);`" id="BytesGrid"> -->
+    <div id="BytesGrid" ref="box" :style="`grid-template-columns: repeat(auto-fit, 3ch);`">
+      <div class="fieldWrapper" v-for="(field, indexOuter) in section.fields" :key="indexOuter">
         <div
           v-for="(byte, indexInner) in field.bytes"
           :key="indexInner"
-          class="GridItem"
           :style="`background-color: var(--color-chart-${(indexOuter % 5) + 1});`"
         >
           {{ Uint8ToHexString(byte) }}
@@ -116,12 +77,23 @@ document.querySelectorAll('.inv').forEach((e, i) => {
 </template>
 
 <style scoped>
-.inv {
+.fieldWrapper {
   display: contents;
 }
 
-.inv div:hover {
-  background: red;
+/* this currently doesn't do anything because the childs set their style dynamicly */
+.fieldWrapper div:hover {
+  background-color: red;
+}
+
+.fieldWrapper div:first-child {
+  border-bottom-left-radius: 0.7ch;
+  border-top-left-radius: 0.7ch;
+}
+
+.fieldWrapper div:last-child {
+  border-bottom-right-radius: 0.7ch;
+  border-top-right-radius: 0.7ch;
 }
 
 .BlockProtocolSection {
@@ -134,13 +106,9 @@ document.querySelectorAll('.inv').forEach((e, i) => {
   font-size: 0.9rem;
 }
 
-#GridTest {
+#BytesGrid {
   display: grid;
   font-family: monospace;
   width: 100%;
-}
-
-.GridItem {
-  border-radius: 0.7ch;
 }
 </style>
