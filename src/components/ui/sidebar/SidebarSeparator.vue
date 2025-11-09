@@ -4,12 +4,12 @@ import { cn } from '@/lib/utils';
 import type { HTMLAttributes } from 'vue';
 
 const props = defineProps<{
-  class?: HTMLAttributes['class'];
+    class?: HTMLAttributes['class'];
 }>();
 </script>
 
 <template>
-  <Separator data-sidebar="separator" :class="cn('mx-2 w-auto bg-sidebar-border', props.class)">
-    <slot />
-  </Separator>
+    <Separator data-sidebar="separator" :class="cn('mx-2 w-auto bg-sidebar-border', props.class)">
+        <slot />
+    </Separator>
 </template>
