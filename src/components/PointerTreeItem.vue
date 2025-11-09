@@ -10,6 +10,7 @@ interface PointerTreeItemProps {
   label: string
   value: DIF.Definitions.DIFContainer
   expandedNodes: Set<string>
+  visitedObjects?: WeakSet<object>
   showFullIds?: boolean
   showDataTypes?: boolean
   showIndices?: boolean
@@ -23,6 +24,7 @@ const props = withDefaults(defineProps<PointerTreeItemProps>(), {
   showDataTypes: false,
   showIndices: true,
   hideTypeHintsForPrimitives: true,
+  visitedObjects: () => new WeakSet(),
 })
 
 // Emits
@@ -30,6 +32,16 @@ const emit = defineEmits<{
   'node-click': [nodeId: string, value: DIF.Definitions.DIFContainer]
   'node-toggle': [nodeId: string]
 }>()
+
+// Check if value is circular reference
+function isCircularReference(difContainer: DIF.Definitions.DIFContainer): boolean {
+  // Only objects can have circular references
+  if (typeof difContainer !== 'object' || difContainer === null) {
+    return false
+  }
+  
+  return props.visitedObjects?.has(difContainer) ?? false
+}
 
 // Check if expandable
 function isExpandable(difContainer: DIF.Definitions.DIFContainer): boolean {
@@ -85,6 +97,11 @@ function getChildren(difContainer: DIF.Definitions.DIFContainer): Array<[string,
     return []
   }
   
+  // Check for circular reference before processing children
+  if (isCircularReference(difContainer)) {
+    return []
+  }
+  
   // Check if it's a DIF map type (type: '0c0000')
   if (typeof difContainer === 'object' && difContainer !== null && 'type' in difContainer && difContainer.type === '0c0000') {
     const value = extractValue(difContainer)
@@ -115,6 +132,15 @@ function getChildren(difContainer: DIF.Definitions.DIFContainer): Array<[string,
 // Computed children list (cached and only recomputes when expanded or value changes)
 const children = computed(() => getChildren(props.value))
 
+// Create new visited set for children (includes current value)
+const childVisitedObjects = computed(() => {
+  const newVisited = new WeakSet(props.visitedObjects)
+  if (typeof props.value === 'object' && props.value !== null) {
+    newVisited.add(props.value)
+  }
+  return newVisited
+})
+
 // Generate child ID
 function getChildId(parentId: string, childKey: string): string {
   return `${parentId}.${childKey}`
@@ -122,6 +148,9 @@ function getChildId(parentId: string, childKey: string): string {
 
 // Computed
 const expanded = computed(() => props.expandedNodes.has(props.nodeId))
+
+// Check if current value is circular
+const isCircular = computed(() => isCircularReference(props.value))
 
 // Methods
 function toggleExpanded(event: Event) {
@@ -177,8 +206,13 @@ function handleClick() {
           {{ label }}:
         </span>
         
+        <!-- Show circular reference indicator -->
+        <span v-if="isCircular" class="text-sm text-amber-500 italic">
+          [Circular Reference]
+        </span>
+        
         <!-- Show type-based preview or opening bracket when expanded -->
-        <span v-if="!expanded" class="text-sm text-foreground/70 truncate">
+        <span v-else-if="!expanded" class="text-sm text-foreground/70 truncate">
           {{ getValuePreview(value) }}
         </span>
         <span v-else-if="isExpandable(value)" class="text-sm text-foreground/70">
@@ -189,7 +223,7 @@ function handleClick() {
     
     <!-- Children (RECURSIVE - this component calls itself!) -->
     <div
-      v-if="expanded && isExpandable(value)"
+      v-if="expanded && isExpandable(value) && !isCircular"
       class="ml-6 border-l border-border pl-2"
     >
       <PointerTreeItem
@@ -199,6 +233,7 @@ function handleClick() {
         :label="childKey"
         :value="childValue"
         :expanded-nodes="expandedNodes"
+        :visited-objects="childVisitedObjects"
         :show-full-ids="showFullIds"
         :show-data-types="showDataTypes"
         :show-indices="showIndices"

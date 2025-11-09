@@ -180,6 +180,7 @@ function handlePointerClick(pointerId: string, value: DIF.Definitions.DIFContain
               :label="formatPointerId(pointerId)"
               :value="value"
               :expanded-nodes="expandedPointers"
+              :visited-objects="new WeakSet()"
               :show-full-ids="preferences.show_full_pointer_ids"
               :show-data-types="preferences.show_type_hints"
               :show-indices="preferences.show_array_indicies"
