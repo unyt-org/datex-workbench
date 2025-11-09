@@ -41,24 +41,34 @@ jobs:
           npm version "${{ github.event.inputs.bump }}" --no-git-tag-version
           echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
-      - name: Create release branch, commit & push
-        run: |
-          NEW_VERSION=${{ steps.bump.outputs.version }}
-          BRANCH=release/${NEW_VERSION}
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b "${BRANCH}"
-          git add package.json package-lock.json || true
-          git commit -m "chore(release): bump to ${NEW_VERSION}" || echo "no changes to commit"
-          git push -u origin "${BRANCH}"
+      # - name: Create release branch, commit & push
+      #   run: |
+      #     NEW_VERSION=${{ steps.bump.outputs.version }}
+      #     BRANCH=release/${NEW_VERSION}
+      #     git config user.name "github-actions[bot]"
+      #     git config user.email "github-actions[bot]@users.noreply.github.com"
+      #     git checkout -b "${BRANCH}"
+      #     git add package.json package-lock.json || true
+      #     git commit -m "chore(release): bump to ${NEW_VERSION}" || echo "no changes to commit"
+      #     git push -u origin "${BRANCH}"
 
-      - name: Create draft PR
+      # - name: Create draft PR
+      #   uses: peter-evans/create-pull-request@v6
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     branch: release/${{ steps.bump.outputs.version }}
+      #     base: main
+      #     title: 'Release ${{ steps.bump.outputs.version }}'
+      #     body: |
+      #       Automated semver bump to ${{ steps.bump.outputs.version }}.
+      #     draft: true
+      - name: Create release PR
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore(release): bump to ${{ steps.bump.outputs.version }}'
           branch: release/${{ steps.bump.outputs.version }}
+          title: 'chore(release): bump to ${{ steps.bump.outputs.version }}'
+          body: 'Automated release PR for version ${{ steps.bump.outputs.version }}'
           base: main
-          title: 'Release ${{ steps.bump.outputs.version }}'
-          body: |
-            Automated semver bump to ${{ steps.bump.outputs.version }}.
           draft: true
