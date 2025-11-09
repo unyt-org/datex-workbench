@@ -3,7 +3,7 @@ import { getNewPanelId } from '@/utils/idPanelGenerator.ts'
 import { reactive, toRaw } from 'vue'
 
 /** Default type for panel data */
-type DefaultData = Record<string, any>
+type DefaultData = Record<string, unknown>
 
 /** Reactive root of the layout tree */
 const layoutTree = reactive<LayoutNode<DefaultData>>({
@@ -15,10 +15,10 @@ const layoutTree = reactive<LayoutNode<DefaultData>>({
 
 /**
  * Provides the reactive layout tree
- * @template T Type of panel data (default is `Record<string, any>`)
+ * @template T Type of panel data (default is `Record<string, unknown>`)
  * @returns An object containing the reactive `layoutTree`
  */
-export function useLayoutTree<T extends Record<string, any> = DefaultData>() {
+export function useLayoutTree<T extends Record<string, unknown> = DefaultData>() {
   return { layoutTree: layoutTree as LayoutNode<T> }
 }
 
@@ -28,7 +28,7 @@ export function useLayoutTree<T extends Record<string, any> = DefaultData>() {
  * @param node The node to clone
  * @returns A reactive clone of the node with new IDs
  */
-export function cloneNodeWithNewId<T extends Record<string, any>>(
+export function cloneNodeWithNewId<T extends Record<string, unknown>>(
   node: LayoutNode<T>,
 ): LayoutNode<T> {
   const rawNode = toRaw(node)
@@ -52,21 +52,63 @@ export function cloneNodeWithNewId<T extends Record<string, any>>(
 }
 
 /**
- * Deep clones a data object, preserving nested objects, arrays, and Date instances
+ * Deep clones a data object, preserving nested objects, arrays, maps, sets, dates, and regexps
  * @template T Type of the data object
  * @param data The data to clone
  * @returns A deep clone of the data
  */
-function deepCloneData<T extends Record<string, any>>(data: T): T {
+function deepCloneData<T>(data: T, cache = new WeakMap()): T {
+  // primitives and functions
   if (data === null || typeof data !== 'object') return data
-  if (data instanceof Date) return new Date(data.getTime()) as any
-  if (Array.isArray(data)) return data.map(deepCloneData) as any
 
-  const result: any = {}
-  for (const key in data) {
-    result[key] = deepCloneData(data[key])
+  // circular references
+  if (cache.has(data)) return cache.get(data) as T
+
+  // Date
+  if (data instanceof Date) return new Date(data.getTime()) as unknown as T
+
+  // RegExp
+  if (data instanceof RegExp) return new RegExp(data.source, data.flags) as unknown as T
+
+  // Map
+  if (data instanceof Map) {
+    const clonedMap = new Map()
+    cache.set(data, clonedMap)
+    data.forEach((value, key) => {
+      clonedMap.set(key, deepCloneData(value, cache))
+    })
+    return clonedMap as unknown as T
   }
-  return result
+
+  // Set
+  if (data instanceof Set) {
+    const clonedSet = new Set()
+    cache.set(data, clonedSet)
+    data.forEach((value) => {
+      clonedSet.add(deepCloneData(value, cache))
+    })
+    return clonedSet as unknown as T
+  }
+
+  // Array
+  if (Array.isArray(data)) {
+    const clonedArray: unknown[] = []
+    cache.set(data, clonedArray)
+    data.forEach((item, index) => {
+      clonedArray[index] = deepCloneData(item, cache)
+    })
+    return clonedArray as T
+  }
+
+  // plain objects
+  const clonedObj: Record<string | symbol, unknown> = {}
+  cache.set(data, clonedObj)
+  Reflect.ownKeys(data).forEach((key) => {
+    const val = (data as Record<string | symbol, unknown>)[key]
+    clonedObj[key] = deepCloneData(val, cache)
+  })
+
+  return clonedObj as T
 }
 
 /**
@@ -74,7 +116,7 @@ function deepCloneData<T extends Record<string, any>>(data: T): T {
  * @template T Type of panel data
  * @param nodeToKeep The child node to keep
  */
-export function collapseSplit<T extends Record<string, any>>(nodeToKeep: LayoutNode<T>): void {
+export function collapseSplit<T extends Record<string, unknown>>(nodeToKeep: LayoutNode<T>): void {
   const parent = findParentById(nodeToKeep.id)
   if (!parent || parent.type !== NodeType.Split) return
 
@@ -138,7 +180,7 @@ export function removeSourceFromParent(sourceId: string) {
  * @param id The ID of the node to find
  * @returns The node if found, otherwise null
  */
-export function findNodeById<T extends Record<string, any>>(
+export function findNodeById<T extends Record<string, unknown>>(
   node: LayoutNode<T> | null,
   id: string,
 ): LayoutNode<T> | null {
@@ -160,7 +202,7 @@ export function findNodeById<T extends Record<string, any>>(
  * @param id The ID of the child node
  * @returns The parent split node if found, otherwise null
  */
-export function findNodeParent<T extends Record<string, any>>(
+export function findNodeParent<T extends Record<string, unknown>>(
   node: LayoutNode<T>,
   id: string,
 ): SplitNode<T> | null {
@@ -180,7 +222,7 @@ export function findNodeParent<T extends Record<string, any>>(
  * @param id The ID of the child node
  * @returns The parent split node if found, otherwise null
  */
-export function findParentById<T extends Record<string, any>>(id: string): SplitNode<T> | null {
+export function findParentById<T extends Record<string, unknown>>(id: string): SplitNode<T> | null {
   const { layoutTree } = useLayoutTree<T>()
   return findNodeParent(layoutTree, id)
 }
