@@ -1,55 +1,56 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 const props = defineProps({
   section: {
     type: Object,
     required: true,
   },
-})
+});
 
-const bytesCutoff: number = 30
+const bytesCutoff: number = 30;
 
-const box = ref<HTMLDivElement | null>(null)
-const width = ref(0)
-const bytes = ref(0)
+const box = ref<HTMLDivElement | null>(null);
+const width = ref(0);
+const bytes = ref(0);
 
-let observer: ResizeObserver
+let observer: ResizeObserver;
 
 onMounted(() => {
   // console.log('Field object:', props.section)
   if (box.value) {
     observer = new ResizeObserver((entries) => {
-      const el = entries[0].target
-      width.value = el.clientWidth
+      const el = entries[0]?.target;
+      if (!el) return;
+      width.value = el.clientWidth;
 
       // Measure 1ch within this element’s context
-      const chWidth = getChUnitInElement(el)
+      const chWidth = getChUnitInElement(el);
 
       // Calculate how many 3ch columns fit
-      bytes.value = Math.floor(width.value / (chWidth * 3))
-    })
-    observer.observe(box.value)
+      bytes.value = Math.floor(width.value / (chWidth * 3));
+    });
+    observer.observe(box.value);
   }
-})
+});
 
 onBeforeUnmount(() => {
-  if (observer && box.value) observer.unobserve(box.value)
-})
+  if (observer && box.value) observer.unobserve(box.value);
+});
 
 function getChUnitInElement(el: Element) {
-  const test = document.createElement('span')
-  test.style.display = 'inline-block'
-  test.style.visibility = 'hidden'
-  test.style.width = '1ch'
-  test.textContent = ' '
-  el.appendChild(test)
-  const chWidth = test.offsetWidth
-  el.removeChild(test)
-  return chWidth
+  const test = document.createElement('span');
+  test.style.display = 'inline-block';
+  test.style.visibility = 'hidden';
+  test.style.width = '1ch';
+  test.textContent = ' ';
+  el.appendChild(test);
+  const chWidth = test.offsetWidth;
+  el.removeChild(test);
+  return chWidth;
 }
 
-const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0')
+const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 
 // this will later hopefully be replaced by shadcn Tooltip hovering
 // document.querySelectorAll('.field-wrapper').forEach((e, i) => {
