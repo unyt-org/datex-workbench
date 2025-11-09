@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
-import Window from './Window.vue'
+import { useDragDrop } from '@/composable/useDragDrop.ts'
 import { collapseSplit } from '@/composable/useLayoutTree.ts'
 import {
   CollapseSide,
@@ -9,7 +8,8 @@ import {
   SplitDirection,
   type SplitNode,
 } from '@/types/layout.ts'
-import { useDragDrop } from '@/composable/useDragDrop.ts'
+import { reactive } from 'vue'
+import Window from './Window.vue'
 
 const props = defineProps<{ node: LayoutNode }>()
 
@@ -159,6 +159,7 @@ function collapseNearSide(node: SplitNode, side: CollapseSide): void {
       </div>
     </div>
 
+    <!-- eslint-disable vue/no-mutating-props -->
     <div class="w-full h-full flex flex-col items-center justify-center p-4 gap-3">
       <input
         v-model="node.data.text"
@@ -166,7 +167,6 @@ function collapseNearSide(node: SplitNode, side: CollapseSide): void {
         placeholder="Type text..."
         class="border border-neutral-300 dark:border-neutral-700 rounded-lg px-2 py-1 w-full max-w-xs text-sm bg-transparent focus:outline-none focus:ring-2 focus:ring-primary"
       />
-
       <input
         v-model="node.data.date"
         type="date"
