@@ -1,9 +1,9 @@
-import { type LayoutNode, NodeType, type PanelNode, type SplitNode } from '@/types/layout'
-import { getNewPanelId } from '@/utils/idPanelGenerator.ts'
-import { reactive, toRaw } from 'vue'
+import { type LayoutNode, NodeType, type PanelNode, type SplitNode } from '@/types/layout';
+import { getNewPanelId } from '@/utils/idPanelGenerator.ts';
+import { reactive, toRaw } from 'vue';
 
 /** Default type for panel data */
-type DefaultData = Record<string, unknown>
+type DefaultData = Record<string, unknown>;
 
 /** Reactive root of the layout tree */
 const layoutTree = reactive<LayoutNode<DefaultData>>({
@@ -11,7 +11,7 @@ const layoutTree = reactive<LayoutNode<DefaultData>>({
   id: getNewPanelId(),
   label: 'Root',
   data: {},
-})
+});
 
 /**
  * Provides the reactive layout tree
@@ -19,7 +19,7 @@ const layoutTree = reactive<LayoutNode<DefaultData>>({
  * @returns An object containing the reactive `layoutTree`
  */
 export function useLayoutTree<T extends Record<string, unknown> = DefaultData>() {
-  return { layoutTree: layoutTree as LayoutNode<T> }
+  return { layoutTree: layoutTree as LayoutNode<T> };
 }
 
 /**
@@ -31,24 +31,24 @@ export function useLayoutTree<T extends Record<string, unknown> = DefaultData>()
 export function cloneNodeWithNewId<T extends Record<string, unknown>>(
   node: LayoutNode<T>,
 ): LayoutNode<T> {
-  const rawNode = toRaw(node)
+  const rawNode = toRaw(node);
 
-  let clone: LayoutNode<T>
+  let clone: LayoutNode<T>;
   if (rawNode.type === NodeType.Split) {
     clone = {
       ...rawNode,
       id: getNewPanelId(),
       children: [cloneNodeWithNewId(rawNode.children[0]), cloneNodeWithNewId(rawNode.children[1])],
-    }
+    };
   } else {
     clone = {
       ...rawNode,
       id: getNewPanelId(),
       data: reactive(deepCloneData(rawNode.data)) as T,
-    }
+    };
   }
 
-  return reactive(clone) as LayoutNode<T>
+  return reactive(clone) as LayoutNode<T>;
 }
 
 /**
@@ -59,56 +59,56 @@ export function cloneNodeWithNewId<T extends Record<string, unknown>>(
  */
 function deepCloneData<T>(data: T, cache = new WeakMap()): T {
   // primitives and functions
-  if (data === null || typeof data !== 'object') return data
+  if (data === null || typeof data !== 'object') return data;
 
   // circular references
-  if (cache.has(data)) return cache.get(data) as T
+  if (cache.has(data)) return cache.get(data) as T;
 
   // Date
-  if (data instanceof Date) return new Date(data.getTime()) as unknown as T
+  if (data instanceof Date) return new Date(data.getTime()) as unknown as T;
 
   // RegExp
-  if (data instanceof RegExp) return new RegExp(data.source, data.flags) as unknown as T
+  if (data instanceof RegExp) return new RegExp(data.source, data.flags) as unknown as T;
 
   // Map
   if (data instanceof Map) {
-    const clonedMap = new Map()
-    cache.set(data, clonedMap)
+    const clonedMap = new Map();
+    cache.set(data, clonedMap);
     data.forEach((value, key) => {
-      clonedMap.set(key, deepCloneData(value, cache))
-    })
-    return clonedMap as unknown as T
+      clonedMap.set(key, deepCloneData(value, cache));
+    });
+    return clonedMap as unknown as T;
   }
 
   // Set
   if (data instanceof Set) {
-    const clonedSet = new Set()
-    cache.set(data, clonedSet)
+    const clonedSet = new Set();
+    cache.set(data, clonedSet);
     data.forEach((value) => {
-      clonedSet.add(deepCloneData(value, cache))
-    })
-    return clonedSet as unknown as T
+      clonedSet.add(deepCloneData(value, cache));
+    });
+    return clonedSet as unknown as T;
   }
 
   // Array
   if (Array.isArray(data)) {
-    const clonedArray: unknown[] = []
-    cache.set(data, clonedArray)
+    const clonedArray: unknown[] = [];
+    cache.set(data, clonedArray);
     data.forEach((item, index) => {
-      clonedArray[index] = deepCloneData(item, cache)
-    })
-    return clonedArray as T
+      clonedArray[index] = deepCloneData(item, cache);
+    });
+    return clonedArray as T;
   }
 
   // plain objects
-  const clonedObj: Record<string | symbol, unknown> = {}
-  cache.set(data, clonedObj)
+  const clonedObj: Record<string | symbol, unknown> = {};
+  cache.set(data, clonedObj);
   Reflect.ownKeys(data).forEach((key) => {
-    const val = (data as Record<string | symbol, unknown>)[key]
-    clonedObj[key] = deepCloneData(val, cache)
-  })
+    const val = (data as Record<string | symbol, unknown>)[key];
+    clonedObj[key] = deepCloneData(val, cache);
+  });
 
-  return clonedObj as T
+  return clonedObj as T;
 }
 
 /**
@@ -117,35 +117,35 @@ function deepCloneData<T>(data: T, cache = new WeakMap()): T {
  * @param nodeToKeep The child node to keep
  */
 export function collapseSplit<T extends Record<string, unknown>>(nodeToKeep: LayoutNode<T>): void {
-  const parent = findParentById(nodeToKeep.id)
-  if (!parent || parent.type !== NodeType.Split) return
+  const parent = findParentById(nodeToKeep.id);
+  if (!parent || parent.type !== NodeType.Split) return;
 
-  const index = parent.children.findIndex((c) => c.id === nodeToKeep.id)
-  if (index === -1) return
+  const index = parent.children.findIndex((c) => c.id === nodeToKeep.id);
+  if (index === -1) return;
 
-  let newNode: LayoutNode<T>
+  let newNode: LayoutNode<T>;
   if (nodeToKeep.type === NodeType.Panel) {
     newNode = reactive({
       type: NodeType.Panel,
       id: getNewPanelId(),
       label: nodeToKeep.label,
       data: reactive(deepCloneData(nodeToKeep.data)),
-    }) as LayoutNode<T>
+    }) as LayoutNode<T>;
   } else {
     const children: [LayoutNode<T>, LayoutNode<T>] = [
       cloneNodeWithNewId(nodeToKeep.children[0]),
       cloneNodeWithNewId(nodeToKeep.children[1]),
-    ]
+    ];
     newNode = reactive({
       type: NodeType.Split,
       id: getNewPanelId(),
       direction: nodeToKeep.direction,
       splitRatio: nodeToKeep.splitRatio,
       children,
-    }) as LayoutNode<T>
+    }) as LayoutNode<T>;
   }
 
-  Object.assign(parent, newNode)
+  Object.assign(parent, newNode);
 }
 
 /**
@@ -154,9 +154,9 @@ export function collapseSplit<T extends Record<string, unknown>>(nodeToKeep: Lay
  * @param source The panel to copy from
  */
 export function replacePanel(target: PanelNode, source: PanelNode) {
-  target.label = source.label
-  target.data = deepCloneData(toRaw(source.data))
-  target.id = getNewPanelId()
+  target.label = source.label;
+  target.data = deepCloneData(toRaw(source.data));
+  target.id = getNewPanelId();
 }
 
 /**
@@ -164,13 +164,13 @@ export function replacePanel(target: PanelNode, source: PanelNode) {
  * @param sourceId The ID of the node to remove
  */
 export function removeSourceFromParent(sourceId: string) {
-  const parent = findParentById(sourceId)
-  if (!parent || parent.type !== NodeType.Split) return
+  const parent = findParentById(sourceId);
+  if (!parent || parent.type !== NodeType.Split) return;
 
-  const [left, right] = parent.children
-  const nodeToKeep = left.id === sourceId ? right : left
+  const [left, right] = parent.children;
+  const nodeToKeep = left.id === sourceId ? right : left;
 
-  Object.assign(parent, cloneNodeWithNewId(toRaw(nodeToKeep)))
+  Object.assign(parent, cloneNodeWithNewId(toRaw(nodeToKeep)));
 }
 
 /**
@@ -184,15 +184,15 @@ export function findNodeById<T extends Record<string, unknown>>(
   node: LayoutNode<T> | null,
   id: string,
 ): LayoutNode<T> | null {
-  if (!node) return null
-  if (node.id === id) return node
+  if (!node) return null;
+  if (node.id === id) return node;
   if (node.type === NodeType.Split) {
     for (const child of node.children) {
-      const found = findNodeById(child, id)
-      if (found) return found
+      const found = findNodeById(child, id);
+      if (found) return found;
     }
   }
-  return null
+  return null;
 }
 
 /**
@@ -208,12 +208,12 @@ export function findNodeParent<T extends Record<string, unknown>>(
 ): SplitNode<T> | null {
   if (node.type === NodeType.Split) {
     for (const child of node.children) {
-      if (child.id === id) return node
-      const found = findNodeParent(child, id)
-      if (found) return found
+      if (child.id === id) return node;
+      const found = findNodeParent(child, id);
+      if (found) return found;
     }
   }
-  return null
+  return null;
 }
 
 /**
@@ -223,6 +223,6 @@ export function findNodeParent<T extends Record<string, unknown>>(
  * @returns The parent split node if found, otherwise null
  */
 export function findParentById<T extends Record<string, unknown>>(id: string): SplitNode<T> | null {
-  const { layoutTree } = useLayoutTree<T>()
-  return findNodeParent(layoutTree, id)
+  const { layoutTree } = useLayoutTree<T>();
+  return findNodeParent(layoutTree, id);
 }

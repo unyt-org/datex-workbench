@@ -1,6 +1,6 @@
-import WindowGeneralView from '@/views/WindowGeneralView.vue'
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import WindowGeneralView from '@/views/WindowGeneralView.vue';
+import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '../views/HomeView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,6 +17,6 @@ const router = createRouter({
       component: WindowGeneralView,
     },
   ],
-})
+});
 
-export default router
+export default router;
