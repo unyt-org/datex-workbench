@@ -34,7 +34,9 @@ import { RouterView } from 'vue-router';
 
         <!-- Main content area -->
         <div class="flex-1 overflow-hidden bg-gray-900 text-white">
-            <RouterView />
+            <Suspense>
+                <RouterView />
+            </Suspense>
         </div>
 
         <!-- Right sidebar -->
