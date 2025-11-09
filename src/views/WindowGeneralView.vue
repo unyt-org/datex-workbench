@@ -1,7 +1,7 @@
 <template>
-  <div class="w-full h-full bg-primary-foreground text-primary p-1">
-    <Window :node="useLayoutTree().layoutTree" />
-  </div>
+    <div class="w-full h-full bg-primary-foreground text-primary p-1">
+        <Window :node="useLayoutTree().layoutTree" />
+    </div>
 </template>
 
 <script setup lang="ts">
