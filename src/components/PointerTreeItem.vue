@@ -8,12 +8,12 @@ import { TYPE_CONFIGS, getTypeName } from '@/lib/pointer-types'
 interface PointerTreeItemProps {
   nodeId: string
   label: string
-  fullLabel?: string
   value: DIF.Definitions.DIFContainer
   expandedNodes: Set<string>
   showFullIds?: boolean
   showDataTypes?: boolean
   showIndices?: boolean
+  hideTypeHintsForPrimitives?: boolean
   depth?: number
 }
 
@@ -22,6 +22,7 @@ const props = withDefaults(defineProps<PointerTreeItemProps>(), {
   showFullIds: false,
   showDataTypes: false,
   showIndices: true,
+  hideTypeHintsForPrimitives: true,
 })
 
 // Emits
@@ -52,8 +53,14 @@ function getValuePreview(difContainer: DIF.Definitions.DIFContainer): string {
   // Build the preview string
   let preview = ''
   
-  // Add data type if showDataTypes is enabled
-  if (props.showDataTypes) {
+  // Determine if we should show type hint
+  const shouldShowTypeHint = props.showDataTypes && !(
+    props.hideTypeHintsForPrimitives && 
+    (typeName === 'integer' || typeName === 'decimal' || typeName === 'boolean' || typeName === 'text')
+  )
+  
+  // Add data type if conditions are met
+  if (shouldShowTypeHint) {
     preview = `"${typeName}" = `
   }
   
@@ -187,6 +194,7 @@ function handleClick() {
         :show-full-ids="showFullIds"
         :show-data-types="showDataTypes"
         :show-indices="showIndices"
+        :hide-type-hints-for-primitives="hideTypeHintsForPrimitives"
         :depth="depth + 1"
         @node-click="emit('node-click', $event, childValue)"
         @node-toggle="emit('node-toggle', $event)"

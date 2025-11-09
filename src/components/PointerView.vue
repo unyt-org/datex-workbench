@@ -17,12 +17,11 @@ import {
 } from '@/components/ui/dropdown-menu'
 import {
   Popover,
-  PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
 import PointerTreeItem from './PointerTreeItem.vue'
+import PointerPreferences from './PointerPreferences.vue'
+import { usePointerPreferences } from '@/composables/usePointerPreferences'
 import type { DIF } from '@/lib/runtime'
 
 // Props interface
@@ -43,16 +42,16 @@ const emit = defineEmits<{
   'pointer-expand': [pointerId: string, expanded: boolean]
 }>()
 
+// Use preferences composable
+const { preferences } = usePointerPreferences()
+
 // State
 const searchQuery = ref('')
 const expandedPointers = ref<Set<string>>(new Set())
-const showFullPointerIds = ref(false)
-const showDataTypes = ref(false)
-const showIndices = ref(true)
 
 // Format pointer ID based on display mode
 function formatPointerId(pointerId: string): string {
-  if (showFullPointerIds.value) {
+  if (preferences.value.show_full_pointer_ids) {
     return pointerId
   }
   
@@ -99,56 +98,12 @@ function handlePointerClick(pointerId: string, value: DIF.Definitions.DIFContain
               <Button
                 variant="outline"
                 size="icon"
-                title="Display Settings"
+                title="Display Preferences"
               >
                 <Settings class="h-4 w-4" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent class="w-80" align="start">
-              <div class="space-y-4">
-                <div class="space-y-2">
-                  <h4 class="font-medium leading-none">Display Settings</h4>
-                  <p class="text-sm text-muted-foreground">
-                    Customize how pointers are displayed
-                  </p>
-                </div>
-                
-                <div class="space-y-4">
-                  <!-- Show Full IDs Toggle -->
-                  <div class="flex items-center justify-between space-x-2">
-                    <div class="flex flex-col space-y-1 flex-1">
-                      <span class="font-medium">Full Pointer IDs</span>
-                      <span class="text-sm font-normal text-muted-foreground">
-                        Show complete pointer identifiers
-                      </span>
-                    </div>
-                    <Switch v-model="showFullPointerIds" />
-                  </div>
-
-                  <!-- Show Data Types Toggle -->
-                  <div class="flex items-center justify-between space-x-2">
-                    <div class="flex flex-col space-y-1 flex-1">
-                      <span class="font-medium">Data Types</span>
-                      <span class="text-sm font-normal text-muted-foreground">
-                        Display type annotations before values
-                      </span>
-                    </div>
-                    <Switch v-model="showDataTypes" />
-                  </div>
-
-                  <!-- Show Indices Toggle -->
-                  <div class="flex items-center justify-between space-x-2">
-                    <div class="flex flex-col space-y-1 flex-1">
-                      <span class="font-medium">Keys & Indices</span>
-                      <span class="text-sm font-normal text-muted-foreground">
-                        Show object keys and array indices
-                      </span>
-                    </div>
-                    <Switch v-model="showIndices" />
-                  </div>
-                </div>
-              </div>
-            </PopoverContent>
+            <PointerPreferences />
           </Popover>
           
           <!-- Search Input -->
@@ -191,12 +146,12 @@ function handlePointerClick(pointerId: string, value: DIF.Definitions.DIFContain
               :key="pointerId"
               :node-id="pointerId"
               :label="formatPointerId(pointerId)"
-              :full-label="pointerId"
               :value="value"
               :expanded-nodes="expandedPointers"
-              :show-full-ids="showFullPointerIds"
-              :show-data-types="showDataTypes"
-              :show-indices="showIndices"
+              :show-full-ids="preferences.show_full_pointer_ids"
+              :show-data-types="preferences.show_type_hints"
+              :show-indices="preferences.show_array_indicies"
+              :hide-type-hints-for-primitives="preferences.hide_type_hints_for_primitives"
               @node-click="handlePointerClick"
               @node-toggle="togglePointer"
             />
