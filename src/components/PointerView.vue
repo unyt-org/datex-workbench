@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, watchEffect } from 'vue'
 import type { HTMLAttributes } from 'vue'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -49,6 +49,37 @@ const { preferences } = usePointerPreferences()
 const searchQuery = ref('')
 const expandedPointers = ref<Set<string>>(new Set())
 
+// Computed property for current pointer IDs (cached and only recomputes when pointers Map changes)
+const currentPointerIds = computed(() => new Set(props.pointers.keys()))
+
+// Clean up expanded pointers when pointers change (reactive and efficient)
+watchEffect(() => {
+  const validIds = currentPointerIds.value
+  
+  // Iterate over expandedPointers Set directly - O(m) where m = expanded nodes
+  for (const pointerId of expandedPointers.value) {
+    // Check if this is a root pointer or a child pointer
+    const rootPointerId = pointerId.split('.')[0]
+    
+    // Remove if root pointer doesn't exist anymore - O(1) lookup in Set
+    if (!validIds.has(rootPointerId)) {
+      expandedPointers.value.delete(pointerId)
+    }
+  }
+})
+
+// Clean up expanded children when parent node is collapsed or removed
+function cleanupExpandedChildren(nodeId: string) {
+  const childPrefix = `${nodeId}.`
+  
+  // Iterate over Set directly (no array conversion) - O(m) where m = expanded nodes
+  for (const id of expandedPointers.value) {
+    if (id.startsWith(childPrefix)) {
+      expandedPointers.value.delete(id)
+    }
+  }
+}
+
 // Format pointer ID based on display mode
 function formatPointerId(pointerId: string): string {
   if (preferences.value.show_full_pointer_ids) {
@@ -69,6 +100,7 @@ function formatPointerId(pointerId: string): string {
 function togglePointer(pointerId: string) {
   if (expandedPointers.value.has(pointerId)) {
     expandedPointers.value.delete(pointerId)
+    cleanupExpandedChildren(pointerId) // Clean up children when collapsing
     emit('pointer-expand', pointerId, false)
   } else {
     expandedPointers.value.add(pointerId)

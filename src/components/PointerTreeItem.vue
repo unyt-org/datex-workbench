@@ -80,6 +80,11 @@ function getValuePreview(difContainer: DIF.Definitions.DIFContainer): string {
 
 // Get children
 function getChildren(difContainer: DIF.Definitions.DIFContainer): Array<[string, DIF.Definitions.DIFValueContainer]> {
+  // Only compute children if node is expanded (lazy evaluation)
+  if (!expanded.value) {
+    return []
+  }
+  
   // Check if it's a DIF map type (type: '0c0000')
   if (typeof difContainer === 'object' && difContainer !== null && 'type' in difContainer && difContainer.type === '0c0000') {
     const value = extractValue(difContainer)
@@ -107,6 +112,9 @@ function getChildren(difContainer: DIF.Definitions.DIFContainer): Array<[string,
   return []
 }
 
+// Computed children list (cached and only recomputes when expanded or value changes)
+const children = computed(() => getChildren(props.value))
+
 // Generate child ID
 function getChildId(parentId: string, childKey: string): string {
   return `${parentId}.${childKey}`
@@ -127,7 +135,7 @@ function handleClick() {
 </script>
 
 <template>
-  <div>
+  <div v-memo="[expanded, label, showDataTypes, showIndices, hideTypeHintsForPrimitives]">
     <!-- This node -->
     <div
       class="flex items-center gap-1 p-2 hover:bg-accent cursor-pointer rounded-md"
@@ -185,7 +193,7 @@ function handleClick() {
       class="ml-6 border-l border-border pl-2"
     >
       <PointerTreeItem
-        v-for="[childKey, childValue] in getChildren(value)"
+        v-for="[childKey, childValue] in children"
         :key="childKey"
         :node-id="getChildId(nodeId, childKey)"
         :label="childKey"
