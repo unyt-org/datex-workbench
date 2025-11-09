@@ -13,7 +13,8 @@
     "test:unit": "vitest",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
-    "lint": "eslint . --fix --cache",
+    "lint-fix": "eslint . --fix --cache",
+    "lint": "eslint .",
     "format": "prettier --write src/"
   },
   "dependencies": {
@@ -42,7 +43,7 @@
     "@vue/eslint-config-typescript": "^14.6.0",
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.8.1",
-    "eslint": "^9.37.0",
+    "eslint": "^9.39.1",
     "eslint-plugin-vue": "~10.5.0",
     "jiti": "^2.6.1",
     "jsdom": "^27.0.1",
