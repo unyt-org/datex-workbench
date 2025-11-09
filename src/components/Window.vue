@@ -1,51 +1,51 @@
 <script setup lang="ts">
-import { useDragDrop } from '@/composable/useDragDrop.ts'
-import { collapseSplit } from '@/composable/useLayoutTree.ts'
+import { useDragDrop } from '@/composable/useDragDrop.ts';
+import { collapseSplit } from '@/composable/useLayoutTree.ts';
 import {
   CollapseSide,
   type LayoutNode,
   NodeType,
   SplitDirection,
   type SplitNode,
-} from '@/types/layout.ts'
-import { reactive } from 'vue'
-import Window from './Window.vue'
+} from '@/types/layout.ts';
+import { reactive } from 'vue';
+import Window from './Window.vue';
 
-const props = defineProps<{ node: LayoutNode }>()
+const props = defineProps<{ node: LayoutNode }>();
 
 /** Tracks the currently active node for gutter dragging */
-const gutterDragState = reactive<{ activeNodeId: string | null }>({ activeNodeId: null })
+const gutterDragState = reactive<{ activeNodeId: string | null }>({ activeNodeId: null });
 
 /**
  * Destructure reusable drag & drop logic for this node
  */
 const { dragState, dropPreview, onDragEnter, onDragLeave, onDragOver, onDrop, DropMode } =
-  useDragDrop(props.node)
+  useDragDrop(props.node);
 
 /**
  * Starts dragging the gutter of a split node
  */
 function startGutterDrag(): void {
-  dragState.active = true
-  gutterDragState.activeNodeId = props.node.id
-  dragState.nearCollapse = CollapseSide.None
+  dragState.active = true;
+  gutterDragState.activeNodeId = props.node.id;
+  dragState.nearCollapse = CollapseSide.None;
 }
 
 /**
  * Stops dragging the gutter and collapses a side if near a boundary
  */
 function stopGutterDrag(): void {
-  if (gutterDragState.activeNodeId !== props.node.id) return
-  if (props.node.type !== NodeType.Split) return // only split nodes can be dragged
+  if (gutterDragState.activeNodeId !== props.node.id) return;
+  if (props.node.type !== NodeType.Split) return; // only split nodes can be dragged
 
-  gutterDragState.activeNodeId = null
-  dragState.active = false
+  gutterDragState.activeNodeId = null;
+  dragState.active = false;
 
   if (dragState.nearCollapse) {
-    collapseNearSide(props.node, dragState.nearCollapse)
+    collapseNearSide(props.node, dragState.nearCollapse);
   }
 
-  dragState.nearCollapse = CollapseSide.None
+  dragState.nearCollapse = CollapseSide.None;
 }
 
 /**
@@ -54,12 +54,12 @@ function stopGutterDrag(): void {
  * @param e MouseEvent triggered on gutter movement
  */
 function onGutterDrag(e: MouseEvent): void {
-  if (gutterDragState.activeNodeId !== props.node.id) return
+  if (gutterDragState.activeNodeId !== props.node.id) return;
 
-  const node = props.node as SplitNode
-  const ratio = calculateSplitRatio(e, node)
-  node.splitRatio = ratio
-  dragState.nearCollapse = determineNearCollapse(ratio, node)
+  const node = props.node as SplitNode;
+  const ratio = calculateSplitRatio(e, node);
+  node.splitRatio = ratio;
+  dragState.nearCollapse = determineNearCollapse(ratio, node);
 }
 
 /**
@@ -69,14 +69,14 @@ function onGutterDrag(e: MouseEvent): void {
  * @returns number split ratio between 0.05 and 0.95
  */
 function calculateSplitRatio(e: MouseEvent, node: SplitNode): number {
-  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
   const ratio =
     node.direction === SplitDirection.Vertical
       ? (e.clientX - rect.left) / rect.width
-      : (e.clientY - rect.top) / rect.height
+      : (e.clientY - rect.top) / rect.height;
 
   // Clamp ratio to prevent collapse beyond the threshold
-  return Math.min(0.95, Math.max(0.05, ratio))
+  return Math.min(0.95, Math.max(0.05, ratio));
 }
 
 /**
@@ -87,10 +87,10 @@ function calculateSplitRatio(e: MouseEvent, node: SplitNode): number {
  */
 function determineNearCollapse(ratio: number, node: SplitNode): CollapseSide {
   if (ratio <= 0.15)
-    return node.direction === SplitDirection.Vertical ? CollapseSide.Left : CollapseSide.Top
+    return node.direction === SplitDirection.Vertical ? CollapseSide.Left : CollapseSide.Top;
   if (ratio >= 0.85)
-    return node.direction === SplitDirection.Vertical ? CollapseSide.Right : CollapseSide.Bottom
-  return CollapseSide.None
+    return node.direction === SplitDirection.Vertical ? CollapseSide.Right : CollapseSide.Bottom;
+  return CollapseSide.None;
 }
 
 /**
@@ -99,10 +99,10 @@ function determineNearCollapse(ratio: number, node: SplitNode): CollapseSide {
  * @param side Side to collapse (left/top or right/bottom)
  */
 function collapseNearSide(node: SplitNode, side: CollapseSide): void {
-  const keepIndex = side === CollapseSide.Left || side === CollapseSide.Top ? 1 : 0
-  const nodeToKeep = node.children[keepIndex]
-  if (!nodeToKeep) return
-  collapseSplit(nodeToKeep)
+  const keepIndex = side === CollapseSide.Left || side === CollapseSide.Top ? 1 : 0;
+  const nodeToKeep = node.children[keepIndex];
+  if (!nodeToKeep) return;
+  collapseSplit(nodeToKeep);
 }
 </script>
 
@@ -121,7 +121,7 @@ function collapseNearSide(node: SplitNode, side: CollapseSide): void {
       draggable="true"
       @dragstart="
         (e) => {
-          e.dataTransfer?.setData('text/plain', node.id)
+          e.dataTransfer?.setData('text/plain', node.id);
         }
       "
     >

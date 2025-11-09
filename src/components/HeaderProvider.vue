@@ -1,6 +1,6 @@
 <script lang="ts">
-import ThemeSwitch from '@/components/ThemeSwitch.vue'
-import IconLogo from '@/components/icons/IconLogo.vue'
+import ThemeSwitch from '@/components/ThemeSwitch.vue';
+import IconLogo from '@/components/icons/IconLogo.vue';
 import {
   Menubar,
   MenubarContent,
@@ -10,7 +10,7 @@ import {
   MenubarSubContent,
   MenubarSubTrigger,
   MenubarTrigger,
-} from '@/components/ui/menubar'
+} from '@/components/ui/menubar';
 export default {
   name: 'HeaderComponent',
   components: {
@@ -25,7 +25,7 @@ export default {
     IconLogo,
     ThemeSwitch,
   },
-}
+};
 </script>
 
 <template>

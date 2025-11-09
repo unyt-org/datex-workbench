@@ -24,13 +24,13 @@ export enum SplitDirection {
  */
 export interface PanelNode<T extends Record<string, unknown> = Record<string, unknown>> {
   /** Node type: always `Panel` */
-  type: NodeType.Panel
+  type: NodeType.Panel;
   /** Unique identifier */
-  id: string
+  id: string;
   /** Display label for the panel */
-  label: string
+  label: string;
   /** Panel-specific data */
-  data: T
+  data: T;
 }
 
 /**
@@ -39,15 +39,15 @@ export interface PanelNode<T extends Record<string, unknown> = Record<string, un
  */
 export interface SplitNode<T extends Record<string, unknown> = Record<string, unknown>> {
   /** Node type: always `Split` */
-  type: NodeType.Split
+  type: NodeType.Split;
   /** Unique identifier */
-  id: string
+  id: string;
   /** Direction of the split */
-  direction: SplitDirection
+  direction: SplitDirection;
   /** Ratio between first and second child (0..1) */
-  splitRatio: number
+  splitRatio: number;
   /** Exactly two children (left/top and right/bottom depending on direction) */
-  children: [LayoutNode<T>, LayoutNode<T>]
+  children: [LayoutNode<T>, LayoutNode<T>];
 }
 
 /**
@@ -56,7 +56,7 @@ export interface SplitNode<T extends Record<string, unknown> = Record<string, un
  */
 export type LayoutNode<T extends Record<string, unknown> = Record<string, unknown>> =
   | PanelNode<T>
-  | SplitNode<T>
+  | SplitNode<T>;
 
 /**
  * Collapse sides for split nodes

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import HeaderProvider from '@/components/HeaderProvider.vue'
-import { RouterView } from 'vue-router'
+import HeaderProvider from '@/components/HeaderProvider.vue';
+import { RouterView } from 'vue-router';
 </script>
 
 <template>
