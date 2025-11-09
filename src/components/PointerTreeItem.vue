@@ -1,21 +1,21 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { ChevronRight, ChevronDown } from 'lucide-vue-next'
-import type { DIF } from '@/lib/runtime'
-import { TYPE_CONFIGS, getTypeName } from '@/lib/pointer-types'
+import { TYPE_CONFIGS, getTypeName } from '@/lib/pointer-types';
+import type { DIF } from '@/lib/runtime';
+import { ChevronDown, ChevronRight } from 'lucide-vue-next';
+import { computed } from 'vue';
 
 // Props
 interface PointerTreeItemProps {
-  nodeId: string
-  label: string
-  value: DIF.Definitions.DIFContainer
-  expandedNodes: Set<string>
-  visitedObjects?: WeakSet<object>
-  showFullIds?: boolean
-  showDataTypes?: boolean
-  showIndices?: boolean
-  hideTypeHintsForPrimitives?: boolean
-  depth?: number
+  nodeId: string;
+  label: string;
+  value: DIF.Definitions.DIFContainer;
+  expandedNodes: Set<string>;
+  visitedObjects?: WeakSet<object>;
+  showFullIds?: boolean;
+  showDataTypes?: boolean;
+  showIndices?: boolean;
+  hideTypeHintsForPrimitives?: boolean;
+  depth?: number;
 }
 
 const props = withDefaults(defineProps<PointerTreeItemProps>(), {
@@ -25,141 +25,158 @@ const props = withDefaults(defineProps<PointerTreeItemProps>(), {
   showIndices: true,
   hideTypeHintsForPrimitives: true,
   visitedObjects: () => new WeakSet(),
-})
+});
 
 // Emits
 const emit = defineEmits<{
-  'node-click': [nodeId: string, value: DIF.Definitions.DIFContainer]
-  'node-toggle': [nodeId: string]
-}>()
+  'node-click': [nodeId: string, value: DIF.Definitions.DIFContainer];
+  'node-toggle': [nodeId: string];
+}>();
 
 // Check if value is circular reference
 function isCircularReference(difContainer: DIF.Definitions.DIFContainer): boolean {
   // Only objects can have circular references
   if (typeof difContainer !== 'object' || difContainer === null) {
-    return false
+    return false;
   }
-  
-  return props.visitedObjects?.has(difContainer) ?? false
+
+  return props.visitedObjects?.has(difContainer) ?? false;
 }
 
 // Check if expandable
 function isExpandable(difContainer: DIF.Definitions.DIFContainer): boolean {
-  const typeName = getTypeName(difContainer)
-  return TYPE_CONFIGS[typeName]?.isExpandable ?? false
+  const typeName = getTypeName(difContainer);
+  return TYPE_CONFIGS[typeName]?.isExpandable ?? false;
 }
 
 // Extract the actual value from a DIF container, unwrapping nested value properties
 function extractValue(difContainer: any): any {
   if (difContainer && typeof difContainer === 'object' && 'value' in difContainer) {
-    return difContainer.value
+    return difContainer.value;
   }
-  return difContainer
+  return difContainer;
 }
 
 // Get value preview
 function getValuePreview(difContainer: DIF.Definitions.DIFContainer): string {
-  const value = extractValue(difContainer)
-  const typeName = getTypeName(difContainer)
-  
+  const value = extractValue(difContainer);
+  const typeName = getTypeName(difContainer);
+
   // Build the preview string
-  let preview = ''
-  
+  let preview = '';
+
   // Determine if we should show type hint
-  const shouldShowTypeHint = props.showDataTypes && !(
-    props.hideTypeHintsForPrimitives && 
-    (typeName === 'integer' || typeName === 'decimal' || typeName === 'boolean' || typeName === 'text')
-  )
-  
+  const shouldShowTypeHint =
+    props.showDataTypes &&
+    !(
+      props.hideTypeHintsForPrimitives &&
+      (typeName === 'integer' ||
+        typeName === 'decimal' ||
+        typeName === 'boolean' ||
+        typeName === 'text')
+    );
+
   // Add data type if conditions are met
   if (shouldShowTypeHint) {
-    preview = `"${typeName}" = `
+    preview = `"${typeName}" = `;
   }
-  
+
   // For non-expandable types, show the actual value
   if (!TYPE_CONFIGS[typeName]?.isExpandable) {
-    if (typeName === 'text') preview += `"${value}"`
-    else if (typeName === 'boolean') preview += value ? 'true' : 'false'
-    else if (typeName === 'integer' || typeName === 'decimal') preview += String(value)
-    else if (typeName === 'null') preview += 'null'
-    else preview += TYPE_CONFIGS[typeName]?.preview(value) || 'null'
+    if (typeName === 'text') preview += `"${value}"`;
+    else if (typeName === 'boolean') preview += value ? 'true' : 'false';
+    else if (typeName === 'integer' || typeName === 'decimal') preview += String(value);
+    else if (typeName === 'null') preview += 'null';
+    else preview += TYPE_CONFIGS[typeName]?.preview(value) || 'null';
   } else {
-    preview += TYPE_CONFIGS[typeName]?.preview(value) || 'null'
+    preview += TYPE_CONFIGS[typeName]?.preview(value) || 'null';
   }
-  
-  return preview
+
+  return preview;
 }
 
 // Get children
-function getChildren(difContainer: DIF.Definitions.DIFContainer): Array<[string, DIF.Definitions.DIFValueContainer]> {
+function getChildren(
+  difContainer: DIF.Definitions.DIFContainer,
+): Array<[string, DIF.Definitions.DIFValueContainer]> {
   // Only compute children if node is expanded (lazy evaluation)
   if (!expanded.value) {
-    return []
+    return [];
   }
-  
+
   // Check for circular reference before processing children
   if (isCircularReference(difContainer)) {
-    return []
+    return [];
   }
-  
+
   // Check if it's a DIF map type (type: '0c0000')
-  if (typeof difContainer === 'object' && difContainer !== null && 'type' in difContainer && difContainer.type === '0c0000') {
-    const value = extractValue(difContainer)
+  if (
+    typeof difContainer === 'object' &&
+    difContainer !== null &&
+    'type' in difContainer &&
+    difContainer.type === '0c0000'
+  ) {
+    const value = extractValue(difContainer);
     // DIF maps store their value as an object with key-value pairs
     if (typeof value === 'object' && value !== null) {
-      return Object.entries(value).map(([k, v]) => [k, v])
+      return Object.entries(value).map(([k, v]) => [k, v]);
     }
   }
-  
-  const value = extractValue(difContainer)
-  
+
+  const value = extractValue(difContainer);
+
   if (Array.isArray(value)) {
-    return (value as DIF.Definitions.DIFArray).map((item, index) => [String(index), item])
+    return (value as DIF.Definitions.DIFArray).map((item, index) => [String(index), item]);
   }
-  
+
   if (value instanceof Map) {
     return Array.from((value as Map<any, any>).entries()).map(([k, v]) => {
-      const keyDisplay = typeof k === 'string' ? k : 
-                        typeof k === 'number' ? String(k) :
-                        typeof k === 'object' ? JSON.stringify(k) : String(k)
-      return [keyDisplay, v]
-    })
+      const keyDisplay =
+        typeof k === 'string'
+          ? k
+          : typeof k === 'number'
+            ? String(k)
+            : typeof k === 'object'
+              ? JSON.stringify(k)
+              : String(k);
+      return [keyDisplay, v];
+    });
   }
-  
-  return []
+
+  return [];
 }
 
 // Computed children list (cached and only recomputes when expanded or value changes)
-const children = computed(() => getChildren(props.value))
+const children = computed(() => getChildren(props.value));
 
 // Create new visited set for children (includes current value)
 const childVisitedObjects = computed(() => {
-  const newVisited = new WeakSet(props.visitedObjects)
+  const newVisited = new WeakSet(Array.from(props.visitedObjects));
   if (typeof props.value === 'object' && props.value !== null) {
-    newVisited.add(props.value)
+    newVisited.add(props.value);
   }
-  return newVisited
-})
+  return newVisited;
+});
 
 // Generate child ID
 function getChildId(parentId: string, childKey: string): string {
-  return `${parentId}.${childKey}`
+  return `${parentId}.${childKey}`;
 }
 
 // Computed
-const expanded = computed(() => props.expandedNodes.has(props.nodeId))
+const expanded = computed(() => props.expandedNodes.has(props.nodeId));
 
 // Check if current value is circular
-const isCircular = computed(() => isCircularReference(props.value))
+const isCircular = computed(() => isCircularReference(props.value));
 
 // Methods
 function toggleExpanded(event: Event) {
-  event.stopPropagation()
-  emit('node-toggle', props.nodeId)
+  event.stopPropagation();
+  emit('node-toggle', props.nodeId);
 }
 
 function handleClick() {
-  emit('node-click', props.nodeId, props.value)
+  emit('node-click', props.nodeId, props.value);
 }
 </script>
 
@@ -177,40 +194,24 @@ function handleClick() {
         @click="toggleExpanded"
         class="shrink-0 hover:bg-accent-foreground/10 rounded p-0.5"
       >
-        <ChevronRight
-          v-if="!expanded"
-          :class="depth === 0 ? 'h-4 w-4' : 'h-3 w-3'"
-        />
-        <ChevronDown
-          v-else
-          :class="depth === 0 ? 'h-4 w-4' : 'h-3 w-3'"
-        />
+        <ChevronRight v-if="!expanded" :class="depth === 0 ? 'h-4 w-4' : 'h-3 w-3'" />
+        <ChevronDown v-else :class="depth === 0 ? 'h-4 w-4' : 'h-3 w-3'" />
       </button>
       <div v-else :class="depth === 0 ? 'w-5' : 'w-4'" class="shrink-0"></div>
-      
+
       <!-- Content -->
       <div class="flex items-center gap-2 flex-1 min-w-0">
         <!-- For top-level pointers (depth 0): show pointer ID in blue -->
-        <span 
-          v-if="depth === 0"
-          class="font-mono text-sm unyt-blue font-semibold"
-        >
+        <span v-if="depth === 0" class="font-mono text-sm unyt-blue font-semibold">
           {{ label }}
         </span>
-        
+
         <!-- For nested items (depth > 0): show key -->
-        <span 
-          v-if="depth > 0 && showIndices"
-          class="text-sm font-medium"
-        >
-          {{ label }}:
-        </span>
-        
+        <span v-if="depth > 0 && showIndices" class="text-sm font-medium"> {{ label }}: </span>
+
         <!-- Show circular reference indicator -->
-        <span v-if="isCircular" class="text-sm text-amber-500 italic">
-          [Circular Reference]
-        </span>
-        
+        <span v-if="isCircular" class="text-sm text-amber-500 italic"> [Circular Reference] </span>
+
         <!-- Show type-based preview or opening bracket when expanded -->
         <span v-else-if="!expanded" class="text-sm text-foreground/70 truncate">
           {{ getValuePreview(value) }}
@@ -220,7 +221,7 @@ function handleClick() {
         </span>
       </div>
     </div>
-    
+
     <!-- Children (RECURSIVE - this component calls itself!) -->
     <div
       v-if="expanded && isExpandable(value) && !isCircular"
@@ -242,7 +243,7 @@ function handleClick() {
         @node-click="emit('node-click', $event, childValue)"
         @node-toggle="emit('node-toggle', $event)"
       />
-      
+
       <!-- Closing bracket -->
       <div class="p-2 text-sm text-foreground/70">
         {{ getTypeName(value) === 'list' ? ']' : '}' }}

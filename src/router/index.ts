@@ -1,3 +1,5 @@
+import PointerView from '@/components/PointerView.vue';
+import { getPointers } from '@/lib/runtime';
 import WindowGeneralView from '@/views/WindowGeneralView.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
@@ -30,6 +32,11 @@ const router = createRouter({
       name: 'endpoint',
       component: () => import('@/components/endpoint/EndpointView.vue'),
     },
+    {
+      path: '/pointers',
+      component: () => PointerView,
+      props: { pointers: getPointers() },
+    }
   ],
 });
 

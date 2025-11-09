@@ -1,25 +1,6 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
-import { ref, onMounted } from 'vue'
-import HeaderProvider from '@/components/HeaderProvider.vue'
-import PointerView from '@/components/PointerView.vue'
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarHeader,
-  SidebarProvider,
-  SidebarInset,
-} from '@/components/ui/sidebar'
-import { getPointers, type DIF } from '@/lib/runtime'
-
-// Get pointers from runtime
-const pointers = ref<Map<string, DIF.Definitions.DIFContainer>>(new Map())
-
-onMounted(() => {
-  pointers.value = getPointers()
-  console.log('Loaded pointers:', pointers.value)
-})
+import HeaderProvider from '@/components/HeaderProvider.vue';
+import { RouterView } from 'vue-router';
 </script>
 
 <!-- <template>
