@@ -34,5 +34,5 @@ jobs:
       - name: Type check
         run: npm run type-check
 
-      # - name: Lint (if present)
-      #  run: npm run lint --if-present
+      - name: Lint (if present)
+        run: npm run lint --if-present
