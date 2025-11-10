@@ -10,7 +10,7 @@ import { Popover, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SidebarGroup, SidebarGroupContent, SidebarMenu } from '@/components/ui/sidebar';
 import { usePointerPreferences } from '@/composables/usePointerPreferences';
-import type { DIF } from '@/lib/runtime';
+import type { DIF } from '@unyt/datex';
 import { Filter, Search, Settings } from 'lucide-vue-next';
 import type { HTMLAttributes } from 'vue';
 import { computed, ref, watchEffect } from 'vue';
