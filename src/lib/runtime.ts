@@ -1,7 +1,4 @@
-import type { DIF } from '@unyt/datex';
-// @ts-expect-error external import
-import { Runtime } from 'https://unyt-org.github.io/datex-core-js/datex.js';
-export type { DIF } from '@unyt/datex';
+import { Runtime, DIF } from '@unyt/datex';
 
 /**
  * The default configuration for the Datex runtime.
