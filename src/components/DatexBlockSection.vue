@@ -18,7 +18,7 @@ const bytes = ref(0);
 let observer: ResizeObserver;
 
 onMounted(() => {
-  console.log('Field object:', props.section);
+  // console.log('Field object:', props.section);
   if (box.value) {
     observer = new ResizeObserver((entries) => {
       const el = entries[0]?.target;
@@ -28,8 +28,10 @@ onMounted(() => {
       // Measure 1ch within this element’s context
       const chWidth = getChUnitInElement(el);
 
-      // Calculate how many 3ch columns fit
-      bytes.value = Math.floor(width.value / (chWidth * 3));
+      // console.log(`Width: ${width.value} \n chWidth: ${chWidth} \n no rounding: ${width.value / (chWidth * 3.5)}`)
+      /* normally I would do (chWidth * 3.5) because the column width with all of its paddings and margins is supposed to be 3.5ch wide
+       It does produce better results to do (chWidth * 3.3889) becuase of the way this width measurment is not completely in sync with what gets rendered */
+      bytes.value = Math.floor(width.value / (chWidth * 3.3889));
     });
     observer.observe(box.value);
   }
@@ -76,8 +78,8 @@ function categoryFromName(str: string) {
 <template>
   <div class="block-protocol-section">
     <!-- this way we use the calculated value for how many bytes fit in the witdh of the column -->
-    <!-- <div ref="box" :style="`grid-template-columns: repeat(${bytes}, 3ch);`" id="bytes-grid"> -->
-    <div class="bytes-grid" ref="box">
+    <div ref="box" :style="`grid-template-columns: repeat(${bytes}, 3.5ch);`" class="bytes-grid">
+      <!-- <div class="bytes-grid" ref="box"> -->
       <!-- when clicking on a field, grey out all others -->
       <div
         class="field-wrapper"
@@ -110,7 +112,7 @@ function categoryFromName(str: string) {
         </div>
       </div>
     </div>
-    <!-- <div>Width: {{ width }}px</div>
+    <!-- <div style="background-color: green">Width: {{ width }}px</div>
     <div>Bytes that fit: {{ bytes }}</div> -->
   </div>
 </template>
@@ -121,7 +123,7 @@ function categoryFromName(str: string) {
   background-color: var(--color-secondary);
   border-radius: var(--radius-lg);
   margin-bottom: 0.5ch;
-  padding: 0.5rem;
+  padding: 0.75ch;
 
   font-family: monospace;
   font-size: 0.9rem;
@@ -130,9 +132,11 @@ function categoryFromName(str: string) {
 .bytes-grid {
   display: grid;
   grid-row-gap: 0.75ch;
-  grid-template-columns: repeat(auto-fit, 3.5ch);
   font-family: monospace;
   width: 100%;
+
+  /* this is now done in a ts function to have the value of the amount of columns */
+  /* grid-template-columns: repeat(auto-fit, 3.5ch); */
 }
 
 .field-wrapper {
