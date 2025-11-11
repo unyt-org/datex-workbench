@@ -16,6 +16,7 @@ interface PointerTreeItemProps {
   showIndices?: boolean;
   hideTypeHintsForPrimitives?: boolean;
   depth?: number;
+  parentIsMap?: boolean; // Track if parent is a map
 }
 
 const props = withDefaults(defineProps<PointerTreeItemProps>(), {
@@ -25,6 +26,7 @@ const props = withDefaults(defineProps<PointerTreeItemProps>(), {
   showIndices: true,
   hideTypeHintsForPrimitives: true,
   visitedObjects: () => new WeakSet(),
+  parentIsMap: false,
 });
 
 // Emits
@@ -170,6 +172,12 @@ const expanded = computed(() => props.expandedNodes.has(props.nodeId));
 // Check if current value is circular
 const isCircular = computed(() => isCircularReference(props.value));
 
+// Check if current value is a map (so we can pass this info to children)
+const isMap = computed(() => {
+  const typeName = getTypeName(props.value);
+  return typeName === 'map';
+});
+
 // Methods
 function toggleExpanded(event: Event) {
   event.stopPropagation();
@@ -218,7 +226,8 @@ function handleIdClick(event: Event) {
         </span>
 
         <!-- For nested items (depth > 0): show key -->
-        <span v-if="depth > 0 && showIndices" class="text-sm font-medium"> {{ label }}: </span>
+        <!-- Always show keys for map entries, only show for arrays/lists if showIndices is true -->
+        <span v-if="depth > 0 && (parentIsMap || showIndices)" class="text-sm font-medium"> {{ label }}: </span>
 
         <!-- Show circular reference indicator -->
         <span v-if="isCircular" class="text-sm text-amber-500 italic"> [Circular Reference] </span>
@@ -250,6 +259,7 @@ function handleIdClick(event: Event) {
         :show-data-types="showDataTypes"
         :show-indices="showIndices"
         :hide-type-hints-for-primitives="hideTypeHintsForPrimitives"
+        :parent-is-map="isMap"
         :depth="depth + 1"
         @node-click="emit('node-click', $event, childValue)"
         @node-toggle="emit('node-toggle', $event)"
