@@ -69,46 +69,34 @@ const categories = [
   ['Receivers Pointer ID', 'Receivers with Keys'],
 ];
 
-function categoryFromName(str: string) {
+function getCategoryColor(str: string) {
   const index = categories.findIndex((subArray) => subArray.includes(str));
-  return index !== -1 ? (index % 5) + 1 : null;
+  return `var(--color-chart-${index !== -1 ? (index % 5) + 1 : null}`;
 }
+
 </script>
 
 <template>
   <div class="block-protocol-section">
-    <!-- this way we use the calculated value for how many bytes fit in the witdh of the column -->
-    <div ref="box" :style="`grid-template-columns: repeat(${bytes}, 3.5ch);`" class="bytes-grid">
-      <!-- <div class="bytes-grid" ref="box"> -->
-      <!-- when clicking on a field, grey out all others -->
+    <div ref="box" :style="`grid-template-columns: repeat(auto-fit, 3.5ch);`" class="bytes-grid">
       <div
         class="field-wrapper"
         v-for="(field, indexOuter) in section.fields"
         @click="console.log(`Name: ${field.name}, Value: ${field.parsedValue}`)"
         :key="indexOuter"
       >
-        <!-- after the if statement, these for loops could become new templates because they will grow with more complexity -->
-        <div v-if="field.bytes.length < bytesCutoff" style="display: contents">
-          <div
-            v-for="(byte, indexInner) in field.bytes"
-            :key="indexInner"
-            :style="{ backgroundColor: `var(--color-chart-${categoryFromName(field.name)})` }"
-          >
-            {{ uint8ToHexString(byte) }}
-          </div>
+        <div
+          v-for="(byte, indexInner) in field.bytes.slice(0, bytesCutoff)"
+          :key="indexInner"
+          :style="{ backgroundColor: getCategoryColor(field.name) }"
+        >
+          {{ uint8ToHexString(byte) }}
         </div>
-        <!-- try only rendering the first few bytes and the rest with display:none -->
-        <div v-else style="display: contents">
-          <div
-            v-for="(byte, indexInner) in field.bytes.slice(0, bytesCutoff)"
-            :key="indexInner"
-            :style="{ backgroundColor: `var(--color-chart-${categoryFromName(field.name)})` }"
-          >
-            {{ uint8ToHexString(byte) }}
-          </div>
-          <div :style="{ backgroundColor: `var(--color-chart-${categoryFromName(field.name)})` }">
-            ..
-          </div>
+        <div
+          v-if="field.bytes.length > bytesCutoff"
+          :style="{ backgroundColor: getCategoryColor(field.name) }"
+        >
+          ..
         </div>
       </div>
     </div>
@@ -134,9 +122,6 @@ function categoryFromName(str: string) {
   grid-row-gap: 0.75ch;
   font-family: monospace;
   width: 100%;
-
-  /* this is now done in a ts function to have the value of the amount of columns */
-  /* grid-template-columns: repeat(auto-fit, 3.5ch); */
 }
 
 .field-wrapper {
