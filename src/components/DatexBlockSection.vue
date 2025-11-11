@@ -75,7 +75,7 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
           <div
             v-for="(byte, indexInner) in field.bytes"
             :key="indexInner"
-            :style="`background-color: var(--color-chart-${(indexOuter % 5) + 1});`"
+            :style="{ backgroundColor: `var(--chart-${(indexOuter % 5) + 1})` }"
           >
             {{ uint8ToHexString(byte) }}
           </div>
@@ -85,11 +85,11 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
           <div
             v-for="(byte, indexInner) in field.bytes.slice(0, bytesCutoff)"
             :key="indexInner"
-            :style="`background-color: var(--color-chart-${(indexOuter % 5) + 1});`"
+            :style="{ backgroundColor: `var(--chart-${(indexOuter % 5) + 1})` }"
           >
             {{ uint8ToHexString(byte) }}
           </div>
-          <div :style="`background-color: var(--color-chart-${(indexOuter % 5) + 1});`">..</div>
+          <div :style="{ backgroundColor: `var(--chart-${(indexOuter % 5) + 1})` }">..</div>
         </div>
       </div>
     </div>
