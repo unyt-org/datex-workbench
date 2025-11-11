@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
   section: {
     type: Object,
@@ -17,7 +18,7 @@ const bytes = ref(0);
 let observer: ResizeObserver;
 
 onMounted(() => {
-  // console.log('Field object:', props.section)
+  console.log('Field object:', props.section);
   if (box.value) {
     observer = new ResizeObserver((entries) => {
       const el = entries[0]?.target;
@@ -56,6 +57,20 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 // document.querySelectorAll('.field-wrapper').forEach((e, i) => {
 //   e.addEventListener('mousemove', () => console.log(i))
 // })
+
+const categories = [
+  ['Magic Number', 'Version', 'Context ID', 'Section Index', 'Block Number'],
+  ['Block Size', 'Flags', 'Flags and Timestamp', 'Lifetime'],
+  ['Checksum', 'Signature', 'Encrypted Signature', 'IV'],
+  ['Distance', 'TTL'],
+  ['Sender', 'Number of Receivers', 'Receivers', 'Represented By', 'On Behalf Of'],
+  ['Receivers Pointer ID', 'Receivers with Keys'],
+];
+
+function categoryFromName(str: string) {
+  const index = categories.findIndex((subArray) => subArray.includes(str));
+  return index !== -1 ? (index % 5) + 1 : null;
+}
 </script>
 
 <template>
@@ -75,7 +90,7 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
           <div
             v-for="(byte, indexInner) in field.bytes"
             :key="indexInner"
-            :style="{ backgroundColor: `var(--chart-${(indexOuter % 5) + 1})` }"
+            :style="{ backgroundColor: `var(--color-chart-${categoryFromName(field.name)})` }"
           >
             {{ uint8ToHexString(byte) }}
           </div>
@@ -85,11 +100,13 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
           <div
             v-for="(byte, indexInner) in field.bytes.slice(0, bytesCutoff)"
             :key="indexInner"
-            :style="{ backgroundColor: `var(--chart-${(indexOuter % 5) + 1})` }"
+            :style="{ backgroundColor: `var(--color-chart-${categoryFromName(field.name)})` }"
           >
             {{ uint8ToHexString(byte) }}
           </div>
-          <div :style="{ backgroundColor: `var(--chart-${(indexOuter % 5) + 1})` }">..</div>
+          <div :style="{ backgroundColor: `var(--color-chart-${categoryFromName(field.name)})` }">
+            ..
+          </div>
         </div>
       </div>
     </div>
@@ -100,11 +117,6 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 
 <!-- lang="postcss" um tailwind zu benutzen-->
 <style scoped>
-/* lieber so */
-/* .block-protocol-section{} */
-
-/* hier auch tailwind benutzen */
-
 .block-protocol-section {
   background-color: var(--color-secondary);
   border-radius: var(--radius-lg);
