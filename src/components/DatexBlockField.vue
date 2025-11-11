@@ -31,7 +31,7 @@ function getCategoryColor(str: string) {
 </script>
 
 <template>
-  <div class="field-wrapper">
+  <div class="field-wrapper contents pl-[0.75ch]">
     <div
       v-for="(byte, indexInner) in field.bytes.slice(0, bytesCutoff)"
       :key="indexInner"
@@ -49,15 +49,6 @@ function getCategoryColor(str: string) {
 </template>
 
 <style scoped>
-.field-wrapper {
-  display: contents;
-}
-
-.field-wrapper div {
-  padding-left: 0.75ch;
-}
-
-/* nochmal genau die margins und paddings prüfen */
 .field-wrapper div:first-child {
   border-bottom-left-radius: var(--radius-sm);
   border-top-left-radius: var(--radius-sm);

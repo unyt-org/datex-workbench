@@ -27,7 +27,7 @@ const structure = parseStructure(jsonDataExample, blockDataExample);
 <!-- fields in sections: Magic Number, Checksum, TTL, ... -->
 
 <template>
-  <Accordion type="multiple" class="BlockProtocolContainer">
+  <Accordion type="multiple" class="w-full p-[0.7rem] bg-background">
     <div v-for="(section, index) in structure" :key="index" :section="section">
       <AccordionItem :value="`item-${index}`">
         <AccordionTrigger style="font-size: 2rem">{{ section.name }}</AccordionTrigger>
@@ -39,10 +39,3 @@ const structure = parseStructure(jsonDataExample, blockDataExample);
   </Accordion>
 </template>
 
-<style scoped>
-.BlockProtocolContainer {
-  width: 100%;
-  padding: 0.7rem;
-  background-color: var(--color-background);
-}
-</style>
