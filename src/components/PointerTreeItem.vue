@@ -79,7 +79,7 @@ function getValuePreview(difContainer: DIF.Definitions.DIFContainer): string {
 
   // Add data type if conditions are met
   if (shouldShowTypeHint) {
-    preview = `"${typeName}" = `;
+    preview = `${typeName} = `;
   }
 
   // For non-expandable types, show the actual value
