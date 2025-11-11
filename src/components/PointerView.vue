@@ -155,7 +155,7 @@ function handlePointerClick(pointerId: string, value: DIF.Definitions.DIFContain
     </div>
 
     <!-- Tree Structure (Scrollable) -->
-    <ScrollArea class="flex-1">
+    <ScrollArea class="flex-1.5 mb-15">
       <SidebarGroup>
         <SidebarGroupContent>
           <SidebarMenu>
