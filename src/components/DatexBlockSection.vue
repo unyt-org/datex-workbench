@@ -2,7 +2,6 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import DatexBlockField from '@/components/DatexBlockField.vue';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
   section: {
     type: Object,
@@ -54,8 +53,12 @@ function getChUnitInElement(el: Element) {
 </script>
 
 <template>
-  <div class="block-protocol-section">
-    <div ref="box" :style="`grid-template-columns: repeat(auto-fit, 3.5ch);`" class="bytes-grid">
+  <div class="bg-secondary rounded-lg mb-[0.5ch] p-[0.75ch] font-mono text-[0.9rem]">
+    <div
+      ref="box"
+      :style="`grid-template-columns: repeat(auto-fit, 3.5ch);`"
+      class="grid gap-y-[0.75ch] font-inherit w-full"
+    >
       <DatexBlockField
         v-for="(field, indexOuter) in section.fields"
         :key="indexOuter"
@@ -65,22 +68,3 @@ function getChUnitInElement(el: Element) {
     </div>
   </div>
 </template>
-
-<style scoped>
-.block-protocol-section {
-  background-color: var(--color-secondary);
-  border-radius: var(--radius-lg);
-  margin-bottom: 0.5ch;
-  padding: 0.75ch;
-
-  font-family: monospace;
-  font-size: 0.9rem;
-}
-
-.bytes-grid {
-  display: grid;
-  grid-row-gap: 0.75ch;
-  font-family: monospace;
-  width: 100%;
-}
-</style>
