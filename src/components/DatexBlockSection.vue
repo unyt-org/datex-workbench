@@ -143,11 +143,6 @@ function categoryFromName(str: string) {
   padding-left: 0.75ch;
 }
 
-/* this currently doesn't do anything because the childs set their style dynamicly */
-/* .field-wrapper div:hover {
-  background-color: red;
-} */
-
 /* nochmal genau die margins und paddings prüfen */
 .field-wrapper div:first-child {
   border-bottom-left-radius: var(--radius-sm);
