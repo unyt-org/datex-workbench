@@ -106,6 +106,14 @@ function togglePointer(pointerId: string) {
 function handlePointerClick(pointerId: string, value: DIF.Definitions.DIFContainer) {
   emit('pointer-click', pointerId, value);
 }
+
+// Handle ID click - toggle full ID display preference
+function handleIdClick(pointerId: string) {
+  // Only toggle the preference for root-level pointers
+  if (!pointerId.includes('.')) {
+    preferences.value.show_full_pointer_ids = !preferences.value.show_full_pointer_ids;
+  }
+}
 </script>
 
 <template>
@@ -173,6 +181,7 @@ function handlePointerClick(pointerId: string, value: DIF.Definitions.DIFContain
               :hide-type-hints-for-primitives="preferences.hide_type_hints_for_primitives"
               @node-click="handlePointerClick"
               @node-toggle="togglePointer"
+              @id-click="handleIdClick"
             />
 
             <!-- Empty state -->

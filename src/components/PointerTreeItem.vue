@@ -31,6 +31,7 @@ const props = withDefaults(defineProps<PointerTreeItemProps>(), {
 const emit = defineEmits<{
   'node-click': [nodeId: string, value: DIF.Definitions.DIFContainer];
   'node-toggle': [nodeId: string];
+  'id-click': [nodeId: string];
 }>();
 
 // Check if value is circular reference
@@ -178,6 +179,12 @@ function toggleExpanded(event: Event) {
 function handleClick() {
   emit('node-click', props.nodeId, props.value);
 }
+
+function handleIdClick(event: Event) {
+  event.stopPropagation();
+  // Only emit id-click to toggle the full/short ID display
+  emit('id-click', props.nodeId);
+}
 </script>
 
 <template>
@@ -202,7 +209,11 @@ function handleClick() {
       <!-- Content -->
       <div class="flex items-center gap-2 flex-1 min-w-0">
         <!-- For top-level pointers (depth 0): show pointer ID in blue -->
-        <span v-if="depth === 0" class="font-mono text-sm unyt-blue font-semibold">
+        <span 
+          v-if="depth === 0" 
+          class="font-mono text-sm unyt-blue font-semibold cursor-pointer hover:underline"
+          @click="handleIdClick"
+        >
           {{ label }}
         </span>
 
