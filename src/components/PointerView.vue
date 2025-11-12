@@ -56,7 +56,7 @@ watchEffect(() => {
     const rootPointerId = pointerId.split('.')[0];
 
     // Remove if root pointer doesn't exist anymore - O(1) lookup in Set
-    if (!validIds.has(rootPointerId)) {
+    if (rootPointerId && !validIds.has(rootPointerId)) {
       expandedPointers.value.delete(pointerId);
     }
   }

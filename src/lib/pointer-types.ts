@@ -1,4 +1,4 @@
-import type { DIF } from './runtime'
+import type { DIF } from '@unyt/datex'
 
 // Type configuration interface
 export interface TypeConfig {

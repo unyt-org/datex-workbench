@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { TYPE_CONFIGS, getTypeName } from '@/lib/pointer-types';
-import type { DIF } from '@/lib/runtime';
+import type { DIF } from '@unyt/datex';
 import { ChevronDown, ChevronRight } from 'lucide-vue-next';
 import { computed } from 'vue';
 
@@ -122,14 +122,14 @@ function getChildren(
     const value = extractValue(difContainer);
     // DIF maps store their value as an object with key-value pairs
     if (typeof value === 'object' && value !== null) {
-      return Object.entries(value).map(([k, v]) => [k, v]);
+      return Object.entries(value).map(([k, v]) => [k, v as DIF.Definitions.DIFValueContainer]);
     }
   }
 
   const value = extractValue(difContainer);
 
   if (Array.isArray(value)) {
-    return (value as DIF.Definitions.DIFArray).map((item, index) => [String(index), item]);
+    return (value as DIF.Definitions.DIFArray).map((item: any, index: number) => [String(index), item]);
   }
 
   if (value instanceof Map) {
@@ -154,7 +154,7 @@ const children = computed(() => getChildren(props.value));
 
 // Create new visited set for children (includes current value)
 const childVisitedObjects = computed(() => {
-  const newVisited = new WeakSet(Array.from(props.visitedObjects));
+  const newVisited = new WeakSet<object>();
   if (typeof props.value === 'object' && props.value !== null) {
     newVisited.add(props.value);
   }
