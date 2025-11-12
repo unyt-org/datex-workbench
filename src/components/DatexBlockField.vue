@@ -24,47 +24,62 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 
 <template>
   <div v-if="field.bytes.length <= bytesCutoff" class="field-wrapper contents">
-    <div
-      v-for="(byte, indexInner) in field.bytes"
-      :key="indexInner"
-      :style="{ backgroundColor: fieldColor }"
-    >
-      {{ uint8ToHexString(byte) }}
+    <div v-for="(byte, indexInner) in field.bytes" :key="indexInner">
+      <div class="padding-wrapper" :style="{ backgroundColor: fieldColor }">
+        {{ uint8ToHexString(byte) }}
+      </div>
     </div>
   </div>
   <div v-else class="field-wrapper contents cursor-pointer" @click="isExpanded = !isExpanded">
     <div
       v-for="(byte, indexInner) in isExpanded ? field.bytes : field.bytes.slice(0, bytesCutoff)"
       :key="indexInner"
-      :style="{ backgroundColor: fieldColor }"
     >
-      {{ uint8ToHexString(byte) }}
+      <div class="padding-wrapper" :style="{ backgroundColor: fieldColor }">
+        {{ uint8ToHexString(byte) }}
+      </div>
     </div>
-    <div
-      v-if="!isExpanded"
-      :style="{ backgroundColor: fieldColor }"
-    >
-      ..
+    <div v-if="!isExpanded">
+      <div class="padding-wrapper" :style="{ backgroundColor: fieldColor }">..</div>
     </div>
   </div>
 </template>
 
 <style>
-.field-wrapper div {
-  padding-left: 0.75ch;
+.field-wrapper {
+  div {
+    padding: 0.25ch 0ch;
+  }
+  div:first-child {
+    padding-left: 0.25ch;
+    .padding-wrapper {
+      padding-left: 0.5ch;
+      border-bottom-left-radius: 0.5ch;
+      border-top-left-radius: 0.5ch;
+    }
+  }
+  :not(div:first-child) {
+    .padding-wrapper {
+      padding-left: 0.75ch;
+    }
+  }
+  div:last-child {
+    padding-right: 0.25ch;
+    .padding-wrapper {
+      padding-right: 0.5ch;
+      border-bottom-right-radius: 0.5ch;
+      border-top-right-radius: 0.5ch;
+    }
+  }
+  :not(div:last-child) {
+    .padding-wrapper {
+      padding-right: 0.75ch;
+    }
+  }
 }
 
-.field-wrapper div:first-child {
-  border-bottom-left-radius: var(--radius-sm);
-  border-top-left-radius: var(--radius-sm);
-  margin-left: 0.25ch;
-  padding-left: 0.5ch;
-}
-
-.field-wrapper div:last-child {
-  border-bottom-right-radius: var(--radius-sm);
-  border-top-right-radius: var(--radius-sm);
-  margin-right: 0.25ch;
-  padding-right: 0.25ch;
+.padding-wrapper {
+  padding-top: 0ch !important;
+  padding-bottom: 0ch !important;
 }
 </style>

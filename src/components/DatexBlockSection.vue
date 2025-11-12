@@ -72,7 +72,7 @@ function getCategoryColor(str: string) {
     <div
       ref="box"
       :style="`grid-template-columns: repeat(auto-fit, 3.5ch);`"
-      class="test font-inherit grid gap-y-[0.75ch] text-foreground"
+      class="test font-inherit grid text-foreground"
     >
       <DatexBlockField
         v-for="(field, indexOuter) in section.fields"
@@ -103,16 +103,16 @@ another descendant selector, this is just neccessary because field-wrapper is a 
 */
 
 /* this currently is very twitchy when in between fields because it unhovers everything */
-/* .test:has(.field-wrapper:hover) :not(.field-wrapper:hover) div {
-  filter: grayscale(1);
-} */
+.test:has(.field-wrapper:hover) :not(.field-wrapper:hover) div div {
+  filter: saturate(80%) brightness(80%);
+}
 
 /* this is almost perfect because when your cursor is in the gap, the other elements just sty greyed out
 the only problem is that they also stay greyed out when you are in the squared of area of the grid, so that is not ideal
 */
-.test:hover :not(.field-wrapper:hover) div {
+/* .test:hover :not(.field-wrapper:hover) div div{
   filter: saturate(70%)brightness(60%);
-}
+} */
 
 /* a perfect solution would be to redo the grid elements, nest them one to give paddings and visually seperate the colored byte fields like that.
 But that case makes the code a lot messier*/
