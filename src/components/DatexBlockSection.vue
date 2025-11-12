@@ -72,7 +72,7 @@ function getCategoryColor(str: string) {
     <div
       ref="box"
       :style="`grid-template-columns: repeat(auto-fit, 3.5ch);`"
-      class="test font-inherit grid gap-y-[0.75ch]"
+      class="test font-inherit grid gap-y-[0.75ch] text-foreground"
     >
       <DatexBlockField
         v-for="(field, indexOuter) in section.fields"

@@ -27,10 +27,10 @@ const structure = parseStructure(jsonDataExample, blockDataExample);
 <!-- fields in sections: Magic Number, Checksum, TTL, ... -->
 
 <template>
-  <Accordion type="multiple" class="bg-background w-full p-[0.7rem]">
+  <Accordion type="multiple" class="bg-background w-full p-[0.7rem] overflow-y-auto max-h-screen">
     <div v-for="(section, index) in structure" :key="index" :section="section">
       <AccordionItem :value="`item-${index}`">
-        <AccordionTrigger style="font-size: 2rem">{{ section.name }}</AccordionTrigger>
+        <AccordionTrigger class="text-4xl text-foreground">{{ section.name }}</AccordionTrigger>
         <AccordionContent>
           <DatexBlockSection :section="section"> </DatexBlockSection>
         </AccordionContent>
