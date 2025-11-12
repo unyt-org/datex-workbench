@@ -72,21 +72,34 @@ function getCategoryColor(str: string) {
     <div
       ref="box"
       :style="`grid-template-columns: repeat(auto-fit, 3.5ch);`"
-      class="grid-box font-inherit grid text-foreground"
+      class="grid-box font-inherit text-foreground grid"
     >
-      <DatexBlockField
-        v-for="(field, indexOuter) in section.fields"
-        :key="indexOuter"
-        :field="field"
-        :indexOuter="indexOuter"
-        :fieldColor="getCategoryColor(field.name)"
-      ></DatexBlockField>
+      <div v-for="(field, indexOuter) in section.fields" :key="indexOuter" class="contents">
+        <div
+          v-if="Object.hasOwn(field, 'subFields') && field.subFields.length > 1"
+          class="contents"
+        >
+          <DatexBlockField
+            v-for="(subField, index) in field.subFields"
+            :key="index"
+            :field="subField[0]"
+            :indexOuter="indexOuter"
+            :fieldColor="getCategoryColor(field.name)"
+          ></DatexBlockField>
+        </div>
+        <div v-else class="contents">
+          <DatexBlockField
+            :field="field"
+            :indexOuter="indexOuter"
+            :fieldColor="getCategoryColor(field.name)"
+          ></DatexBlockField>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <style>
-/* adjust grid gap and margins to prevent flickering when in between fields */
 /*
 .grid-box:has(.field-wrapper:hover)
 selects all divs that have a field-wrapper child that is being hovered over
@@ -103,8 +116,8 @@ another descendant selector, this is just neccessary because field-wrapper is a 
 */
 
 /* this currently is very twitchy when in between fields because it unhovers everything */
-.grid-box:has(.field-wrapper:hover) :not(.field-wrapper:hover) div div {
-  filter: saturate(80%) brightness(80%);
+.grid-box:has(.field-wrapper:hover) div div :not(.field-wrapper:hover) div div {
+  filter: saturate(20%) brightness(50%);
 }
 
 /* this is almost perfect because when your cursor is in the gap, the other elements just sty greyed out
