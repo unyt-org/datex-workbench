@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SidebarGroup, SidebarGroupContent, SidebarMenu } from '@/components/ui/sidebar';
-import { usePointerPreferences } from '@/composables/usePointerPreferences';
+import { usePointerPreferences } from '@/composable/usePointerPreferences';
 import type { DIF } from '@unyt/datex';
 import { Filter, Search, Settings } from 'lucide-vue-next';
 import type { HTMLAttributes } from 'vue';
