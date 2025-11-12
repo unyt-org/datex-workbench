@@ -12,12 +12,12 @@ const props = defineProps({
 
 const box = ref<HTMLDivElement | null>(null);
 const width = ref(0);
-const bytes = ref(0);
+const bytes = ref(1);
 
 let observer: ResizeObserver;
 
 onMounted(() => {
-  // console.log('Field object:', props.section);
+  console.log('Field object:', props.section);
   if (box.value) {
     observer = new ResizeObserver((entries) => {
       const el = entries[0]?.target;
@@ -51,21 +51,43 @@ function getChUnitInElement(el: Element) {
   el.removeChild(test);
   return chWidth;
 }
+
+const categories = [
+  ['Magic Number', 'Version', 'Context ID', 'Section Index', 'Block Number'],
+  ['Block Size', 'Flags', 'Flags and Timestamp', 'Lifetime'],
+  ['Distance', 'TTL'],
+  ['Sender', 'Number of Receivers', 'Receivers', 'Represented By', 'On Behalf Of'],
+  ['Receivers Pointer ID', 'Receivers with Keys'],
+  ['Checksum', 'Signature', 'Encrypted Signature', 'IV'],
+];
+
+function getCategoryColor(str: string) {
+  const index = categories.findIndex((subArray) => subArray.includes(str));
+  return `var(--chart-${((index + 5) % 5) + 1})`;
+}
 </script>
 
 <template>
   <div class="bg-secondary mb-[0.5ch] rounded-lg p-[0.75ch] font-mono text-[0.9rem]">
     <div
       ref="box"
-      :style="`grid-template-columns: repeat(auto-fit, 3.5ch);`"
-      class="font-inherit grid w-full gap-y-[0.75ch]"
+      :style="`grid-template-columns: repeat(${bytes}, 3.5ch);`"
+      class="font-inherit test grid w-full gap-y-[0.75ch]"
     >
       <DatexBlockField
         v-for="(field, indexOuter) in section.fields"
         :key="indexOuter"
         :field="field"
         :indexOuter="indexOuter"
+        :fieldColor="getCategoryColor(field.name)"
       ></DatexBlockField>
     </div>
   </div>
 </template>
+
+<style>
+/* adjust grid gap and margins to prevent flickering when in between fields */
+.test:has(.field-wrapper:hover) :not(.field-wrapper:hover) div {
+  filter: grayscale(1);
+}
+</style>
