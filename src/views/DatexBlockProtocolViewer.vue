@@ -23,9 +23,6 @@ const blockDataExample: Uint8Array = new Uint8Array(
 const structure = parseStructure(jsonDataExample, blockDataExample);
 </script>
 
-<!-- sections: Routing Header, Block Header, Encrypted Header, Body -->
-<!-- fields in sections: Magic Number, Checksum, TTL, ... -->
-
 <template>
   <Accordion type="multiple" class="bg-background w-full p-[0.7rem] overflow-y-auto max-h-screen">
     <div v-for="(section, index) in structure" :key="index" :section="section">
