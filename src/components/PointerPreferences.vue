@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { usePointerPreferences } from '@/composables/usePointerPreferences'
+import { usePointerPreferences } from '@/composable/usePointerPreferences'
 import { Switch } from '@/components/ui/switch'
 import { Button } from '@/components/ui/button'
 import {
