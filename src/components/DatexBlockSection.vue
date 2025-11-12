@@ -17,7 +17,7 @@ const bytes = ref(1);
 let observer: ResizeObserver;
 
 onMounted(() => {
-  console.log('Field object:', props.section);
+  // console.log('Field object:', props.section);
   if (box.value) {
     observer = new ResizeObserver((entries) => {
       const el = entries[0]?.target;
@@ -72,7 +72,7 @@ function getCategoryColor(str: string) {
     <div
       ref="box"
       :style="`grid-template-columns: repeat(auto-fit, 3.5ch);`"
-      class="grid-box font-inherit text-foreground grid"
+      class="grid-box text-foreground grid"
     >
       <div v-for="(field, indexOuter) in section.fields" :key="indexOuter" class="contents">
         <div
@@ -110,23 +110,9 @@ an almost similar example happens when we just write .grid-box:hover. Only that 
 :not(.field-wrapper:hover)
 because of the space before :not, it is a descendant selector
 this selects all the children of the .grid-box element which are not being hovered over
-
-div
-another descendant selector, this is just neccessary because field-wrapper is a wrapper and the divs are the actual grid elements that we want to greyscale
 */
 
-/* this currently is very twitchy when in between fields because it unhovers everything */
 .grid-box:has(.field-wrapper:hover) div div :not(.field-wrapper:hover) div div {
   filter: saturate(20%) brightness(50%);
 }
-
-/* this is almost perfect because when your cursor is in the gap, the other elements just sty greyed out
-the only problem is that they also stay greyed out when you are in the squared of area of the grid, so that is not ideal
-*/
-/* .grid-box:hover :not(.field-wrapper:hover) div div{
-  filter: saturate(70%)brightness(60%);
-} */
-
-/* a perfect solution would be to redo the grid elements, nest them one to give paddings and visually seperate the colored byte fields like that.
-But that case makes the code a lot messier*/
 </style>
