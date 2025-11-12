@@ -41,14 +41,14 @@ onBeforeUnmount(() => {
 });
 
 function getChUnitInElement(el: Element) {
-  const test = document.createElement('span');
-  test.style.display = 'inline-block';
-  test.style.visibility = 'hidden';
-  test.style.width = '1ch';
-  test.textContent = ' ';
-  el.appendChild(test);
-  const chWidth = test.offsetWidth;
-  el.removeChild(test);
+  const tempDomElement = document.createElement('span');
+  tempDomElement.style.display = 'inline-block';
+  tempDomElement.style.visibility = 'hidden';
+  tempDomElement.style.width = '1ch';
+  tempDomElement.textContent = ' ';
+  el.appendChild(tempDomElement);
+  const chWidth = tempDomElement.offsetWidth;
+  el.removeChild(tempDomElement);
   return chWidth;
 }
 
@@ -72,7 +72,7 @@ function getCategoryColor(str: string) {
     <div
       ref="box"
       :style="`grid-template-columns: repeat(auto-fit, 3.5ch);`"
-      class="test font-inherit grid text-foreground"
+      class="grid-box font-inherit grid text-foreground"
     >
       <DatexBlockField
         v-for="(field, indexOuter) in section.fields"
@@ -88,29 +88,29 @@ function getCategoryColor(str: string) {
 <style>
 /* adjust grid gap and margins to prevent flickering when in between fields */
 /*
-.test:has(.field-wrapper:hover)
+.grid-box:has(.field-wrapper:hover)
 selects all divs that have a field-wrapper child that is being hovered over
 if we leave this :has out, the greyscale will always apply and the colorizing still works
 but this start is kind of like initializing that any greyscaling only happens when we hover over something
-an almost similar example happens when we just write .test:hover. Only that this way hovering over the gaps of the grid also greys out the rest
+an almost similar example happens when we just write .grid-box:hover. Only that this way hovering over the gaps of the grid also greys out the rest
 
 :not(.field-wrapper:hover)
 because of the space before :not, it is a descendant selector
-this selects all the children of the .test element which are not being hovered over
+this selects all the children of the .grid-box element which are not being hovered over
 
 div
 another descendant selector, this is just neccessary because field-wrapper is a wrapper and the divs are the actual grid elements that we want to greyscale
 */
 
 /* this currently is very twitchy when in between fields because it unhovers everything */
-.test:has(.field-wrapper:hover) :not(.field-wrapper:hover) div div {
+.grid-box:has(.field-wrapper:hover) :not(.field-wrapper:hover) div div {
   filter: saturate(80%) brightness(80%);
 }
 
 /* this is almost perfect because when your cursor is in the gap, the other elements just sty greyed out
 the only problem is that they also stay greyed out when you are in the squared of area of the grid, so that is not ideal
 */
-/* .test:hover :not(.field-wrapper:hover) div div{
+/* .grid-box:hover :not(.field-wrapper:hover) div div{
   filter: saturate(70%)brightness(60%);
 } */
 
