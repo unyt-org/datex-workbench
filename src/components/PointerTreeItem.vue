@@ -53,9 +53,9 @@ function isExpandable(difContainer: DIF.Definitions.DIFContainer): boolean {
 }
 
 // Extract the actual value from a DIF container, unwrapping nested value properties
-function extractValue(difContainer: any): any {
+function extractValue(difContainer: DIF.Definitions.DIFContainer): unknown {
   if (difContainer && typeof difContainer === 'object' && 'value' in difContainer) {
-    return difContainer.value;
+    return (difContainer as Record<string, unknown>).value;
   }
   return difContainer;
 }
@@ -129,11 +129,11 @@ function getChildren(
   const value = extractValue(difContainer);
 
   if (Array.isArray(value)) {
-    return (value as DIF.Definitions.DIFArray).map((item: any, index: number) => [String(index), item]);
+    return (value as DIF.Definitions.DIFArray).map((item: DIF.Definitions.DIFValueContainer, index: number) => [String(index), item]);
   }
 
   if (value instanceof Map) {
-    return Array.from((value as Map<any, any>).entries()).map(([k, v]) => {
+    return Array.from((value as Map<unknown, DIF.Definitions.DIFValueContainer>).entries()).map(([k, v]) => {
       const keyDisplay =
         typeof k === 'string'
           ? k

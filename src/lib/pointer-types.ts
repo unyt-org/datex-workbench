@@ -3,7 +3,7 @@ import type { DIF } from '@unyt/datex'
 // Type configuration interface
 export interface TypeConfig {
   displayName: string
-  preview: (value: any) => string
+  preview: (value: unknown) => string
   isExpandable: boolean
 }
 
@@ -11,31 +11,31 @@ export interface TypeConfig {
 export const TYPE_CONFIGS: Record<string, TypeConfig> = {
   'text': {
     displayName: 'text',
-    preview: (value: string) => 'text',
+    preview: () => 'text',
     isExpandable: false
   },
   
   'endpoint': {
     displayName: 'endpoint',
-    preview: (value: any) => 'endpoint',
+    preview: () => 'endpoint',
     isExpandable: false
   },
   
   'boolean': {
     displayName: 'boolean',
-    preview: (value: boolean) => value ? 'true' : 'false',
+    preview: (value: unknown) => value ? 'true' : 'false',
     isExpandable: false
   },
   
   'integer': {
     displayName: 'integer',
-    preview: (value: number) => 'integer',
+    preview: () => 'integer',
     isExpandable: false
   },
   
   'decimal': {
     displayName: 'decimal',
-    preview: (value: number) => 'decimal',
+    preview: () => 'decimal',
     isExpandable: false
   },
   
@@ -47,13 +47,13 @@ export const TYPE_CONFIGS: Record<string, TypeConfig> = {
   
   'list': {
     displayName: 'list',
-    preview: (value: any[]) => `[...]`,
+    preview: () => `[...]`,
     isExpandable: true
   },
   
   'map': {
     displayName: 'map',
-    preview: (value: any) => '{...}',
+    preview: () => '{...}',
     isExpandable: true
   },
 }
@@ -71,7 +71,7 @@ export function getTypeName(difContainer: DIF.Definitions.DIFContainer): string 
   
   // Extract value from container
   const value = typeof difContainer === 'object' && difContainer !== null && 'value' in difContainer 
-    ? (difContainer as any).value 
+    ? (difContainer as Record<string, unknown>).value 
     : difContainer
   
   if (value === null || value === undefined) return 'null'
