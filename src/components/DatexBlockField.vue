@@ -23,7 +23,16 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 </script>
 
 <template>
-  <div class="field-wrapper contents cursor-pointer" @click="isExpanded = !isExpanded">
+  <div v-if="field.bytes.length <= bytesCutoff" class="field-wrapper contents">
+    <div
+      v-for="(byte, indexInner) in field.bytes"
+      :key="indexInner"
+      :style="{ backgroundColor: fieldColor }"
+    >
+      {{ uint8ToHexString(byte) }}
+    </div>
+  </div>
+  <div v-else class="field-wrapper contents cursor-pointer" @click="isExpanded = !isExpanded">
     <div
       v-for="(byte, indexInner) in isExpanded ? field.bytes : field.bytes.slice(0, bytesCutoff)"
       :key="indexInner"
@@ -32,7 +41,7 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
       {{ uint8ToHexString(byte) }}
     </div>
     <div
-      v-if="!isExpanded && field.bytes.length > bytesCutoff"
+      v-if="!isExpanded"
       :style="{ backgroundColor: fieldColor }"
     >
       ..
