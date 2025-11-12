@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
   field: {
@@ -16,25 +17,30 @@ const props = defineProps({
 });
 
 const bytesCutoff: number = 30;
+const isExpanded = ref(false);
 
 const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 </script>
 
 <template>
-  <div class="field-wrapper contents">
+  <div class="field-wrapper contents cursor-pointer" @click="isExpanded = !isExpanded">
     <div
-      v-for="(byte, indexInner) in field.bytes.slice(0, bytesCutoff)"
+      v-for="(byte, indexInner) in isExpanded ? field.bytes : field.bytes.slice(0, bytesCutoff)"
       :key="indexInner"
       :style="{ backgroundColor: fieldColor }"
     >
       {{ uint8ToHexString(byte) }}
     </div>
-    <div v-if="field.bytes.length > bytesCutoff" :style="{ backgroundColor: fieldColor }">..</div>
+    <div
+      v-if="!isExpanded && field.bytes.length > bytesCutoff"
+      :style="{ backgroundColor: fieldColor }"
+    >
+      ..
+    </div>
   </div>
 </template>
 
 <style>
-
 .field-wrapper div {
   padding-left: 0.75ch;
 }
