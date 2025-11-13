@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { parseStructure, type ParsedField, type ParsedFieldWithSubFields } from '@unyt/speck';
+import { parseStructure, type ParsedField } from '@unyt/speck';
 import DatexBlockSection from '@/components/DatexBlockSection.vue';
 import { ref } from 'vue';
 import {
@@ -61,9 +61,9 @@ const handleSectionFieldClick = (data: ParsedField) => {
     >
       {{ clickedValue.name }}
     </div>
-    <div style="word-break: break-all" :style="{ backgroundColor: clickedValue.color }"
+    <div v-if="'parsedValue' in clickedValue" style="word-break: break-all" :style="{ backgroundColor: clickedValue.color }"
       class="h-lh-[2.1ch] rounded-[0.5ch] pl-[0.5ch]">{{ clickedValue.parsedValue }}</div>
-    <div v-if="clickedValue.hasOwnProperty('subFields')">
+    <div v-if="'subFields' in clickedValue">
       SubFields: {{ clickedValue.subFields.map((e) => e.name) }}
     </div>
   </div>
