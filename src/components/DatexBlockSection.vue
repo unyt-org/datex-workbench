@@ -1,20 +1,18 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import DatexBlockField from '@/components/DatexBlockField.vue';
+import type { ParsedField, ParsedSection } from '@unyt/speck';
 
 const emit = defineEmits(['section-field-clicked']);
 
-const handleFieldClick = (data) => {
+const handleFieldClick = (data: ParsedField) => {
   emit('section-field-clicked', data);
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const props = defineProps({
-  section: {
-    type: Object,
-    required: true,
-  },
-});
+const props = defineProps<{
+  section: ParsedSection;
+}>();
 
 const box = ref<HTMLDivElement | null>(null);
 const width = ref(0);
@@ -23,7 +21,7 @@ const bytes = ref(1);
 let observer: ResizeObserver;
 
 onMounted(() => {
-  console.log('Field object:', props.section);
+  // console.log('Field object:', props.section);
   if (box.value) {
     observer = new ResizeObserver((entries) => {
       const el = entries[0]?.target;
@@ -83,9 +81,12 @@ function getCategoryColor(str: string) {
       <div v-for="(field, indexOuter) in section.fields" :key="indexOuter" class="contents">
         <div
           v-if="
-            Object.hasOwn(field, 'subFields') &&
+            field.hasOwnProperty('subFields') &&
             field.bytes.length ==
-              field.subFields.reduce((acc: number, subField) => acc + subField.bytes.length, 0)
+              field.subFields.reduce(
+                (acc: number, subField: ParsedField) => acc + subField.bytes.length,
+                0,
+              )
           "
           class="contents"
         >

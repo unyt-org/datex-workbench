@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { parseStructure } from '@unyt/speck';
+import { parseStructure, type ParsedField, type ParsedFieldWithSubFields } from '@unyt/speck';
 import DatexBlockSection from '@/components/DatexBlockSection.vue';
 import { ref } from 'vue';
 import {
@@ -23,9 +23,9 @@ const blockDataExample: Uint8Array = new Uint8Array(
 );
 const structure = parseStructure(jsonDataExample, blockDataExample);
 
-const clickedValue = ref(null);
+const clickedValue = ref<ParsedField>();
 
-const handleSectionFieldClick = (data) => {
+const handleSectionFieldClick = (data: ParsedField) => {
   clickedValue.value = data;
 };
 </script>
@@ -53,10 +53,18 @@ const handleSectionFieldClick = (data) => {
   </Accordion>
   <div
     v-if="clickedValue"
-    class="bg-background m-2 h-1/3 overflow-y-auto rounded-lg border border-gray-300 p-[0.7rem] text-foreground "
+    class="bg-background text-foreground m-2 h-1/3 overflow-y-auto rounded-lg border border-gray-300 p-[0.7rem]"
   >
-    <div :style="{backgroundColor: clickedValue.color}" class="rounded-[0.5ch] pl-[0.5ch] h-lh-[2.1ch] ">{{ clickedValue.name }}</div>
-    <div style="word-break: break-all;">Parsed Value: {{ clickedValue.parsedValue }}</div>
-    <div v-if="Object.hasOwn(clickedValue, 'subFields')">SubFields: {{ clickedValue.subFields.map((e) => e.name) }}</div>
+    <div
+      :style="{ backgroundColor: clickedValue.color }"
+      class="h-lh-[2.1ch] rounded-[0.5ch] pl-[0.5ch] mb-1.5"
+    >
+      {{ clickedValue.name }}
+    </div>
+    <div style="word-break: break-all" :style="{ backgroundColor: clickedValue.color }"
+      class="h-lh-[2.1ch] rounded-[0.5ch] pl-[0.5ch]">{{ clickedValue.parsedValue }}</div>
+    <div v-if="clickedValue.hasOwnProperty('subFields')">
+      SubFields: {{ clickedValue.subFields.map((e) => e.name) }}
+    </div>
   </div>
 </template>

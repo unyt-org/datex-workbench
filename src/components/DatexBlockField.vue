@@ -1,19 +1,12 @@
 <script setup lang="ts">
+import type { ParsedField } from '@unyt/speck';
 import { ref } from 'vue';
-const props = defineProps({
-  field: {
-    type: Object,
-    required: true,
-  },
-  indexOuter: {
-    type: Number,
-    required: true,
-  },
-  fieldColor: {
-    type: String,
-    required: false,
-  },
-});
+
+const props = defineProps<{
+  field: ParsedField;
+  indexOuter: number;
+  fieldColor?: string; // Optional prop (use `?` and `string` instead of `String`)
+}>();
 
 const bytesCutoff: number = 25;
 const isExpanded = ref(false);
@@ -23,8 +16,8 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 const emit = defineEmits(['field-clicked']);
 
 const handleClicks = (expand: boolean) => {
-  if(expand) {
-    isExpanded.value = !isExpanded.value
+  if (expand) {
+    isExpanded.value = !isExpanded.value;
   }
   const data = structuredClone(props.field);
   data.color = props.fieldColor;
