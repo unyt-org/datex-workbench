@@ -5,6 +5,7 @@ export interface PointerPreferences {
   show_type_hints: boolean
   show_array_indicies: boolean
   hide_type_hints_for_primitives: boolean
+  hide_map_key_type_hints_for_primitives: boolean
 }
 
 const STORAGE_KEY = 'pointer-view-preferences'
@@ -15,6 +16,7 @@ const defaultPreferences: PointerPreferences = {
   show_type_hints: false,
   show_array_indicies: true,
   hide_type_hints_for_primitives: true,
+  hide_map_key_type_hints_for_primitives: true,
 }
 
 // Load preferences from localStorage

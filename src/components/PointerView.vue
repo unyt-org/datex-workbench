@@ -179,6 +179,7 @@ function handleIdClick(pointerId: string) {
               :show-data-types="preferences.show_type_hints"
               :show-indices="preferences.show_array_indicies"
               :hide-type-hints-for-primitives="preferences.hide_type_hints_for_primitives"
+              :hide-map-key-type-hints-for-primitives="preferences.hide_map_key_type_hints_for_primitives"
               @node-click="handlePointerClick"
               @node-toggle="togglePointer"
               @id-click="handleIdClick"

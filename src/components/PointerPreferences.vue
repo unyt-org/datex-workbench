@@ -95,6 +95,22 @@ const { preferences, resetPreferences } = usePointerPreferences()
             id="hide-primitive-hints"
           />
         </div>
+
+        <!-- Hide Map Key Type Hints for Primitives -->
+        <div class="flex items-center justify-between space-x-2">
+          <div class="flex flex-col space-y-1 flex-1">
+            <label class="font-medium text-sm cursor-pointer">
+              Hide Map Key Primitive Type Hints
+            </label>
+            <span class="text-xs text-muted-foreground">
+              Hide type hints for primitive map keys (text, integer, boolean)
+            </span>
+          </div>
+          <Switch 
+            v-model="preferences.hide_map_key_type_hints_for_primitives"
+            id="hide-map-key-primitive-hints"
+          />
+        </div>
       </div>
     </div>
   </PopoverContent>

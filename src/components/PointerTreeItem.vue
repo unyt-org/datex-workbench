@@ -15,8 +15,10 @@ interface PointerTreeItemProps {
   showDataTypes?: boolean;
   showIndices?: boolean;
   hideTypeHintsForPrimitives?: boolean;
+  hideMapKeyTypeHintsForPrimitives?: boolean;
   depth?: number;
   parentIsMap?: boolean; // Track if parent is a map
+  keyContainer?: DIF.Definitions.DIFValueContainer; // The original DIF container for the key (for type hints)
 }
 
 const props = withDefaults(defineProps<PointerTreeItemProps>(), {
@@ -25,6 +27,7 @@ const props = withDefaults(defineProps<PointerTreeItemProps>(), {
   showDataTypes: false,
   showIndices: true,
   hideTypeHintsForPrimitives: true,
+  hideMapKeyTypeHintsForPrimitives: true,
   visitedObjects: () => new WeakSet(),
   parentIsMap: false,
 });
@@ -101,7 +104,7 @@ function getValuePreview(difContainer: DIF.Definitions.DIFContainer): string {
 // Get children
 function getChildren(
   difContainer: DIF.Definitions.DIFContainer,
-): Array<[string, DIF.Definitions.DIFValueContainer]> {
+): Array<[string, DIF.Definitions.DIFValueContainer, DIF.Definitions.DIFValueContainer?]> {
   // Only compute children if node is expanded (lazy evaluation)
   if (!expanded.value) {
     return [];
@@ -120,16 +123,52 @@ function getChildren(
     difContainer.type === '0c0000'
   ) {
     const value = extractValue(difContainer);
-    // DIF maps store their value as an object with key-value pairs
+    
+    // DIF maps can be stored as an array of [key, value] tuples (DIFMap format)
+    if (Array.isArray(value)) {
+      return (value as DIF.Definitions.DIFMap).map(([keyContainer, valueContainer]) => {
+        // Extract the display value for the key
+        const keyValue = extractValue(keyContainer);
+        const keyDisplay = 
+          typeof keyValue === 'string' 
+            ? keyValue 
+            : typeof keyValue === 'number'
+              ? String(keyValue)
+              : typeof keyValue === 'boolean'
+                ? String(keyValue)
+                : JSON.stringify(keyValue);
+        return [keyDisplay, valueContainer, keyContainer];
+      });
+    }
+    
+    // DIF maps can also be stored as an object with key-value pairs
     if (typeof value === 'object' && value !== null) {
-      return Object.entries(value).map(([k, v]) => [k, v as DIF.Definitions.DIFValueContainer]);
+      return Object.entries(value).map(([k, v]) => {
+        // Create a DIFValueContainer for the key
+        // Try to infer the actual type from the key string
+        let keyValue: string | number | boolean = k;
+        
+        // Try to parse as number
+        if (!isNaN(Number(k)) && k.trim() !== '') {
+          keyValue = Number(k);
+        }
+        // Try to parse as boolean
+        else if (k === 'true' || k === 'false') {
+          keyValue = k === 'true';
+        }
+        
+        // Create container with the properly typed value
+        // getTypeName() will infer the correct type from the value
+        const keyContainer: DIF.Definitions.DIFValueContainer = { value: keyValue };
+        return [k, v as DIF.Definitions.DIFValueContainer, keyContainer];
+      });
     }
   }
 
   const value = extractValue(difContainer);
 
   if (Array.isArray(value)) {
-    return (value as DIF.Definitions.DIFArray).map((item: DIF.Definitions.DIFValueContainer, index: number) => [String(index), item]);
+    return (value as DIF.Definitions.DIFArray).map((item: DIF.Definitions.DIFValueContainer, index: number) => [String(index), item, undefined]);
   }
 
   if (value instanceof Map) {
@@ -142,7 +181,7 @@ function getChildren(
             : typeof k === 'object'
               ? JSON.stringify(k)
               : String(k);
-      return [keyDisplay, v];
+      return [keyDisplay, v, k as DIF.Definitions.DIFValueContainer];
     });
   }
 
@@ -164,6 +203,26 @@ const childVisitedObjects = computed(() => {
 // Generate child ID
 function getChildId(parentId: string, childKey: string): string {
   return `${parentId}.${childKey}`;
+}
+
+// Get the type hint for a key (used for map keys)
+function getKeyTypeHint(keyContainer?: DIF.Definitions.DIFValueContainer): string {
+  if (!keyContainer || !props.showDataTypes) {
+    return '';
+  }
+
+  const typeName = getTypeName(keyContainer);
+
+  // Apply the same logic for hiding type hints for primitives, but using the map key preference
+  const shouldShowTypeHint = !(
+    props.hideMapKeyTypeHintsForPrimitives &&
+    (typeName === 'integer' ||
+      typeName === 'decimal' ||
+      typeName === 'boolean' ||
+      typeName === 'text')
+  );
+
+  return shouldShowTypeHint ? typeName : '';
 }
 
 // Computed
@@ -196,7 +255,7 @@ function handleIdClick(event: Event) {
 </script>
 
 <template>
-  <div v-memo="[expanded, label, showDataTypes, showIndices, hideTypeHintsForPrimitives]">
+  <div v-memo="[expanded, label, showDataTypes, showIndices, hideTypeHintsForPrimitives, hideMapKeyTypeHintsForPrimitives]">
     <!-- This node -->
     <div
       class="flex items-center gap-1 p-2 hover:bg-accent cursor-pointer rounded-md"
@@ -227,7 +286,13 @@ function handleIdClick(event: Event) {
 
         <!-- For nested items (depth > 0): show key -->
         <!-- Always show keys for map entries, only show for arrays/lists if showIndices is true -->
-        <span v-if="depth > 0 && (parentIsMap || showIndices)" class="text-sm font-medium"> {{ label }}: </span>
+        <span v-if="depth > 0 && (parentIsMap || showIndices)" class="text-sm font-medium">
+          <!-- Show key type hint if available -->
+          <span v-if="keyContainer && showDataTypes && getKeyTypeHint(keyContainer)" class="text-foreground/50">
+            {{ getKeyTypeHint(keyContainer) }}:
+          </span>
+          {{ label }}:
+        </span>
 
         <!-- Show circular reference indicator -->
         <span v-if="isCircular" class="text-sm text-amber-500 italic"> [Circular Reference] </span>
@@ -248,7 +313,7 @@ function handleIdClick(event: Event) {
       class="ml-6 border-l border-border pl-2"
     >
       <PointerTreeItem
-        v-for="[childKey, childValue] in children"
+        v-for="[childKey, childValue, childKeyContainer] in children"
         :key="childKey"
         :node-id="getChildId(nodeId, childKey)"
         :label="childKey"
@@ -259,7 +324,9 @@ function handleIdClick(event: Event) {
         :show-data-types="showDataTypes"
         :show-indices="showIndices"
         :hide-type-hints-for-primitives="hideTypeHintsForPrimitives"
+        :hide-map-key-type-hints-for-primitives="hideMapKeyTypeHintsForPrimitives"
         :parent-is-map="isMap"
+        :key-container="childKeyContainer"
         :depth="depth + 1"
         @node-click="emit('node-click', $event, childValue)"
         @node-toggle="emit('node-toggle', $event)"
