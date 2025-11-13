@@ -2,6 +2,12 @@
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import DatexBlockField from '@/components/DatexBlockField.vue';
 
+const emit = defineEmits(['section-field-clicked']);
+
+const handleFieldClick = (data) => {
+  emit('section-field-clicked', data);
+};
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
   section: {
@@ -78,7 +84,8 @@ function getCategoryColor(str: string) {
         <div
           v-if="
             Object.hasOwn(field, 'subFields') &&
-            field.bytes.length == field.subFields.reduce((acc, e) => acc + e.bytes.length, 0)
+            field.bytes.length ==
+              field.subFields.reduce((acc: number, subField) => acc + subField.bytes.length, 0)
           "
           class="contents"
         >
@@ -88,14 +95,16 @@ function getCategoryColor(str: string) {
             :field="subField"
             :indexOuter="indexOuter"
             :fieldColor="getCategoryColor(field.name)"
-          ></DatexBlockField>
+            @field-clicked="handleFieldClick"
+          />
         </div>
         <div v-else class="contents">
           <DatexBlockField
             :field="field"
             :indexOuter="indexOuter"
             :fieldColor="getCategoryColor(field.name)"
-          ></DatexBlockField>
+            @field-clicked="handleFieldClick"
+          />
         </div>
       </div>
     </div>
