@@ -23,9 +23,9 @@ const blockDataExample: Uint8Array = new Uint8Array(
 );
 const structure = parseStructure(jsonDataExample, blockDataExample);
 
-const clickedValue = ref<ParsedField>();
+const clickedValue = ref<ParsedField & { color: string }>();
 
-const handleSectionFieldClick = (data: ParsedField) => {
+const handleSectionFieldClick = (data: ParsedField & { color: string }) => {
   clickedValue.value = data;
 };
 </script>
@@ -57,14 +57,20 @@ const handleSectionFieldClick = (data: ParsedField) => {
   >
     <div
       :style="{ backgroundColor: clickedValue.color }"
-      class="h-lh-[2.1ch] rounded-[0.5ch] pl-[0.5ch] mb-1.5"
+      class="h-lh-[2.1ch] mb-1.5 rounded-[0.5ch] pl-[0.5ch]"
     >
       {{ clickedValue.name }}
     </div>
-    <div v-if="'parsedValue' in clickedValue" style="word-break: break-all" :style="{ backgroundColor: clickedValue.color }"
-      class="h-lh-[2.1ch] rounded-[0.5ch] pl-[0.5ch]">{{ clickedValue.parsedValue }}</div>
+    <div
+      v-if="'parsedValue' in clickedValue"
+      style="word-break: break-all"
+      :style="{ backgroundColor: clickedValue.color }"
+      class="h-lh-[2.1ch] rounded-[0.5ch] pl-[0.5ch]"
+    >
+      {{ clickedValue.parsedValue }}
+    </div>
     <div v-if="'subFields' in clickedValue">
-      SubFields: {{ clickedValue.subFields.map((e) => e.name) }}
+      {{ clickedValue.subFields.map((e) => e.name) }}
     </div>
   </div>
 </template>

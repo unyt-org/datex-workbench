@@ -3,12 +3,6 @@ import { onBeforeUnmount, onMounted, ref } from 'vue';
 import DatexBlockField from '@/components/DatexBlockField.vue';
 import type { ParsedField, ParsedSection } from '@unyt/speck';
 
-const emit = defineEmits(['section-field-clicked']);
-
-const handleFieldClick = (data: ParsedField) => {
-  emit('section-field-clicked', data);
-};
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   section: ParsedSection;
@@ -43,6 +37,12 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (observer && box.value) observer.unobserve(box.value);
 });
+
+const emit = defineEmits(['section-field-clicked']);
+
+const handleFieldClick = (data: ParsedField & { color: string }) => {
+  emit('section-field-clicked', data);
+};
 
 function getChUnitInElement(el: Element) {
   const tempDomElement = document.createElement('span');

@@ -5,13 +5,11 @@ import { ref } from 'vue';
 const props = defineProps<{
   field: ParsedField;
   indexOuter: number;
-  fieldColor?: string; // Optional prop (use `?` and `string` instead of `String`)
+  fieldColor?: string;
 }>();
 
 const bytesCutoff: number = 25;
 const isExpanded = ref(false);
-
-const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 
 const emit = defineEmits(['field-clicked']);
 
@@ -19,10 +17,12 @@ const handleClicks = (expand: boolean) => {
   if (expand) {
     isExpanded.value = !isExpanded.value;
   }
-  const data = structuredClone(props.field);
+  const data: ParsedField & { color?: string } = structuredClone(props.field);
   data.color = props.fieldColor;
   emit('field-clicked', data);
 };
+
+const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 </script>
 
 <template>
