@@ -17,7 +17,7 @@ const bytes = ref(1);
 let observer: ResizeObserver;
 
 onMounted(() => {
-  // console.log('Field object:', props.section);
+  console.log('Field object:', props.section);
   if (box.value) {
     observer = new ResizeObserver((entries) => {
       const el = entries[0]?.target;
@@ -27,10 +27,10 @@ onMounted(() => {
       // Measure 1ch within this element’s context
       const chWidth = getChUnitInElement(el);
 
-      // console.log(`Width: ${width.value} \n chWidth: ${chWidth} \n no rounding: ${width.value / (chWidth * 3.5)}`)
-      /* normally I would do (chWidth * 3.5) because the column width with all of its paddings and margins is supposed to be 3.5ch wide
-       It does produce better results to do (chWidth * 3.3889) becuase of the way this width measurment is not completely in sync with what gets rendered */
-      bytes.value = Math.floor(width.value / (chWidth * 3.3889));
+      // console.log(`Width: ${width.value} \n chWidth: ${chWidth} \n no rounding: ${width.value / (chWidth * 3)}`)
+      /* normally I would do (chWidth * 3) because the column width with all of its paddings and margins is supposed to be 3ch wide
+       It does produce better results to do (chWidth * 2.8) becuase of the way this width measurment is not completely in sync with what gets rendered */
+      bytes.value = Math.floor(width.value / (chWidth * 3));
     });
     observer.observe(box.value);
   }
@@ -71,18 +71,21 @@ function getCategoryColor(str: string) {
   <div class="bg-secondary mb-[0.5ch] rounded-lg p-[0.75ch] font-mono">
     <div
       ref="box"
-      :style="`grid-template-columns: repeat(auto-fit, 3.5ch);`"
-      class="grid-box text-foreground grid"
+      :style="`grid-template-columns: repeat(auto-fit, 3ch);`"
+      class="grid-box text-foreground grid text-base"
     >
       <div v-for="(field, indexOuter) in section.fields" :key="indexOuter" class="contents">
         <div
-          v-if="Object.hasOwn(field, 'subFields') && field.subFields.length > 1"
+          v-if="
+            Object.hasOwn(field, 'subFields') &&
+            field.bytes.length == field.subFields.reduce((acc, e) => acc + e.bytes.length, 0)
+          "
           class="contents"
         >
           <DatexBlockField
             v-for="(subField, index) in field.subFields"
             :key="index"
-            :field="subField[0]"
+            :field="subField"
             :indexOuter="indexOuter"
             :fieldColor="getCategoryColor(field.name)"
           ></DatexBlockField>
@@ -113,6 +116,6 @@ this selects all the children of the .grid-box element which are not being hover
 */
 
 .grid-box:has(.field-wrapper:hover) div div :not(.field-wrapper:hover) div div {
-  filter: saturate(20%) brightness(50%);
+  filter: saturate(20%) brightness(40%);
 }
 </style>
