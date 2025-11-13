@@ -16,7 +16,7 @@ const props = defineProps({
   },
 });
 
-const bytesCutoff: number = 30;
+const bytesCutoff: number = 25;
 const isExpanded = ref(false);
 
 const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
@@ -49,31 +49,32 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 .field-wrapper {
   div {
     padding: 0.25ch 0ch;
+    line-height: 2.1ch;
   }
   div:first-child {
-    padding-left: 0.25ch;
+    padding-left: 0.2ch;
     .padding-wrapper {
-      padding-left: 0.5ch;
+      padding-left: 0.3ch;
       border-bottom-left-radius: 0.5ch;
       border-top-left-radius: 0.5ch;
     }
   }
   :not(div:first-child) {
     .padding-wrapper {
-      padding-left: 0.75ch;
+      padding-left: 0.5ch;
     }
   }
   div:last-child {
-    padding-right: 0.25ch;
+    padding-right: 0.2ch;
     .padding-wrapper {
-      padding-right: 0.5ch;
+      padding-right: 0.3ch;
       border-bottom-right-radius: 0.5ch;
       border-top-right-radius: 0.5ch;
     }
   }
   :not(div:last-child) {
     .padding-wrapper {
-      padding-right: 0.75ch;
+      padding-right: 0.5ch;
     }
   }
 }
