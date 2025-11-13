@@ -81,7 +81,7 @@ function getCategoryColor(str: string) {
       <div v-for="(field, indexOuter) in section.fields" :key="indexOuter" class="contents">
         <div
           v-if="
-            field.hasOwnProperty('subFields') &&
+            'subFields' in field &&
             field.bytes.length ==
               field.subFields.reduce(
                 (acc: number, subField: ParsedField) => acc + subField.bytes.length,
