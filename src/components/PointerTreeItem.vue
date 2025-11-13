@@ -3,6 +3,7 @@ import { TYPE_CONFIGS, getTypeName } from '@/lib/pointer-types';
 import type { DIF } from '@unyt/datex';
 import { ChevronDown, ChevronRight } from 'lucide-vue-next';
 import { computed } from 'vue';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Props
 interface PointerTreeItemProps {
@@ -225,6 +226,26 @@ function getKeyTypeHint(keyContainer?: DIF.Definitions.DIFValueContainer): strin
   return shouldShowTypeHint ? typeName : '';
 }
 
+// Get tooltip content for keys
+function getKeyTooltip(keyContainer?: DIF.Definitions.DIFValueContainer): string {
+  if (!keyContainer) return '';
+  const typeName = getTypeName(keyContainer);
+  return `Key Type: ${typeName}`;
+}
+
+// Get tooltip content for values
+function getValueTooltip(valueContainer: DIF.Definitions.DIFContainer): string {
+  const typeName = getTypeName(valueContainer);
+  const parts: string[] = [`Type: ${typeName}`];
+  
+  // Add pointer ID if it's a pointer address (string format like $0000000000000001)
+  if (typeof valueContainer === 'string' && valueContainer.startsWith('$')) {
+    parts.push(`Pointer: ${valueContainer}`);
+  }
+  
+  return parts.join('\n');
+}
+
 // Computed
 const expanded = computed(() => props.expandedNodes.has(props.nodeId));
 
@@ -286,21 +307,39 @@ function handleIdClick(event: Event) {
 
         <!-- For nested items (depth > 0): show key -->
         <!-- Always show keys for map entries, only show for arrays/lists if showIndices is true -->
-        <span v-if="depth > 0 && (parentIsMap || showIndices)" class="text-sm font-medium">
-          <!-- Show key type hint if available -->
-          <span v-if="keyContainer && showDataTypes && getKeyTypeHint(keyContainer)" class="text-foreground/50">
-            {{ getKeyTypeHint(keyContainer) }}:
-          </span>
-          {{ label }}:
-        </span>
+        <TooltipProvider v-if="depth > 0 && (parentIsMap || showIndices)" :delay-duration="300">
+          <Tooltip>
+            <TooltipTrigger as-child>
+              <span class="text-sm font-medium">
+                <!-- Show key type hint if available -->
+                <span v-if="keyContainer && showDataTypes && getKeyTypeHint(keyContainer)" class="text-foreground/50">
+                  {{ getKeyTypeHint(keyContainer) }}:
+                </span>
+                {{ label }}:
+              </span>
+            </TooltipTrigger>
+            <TooltipContent v-if="keyContainer">
+              <p class="text-xs">{{ getKeyTooltip(keyContainer) }}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
         <!-- Show circular reference indicator -->
         <span v-if="isCircular" class="text-sm text-amber-500 italic"> [Circular Reference] </span>
 
         <!-- Show type-based preview or opening bracket when expanded -->
-        <span v-else-if="!expanded" class="text-sm text-foreground/70 truncate">
-          {{ getValuePreview(value) }}
-        </span>
+        <TooltipProvider v-else-if="!expanded" :delay-duration="300">
+          <Tooltip>
+            <TooltipTrigger as-child>
+              <span class="text-sm text-foreground/70 truncate">
+                {{ getValuePreview(value) }}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p class="text-xs whitespace-pre-line">{{ getValueTooltip(value) }}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <span v-else-if="isExpandable(value)" class="text-sm text-foreground/70">
           {{ getTypeName(value) === 'list' ? '[' : '{' }}
         </span>
