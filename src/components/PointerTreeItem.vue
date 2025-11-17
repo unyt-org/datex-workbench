@@ -298,12 +298,18 @@ function handleClick() {
       <!-- Content -->
       <div class="flex items-center gap-2 flex-1 min-w-0">
         <!-- For top-level pointers (depth 0): show pointer ID in blue -->
-        <span 
-          v-if="depth === 0" 
-          class="font-mono text-sm unyt-blue font-semibold"
-        >
-          {{ label }}
-        </span>
+        <TooltipProvider v-if="depth === 0" :delay-duration="300">
+          <Tooltip>
+            <TooltipTrigger as-child>
+              <span class="font-mono text-sm unyt-blue font-semibold">
+                {{ label }}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p class="text-xs">{{ nodeId }}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
         <!-- For nested items (depth > 0): show key -->
         <!-- Always show keys for map entries, only show for arrays/lists if showIndices is true -->
