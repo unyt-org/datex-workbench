@@ -259,19 +259,20 @@ const isMap = computed(() => {
 });
 
 // Methods
-function toggleExpanded(event: Event) {
-  event.stopPropagation();
+function toggleExpanded(event?: Event) {
+  if (event) {
+    event.stopPropagation();
+  }
   emit('node-toggle', props.nodeId);
 }
 
 function handleClick() {
-  emit('node-click', props.nodeId, props.value);
-}
-
-function handleIdClick(event: Event) {
-  event.stopPropagation();
-  // Only emit id-click to toggle the full/short ID display
-  emit('id-click', props.nodeId);
+  // Click on the row toggles expansion if expandable
+  if (isExpandable(props.value)) {
+    toggleExpanded();
+  } else {
+    emit('node-click', props.nodeId, props.value);
+  }
 }
 </script>
 
@@ -299,8 +300,7 @@ function handleIdClick(event: Event) {
         <!-- For top-level pointers (depth 0): show pointer ID in blue -->
         <span 
           v-if="depth === 0" 
-          class="font-mono text-sm unyt-blue font-semibold cursor-pointer hover:underline"
-          @click="handleIdClick"
+          class="font-mono text-sm unyt-blue font-semibold"
         >
           {{ label }}
         </span>
