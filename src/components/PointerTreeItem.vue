@@ -279,7 +279,7 @@ function handleIdClick(event: Event) {
   <div v-memo="[expanded, label, showDataTypes, showIndices, hideTypeHintsForPrimitives, hideMapKeyTypeHintsForPrimitives]">
     <!-- This node -->
     <div
-      class="flex items-center gap-1 p-2 hover:bg-accent cursor-pointer rounded-md"
+      class="flex items-center gap-1 px-1 py-2 hover:bg-accent cursor-pointer rounded-md"
       :class="{ 'hover:bg-accent/50': depth > 0 }"
       @click="handleClick"
     >
@@ -349,7 +349,7 @@ function handleIdClick(event: Event) {
     <!-- Children (RECURSIVE - this component calls itself!) -->
     <div
       v-if="expanded && isExpandable(value) && !isCircular"
-      class="ml-6 border-l border-border pl-2"
+      class="ml-6 border-l border-border pl-1"
     >
       <PointerTreeItem
         v-for="[childKey, childValue, childKeyContainer] in children"
@@ -372,7 +372,7 @@ function handleIdClick(event: Event) {
       />
 
       <!-- Closing bracket -->
-      <div class="p-2 text-sm text-foreground/70">
+      <div class="px-1 py-2 text-sm text-foreground/70">
         {{ getTypeName(value) === 'list' ? ']' : '}' }}
       </div>
     </div>
