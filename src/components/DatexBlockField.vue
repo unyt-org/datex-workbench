@@ -13,10 +13,8 @@ const isExpanded = ref(false);
 
 const emit = defineEmits(['field-clicked']);
 
-const handleClicks = (expand: boolean) => {
-  if (expand) {
-    isExpanded.value = !isExpanded.value;
-  }
+const handleClick = () => {
+  isExpanded.value = !isExpanded.value;
   const data: ParsedField & { color?: string } = structuredClone(props.field);
   data.color = props.fieldColor;
   emit('field-clicked', data);
@@ -26,22 +24,23 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 </script>
 
 <template>
-  <div class="field-wrapper contents cursor-pointer" @click="handleClicks(true)">
+  <div class="field-wrapper contents cursor-pointer" @click="handleClick">
     <div
       v-for="(byte, indexInner) in isExpanded ? field.bytes : field.bytes.slice(0, bytesCutoff)"
       :key="indexInner"
     >
-      <div class="padding-wrapper h-[2ch]" :style="{ backgroundColor: fieldColor }">
+      <div class="padding-wrapper leading-tight" :style="{ backgroundColor: fieldColor }">
         {{ uint8ToHexString(byte) }}
       </div>
     </div>
     <div v-if="!isExpanded && field.bytes.length > bytesCutoff">
-      <div class="padding-wrapper h-[2ch]" :style="{ backgroundColor: fieldColor }">..</div>
+      <div class="padding-wrapper leading-tight" :style="{ backgroundColor: fieldColor }">..</div>
+
     </div>
   </div>
 </template>
 
-<style>
+<style scoped>
 .field-wrapper {
   --total-column-width: 3ch;
   --column-gap: 0.4ch;
@@ -49,7 +48,6 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 
   div {
     padding: calc(var(--column-gap) / 2) 0ch;
-    line-height: 2.1ch;
   }
   div:first-child {
     padding-left: calc(var(--column-gap) / 2);
@@ -77,10 +75,5 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
       padding-right: calc((var(--total-column-width) - 2ch) / 2);
     }
   }
-}
-
-.padding-wrapper {
-  padding-top: 0ch !important;
-  padding-bottom: 0ch !important;
 }
 </style>
