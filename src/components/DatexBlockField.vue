@@ -31,46 +31,50 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
       v-for="(byte, indexInner) in isExpanded ? field.bytes : field.bytes.slice(0, bytesCutoff)"
       :key="indexInner"
     >
-      <div class="padding-wrapper" :style="{ backgroundColor: fieldColor }">
+      <div class="padding-wrapper h-[2ch]" :style="{ backgroundColor: fieldColor }">
         {{ uint8ToHexString(byte) }}
       </div>
     </div>
     <div v-if="!isExpanded && field.bytes.length > bytesCutoff">
-      <div class="padding-wrapper" :style="{ backgroundColor: fieldColor }">..</div>
+      <div class="padding-wrapper h-[2ch]" :style="{ backgroundColor: fieldColor }">..</div>
     </div>
   </div>
 </template>
 
 <style>
 .field-wrapper {
+  --total-column-width: 3ch;
+  --column-gap: 0.4ch;
+  --byte-field-radius: var(--radius-sm);
+
   div {
-    padding: 0.25ch 0ch;
+    padding: calc(var(--column-gap) / 2) 0ch;
     line-height: 2.1ch;
   }
   div:first-child {
-    padding-left: 0.2ch;
+    padding-left: calc(var(--column-gap) / 2);
     .padding-wrapper {
-      padding-left: 0.3ch;
-      border-bottom-left-radius: 0.5ch;
-      border-top-left-radius: 0.5ch;
+      padding-left: calc((var(--total-column-width) - 2ch - var(--column-gap)) / 2);
+      border-bottom-left-radius: var(--byte-field-radius);
+      border-top-left-radius: var(--byte-field-radius);
     }
   }
   :not(div:first-child) {
     .padding-wrapper {
-      padding-left: 0.5ch;
+      padding-left: calc((var(--total-column-width) - 2ch) / 2);
     }
   }
   div:last-child {
-    padding-right: 0.2ch;
+    padding-right: calc(var(--column-gap) / 2);
     .padding-wrapper {
-      padding-right: 0.3ch;
-      border-bottom-right-radius: 0.5ch;
-      border-top-right-radius: 0.5ch;
+      padding-right: calc((var(--total-column-width) - 2ch - var(--column-gap)) / 2);
+      border-bottom-right-radius: var(--byte-field-radius);
+      border-top-right-radius: var(--byte-field-radius);
     }
   }
   :not(div:last-child) {
     .padding-wrapper {
-      padding-right: 0.5ch;
+      padding-right: calc((var(--total-column-width) - 2ch) / 2);
     }
   }
 }

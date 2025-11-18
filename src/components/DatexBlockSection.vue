@@ -15,7 +15,7 @@ const bytes = ref(1);
 let observer: ResizeObserver;
 
 onMounted(() => {
-  // console.log('Field object:', props.section);
+  console.log('Field object:', props.section);
   if (box.value) {
     observer = new ResizeObserver((entries) => {
       const el = entries[0]?.target;
@@ -72,11 +72,11 @@ function getCategoryColor(str: string) {
 </script>
 
 <template>
-  <div class="bg-secondary mb-[0.5ch] rounded-lg p-[0.75ch] font-mono">
+  <div class=" font-mono text-foreground">
     <div
       ref="box"
       :style="`grid-template-columns: repeat(auto-fit, 3ch);`"
-      class="grid-box text-foreground grid text-base"
+      class="grid-box grid text-lg"
     >
       <div v-for="(field, indexOuter) in section.fields" :key="indexOuter" class="contents">
         <div
