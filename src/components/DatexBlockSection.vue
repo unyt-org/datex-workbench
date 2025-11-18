@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+// import { onBeforeUnmount, onMounted, ref } from 'vue';
 import DatexBlockField from '@/components/DatexBlockField.vue';
 import type { ParsedField, ParsedSection } from '@unyt/speck';
 
@@ -8,53 +8,53 @@ const props = defineProps<{
   section: ParsedSection;
 }>();
 
-const box = ref<HTMLDivElement | null>(null);
-const width = ref(0);
-const bytes = ref(1);
+// const box = ref<HTMLDivElement | null>(null);
+// const width = ref(0);
+// const bytes = ref(1);
 
-let observer: ResizeObserver;
+// let observer: ResizeObserver;
 
-onMounted(() => {
-  console.log('Field object:', props.section);
-  if (box.value) {
-    observer = new ResizeObserver((entries) => {
-      const el = entries[0]?.target;
-      if (!el) return;
-      width.value = el.clientWidth;
+// onMounted(() => {
+//   console.log('Field object:', props.section);
+//   if (box.value) {
+//     observer = new ResizeObserver((entries) => {
+//       const el = entries[0]?.target;
+//       if (!el) return;
+//       width.value = el.clientWidth;
 
-      // Measure 1ch within this element’s context
-      const chWidth = getChUnitInElement(el);
+//       // Measure 1ch within this element’s context
+//       const chWidth = getChUnitInElement(el);
 
-      // console.log(`Width: ${width.value} \n chWidth: ${chWidth} \n no rounding: ${width.value / (chWidth * 3)}`)
-      /* normally I would do (chWidth * 3) because the column width with all of its paddings and margins is supposed to be 3ch wide
-       It does produce better results to do (chWidth * 2.8) becuase of the way this width measurment is not completely in sync with what gets rendered */
-      bytes.value = Math.floor(width.value / (chWidth * 3));
-    });
-    observer.observe(box.value);
-  }
-});
+//       // console.log(`Width: ${width.value} \n chWidth: ${chWidth} \n no rounding: ${width.value / (chWidth * 3)}`)
+//       /* normally I would do (chWidth * 3) because the column width with all of its paddings and margins is supposed to be 3ch wide
+//        It does produce better results to do (chWidth * 2.8) becuase of the way this width measurment is not completely in sync with what gets rendered */
+//       bytes.value = Math.floor(width.value / (chWidth * 3));
+//     });
+//     observer.observe(box.value);
+//   }
+// });
 
-onBeforeUnmount(() => {
-  if (observer && box.value) observer.unobserve(box.value);
-});
+// onBeforeUnmount(() => {
+//   if (observer && box.value) observer.unobserve(box.value);
+// });
+
+// function getChUnitInElement(el: Element) {
+//   const tempDomElement = document.createElement('span');
+//   tempDomElement.style.display = 'inline-block';
+//   tempDomElement.style.visibility = 'hidden';
+//   tempDomElement.style.width = '1ch';
+//   tempDomElement.textContent = ' ';
+//   el.appendChild(tempDomElement);
+//   const chWidth = tempDomElement.offsetWidth;
+//   el.removeChild(tempDomElement);
+//   return chWidth;
+// }
 
 const emit = defineEmits(['section-field-clicked']);
 
 const handleFieldClick = (data: ParsedField & { color: string }) => {
   emit('section-field-clicked', data);
 };
-
-function getChUnitInElement(el: Element) {
-  const tempDomElement = document.createElement('span');
-  tempDomElement.style.display = 'inline-block';
-  tempDomElement.style.visibility = 'hidden';
-  tempDomElement.style.width = '1ch';
-  tempDomElement.textContent = ' ';
-  el.appendChild(tempDomElement);
-  const chWidth = tempDomElement.offsetWidth;
-  el.removeChild(tempDomElement);
-  return chWidth;
-}
 
 const categories = [
   ['Magic Number', 'Version', 'Context ID', 'Section Index', 'Block Number'],
@@ -72,11 +72,11 @@ function getCategoryColor(str: string) {
 </script>
 
 <template>
-  <div class=" font-mono text-foreground">
+  <div class="text-foreground font-mono">
     <div
       ref="box"
+      class="grid-box grid"
       :style="`grid-template-columns: repeat(auto-fit, 3ch);`"
-      class="grid-box grid text-lg"
     >
       <div v-for="(field, indexOuter) in section.fields" :key="indexOuter" class="contents">
         <div
@@ -119,13 +119,12 @@ selects all divs that have a field-wrapper child that is being hovered over
 if we leave this :has out, the greyscale will always apply and the colorizing still works
 but this start is kind of like initializing that any greyscaling only happens when we hover over something
 an almost similar example happens when we just write .grid-box:hover. Only that this way hovering over the gaps of the grid also greys out the rest
-
-:not(.field-wrapper:hover)
-because of the space before :not, it is a descendant selector
-this selects all the children of the .grid-box element which are not being hovered over
 */
-
-.grid-box:has(.field-wrapper:hover) div div :not(.field-wrapper:hover) div div {
-  filter: saturate(20%) brightness(40%);
+.grid-box:has(.field-wrapper:hover) {
+  div div :not(.field-wrapper:hover) {
+    div div {
+      filter: saturate(20%) brightness(40%);
+    }
+  }
 }
 </style>

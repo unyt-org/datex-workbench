@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/accordion';
 import DatexBlockInfo from '@/components/DatexBlockInfo.vue';
 
+// this will later not be fetched from the example data
 const jsonDataExample = await (
   await fetch(
     'https://raw.githubusercontent.com/unyt-org/datex-specification/refs/heads/main/assets/structures/dxb.json',
@@ -24,10 +25,10 @@ const blockDataExample: Uint8Array = new Uint8Array(
 );
 const structure = parseStructure(jsonDataExample, blockDataExample);
 
-const clickedValue = ref<ParsedField & { color: string }>();
 
+const clickedField = ref<ParsedField & { color: string }>();
 const handleSectionFieldClick = (data: ParsedField & { color: string }) => {
-  clickedValue.value = data;
+  clickedField.value = data;
 };
 </script>
 
@@ -55,22 +56,10 @@ const handleSectionFieldClick = (data: ParsedField & { color: string }) => {
       </AccordionItem>
     </Accordion>
     <div
-      v-if="clickedValue"
+      v-if="clickedField"
       class="bg-background text-foreground m-1 max-h-2/5 overflow-y-auto rounded-lg border p-[0.7rem]"
     >
-      <DatexBlockInfo :infoData="clickedValue"></DatexBlockInfo>
+      <DatexBlockInfo :infoData="clickedField"></DatexBlockInfo>
     </div>
   </div>
 </template>
-<!-- next steps
-make the "more info" tab prettier
-if more info is shown for a selected section, keep the other sections greyed out
-
-integrate what I've done so far with olivers window system
--->
-
-<style>
-.temp {
-  border-radius: calc(var(--radius) - 2px);
-}
-</style>
