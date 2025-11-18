@@ -8,6 +8,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import DatexBlockInfo from '@/components/DatexBlockInfo.vue';
 
 const jsonDataExample = await (
   await fetch(
@@ -31,46 +32,45 @@ const handleSectionFieldClick = (data: ParsedField & { color: string }) => {
 </script>
 
 <template>
-  <Accordion
-    type="multiple"
-    class="bg-background m-2 h-3/5 overflow-y-auto rounded-lg border border-gray-300 p-[0.7rem]"
-  >
-    <AccordionItem
-      v-for="(section, index) in structure"
-      :key="index"
-      :section="section"
-      :value="`item-${index}`"
+  <!-- this is only temporarily static -->
+  <div class="h-[calc(100%-15px)]">
+    <Accordion
+      type="multiple"
+      class="bg-background m-1 max-h-3/5 overflow-y-auto rounded-lg border p-[0.7rem]"
     >
-      <AccordionTrigger class="text-foreground text-4xl">{{ section.name }}</AccordionTrigger>
-      <AccordionContent>
-        <DatexBlockSection
-          v-if="section.fields.length > 0"
-          :section="section"
-          @section-field-clicked="handleSectionFieldClick"
-        />
-      </AccordionContent>
-    </AccordionItem>
-  </Accordion>
-  <div
-    v-if="clickedValue"
-    class="bg-background text-foreground m-2 h-1/3 overflow-y-auto rounded-lg border border-gray-300 p-[0.7rem]"
-  >
+      <AccordionItem
+        v-for="(section, index) in structure"
+        :key="index"
+        :section="section"
+        :value="`item-${index}`"
+      >
+        <AccordionTrigger class="text-foreground text-3xl">{{ section.name }}</AccordionTrigger>
+        <AccordionContent>
+          <DatexBlockSection
+            v-if="section.fields.length > 0"
+            :section="section"
+            @section-field-clicked="handleSectionFieldClick"
+          />
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
     <div
-      :style="{ backgroundColor: clickedValue.color }"
-      class="h-lh-[2.1ch] mb-1.5 rounded-[0.5ch] pl-[0.5ch]"
+      v-if="clickedValue"
+      class="bg-background text-foreground m-1 max-h-2/5 overflow-y-auto rounded-lg border p-[0.7rem]"
     >
-      {{ clickedValue.name }}
-    </div>
-    <div
-      v-if="'parsedValue' in clickedValue"
-      style="word-break: break-all"
-      :style="{ backgroundColor: clickedValue.color }"
-      class="h-lh-[2.1ch] rounded-[0.5ch] pl-[0.5ch]"
-    >
-      {{ clickedValue.parsedValue }}
-    </div>
-    <div v-if="'subFields' in clickedValue">
-      {{ clickedValue.subFields.map((e) => e.name) }}
+      <DatexBlockInfo :infoData="clickedValue"></DatexBlockInfo>
     </div>
   </div>
 </template>
+<!-- next steps
+make the "more info" tab prettier
+if more info is shown for a selected section, keep the other sections greyed out
+
+integrate what I've done so far with olivers window system
+-->
+
+<style>
+.temp {
+  border-radius: calc(var(--radius) - 2px);
+}
+</style>
