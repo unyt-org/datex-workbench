@@ -2,6 +2,7 @@
 import BlockProtocolBytes from '@/views/BlockProtocolBytesView.vue';
 // import BlockProtocolInfo from '@/views/BlockProtocolInfoView.vue';
 import { parseStructure, type StructureDefinition } from '@unyt/speck';
+import { ref } from 'vue';
 
 // this will later not be fetched from the example data
 const jsonDataExample: StructureDefinition = await (
@@ -17,6 +18,12 @@ const blockDataExample: Uint8Array = new Uint8Array(
   ).arrayBuffer(),
 );
 const structureExample = parseStructure(jsonDataExample, blockDataExample);
+
+const selectedField = ref<{section: string, field:string}>();
+const handleBytesSectionFieldClick = (data: {section: string, field:string}) => {
+  selectedField.value = data;
+  console.log(selectedField.value.section)
+};
 </script>
 
 <template>
@@ -25,6 +32,7 @@ const structureExample = parseStructure(jsonDataExample, blockDataExample);
       <BlockProtocolBytes
         :structure="structureExample"
         :structureDef="jsonDataExample"
+        @bytes-section-field-clicked="handleBytesSectionFieldClick"
       ></BlockProtocolBytes>
     </div>
     <!-- <div class="bg-background m-1 max-h-3/5 overflow-y-auto rounded-lg border px-4">
