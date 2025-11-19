@@ -15,7 +15,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['bytes-section-field-clicked']);
-const handleSectionFieldClick = (data: { section: string; field: string }) => {
+const handleSectionFieldClick = (data: { sectionName: string; fieldName: string } | undefined) => {
   emit('bytes-section-field-clicked', data);
 };
 </script>

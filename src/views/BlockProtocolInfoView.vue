@@ -1,24 +1,26 @@
 <script setup lang="ts">
-import type { ParsedField } from '@unyt/speck';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-  TableHeader,
-  TableHead,
-} from '@/components/ui/table';
-import { Separator } from '@/components/ui/separator';
+import type { ParsedStructure, StructureDefinition } from '@unyt/speck';
+// import {
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableRow,
+//   TableHeader,
+//   TableHead,
+// } from '@/components/ui/table';
+// import { Separator } from '@/components/ui/separator';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
-  infoData: ParsedField & { color: string };
+  field: { sectionName: string; fieldName: string };
+  structure: ParsedStructure;
+  structureDef: StructureDefinition | undefined;
 }>();
 
-const emit = defineEmits(['close-button-clicked']);
-const closeInfo = () => {
-  emit('close-button-clicked');
-};
+// const emit = defineEmits(['close-button-clicked']);
+// const closeInfo = () => {
+//   emit('close-button-clicked');
+// };
 </script>
 
 <template>
@@ -30,8 +32,10 @@ const closeInfo = () => {
   <!-- keep fields greyed out when viewing info in bottom view -->
   <!-- add tooltip when hovering over a byte containing the name of the field and the
   absolut byte offset of the whole block and where the field starts and ends as byte offset -->
-  <div class="cursor-pointer" @click="closeInfo">x</div>
-  <h1 class="text-md">{{ infoData.name }}</h1>
+  <!-- <div class="cursor-pointer" @click="closeInfo">x</div> -->
+
+  <h1 class="text-md">{{ field.fieldName }}</h1>
+  <!-- <h1 class="text-md">{{ infoData.name }}</h1>
   <h2 v-if="'id' in infoData" class="text-xs">id: {{ infoData.id }}</h2>
   <Separator />
   <p v-if="'parsedValue' in infoData" class="break-all whitespace-break-spaces">
@@ -56,7 +60,7 @@ const closeInfo = () => {
         </TableRow>
       </TableBody>
     </Table>
-  </div>
+  </div> -->
 </template>
 
 <style scoped>
