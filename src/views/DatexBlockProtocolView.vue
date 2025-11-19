@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import BlockProtocolBytes from '@/views/BlockProtocolBytesView.vue';
-// import BlockProtocolInfo from '@/views/BlockProtocolInfoView.vue';
+import BlockProtocolInfo from '@/views/BlockProtocolInfoView.vue';
 import { parseStructure, type StructureDefinition } from '@unyt/speck';
 import { ref } from 'vue';
 
@@ -19,10 +19,10 @@ const blockDataExample: Uint8Array = new Uint8Array(
 );
 const structureExample = parseStructure(jsonDataExample, blockDataExample);
 
-const selectedField = ref<{section: string, field:string}>();
-const handleBytesSectionFieldClick = (data: {section: string, field:string}) => {
-  selectedField.value = data;
-  console.log(selectedField.value.section)
+const selectedField = ref<{ sectionName: string; fieldName: string } | undefined>(undefined);
+const handleBytesSectionFieldClick = (data: { sectionName: string; fieldName: string } | undefined) => {
+  selectedField.value = structuredClone(data);
+  console.log(selectedField?.value?.fieldName + ' in ' + selectedField?.value?.sectionName);
 };
 </script>
 
@@ -35,8 +35,13 @@ const handleBytesSectionFieldClick = (data: {section: string, field:string}) => 
         @bytes-section-field-clicked="handleBytesSectionFieldClick"
       ></BlockProtocolBytes>
     </div>
-    <!-- <div class="bg-background m-1 max-h-3/5 overflow-y-auto rounded-lg border px-4">
-      <BlockProtocolInfo :infoData="undefined"></BlockProtocolInfo>
-    </div> -->
+    <div class="bg-background m-1 max-h-3/5 overflow-y-auto rounded-lg border px-4">
+      <BlockProtocolInfo
+        v-if="selectedField"
+        :field="selectedField"
+        :structure="structureExample"
+        :structureDef="jsonDataExample"
+      ></BlockProtocolInfo>
+    </div>
   </div>
 </template>

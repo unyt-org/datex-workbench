@@ -2,15 +2,14 @@
 import BlockField from '@/components/BlockField.vue';
 import type { ParsedField, ParsedSection, SectionDefinition } from '@unyt/speck';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   section: ParsedSection;
   sectionDef: SectionDefinition | undefined;
 }>();
 
 const emit = defineEmits(['section-field-clicked']);
-const handleFieldClick = (data: { section: string; field: string }) => {
-  emit('section-field-clicked', {...data, section: props.section.name});
+const handleFieldClick = (data: { sectionName: string; fieldName: string } | undefined) => {
+  emit('section-field-clicked', {...data, sectionName: props.section.name});
 };
 </script>
 

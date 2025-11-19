@@ -14,8 +14,8 @@ const emit = defineEmits(['field-clicked']);
 const handleClick = () => {
   // isExpanded.value = !isExpanded.value;
   emit('field-clicked', {
-    section: undefined,
-    field: props.field.name,
+    sectionName: undefined,
+    fieldName: props.field.name,
   });
 };
 
