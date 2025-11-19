@@ -7,15 +7,17 @@ import {
 } from '@/components/ui/accordion';
 import type { ParsedStructure, StructureDefinition } from '@unyt/speck';
 import BlockSection from '@/components/BlockSection.vue';
+import type { FieldIdentifier } from '@/types/block-protocol-view';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   structure: ParsedStructure;
   structureDef: StructureDefinition | undefined;
+  selectedField: FieldIdentifier | undefined;
 }>();
 
 const emit = defineEmits(['bytes-section-field-clicked']);
-const handleSectionFieldClick = (data: { sectionName: string; fieldName: string } | undefined) => {
+const handleSectionFieldClick = (data: FieldIdentifier | undefined) => {
   emit('bytes-section-field-clicked', data);
 };
 </script>
@@ -36,6 +38,8 @@ const handleSectionFieldClick = (data: { sectionName: string; fieldName: string 
           v-if="section.fields.length > 0"
           :section="section"
           :sectionDef="structureDef?.sections[index]"
+          :sectionId="index"
+          :selectedField="selectedField"
           @section-field-clicked="handleSectionFieldClick"
         />
       </AccordionContent>

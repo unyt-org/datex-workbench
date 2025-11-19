@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import type { FieldIdentifier } from '@/types/block-protocol-view';
 import BlockProtocolBytes from '@/views/BlockProtocolBytesView.vue';
 import BlockProtocolInfo from '@/views/BlockProtocolInfoView.vue';
 import { parseStructure, type StructureDefinition } from '@unyt/speck';
 import { ref } from 'vue';
+
 
 // this will later not be fetched from the example data
 const jsonDataExample: StructureDefinition = await (
@@ -18,11 +20,20 @@ const blockDataExample: Uint8Array = new Uint8Array(
   ).arrayBuffer(),
 );
 const structureExample = parseStructure(jsonDataExample, blockDataExample);
+console.log(jsonDataExample)
 
-const selectedField = ref<{ sectionName: string; fieldName: string } | undefined>(undefined);
-const handleBytesSectionFieldClick = (data: { sectionName: string; fieldName: string } | undefined) => {
-  selectedField.value = structuredClone(data);
-  console.log(selectedField?.value?.fieldName + ' in ' + selectedField?.value?.sectionName);
+// don't save sectionName and fieldName, save indices to get exact values with special type FieldIdentifier
+// const temp: FieldIdentifier;
+
+const selectedField = ref<FieldIdentifier | undefined>(undefined);
+const handleBytesSectionFieldClick = (
+  data: FieldIdentifier | undefined,
+) => {
+  selectedField.value = data;
+};
+
+const handleInfoCloseButtionClick = () => {
+  selectedField.value = undefined;
 };
 </script>
 
@@ -32,15 +43,19 @@ const handleBytesSectionFieldClick = (data: { sectionName: string; fieldName: st
       <BlockProtocolBytes
         :structure="structureExample"
         :structureDef="jsonDataExample"
+        :selectedField="selectedField"
         @bytes-section-field-clicked="handleBytesSectionFieldClick"
       ></BlockProtocolBytes>
     </div>
-    <div class="bg-background m-1 max-h-3/5 overflow-y-auto rounded-lg border px-4">
+    <div
+      class="bg-background m-1 max-h-3/5 overflow-y-auto rounded-lg border px-4"
+      v-if="selectedField"
+    >
       <BlockProtocolInfo
-        v-if="selectedField"
-        :field="selectedField"
         :structure="structureExample"
         :structureDef="jsonDataExample"
+        :selectedField="selectedField"
+        @close-button-clicked="handleInfoCloseButtionClick"
       ></BlockProtocolInfo>
     </div>
   </div>

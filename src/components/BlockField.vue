@@ -1,22 +1,30 @@
 <script setup lang="ts">
+import type { FieldIdentifier } from '@/types/block-protocol-view';
 import type { FieldDefinition, ParsedField } from '@unyt/speck';
-import { ref } from 'vue';
 
 const props = defineProps<{
   field: ParsedField;
   fieldDef: FieldDefinition | undefined;
+  sectionId: number;
+  fieldId: number;
+  selectedField: FieldIdentifier | undefined;
 }>();
 
 const bytesCutoff: number = 25;
-const isExpanded = ref(false);
 
 const emit = defineEmits(['field-clicked']);
 const handleClick = () => {
-  // isExpanded.value = !isExpanded.value;
-  emit('field-clicked', {
-    sectionName: undefined,
-    fieldName: props.field.name,
-  });
+  if (
+    props.sectionId == props.selectedField?.sectionIndex &&
+    props.fieldId == props.selectedField.fieldIndex
+  ) {
+    emit('field-clicked', undefined);
+  } else {
+    emit('field-clicked', {
+      sectionIndex: props.sectionId,
+      fieldIndex: props.fieldId,
+    });
+  }
 };
 
 const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
@@ -25,7 +33,10 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 <template>
   <div class="field-wrapper contents cursor-pointer" @click="handleClick">
     <div
-      v-for="(byte, indexInner) in isExpanded ? field.bytes : field.bytes.slice(0, bytesCutoff)"
+      v-for="(byte, indexInner) in props.sectionId == props.selectedField?.sectionIndex &&
+      props.fieldId == props.selectedField.fieldIndex
+        ? field.bytes
+        : field.bytes.slice(0, bytesCutoff)"
       :key="indexInner"
     >
       <div
@@ -35,7 +46,8 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
         {{ uint8ToHexString(byte) }}
       </div>
     </div>
-    <div v-if="!isExpanded && field.bytes.length > bytesCutoff">
+    <div v-if="!(props.sectionId == props.selectedField?.sectionIndex &&
+      props.fieldId == props.selectedField.fieldIndex) && field.bytes.length > bytesCutoff">
       <div
         class="padding-wrapper leading-tight"
         :style="{ backgroundColor: fieldDef?.category?.split('_').join('') }"
