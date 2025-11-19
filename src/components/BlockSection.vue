@@ -1,45 +1,33 @@
 <script setup lang="ts">
 import BlockField from '@/components/BlockField.vue';
-import type { ParsedField, ParsedSection, SectionDefinition } from '@unyt/speck';
+import type { FieldIdentifier } from '@/types/block-protocol-view';
+import type { ParsedSection, SectionDefinition } from '@unyt/speck';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   section: ParsedSection;
   sectionDef: SectionDefinition | undefined;
+  sectionId: number;
+  selectedField: FieldIdentifier | undefined;
 }>();
 
 const emit = defineEmits(['section-field-clicked']);
-const handleFieldClick = (data: { sectionName: string; fieldName: string } | undefined) => {
-  emit('section-field-clicked', {...data, sectionName: props.section.name});
+const handleFieldClick = (data: FieldIdentifier | undefined) => {
+  emit('section-field-clicked', data);
 };
 </script>
 
 <template>
   <div class="text-foreground font-mono">
     <div class="grid-box grid" :style="`grid-template-columns: repeat(auto-fit, 3ch);`">
-      <div v-for="(field, indexOuter) in section.fields" :key="indexOuter" class="contents">
-        <div
-          v-if="
-            'subFields' in field &&
-            field.bytes.length ==
-              field.subFields.reduce(
-                (acc: number, subField: ParsedField) => acc + subField.bytes.length,
-                0,
-              )
-          "
-          class="contents"
-        >
-          <BlockField
-            v-for="(subField, index) in field.subFields"
-            :key="index"
-            :field="subField"
-            :fieldDef="sectionDef?.fields[indexOuter]"
-            @field-clicked="handleFieldClick"
-          />
-        </div>
-        <div v-else class="contents">
+      <div v-for="(field, index) in section.fields" :key="index" class="contents">
+        <div class="contents">
           <BlockField
             :field="field"
-            :fieldDef="sectionDef?.fields[indexOuter]"
+            :fieldDef="sectionDef?.fields[index]"
+            :sectionId="sectionId"
+            :fieldId="index"
+            :selectedField="selectedField"
             @field-clicked="handleFieldClick"
           />
         </div>
