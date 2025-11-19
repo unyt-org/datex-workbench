@@ -16,15 +16,16 @@ const blockDataExample: Uint8Array = new Uint8Array(
     )
   ).arrayBuffer(),
 );
-const structure = parseStructure(jsonDataExample, blockDataExample);
-// use this for more info ;)
-// console.log(jsonDataExample);
+const structureExample = parseStructure(jsonDataExample, blockDataExample);
 </script>
 
 <template>
   <div class="h-[calc(100%-15px)]">
     <div class="bg-background m-1 max-h-3/5 overflow-y-auto rounded-lg border px-4">
-      <BlockProtocolBytes :structure="structure"></BlockProtocolBytes>
+      <BlockProtocolBytes
+        :structure="structureExample"
+        :structureDef="jsonDataExample"
+      ></BlockProtocolBytes>
     </div>
     <!-- <div class="bg-background m-1 max-h-3/5 overflow-y-auto rounded-lg border px-4">
       <BlockProtocolInfo :infoData="undefined"></BlockProtocolInfo>

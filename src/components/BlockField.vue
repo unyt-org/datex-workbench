@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import type { ParsedField } from '@unyt/speck';
+import type { FieldDefinition, ParsedField } from '@unyt/speck';
 import { ref } from 'vue';
 
 const props = defineProps<{
   field: ParsedField;
-  indexOuter: number;
-  fieldColor?: string;
+  fieldDef: FieldDefinition | undefined;
 }>();
 
 const bytesCutoff: number = 25;
@@ -14,12 +13,11 @@ const isExpanded = ref(false);
 const emit = defineEmits(['field-clicked']);
 
 const handleClick = () => {
-  let data: ParsedField & { color?: string } | undefined;
-  if(!isExpanded.value) {
+  let data: (ParsedField & { color?: string }) | undefined;
+  if (!isExpanded.value) {
     data = structuredClone(props.field);
-    data.color = props.fieldColor;
   } else {
-    data = undefined
+    data = undefined;
   }
   isExpanded.value = !isExpanded.value;
   emit('field-clicked', data);
@@ -34,13 +32,20 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
       v-for="(byte, indexInner) in isExpanded ? field.bytes : field.bytes.slice(0, bytesCutoff)"
       :key="indexInner"
     >
-      <div class="padding-wrapper leading-tight" :style="{ backgroundColor: fieldColor }">
+      <div
+        class="padding-wrapper leading-tight"
+        :style="{ backgroundColor: fieldDef?.category?.split('_').join('') }"
+      >
         {{ uint8ToHexString(byte) }}
       </div>
     </div>
     <div v-if="!isExpanded && field.bytes.length > bytesCutoff">
-      <div class="padding-wrapper leading-tight" :style="{ backgroundColor: fieldColor }">..</div>
-
+      <div
+        class="padding-wrapper leading-tight"
+        :style="{ backgroundColor: fieldDef?.category?.split('_').join('') }"
+      >
+        ..
+      </div>
     </div>
   </div>
 </template>

@@ -1,30 +1,17 @@
 <script setup lang="ts">
 import BlockField from '@/components/BlockField.vue';
-import type { ParsedField, ParsedSection } from '@unyt/speck';
+import type { ParsedField, ParsedSection, SectionDefinition } from '@unyt/speck';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   section: ParsedSection;
+  sectionDef: SectionDefinition | undefined;
 }>();
-
-const categories = [
-  ['Magic Number', 'Version', 'Context ID', 'Section Index', 'Block Number'],
-  ['Block Size', 'Flags', 'Flags and Timestamp', 'Lifetime'],
-  ['Distance', 'TTL'],
-  ['Sender', 'Number of Receivers', 'Receivers', 'Represented By', 'On Behalf Of'],
-  ['Receivers Pointer ID', 'Receivers with Keys'],
-  ['Checksum', 'Signature', 'Encrypted Signature', 'IV'],
-];
-
-function getCategoryColor(str: string) {
-  const index = categories.findIndex((subArray) => subArray.includes(str));
-  return `var(--chart-${((index + 5) % 5) + 1})`;
-}
 </script>
 
 <template>
   <div class="text-foreground font-mono">
-    <div ref="box" class="grid-box grid" :style="`grid-template-columns: repeat(auto-fit, 3ch);`">
+    <div class="grid-box grid" :style="`grid-template-columns: repeat(auto-fit, 3ch);`">
       <div v-for="(field, indexOuter) in section.fields" :key="indexOuter" class="contents">
         <div
           v-if="
@@ -41,16 +28,11 @@ function getCategoryColor(str: string) {
             v-for="(subField, index) in field.subFields"
             :key="index"
             :field="subField"
-            :indexOuter="indexOuter"
-            :fieldColor="getCategoryColor(field.name)"
+            :fieldDef="sectionDef?.fields[indexOuter]"
           />
         </div>
         <div v-else class="contents">
-          <BlockField
-            :field="field"
-            :indexOuter="indexOuter"
-            :fieldColor="getCategoryColor(field.name)"
-          />
+          <BlockField :field="field" :fieldDef="sectionDef?.fields[indexOuter]" />
         </div>
       </div>
     </div>
