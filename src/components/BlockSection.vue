@@ -1,61 +1,11 @@
 <script setup lang="ts">
-import DatexBlockField from '@/components/DatexBlockField.vue';
+import BlockField from '@/components/BlockField.vue';
 import type { ParsedField, ParsedSection } from '@unyt/speck';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   section: ParsedSection;
-  clickedField: ParsedField & { color: string } | undefined;
 }>();
-
-const box = ref<HTMLDivElement | null>(null);
-const width = ref(0);
-const bytes = ref(1);
-
-let observer: ResizeObserver;
-
-onMounted(() => {
-  console.log('Field object:', props.section);
-  if (box.value) {
-    observer = new ResizeObserver((entries) => {
-      const el = entries[0]?.target;
-      if (!el) return;
-      width.value = el.clientWidth;
-
-      // Measure 1ch within this element’s context
-      const chWidth = getChUnitInElement(el);
-
-      // console.log(`Width: ${width.value} \n chWidth: ${chWidth} \n no rounding: ${width.value / (chWidth * 3)}`)
-      /* normally I would do (chWidth * 3) because the column width with all of its paddings and margins is supposed to be 3ch wide
-       It does produce better results to do (chWidth * 2.8) becuase of the way this width measurment is not completely in sync with what gets rendered */
-      bytes.value = Math.floor(width.value / (chWidth * 3));
-    });
-    observer.observe(box.value);
-  }
-});
-
-onBeforeUnmount(() => {
-  if (observer && box.value) observer.unobserve(box.value);
-});
-
-function getChUnitInElement(el: Element) {
-  const tempDomElement = document.createElement('span');
-  tempDomElement.style.display = 'inline-block';
-  tempDomElement.style.visibility = 'hidden';
-  tempDomElement.style.width = '1ch';
-  tempDomElement.textContent = ' ';
-  el.appendChild(tempDomElement);
-  const chWidth = tempDomElement.offsetWidth;
-  el.removeChild(tempDomElement);
-  return chWidth;
-}
-
-const emit = defineEmits(['section-field-clicked']);
-
-const handleFieldClick = (data: (ParsedField & { color: string }) | undefined) => {
-  emit('section-field-clicked', data);
-};
 
 const categories = [
   ['Magic Number', 'Version', 'Context ID', 'Section Index', 'Block Number'],
@@ -87,23 +37,19 @@ function getCategoryColor(str: string) {
           "
           class="contents"
         >
-          <DatexBlockField
+          <BlockField
             v-for="(subField, index) in field.subFields"
             :key="index"
             :field="subField"
             :indexOuter="indexOuter"
             :fieldColor="getCategoryColor(field.name)"
-            :clickedField="clickedField"
-            @field-clicked="handleFieldClick"
           />
         </div>
         <div v-else class="contents">
-          <DatexBlockField
+          <BlockField
             :field="field"
             :indexOuter="indexOuter"
             :fieldColor="getCategoryColor(field.name)"
-            :clickedField="clickedField"
-            @field-clicked="handleFieldClick"
           />
         </div>
       </div>

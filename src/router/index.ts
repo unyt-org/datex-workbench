@@ -13,7 +13,7 @@ const router = createRouter({
     {
       path: '/blocks',
       name: 'blocks',
-      component: () => import('@/views/DatexBlockProtocolViewer.vue'),
+      component: () => import('@/views/DatexBlockProtocolView.vue'),
     },
     {
       path: '',
