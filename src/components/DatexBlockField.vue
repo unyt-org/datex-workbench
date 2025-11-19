@@ -6,6 +6,7 @@ const props = defineProps<{
   field: ParsedField;
   indexOuter: number;
   fieldColor?: string;
+  clickedField: ParsedField & { color: string } | undefined;
 }>();
 
 const bytesCutoff: number = 25;
@@ -14,9 +15,14 @@ const isExpanded = ref(false);
 const emit = defineEmits(['field-clicked']);
 
 const handleClick = () => {
+  let data: ParsedField & { color?: string } | undefined;
+  if(!isExpanded.value && !props.clickedField) {
+    data = structuredClone(props.field);
+    data.color = props.fieldColor;
+  } else {
+    data = undefined
+  }
   isExpanded.value = !isExpanded.value;
-  const data: ParsedField & { color?: string } = structuredClone(props.field);
-  data.color = props.fieldColor;
   emit('field-clicked', data);
 };
 
