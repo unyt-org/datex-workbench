@@ -7,6 +7,11 @@ const props = defineProps<{
   section: ParsedSection;
   sectionDef: SectionDefinition | undefined;
 }>();
+
+const emit = defineEmits(['section-field-clicked']);
+const handleFieldClick = (data: { section: string; field: string }) => {
+  emit('section-field-clicked', {...data, section: props.section.name});
+};
 </script>
 
 <template>
@@ -29,10 +34,15 @@ const props = defineProps<{
             :key="index"
             :field="subField"
             :fieldDef="sectionDef?.fields[indexOuter]"
+            @field-clicked="handleFieldClick"
           />
         </div>
         <div v-else class="contents">
-          <BlockField :field="field" :fieldDef="sectionDef?.fields[indexOuter]" />
+          <BlockField
+            :field="field"
+            :fieldDef="sectionDef?.fields[indexOuter]"
+            @field-clicked="handleFieldClick"
+          />
         </div>
       </div>
     </div>

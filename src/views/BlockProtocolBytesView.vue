@@ -13,6 +13,11 @@ const props = defineProps<{
   structure: ParsedStructure;
   structureDef: StructureDefinition | undefined;
 }>();
+
+const emit = defineEmits(['bytes-section-field-clicked']);
+const handleSectionFieldClick = (data: { section: string; field: string }) => {
+  emit('bytes-section-field-clicked', data);
+};
 </script>
 
 <template>
@@ -31,6 +36,7 @@ const props = defineProps<{
           v-if="section.fields.length > 0"
           :section="section"
           :sectionDef="structureDef?.sections[index]"
+          @section-field-clicked="handleSectionFieldClick"
         />
       </AccordionContent>
     </AccordionItem>

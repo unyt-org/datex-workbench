@@ -11,16 +11,12 @@ const bytesCutoff: number = 25;
 const isExpanded = ref(false);
 
 const emit = defineEmits(['field-clicked']);
-
 const handleClick = () => {
-  let data: (ParsedField & { color?: string }) | undefined;
-  if (!isExpanded.value) {
-    data = structuredClone(props.field);
-  } else {
-    data = undefined;
-  }
-  isExpanded.value = !isExpanded.value;
-  emit('field-clicked', data);
+  // isExpanded.value = !isExpanded.value;
+  emit('field-clicked', {
+    section: undefined,
+    field: props.field.name,
+  });
 };
 
 const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
