@@ -7,6 +7,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   section: ParsedSection;
+  clickedField: ParsedField & { color: string } | undefined;
 }>();
 
 const box = ref<HTMLDivElement | null>(null);
@@ -53,7 +54,7 @@ function getChUnitInElement(el: Element) {
 
 const emit = defineEmits(['section-field-clicked']);
 
-const handleFieldClick = (data: ParsedField & { color: string }) => {
+const handleFieldClick = (data: (ParsedField & { color: string }) | undefined) => {
   emit('section-field-clicked', data);
 };
 
@@ -74,11 +75,7 @@ function getCategoryColor(str: string) {
 
 <template>
   <div class="text-foreground font-mono">
-    <div
-      ref="box"
-      class="grid-box grid"
-      :style="`grid-template-columns: repeat(auto-fit, 3ch);`"
-    >
+    <div ref="box" class="grid-box grid" :style="`grid-template-columns: repeat(auto-fit, 3ch);`">
       <div v-for="(field, indexOuter) in section.fields" :key="indexOuter" class="contents">
         <div
           v-if="
@@ -97,6 +94,7 @@ function getCategoryColor(str: string) {
             :field="subField"
             :indexOuter="indexOuter"
             :fieldColor="getCategoryColor(field.name)"
+            :clickedField="clickedField"
             @field-clicked="handleFieldClick"
           />
         </div>
@@ -105,6 +103,7 @@ function getCategoryColor(str: string) {
             :field="field"
             :indexOuter="indexOuter"
             :fieldColor="getCategoryColor(field.name)"
+            :clickedField="clickedField"
             @field-clicked="handleFieldClick"
           />
         </div>

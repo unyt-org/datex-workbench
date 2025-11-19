@@ -28,10 +28,15 @@ const structure = parseStructure(jsonDataExample, blockDataExample);
 console.log(jsonDataExample)
 
 
-const clickedField = ref<ParsedField & { color: string }>();
+const clickedField = ref<ParsedField & { color: string } | undefined>();
+
 const handleSectionFieldClick = (data: ParsedField & { color: string }) => {
   clickedField.value = data;
 };
+
+function handleCloseButtonClicked() {
+    clickedField.value = undefined;
+}
 </script>
 
 <template>
@@ -53,6 +58,7 @@ const handleSectionFieldClick = (data: ParsedField & { color: string }) => {
           <DatexBlockSection
             v-if="section.fields.length > 0"
             :section="section"
+            :clickedField="clickedField"
             @section-field-clicked="handleSectionFieldClick"
           />
         </AccordionContent>
@@ -62,7 +68,7 @@ const handleSectionFieldClick = (data: ParsedField & { color: string }) => {
       v-if="clickedField"
       class="bg-background text-foreground m-1 max-h-2/5 overflow-y-auto rounded-lg border px-4"
     >
-      <DatexBlockInfo :infoData="clickedField"></DatexBlockInfo>
+      <DatexBlockInfo :infoData="clickedField" @close-button-clicked = handleCloseButtonClicked></DatexBlockInfo>
     </div>
   </div>
 </template>
