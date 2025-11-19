@@ -5,12 +5,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import type { ParsedStructure } from '@unyt/speck';
+import type { ParsedStructure, StructureDefinition } from '@unyt/speck';
 import BlockSection from '@/components/BlockSection.vue';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   structure: ParsedStructure;
+  structureDef: StructureDefinition | undefined;
 }>();
 </script>
 
@@ -19,7 +20,6 @@ const props = defineProps<{
     <AccordionItem
       v-for="(section, index) in structure"
       :key="index"
-      :section="section"
       :value="`item-${index}`"
       class="last:border-b-0"
     >
@@ -30,6 +30,7 @@ const props = defineProps<{
         <BlockSection
           v-if="section.fields.length > 0"
           :section="section"
+          :sectionDef="structureDef?.sections[index]"
         />
       </AccordionContent>
     </AccordionItem>

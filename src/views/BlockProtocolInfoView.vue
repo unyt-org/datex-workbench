@@ -17,8 +17,8 @@ const props = defineProps<{
 
 const emit = defineEmits(['close-button-clicked']);
 const closeInfo = () => {
-  emit('close-button-clicked')
-}
+  emit('close-button-clicked');
+};
 </script>
 
 <template>
@@ -34,7 +34,9 @@ const closeInfo = () => {
   <h1 class="text-md">{{ infoData.name }}</h1>
   <h2 v-if="'id' in infoData" class="text-xs">id: {{ infoData.id }}</h2>
   <Separator />
-  <p v-if="'parsedValue' in infoData" class="break-all whitespace-break-spaces">Value: {{ infoData.parsedValue }}</p>
+  <p v-if="'parsedValue' in infoData" class="break-all whitespace-break-spaces">
+    Value: {{ infoData.parsedValue }}
+  </p>
   <p>if possible, description</p>
   <div v-if="'subFields' in infoData">
     <p>Subfields</p>
