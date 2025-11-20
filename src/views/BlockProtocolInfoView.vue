@@ -8,7 +8,6 @@ import {
   TableHeader,
   TableHead,
 } from '@/components/ui/table';
-import { Separator } from '@/components/ui/separator';
 import type { FieldIdentifier } from '@/types/block-protocol-view';
 import { computed } from 'vue';
 
@@ -31,16 +30,15 @@ const field = computed(
 <template>
   <!-- incooperate category color in some way
   -->
-  <!-- x-Button top right to get rid of Info box as well as clicking the field a second time also gets rid of info box -->
-  <!-- keep fields greyed out when viewing info in bottom view -->
   <!-- add tooltip when hovering over a byte containing the name of the field and the
   absolut byte offset of the whole block and where the field starts and ends as byte offset -->
 
-  <div v-if="field">
-    <div class="cursor-pointer" @click="closeInfo">x</div>
-    <h1 class="text-lg">{{ field.name }}</h1>
+  <div v-if="field" class="contents">
+    <div class="flex items-center justify-between">
+      <h1 class="text-lg">{{ field.name }}</h1>
+      <div class="cursor-pointer text-lg font-bold hover:text-muted-foreground" @click="closeInfo">x</div>
+    </div>
     <h2 v-if="'id' in field" class="text-xs">id: {{ field.id }}</h2>
-    <Separator />
     <p v-if="'parsedValue' in field" class="text-sm">Value: {{ field.parsedValue }}</p>
     <!-- <p>if possible, description</p> -->
     <div v-if="'subFields' in field">
@@ -64,9 +62,3 @@ const field = computed(
     </div>
   </div>
 </template>
-
-<style scoped>
-.info-grid {
-  grid-template-columns: 1fr 1fr 3fr;
-}
-</style>

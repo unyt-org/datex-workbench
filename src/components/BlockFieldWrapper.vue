@@ -2,7 +2,6 @@
 import type { FieldIdentifier } from '@/types/block-protocol-view';
 import type { FieldDefinition, ParsedField } from '@unyt/speck';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   field: ParsedField;
   fieldDef: FieldDefinition | undefined;
