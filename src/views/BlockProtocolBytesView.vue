@@ -20,6 +20,8 @@ const emit = defineEmits(['bytes-section-field-clicked']);
 const handleSectionFieldClick = (data: FieldIdentifier | undefined) => {
   emit('bytes-section-field-clicked', data);
 };
+
+// console.log(props.structureDef?.sections.find(sect => sect.name === props.structure[0]?.name))
 </script>
 
 <template>
@@ -37,7 +39,7 @@ const handleSectionFieldClick = (data: FieldIdentifier | undefined) => {
         <BlockSection
           v-if="section.fields.length > 0"
           :section="section"
-          :sectionDef="structureDef?.sections[index]"
+          :sectionDef="structureDef?.sections.find(sect => sect.name === section.name)"
           :sectionId="index"
           :selectedField="selectedField"
           @section-field-clicked="handleSectionFieldClick"

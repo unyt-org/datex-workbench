@@ -14,6 +14,8 @@ const bytesCutoff: number = 25;
 
 const emit = defineEmits(['field-clicked']);
 const handleClick = () => {
+  console.log(props.field);
+  console.log(props.fieldDef);
   if (
     props.sectionId == props.selectedField?.sectionIndex &&
     props.fieldId == props.selectedField.fieldIndex
@@ -29,40 +31,83 @@ const handleClick = () => {
 
 const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 
+const expand = () =>
+  props.sectionId == props.selectedField?.sectionIndex &&
+  props.fieldId == props.selectedField.fieldIndex;
+
 const categories = ['purple', 'red', 'yellow', 'green', 'blue', 'dark_blue'];
 const getColorIndex = (s: string | undefined): number =>
   categories.findIndex((color) => s === color) + 1;
 </script>
 
+<!--
+also aktueller Stand
+an sich funktioniert alles, nur die subfields werden noch nicht getrennt voneinander angezeigt
+Ich muss also erst schauen ob es Subfields gibt. Ist dies der Fall wird jedes Subfield einzeln wie ein reguläres field ohne subFields behandelt.
+
+Und dann muss ein field was zu lang ist beim cutoff enden und man macht ... danach.
+-->
+
 <template>
-  <div class="field-wrapper contents cursor-pointer" @click="handleClick">
+  <div
+    v-if="
+      'subFields' in field &&
+      field.subFields.reduce(
+        (acc: number, subField: ParsedField) => acc + subField.bytes.length,
+        0,
+      ) == field.bytes.length
+    "
+    class="contents"
+  >
     <div
-      v-for="(byte, indexInner) in props.sectionId == props.selectedField?.sectionIndex &&
-      props.fieldId == props.selectedField.fieldIndex
-        ? field.bytes
-        : field.bytes.slice(0, bytesCutoff)"
-      :key="indexInner"
+      v-for="(subField, index) in field.subFields"
+      :key="index"
+      class="field-wrapper contents cursor-pointer"
+      @click="handleClick"
     >
       <div
-        class="padding-wrapper leading-tight"
-        :style="{ backgroundColor: `var(--chart-${getColorIndex(fieldDef?.category)})` }"
+        v-for="(byte, indexInner) in expand()
+          ? subField.bytes
+          : subField.bytes.slice(0, bytesCutoff)"
+        :key="indexInner"
       >
-        {{ uint8ToHexString(byte) }}
+        <div
+          class="padding-wrapper leading-tight"
+          :style="{ backgroundColor: `var(--chart-${getColorIndex(fieldDef?.category)})` }"
+        >
+          {{ uint8ToHexString(byte) }}
+        </div>
+      </div>
+      <div v-if="!expand() && subField.bytes.length > bytesCutoff">
+        <div
+          class="padding-wrapper leading-tight"
+          :style="{ backgroundColor: `var(--chart-${getColorIndex(fieldDef?.category)})` }"
+        >
+          ..
+        </div>
       </div>
     </div>
-    <div
-      v-if="
-        !(
-          props.sectionId == props.selectedField?.sectionIndex &&
-          props.fieldId == props.selectedField.fieldIndex
-        ) && field.bytes.length > bytesCutoff
-      "
-    >
+  </div>
+  <div v-else class="contents">
+    <div class="field-wrapper contents cursor-pointer" @click="handleClick">
       <div
-        class="padding-wrapper leading-tight"
-        :style="{ backgroundColor: `var(--chart-${getColorIndex(fieldDef?.category)})` }"
+        v-for="(byte, indexInner) in expand() ? field.bytes : field.bytes.slice(0, bytesCutoff)"
+        :key="indexInner"
       >
-        ..
+        <div
+          class="padding-wrapper leading-tight"
+          :style="{ backgroundColor: `var(--chart-${getColorIndex(fieldDef?.category)})` }"
+        >
+          {{ uint8ToHexString(byte) }}
+        </div>
+      </div>
+      <div v-if="!expand() && field.bytes.length > bytesCutoff">
+        <div
+          class="padding-wrapper leading-tight"
+          :style="{ backgroundColor: `var(--chart-${getColorIndex(fieldDef?.category)})` }"
+        >
+          ..
+        </div>
       </div>
     </div>
   </div>

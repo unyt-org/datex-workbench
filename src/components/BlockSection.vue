@@ -34,7 +34,7 @@ const handleFieldClick = (data: FieldIdentifier | undefined) => {
       >
         <BlockField
           :field="field"
-          :fieldDef="sectionDef?.fields[index]"
+          :fieldDef="sectionDef?.fields.find((fi) => fi.name == field.name)"
           :sectionId="sectionId"
           :fieldId="index"
           :selectedField="selectedField"
@@ -46,13 +46,13 @@ const handleFieldClick = (data: FieldIdentifier | undefined) => {
 </template>
 
 <style>
-.grid-box :not(.selected-field) div div div {
+.grid-box :not(.selected-field) div div div div {
   filter: grayscale(100%) opacity(80%);
 }
 
 /* when hovering over a field in the grid-box, grey out all other fields and remove greyscale from hovered field */
 .grid-box:has(.field-wrapper:hover) {
-  div {
+  div div {
     :not(.field-wrapper:hover) div div {
       filter: grayscale(100%) opacity(80%);
     }
@@ -61,6 +61,4 @@ const handleFieldClick = (data: FieldIdentifier | undefined) => {
     }
   }
 }
-
-
 </style>
