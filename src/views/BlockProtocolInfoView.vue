@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/table';
 import type { FieldIdentifier } from '@/types/block-protocol-view';
 import { computed } from 'vue';
+import Separator from '@/components/ui/separator/Separator.vue';
 
 const props = defineProps<{
   structure: ParsedStructure;
@@ -34,15 +35,22 @@ const field = computed(
   absolut byte offset of the whole block and where the field starts and ends as byte offset -->
 
   <div v-if="field" class="contents">
-    <div class="flex items-center justify-between">
-      <h1 class="text-lg">{{ field.name }}</h1>
-      <div class="cursor-pointer text-lg font-bold hover:text-muted-foreground" @click="closeInfo">x</div>
+    <div class="text-foreground text-md flex flex-1 items-center justify-between py-3 font-medium">
+      Field Info
+      <button
+        class="hover:text-muted-foreground flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center"
+        @click="closeInfo"
+      >
+        x
+      </button>
     </div>
-    <h2 v-if="'id' in field" class="text-xs">id: {{ field.id }}</h2>
-    <p v-if="'parsedValue' in field" class="text-sm">Value: {{ field.parsedValue }}</p>
+    <Separator />
+    <p class="py-2 text-sm">{{ field.name }}</p>
+    <p v-if="'id' in field" class="pb-2 text-xs">id: {{ field.id }}</p>
+    <p v-if="'parsedValue' in field" class="py-2 text-sm">Value: {{ field.parsedValue }}</p>
     <!-- <p>if possible, description</p> -->
     <div v-if="'subFields' in field">
-      <p class="text-sm">Subfields</p>
+      <p class="text-sm py-2">Subfields</p>
       <Table>
         <TableHeader>
           <TableRow>
