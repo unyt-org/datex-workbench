@@ -24,6 +24,12 @@ const subFieldsMatchBytes = () =>
   ) == props.field.bytes.length;
 </script>
 
+<!-- don't seperate subfields when the field is not expanded -->
+<!-- when expanded, the subfield should have an exta hover effect -->
+<!-- when hovering, also grey out other section -->
+<!-- use lucide icons to replace x button -->
+<!-- also change theme switcher to lucide -->
+<!-- https://lucide.dev/icons/ -->
 <template>
   <div v-if="'subFields' in field && subFieldsMatchBytes()" class="contents">
     <BlockFieldWrapper
