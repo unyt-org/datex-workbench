@@ -29,9 +29,7 @@ const field = computed(
 </script>
 
 <template>
-  <!-- The basic data like name, id, description and parsed Value with headers and as regular text
-  only the subfields as a table like I did but columns and rows reversed
-  incooperate category color in some way
+  <!-- incooperate category color in some way
   -->
   <!-- x-Button top right to get rid of Info box as well as clicking the field a second time also gets rid of info box -->
   <!-- keep fields greyed out when viewing info in bottom view -->

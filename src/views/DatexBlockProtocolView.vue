@@ -22,9 +22,6 @@ const blockDataExample: Uint8Array = new Uint8Array(
 const structureExample = parseStructure(jsonDataExample, blockDataExample);
 console.log(jsonDataExample)
 
-// don't save sectionName and fieldName, save indices to get exact values with special type FieldIdentifier
-// const temp: FieldIdentifier;
-
 const selectedField = ref<FieldIdentifier | undefined>(undefined);
 const handleBytesSectionFieldClick = (
   data: FieldIdentifier | undefined,
@@ -48,7 +45,7 @@ const handleInfoCloseButtionClick = () => {
       ></BlockProtocolBytes>
     </div>
     <div
-      class="bg-background m-1 max-h-3/5 overflow-y-auto rounded-lg border px-4"
+      class="bg-background m-1 max-h-2/5 overflow-y-auto rounded-lg border px-4"
       v-if="selectedField"
     >
       <BlockProtocolInfo

@@ -28,6 +28,10 @@ const handleClick = () => {
 };
 
 const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
+
+const categories = ['purple', 'red', 'yellow', 'green', 'blue', 'dark_blue'];
+const getColorIndex = (s: string | undefined): number =>
+  categories.findIndex((color) => s === color) + 1;
 </script>
 
 <template>
@@ -41,16 +45,22 @@ const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
     >
       <div
         class="padding-wrapper leading-tight"
-        :style="{ backgroundColor: fieldDef?.category?.split('_').join('') }"
+        :style="{ backgroundColor: `var(--chart-${getColorIndex(fieldDef?.category)})` }"
       >
         {{ uint8ToHexString(byte) }}
       </div>
     </div>
-    <div v-if="!(props.sectionId == props.selectedField?.sectionIndex &&
-      props.fieldId == props.selectedField.fieldIndex) && field.bytes.length > bytesCutoff">
+    <div
+      v-if="
+        !(
+          props.sectionId == props.selectedField?.sectionIndex &&
+          props.fieldId == props.selectedField.fieldIndex
+        ) && field.bytes.length > bytesCutoff
+      "
+    >
       <div
         class="padding-wrapper leading-tight"
-        :style="{ backgroundColor: fieldDef?.category?.split('_').join('') }"
+        :style="{ backgroundColor: `var(--chart-${getColorIndex(fieldDef?.category)})` }"
       >
         ..
       </div>
