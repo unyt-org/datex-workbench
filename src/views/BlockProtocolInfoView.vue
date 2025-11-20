@@ -50,7 +50,7 @@ const field = computed(
           <TableRow>
             <TableHead class="w-[30%]">Name</TableHead>
             <TableHead class="w-[30%]">Id</TableHead>
-            <TableHead>parsedValue</TableHead>
+            <TableHead class="w-[40%]">parsedValue</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
