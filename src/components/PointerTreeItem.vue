@@ -2,7 +2,7 @@
 import { TYPE_CONFIGS, getTypeName, extractPointerId } from '@/lib/pointer-types';
 import type { DIF } from '@unyt/datex';
 import { ChevronDown, ChevronRight } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { computed, ref, nextTick } from 'vue';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import PointerRefInline from './PointerRefInline.vue';
 
@@ -42,7 +42,13 @@ const emit = defineEmits<{
   'node-toggle': [nodeId: string];
   'id-click': [nodeId: string];
   'pointer-ref-click': [pointerId: string];
+  'value-update': [nodeId: string, newValue: unknown];
 }>();
+
+// Editing state
+const isEditing = ref(false);
+const editValue = ref('');
+const editInputRef = ref<HTMLInputElement | null>(null);
 
 // Check if value is circular reference
 function isCircularReference(difContainer: DIF.Definitions.DIFContainer): boolean {
@@ -293,6 +299,94 @@ function handleClick() {
     emit('node-click', props.nodeId, props.value);
   }
 }
+
+// Editing functions
+function startEditing() {
+  // Only allow editing for primitive values (not expandable)
+  if (isExpandable(props.value) || extractPointerId(props.value) || isCircular.value) {
+    return;
+  }
+  
+  const value = extractValue(props.value);
+  const typeName = getTypeName(props.value);
+  
+  // Set initial edit value based on type
+  if (typeName === 'text') {
+    editValue.value = String(value);
+  } else if (typeName === 'boolean') {
+    editValue.value = value ? 'true' : 'false';
+  } else if (typeName === 'integer' || typeName === 'decimal') {
+    editValue.value = String(value);
+  } else if (typeName === 'null') {
+    editValue.value = 'null';
+  } else {
+    return; // Don't allow editing other types
+  }
+  
+  isEditing.value = true;
+  
+  // Focus input after render
+  nextTick(() => {
+    if (editInputRef.value) {
+      editInputRef.value.focus();
+      editInputRef.value.select();
+    }
+  });
+}
+
+function saveEdit() {
+  if (!isEditing.value) return;
+  
+  const typeName = getTypeName(props.value);
+  let newValue: unknown;
+  
+  try {
+    // Parse the new value based on type
+    if (typeName === 'text') {
+      newValue = editValue.value;
+    } else if (typeName === 'boolean') {
+      const lower = editValue.value.toLowerCase();
+      if (lower === 'true') newValue = true;
+      else if (lower === 'false') newValue = false;
+      else throw new Error('Invalid boolean value');
+    } else if (typeName === 'integer') {
+      newValue = parseInt(editValue.value, 10);
+      if (isNaN(newValue as number)) throw new Error('Invalid integer');
+    } else if (typeName === 'decimal') {
+      newValue = parseFloat(editValue.value);
+      if (isNaN(newValue as number)) throw new Error('Invalid number');
+    } else if (typeName === 'null') {
+      if (editValue.value.toLowerCase() === 'null') {
+        newValue = null;
+      } else {
+        throw new Error('Invalid null value');
+      }
+    } else {
+      throw new Error('Unsupported type for editing');
+    }
+    
+    emit('value-update', props.nodeId, newValue);
+    isEditing.value = false;
+  } catch (error) {
+    // On error, cancel editing
+    cancelEdit();
+  }
+}
+
+function cancelEdit() {
+  isEditing.value = false;
+  editValue.value = '';
+}
+
+function handleEditKeydown(event: KeyboardEvent) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    saveEdit();
+  } else if (event.key === 'Escape') {
+    event.preventDefault();
+    cancelEdit();
+  }
+}
 </script>
 
 <template>
@@ -367,12 +461,28 @@ function handleClick() {
         <TooltipProvider v-else-if="!expanded || depth === 0" :delay-duration="300">
           <Tooltip>
             <TooltipTrigger as-child>
-              <span class="text-sm text-foreground/70 truncate">
+              <!-- Editable value -->
+              <div v-if="isEditing" @click.stop class="flex-1">
+                <input
+                  ref="editInputRef"
+                  v-model="editValue"
+                  @blur="saveEdit"
+                  @keydown="handleEditKeydown"
+                  class="w-full px-1 py-0.5 text-sm bg-background border border-primary rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <!-- Display value -->
+              <span
+                v-else
+                @dblclick.stop="startEditing"
+                class="text-sm text-foreground/70 truncate cursor-text hover:bg-accent/30 px-1 rounded transition-colors"
+              >
                 {{ getValuePreview(value) }}
               </span>
             </TooltipTrigger>
             <TooltipContent>
               <p class="text-xs whitespace-pre-line">{{ getValueTooltip(value) }}</p>
+              <p class="text-xs text-muted-foreground mt-1">Double-click to edit</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -407,6 +517,7 @@ function handleClick() {
         @node-click="emit('node-click', $event, childValue)"
         @node-toggle="emit('node-toggle', $event)"
         @pointer-ref-click="emit('pointer-ref-click', $event)"
+        @value-update="emit('value-update', $event, $event)"
       />
 
       <!-- Closing bracket -->

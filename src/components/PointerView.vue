@@ -151,6 +151,14 @@ function jumpToPointer(pointerId: string) {
     }, 2000);
   });
 }
+
+// Handle value update
+function handleValueUpdate(nodeId: string, newValue: unknown) {
+  console.log('Value updated:', nodeId, newValue);
+  // TODO: Update the actual pointer value in the runtime
+  // This would require integration with the DATEX runtime to persist changes
+  // For now, just log the update
+}
 </script>
 
 <template>
@@ -222,6 +230,7 @@ function jumpToPointer(pointerId: string) {
               @node-toggle="togglePointer"
               @id-click="handleIdClick"
               @pointer-ref-click="jumpToPointer"
+              @value-update="handleValueUpdate"
             />
 
             <!-- Empty state -->
