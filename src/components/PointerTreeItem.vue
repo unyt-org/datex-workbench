@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { TYPE_CONFIGS, getTypeName } from '@/lib/pointer-types';
+import { TYPE_CONFIGS, getTypeName, extractPointerId } from '@/lib/pointer-types';
 import type { DIF } from '@unyt/datex';
 import { ChevronDown, ChevronRight } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import PointerRefInline from './PointerRefInline.vue';
 
 // Props
 interface PointerTreeItemProps {
@@ -20,6 +21,7 @@ interface PointerTreeItemProps {
   depth?: number;
   parentIsMap?: boolean; // Track if parent is a map
   keyContainer?: DIF.Definitions.DIFValueContainer; // The original DIF container for the key (for type hints)
+  selectedPointerId?: string | null; // For highlighting navigated pointer
 }
 
 const props = withDefaults(defineProps<PointerTreeItemProps>(), {
@@ -31,6 +33,7 @@ const props = withDefaults(defineProps<PointerTreeItemProps>(), {
   hideMapKeyTypeHintsForPrimitives: true,
   visitedObjects: () => new WeakSet(),
   parentIsMap: false,
+  selectedPointerId: null,
 });
 
 // Emits
@@ -38,6 +41,7 @@ const emit = defineEmits<{
   'node-click': [nodeId: string, value: DIF.Definitions.DIFContainer];
   'node-toggle': [nodeId: string];
   'id-click': [nodeId: string];
+  'pointer-ref-click': [pointerId: string];
 }>();
 
 // Check if value is circular reference
@@ -185,6 +189,21 @@ function getChildren(
       return [keyDisplay, v, k as DIF.Definitions.DIFValueContainer];
     });
   }
+  
+  // Handle plain JavaScript objects
+  if (typeof difContainer === 'object' &&
+      difContainer !== null &&
+      !Array.isArray(difContainer) &&
+      !('type' in difContainer)) {
+    return Object.entries(difContainer).map(([key, val]) => {
+      const keyContainer = { value: key } as DIF.Definitions.DIFValueContainer;
+      return [
+        key,
+        val as DIF.Definitions.DIFContainer,
+        keyContainer,
+      ];
+    });
+  }
 
   return [];
 }
@@ -277,11 +296,15 @@ function handleClick() {
 </script>
 
 <template>
-  <div v-memo="[expanded, label, showDataTypes, showIndices, hideTypeHintsForPrimitives, hideMapKeyTypeHintsForPrimitives]">
+  <div v-memo="[expanded, label, showDataTypes, showIndices, hideTypeHintsForPrimitives, hideMapKeyTypeHintsForPrimitives, selectedPointerId]">
     <!-- This node -->
     <div
-      class="flex items-center gap-1 px-1 py-2 hover:bg-accent cursor-pointer rounded-md"
-      :class="{ 'hover:bg-accent/50': depth > 0 }"
+      :id="`pointer-node-${nodeId}`"
+      class="flex items-center gap-1 px-1 py-2 hover:bg-accent cursor-pointer rounded-md transition-all"
+      :class="{
+        'hover:bg-accent/50': depth > 0,
+        'bg-primary/20 ring-2 ring-primary': selectedPointerId === nodeId
+      }"
       @click="handleClick"
     >
       <!-- Expand/Collapse chevron -->
@@ -333,8 +356,15 @@ function handleClick() {
         <!-- Show circular reference indicator -->
         <span v-if="isCircular" class="text-sm text-amber-500 italic"> [Circular Reference] </span>
 
+        <!-- Show pointer reference as clickable chip -->
+        <PointerRefInline
+          v-else-if="extractPointerId(value)"
+          :pointer-id="extractPointerId(value)!"
+          @click="emit('pointer-ref-click', extractPointerId(value)!)"
+        />
+
         <!-- Show type-based preview or opening bracket when expanded -->
-        <TooltipProvider v-else-if="!expanded" :delay-duration="300">
+        <TooltipProvider v-else-if="!expanded || depth === 0" :delay-duration="300">
           <Tooltip>
             <TooltipTrigger as-child>
               <span class="text-sm text-foreground/70 truncate">
@@ -372,9 +402,11 @@ function handleClick() {
         :hide-map-key-type-hints-for-primitives="hideMapKeyTypeHintsForPrimitives"
         :parent-is-map="isMap"
         :key-container="childKeyContainer"
+        :selected-pointer-id="selectedPointerId"
         :depth="depth + 1"
         @node-click="emit('node-click', $event, childValue)"
         @node-toggle="emit('node-toggle', $event)"
+        @pointer-ref-click="emit('pointer-ref-click', $event)"
       />
 
       <!-- Closing bracket -->

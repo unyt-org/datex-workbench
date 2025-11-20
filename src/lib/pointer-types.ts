@@ -56,6 +56,12 @@ export const TYPE_CONFIGS: Record<string, TypeConfig> = {
     preview: () => '{...}',
     isExpandable: true
   },
+  
+  'object': {
+    displayName: 'object',
+    preview: () => '{...}',
+    isExpandable: true
+  },
 }
 
 // Get type name from DIF value
@@ -84,7 +90,69 @@ export function getTypeName(difContainer: DIF.Definitions.DIFContainer): string 
     if ('name' in value || 'endpoint' in value || 'location' in value) {
       return 'endpoint'
     }
+    // Plain JavaScript object
+    return 'object'
   }
   
   return 'null' // fallback to null for unknown types
+}
+
+/**
+ * Check if a DIF container represents a pointer reference
+ */
+export function isPointerReference(difContainer: DIF.Definitions.DIFContainer): boolean {
+  // Direct string format: "$0000000000000001"
+  if (typeof difContainer === 'string' && difContainer.startsWith('$')) {
+    return true
+  }
+  
+  // DIF container format with value property
+  if (typeof difContainer === 'object' && difContainer !== null && 'value' in difContainer) {
+    const value = (difContainer as Record<string, unknown>).value
+    if (typeof value === 'string' && value.startsWith('$')) {
+      return true
+    }
+  }
+  
+  return false
+}
+
+/**
+ * Extract pointer ID from various DIF container formats
+ */
+export function extractPointerId(difContainer: DIF.Definitions.DIFContainer): string | null {
+  // Direct string format
+  if (typeof difContainer === 'string' && difContainer.startsWith('$')) {
+    return difContainer
+  }
+  
+  // DIF container format with value property
+  if (typeof difContainer === 'object' && difContainer !== null && 'value' in difContainer) {
+    const value = (difContainer as Record<string, unknown>).value
+    if (typeof value === 'string' && value.startsWith('$')) {
+      return value
+    }
+  }
+  
+  return null
+}
+
+/**
+ * Get pointer ID from a Ref object (DATEX pointer instance)
+ * Returns the pointer ID string (with $ prefix) or null if not a Ref
+ */
+export function getPointerIdFromValue(value: unknown): string | null {
+  // Check if it's a Ref object
+  if (value && typeof value === 'object' && value.constructor.name === 'Ref') {
+    // Extract pointerAddress from prototype (it's a hex string without $)
+    const proto = Object.getPrototypeOf(value)
+    if (proto && 'pointerAddress' in proto) {
+      const address = proto.pointerAddress
+      if (typeof address === 'string') {
+        return `$${address}`
+      }
+    }
+  }
+  
+  return null
 }

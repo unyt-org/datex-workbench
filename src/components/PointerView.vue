@@ -13,7 +13,7 @@ import { usePointerPreferences } from '@/composable/usePointerPreferences';
 import type { DIF } from '@unyt/datex';
 import { Filter, Search, Settings } from 'lucide-vue-next';
 import type { HTMLAttributes } from 'vue';
-import { computed, ref, watchEffect } from 'vue';
+import { computed, ref, watchEffect, nextTick, provide } from 'vue';
 import PointerPreferences from './PointerPreferences.vue';
 import PointerTreeItem from './PointerTreeItem.vue';
 
@@ -39,10 +39,15 @@ const emit = defineEmits<{
 // Use preferences composable
 const { preferences } = usePointerPreferences();
 
+// Provide pointers map to child components
+provide('pointers', props.pointers);
+
 // State
 const searchQuery = ref('');
 const expandedPointers = ref<Set<string>>(new Set());
 const visitedObjects = new WeakSet(); // FIXME
+const selectedPointerId = ref<string | null>(null);
+const highlightTimeout = ref<number | null>(null);
 // Computed property for current pointer IDs (cached and only recomputes when pointers Map changes)
 const currentPointerIds = computed(() => new Set(props.pointers.keys()));
 
@@ -114,6 +119,38 @@ function handleIdClick(pointerId: string) {
     preferences.value.show_full_pointer_ids = !preferences.value.show_full_pointer_ids;
   }
 }
+
+// Jump to pointer definition with smooth scrolling and highlighting
+function jumpToPointer(pointerId: string) {
+  // Set selected pointer for highlighting
+  selectedPointerId.value = pointerId;
+  
+  // Auto-expand parent nodes
+  const pathParts = pointerId.split('.');
+  for (let i = 0; i < pathParts.length; i++) {
+    const ancestorPath = pathParts.slice(0, i + 1).join('.');
+    expandedPointers.value.add(ancestorPath);
+  }
+  
+  // Wait for DOM update, then scroll to element
+  nextTick(() => {
+    const element = document.getElementById(`pointer-node-${pointerId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    
+    // Clear any existing highlight timeout
+    if (highlightTimeout.value !== null) {
+      window.clearTimeout(highlightTimeout.value);
+    }
+    
+    // Clear highlight after 2 seconds
+    highlightTimeout.value = window.setTimeout(() => {
+      selectedPointerId.value = null;
+      highlightTimeout.value = null;
+    }, 2000);
+  });
+}
 </script>
 
 <template>
@@ -180,9 +217,11 @@ function handleIdClick(pointerId: string) {
               :show-indices="preferences.show_array_indicies"
               :hide-type-hints-for-primitives="preferences.hide_type_hints_for_primitives"
               :hide-map-key-type-hints-for-primitives="preferences.hide_map_key_type_hints_for_primitives"
+              :selected-pointer-id="selectedPointerId"
               @node-click="handlePointerClick"
               @node-toggle="togglePointer"
               @id-click="handleIdClick"
+              @pointer-ref-click="jumpToPointer"
             />
 
             <!-- Empty state -->
