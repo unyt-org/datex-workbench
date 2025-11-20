@@ -367,7 +367,7 @@ function saveEdit() {
     
     emit('value-update', props.nodeId, newValue);
     isEditing.value = false;
-  } catch (error) {
+  } catch {
     // On error, cancel editing
     cancelEdit();
   }

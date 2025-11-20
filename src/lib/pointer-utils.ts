@@ -1,4 +1,4 @@
-import type { DIF } from '@unyt/datex'
+import type { DIF, Runtime } from '@unyt/datex'
 import { getPointerIdFromValue } from './pointer-types'
 
 /**
@@ -16,7 +16,7 @@ export interface PointerValuePair {
  * @param refToIdMap - Map of Ref objects to their pointer IDs
  * @returns Processed value with Refs replaced by pointer ID strings
  */
-export function replaceRefsWithIds(value: any, refToIdMap: Map<any, string>): any {
+export function replaceRefsWithIds(value: unknown, refToIdMap: Map<object, string>): unknown {
   // Check if it's a Ref object
   if (value && typeof value === 'object' && value.constructor.name === 'Ref') {
     return refToIdMap.get(value) || value;
@@ -29,7 +29,7 @@ export function replaceRefsWithIds(value: any, refToIdMap: Map<any, string>): an
   
   // Handle plain objects
   if (value && typeof value === 'object' && value.constructor.name === 'Object') {
-    const result: any = {};
+    const result: Record<string, unknown> = {};
     for (const [key, val] of Object.entries(value)) {
       result[key] = replaceRefsWithIds(val, refToIdMap);
     }
@@ -88,7 +88,7 @@ function convertValueWithSequentialIds(
 export function buildPointerMap(
   pointerValuePairs: PointerValuePair[],
   additionalValues: unknown[],
-  Datex: any // Runtime instance
+  Datex: Runtime
 ): Map<string, DIF.Definitions.DIFContainer> {
   // Build values array: [value0, pointer0, value1, pointer1, ..., ...additionalValues]
   const values: unknown[] = []
