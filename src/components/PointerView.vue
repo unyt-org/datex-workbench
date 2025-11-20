@@ -2,7 +2,10 @@
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
@@ -10,6 +13,7 @@ import { Popover, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SidebarGroup, SidebarGroupContent, SidebarMenu } from '@/components/ui/sidebar';
 import { usePointerPreferences } from '@/composable/usePointerPreferences';
+import { getTypeName, TYPE_CONFIGS } from '@/lib/pointer-types';
 import type { DIF } from '@unyt/datex';
 import { Filter, Search, Settings } from 'lucide-vue-next';
 import type { HTMLAttributes } from 'vue';
@@ -48,8 +52,29 @@ const expandedPointers = ref<Set<string>>(new Set());
 const visitedObjects = new WeakSet(); // FIXME
 const selectedPointerId = ref<string | null>(null);
 const highlightTimeout = ref<number | null>(null);
+const selectedTypeFilters = ref<Set<string>>(new Set());
 // Computed property for current pointer IDs (cached and only recomputes when pointers Map changes)
 const currentPointerIds = computed(() => new Set(props.pointers.keys()));
+
+// Computed property for filtered pointers based on type selection
+const filteredPointers = computed(() => {
+  // If no filters selected, show all pointers
+  if (selectedTypeFilters.value.size === 0) {
+    return props.pointers;
+  }
+  
+  // Filter pointers by selected types
+  const filtered = new Map<string, DIF.Definitions.DIFContainer>();
+  
+  for (const [pointerId, value] of props.pointers) {
+    const typeName = getTypeName(value);
+    if (selectedTypeFilters.value.has(typeName)) {
+      filtered.set(pointerId, value);
+    }
+  }
+  
+  return filtered;
+});
 
 // Clean up expanded pointers when pointers change (reactive and efficient)
 watchEffect(() => {
@@ -159,6 +184,22 @@ function handleValueUpdate(nodeId: string, newValue: unknown) {
   // This would require integration with the DATEX runtime to persist changes
   // For now, just log the update
 }
+
+// Toggle type filter
+function toggleTypeFilter(typeName: string) {
+  const newFilters = new Set(selectedTypeFilters.value);
+  if (newFilters.has(typeName)) {
+    newFilters.delete(typeName);
+  } else {
+    newFilters.add(typeName);
+  }
+  selectedTypeFilters.value = newFilters;
+}
+
+// Reset all type filters
+function resetTypeFilters() {
+  selectedTypeFilters.value = new Set();
+}
 </script>
 
 <template>
@@ -199,8 +240,33 @@ function handleValueUpdate(nodeId: string, newValue: unknown) {
               </Button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end" class="w-48">
-              <!-- Filter content will be implemented later -->
+            <DropdownMenuContent align="end" class="w-56">
+              <DropdownMenuLabel>Filter by Type</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuCheckboxItem
+                v-for="(config, typeName) in TYPE_CONFIGS"
+                :key="typeName"
+                :checked="selectedTypeFilters.has(typeName)"
+                @select.prevent="toggleTypeFilter(typeName)"
+              >
+                <span :class="selectedTypeFilters.has(typeName) ? 'font-semibold' : ''">
+                  {{ config.displayName }}
+                </span>
+                <span v-if="selectedTypeFilters.has(typeName)" class="ml-auto text-xs">✓</span>
+              </DropdownMenuCheckboxItem>
+              
+              <DropdownMenuSeparator />
+              <div class="px-2 py-1.5">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  class="w-full"
+                  @click="resetTypeFilters"
+                >
+                  Reset Filters
+                </Button>
+              </div>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -213,7 +279,7 @@ function handleValueUpdate(nodeId: string, newValue: unknown) {
         <SidebarGroupContent>
           <SidebarMenu>
             <PointerTreeItem
-              v-for="[pointerId, value] in props.pointers"
+              v-for="[pointerId, value] in filteredPointers"
               :key="pointerId"
               :node-id="pointerId"
               :label="formatPointerId(pointerId)"
@@ -235,10 +301,10 @@ function handleValueUpdate(nodeId: string, newValue: unknown) {
 
             <!-- Empty state -->
             <div
-              v-if="props.pointers.size === 0"
+              v-if="filteredPointers.size === 0"
               class="p-4 text-sm text-muted-foreground text-center"
             >
-              No pointers available
+              {{ props.pointers.size === 0 ? 'No pointers available' : 'No pointers match selected filters' }}
             </div>
           </SidebarMenu>
         </SidebarGroupContent>
