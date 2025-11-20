@@ -20,35 +20,47 @@ const handleFieldClick = (data: FieldIdentifier | undefined) => {
 <template>
   <div class="text-foreground font-mono">
     <div class="grid-box grid" :style="`grid-template-columns: repeat(auto-fit, 3ch);`">
-      <div v-for="(field, index) in section.fields" :key="index" class="contents">
-        <div class="contents">
-          <BlockField
-            :field="field"
-            :fieldDef="sectionDef?.fields[index]"
-            :sectionId="sectionId"
-            :fieldId="index"
-            :selectedField="selectedField"
-            @field-clicked="handleFieldClick"
-          />
-        </div>
+      <div
+        v-for="(field, index) in section.fields"
+        :key="index"
+        class="contents"
+        :class="`${
+          !selectedField ||
+          sectionId !== selectedField.sectionIndex ||
+          index === selectedField.fieldIndex
+            ? 'selected-field'
+            : ''
+        }`"
+      >
+        <BlockField
+          :field="field"
+          :fieldDef="sectionDef?.fields[index]"
+          :sectionId="sectionId"
+          :fieldId="index"
+          :selectedField="selectedField"
+          @field-clicked="handleFieldClick"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <style>
-/*
-.grid-box:has(.field-wrapper:hover)
-selects all divs that have a field-wrapper child that is being hovered over
-if we leave this :has out, the greyscale will always apply and the colorizing still works
-but this start is kind of like initializing that any greyscaling only happens when we hover over something
-an almost similar example happens when we just write .grid-box:hover. Only that this way hovering over the gaps of the grid also greys out the rest
-*/
+.grid-box :not(.selected-field) div div div {
+  filter: grayscale(100%) opacity(80%);
+}
+
+/* when hovering over a field in the grid-box, grey out all other fields and remove greyscale from hovered field */
 .grid-box:has(.field-wrapper:hover) {
-  div div :not(.field-wrapper:hover) {
-    div div {
+  div {
+    :not(.field-wrapper:hover) div div {
       filter: grayscale(100%) opacity(80%);
+    }
+    .field-wrapper:hover div div {
+      filter: none;
     }
   }
 }
+
+
 </style>
