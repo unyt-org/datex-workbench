@@ -31,34 +31,28 @@ const handleClick = () => {
 
 const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 
-const expand = () =>
+const expanded = () =>
   props.sectionId == props.selectedField?.sectionIndex &&
   props.fieldId == props.selectedField.fieldIndex;
 
+const subFieldsMatchBytes = () =>
+  'subFields' in props.field &&
+  props.field.subFields.reduce(
+    (acc: number, subField: ParsedField) => acc + subField.bytes.length,
+    0,
+  ) == props.field.bytes.length;
+
 const categories = ['purple', 'red', 'yellow', 'green', 'blue', 'dark_blue'];
-const getColorIndex = (s: string | undefined): number =>
-  categories.findIndex((color) => s === color) + 1;
+const getColor = (s: string | undefined): string => {
+  if (!s) return 'var(--chart-1)';
+
+  const index = categories.findIndex((color) => s === color);
+  return index !== -1 ? `var(--chart-${index + 1})` : 'var(--chart-1)';
+};
 </script>
 
-<!--
-also aktueller Stand
-an sich funktioniert alles, nur die subfields werden noch nicht getrennt voneinander angezeigt
-Ich muss also erst schauen ob es Subfields gibt. Ist dies der Fall wird jedes Subfield einzeln wie ein reguläres field ohne subFields behandelt.
-
-Und dann muss ein field was zu lang ist beim cutoff enden und man macht ... danach.
--->
-
 <template>
-  <div
-    v-if="
-      'subFields' in field &&
-      field.subFields.reduce(
-        (acc: number, subField: ParsedField) => acc + subField.bytes.length,
-        0,
-      ) == field.bytes.length
-    "
-    class="contents"
-  >
+  <div v-if="'subFields' in field && subFieldsMatchBytes()" class="contents">
     <div
       v-for="(subField, index) in field.subFields"
       :key="index"
@@ -66,22 +60,22 @@ Und dann muss ein field was zu lang ist beim cutoff enden und man macht ... dana
       @click="handleClick"
     >
       <div
-        v-for="(byte, indexInner) in expand()
+        v-for="(byte, indexInner) in expanded()
           ? subField.bytes
           : subField.bytes.slice(0, bytesCutoff)"
         :key="indexInner"
       >
         <div
           class="padding-wrapper leading-tight"
-          :style="{ backgroundColor: `var(--chart-${getColorIndex(fieldDef?.category)})` }"
+          :style="{ backgroundColor: getColor(fieldDef?.category) }"
         >
           {{ uint8ToHexString(byte) }}
         </div>
       </div>
-      <div v-if="!expand() && subField.bytes.length > bytesCutoff">
+      <div v-if="!expanded() && subField.bytes.length > bytesCutoff">
         <div
           class="padding-wrapper leading-tight"
-          :style="{ backgroundColor: `var(--chart-${getColorIndex(fieldDef?.category)})` }"
+          :style="{ backgroundColor: getColor(fieldDef?.category) }"
         >
           ..
         </div>
@@ -91,20 +85,20 @@ Und dann muss ein field was zu lang ist beim cutoff enden und man macht ... dana
   <div v-else class="contents">
     <div class="field-wrapper contents cursor-pointer" @click="handleClick">
       <div
-        v-for="(byte, indexInner) in expand() ? field.bytes : field.bytes.slice(0, bytesCutoff)"
+        v-for="(byte, indexInner) in expanded() ? field.bytes : field.bytes.slice(0, bytesCutoff)"
         :key="indexInner"
       >
         <div
           class="padding-wrapper leading-tight"
-          :style="{ backgroundColor: `var(--chart-${getColorIndex(fieldDef?.category)})` }"
+          :style="{ backgroundColor: getColor(fieldDef?.category) }"
         >
           {{ uint8ToHexString(byte) }}
         </div>
       </div>
-      <div v-if="!expand() && field.bytes.length > bytesCutoff">
+      <div v-if="!expanded() && field.bytes.length > bytesCutoff">
         <div
           class="padding-wrapper leading-tight"
-          :style="{ backgroundColor: `var(--chart-${getColorIndex(fieldDef?.category)})` }"
+          :style="{ backgroundColor: getColor(fieldDef?.category) }"
         >
           ..
         </div>
