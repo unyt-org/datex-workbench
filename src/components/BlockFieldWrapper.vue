@@ -45,17 +45,8 @@ const displaySubfields = (): boolean =>
   ) == props.field.bytes.length;
 </script>
 
-<!-- DONE don't seperate subfields when the field is not expanded -->
-<!-- DONE when expanded, each subfield should have an additional exta hover effect -->
-<!-- PENDING when hovering field in one section, also grey out all fields in the other sections -->
-<!-- PENDING use lucide icons to replace x button -->
-<!-- PENDING also change theme switcher to lucide -->
-<!-- https://lucide.dev/icons/ -->
-<!-- PENDING Do correct line break in the info view table for things like Key, subField of Recievers with key -->
-<!-- PENDING generally clean up the Info Box even more -->
-
 <template>
-  <div @click="handleClick" class="contents cursor-pointer field-wrapper">
+  <div @click="handleClick" class="field-wrapper contents cursor-pointer">
     <div v-if="!fieldIsSelectedField()" class="contents">
       <BlockField
         :field="cutFieldBytes(field)"
@@ -66,7 +57,7 @@ const displaySubfields = (): boolean =>
     <div v-else-if="!displaySubfields()" class="contents">
       <BlockField :field="field" :cut="false" :fieldDef="fieldDef"></BlockField>
     </div>
-    <div v-else class="contents subfield-wrapper">
+    <div v-else class="subfield-wrapper contents">
       <BlockField
         v-for="(subField, index) in 'subFields' in field ? field.subFields : []"
         :key="index"

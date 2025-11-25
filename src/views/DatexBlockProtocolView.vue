@@ -57,3 +57,16 @@ const handleInfoCloseButtionClick = () => {
     </div>
   </div>
 </template>
+
+<!-- DONE don't seperate subfields when the field is not expanded -->
+<!-- DONE when expanded, each subfield should have an additional exta hover effect -->
+<!-- PENDING when hovering field in one section, also grey out all fields in the other sections -->
+<!-- PENDING use lucide icons to replace x button -->
+<!-- PENDING also change theme switcher to lucide -->
+<!-- https://lucide.dev/icons/ -->
+<!-- PENDING Do correct line break in the info view table for things like Key, subField of Recievers with key -->
+<!-- PENDING generally clean up the Info Box even more -->
+
+<!-- incooperate category color in some way-->
+<!-- add tooltip when hovering over a byte containing the name of the field and the
+  absolut byte offset of the whole block and where the field starts and ends as byte offset -->
