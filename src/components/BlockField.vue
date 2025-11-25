@@ -22,12 +22,12 @@ const getColor = (s: string | undefined): string => {
 <template>
   <div class="field-styling contents">
     <div v-for="(byte, indexInner) in field.bytes" :key="indexInner">
-      <div class="padding-wrapper leading-tight" :style="{ backgroundColor: getColor(fieldDef?.category) }">
+      <div class="byte-wrapper leading-tight" :style="{ backgroundColor: getColor(fieldDef?.category) }">
         {{ uint8ToHexString(byte) }}
       </div>
     </div>
     <div v-if="cut">
-      <div class="padding-wrapper leading-tight" :style="{ backgroundColor: getColor(fieldDef?.category) }">
+      <div class="byte-wrapper leading-tight" :style="{ backgroundColor: getColor(fieldDef?.category) }">
         ..
       </div>
     </div>
@@ -45,27 +45,27 @@ const getColor = (s: string | undefined): string => {
   }
   div:first-child {
     padding-left: calc(var(--column-gap) / 2);
-    .padding-wrapper {
+    .byte-wrapper {
       padding-left: calc((var(--total-column-width) - 2ch - var(--column-gap)) / 2);
       border-bottom-left-radius: var(--byte-field-radius);
       border-top-left-radius: var(--byte-field-radius);
     }
   }
   :not(div:first-child) {
-    .padding-wrapper {
+    .byte-wrapper {
       padding-left: calc((var(--total-column-width) - 2ch) / 2);
     }
   }
   div:last-child {
     padding-right: calc(var(--column-gap) / 2);
-    .padding-wrapper {
+    .byte-wrapper {
       padding-right: calc((var(--total-column-width) - 2ch - var(--column-gap)) / 2);
       border-bottom-right-radius: var(--byte-field-radius);
       border-top-right-radius: var(--byte-field-radius);
     }
   }
   :not(div:last-child) {
-    .padding-wrapper {
+    .byte-wrapper {
       padding-right: calc((var(--total-column-width) - 2ch) / 2);
     }
   }

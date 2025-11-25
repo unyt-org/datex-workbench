@@ -55,7 +55,7 @@ const displaySubfields = (): boolean =>
 <!-- PENDING generally clean up the Info Box even more -->
 
 <template>
-  <div @click="handleClick" class="contents cursor-pointer">
+  <div @click="handleClick" class="contents cursor-pointer field-wrapper">
     <div v-if="!fieldIsSelectedField()" class="contents">
       <BlockField
         :field="cutFieldBytes(field)"
