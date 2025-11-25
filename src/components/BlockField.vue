@@ -1,56 +1,73 @@
 <script setup lang="ts">
-import type { FieldIdentifier } from '@/types/block-protocol-view';
 import type { FieldDefinition, ParsedField } from '@unyt/speck';
-import BlockFieldWrapper from './BlockFieldWrapper.vue';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   field: ParsedField;
+  cut: boolean;
   fieldDef: FieldDefinition | undefined;
-  sectionId: number;
-  fieldId: number;
-  selectedField: FieldIdentifier | undefined;
 }>();
 
-const emit = defineEmits(['field-clicked']);
-const handleFieldWrapperClick = (data: FieldIdentifier | undefined) => {
-  emit('field-clicked', data);
-};
+const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 
-const subFieldsMatchBytes = () =>
-  'subFields' in props.field &&
-  props.field.subFields.reduce(
-    (acc: number, subField: ParsedField) => acc + subField.bytes.length,
-    0,
-  ) == props.field.bytes.length;
+const categories = ['purple', 'red', 'yellow', 'green', 'blue', 'dark_blue'];
+const getColor = (s: string | undefined): string => {
+  if (!s) return 'var(--chart-1)';
+
+  const index = categories.findIndex((color) => s === color);
+  return index !== -1 ? `var(--chart-${index + 1})` : 'var(--chart-1)';
+};
 </script>
 
-<!-- don't seperate subfields when the field is not expanded -->
-<!-- when expanded, the subfield should have an exta hover effect -->
-<!-- when hovering, also grey out other section -->
-<!-- use lucide icons to replace x button -->
-<!-- also change theme switcher to lucide -->
-<!-- https://lucide.dev/icons/ -->
 <template>
-  <div v-if="'subFields' in field && subFieldsMatchBytes()" class="contents">
-    <BlockFieldWrapper
-      v-for="(subField, index) in field.subFields"
-      :key="index"
-      :field="subField"
-      :fieldDef="fieldDef"
-      :sectionId="sectionId"
-      :fieldId="fieldId"
-      :selectedField="selectedField"
-      @field-wrapper-clicked="handleFieldWrapperClick"
-    ></BlockFieldWrapper>
-  </div>
-  <div v-else class="contents">
-    <BlockFieldWrapper
-      :field="field"
-      :fieldDef="fieldDef"
-      :sectionId="sectionId"
-      :fieldId="fieldId"
-      :selectedField="selectedField"
-      @field-wrapper-clicked="handleFieldWrapperClick"
-    ></BlockFieldWrapper>
+  <div class="field-styling contents">
+    <div v-for="(byte, indexInner) in field.bytes" :key="indexInner">
+      <div class="padding-wrapper leading-tight" :style="{ backgroundColor: getColor(fieldDef?.category) }">
+        {{ uint8ToHexString(byte) }}
+      </div>
+    </div>
+    <div v-if="cut">
+      <div class="padding-wrapper leading-tight" :style="{ backgroundColor: getColor(fieldDef?.category) }">
+        ..
+      </div>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.field-styling {
+  --total-column-width: 3ch;
+  --column-gap: 0.4ch;
+  --byte-field-radius: var(--radius-sm);
+
+  div {
+    padding: calc(var(--column-gap) / 2) 0ch;
+  }
+  div:first-child {
+    padding-left: calc(var(--column-gap) / 2);
+    .padding-wrapper {
+      padding-left: calc((var(--total-column-width) - 2ch - var(--column-gap)) / 2);
+      border-bottom-left-radius: var(--byte-field-radius);
+      border-top-left-radius: var(--byte-field-radius);
+    }
+  }
+  :not(div:first-child) {
+    .padding-wrapper {
+      padding-left: calc((var(--total-column-width) - 2ch) / 2);
+    }
+  }
+  div:last-child {
+    padding-right: calc(var(--column-gap) / 2);
+    .padding-wrapper {
+      padding-right: calc((var(--total-column-width) - 2ch - var(--column-gap)) / 2);
+      border-bottom-right-radius: var(--byte-field-radius);
+      border-top-right-radius: var(--byte-field-radius);
+    }
+  }
+  :not(div:last-child) {
+    .padding-wrapper {
+      padding-right: calc((var(--total-column-width) - 2ch) / 2);
+    }
+  }
+}
+</style>

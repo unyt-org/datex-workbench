@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { FieldIdentifier } from '@/types/block-protocol-view';
 import type { FieldDefinition, ParsedField } from '@unyt/speck';
+import BlockField from './BlockField.vue';
 
 const props = defineProps<{
   field: ParsedField;
@@ -10,99 +11,69 @@ const props = defineProps<{
   selectedField: FieldIdentifier | undefined;
 }>();
 
-const emit = defineEmits(['field-wrapper-clicked']);
+const emit = defineEmits(['field-clicked']);
 const handleClick = () => {
-  console.log(props.field);
-  console.log(props.fieldDef);
-  if (
-    props.sectionId == props.selectedField?.sectionIndex &&
-    props.fieldId == props.selectedField.fieldIndex
-  ) {
-    emit('field-wrapper-clicked', undefined);
-  } else {
-    emit('field-wrapper-clicked', {
-      sectionIndex: props.sectionId,
-      fieldIndex: props.fieldId,
-    });
-  }
+  // console.log(props.field);
+  // console.log(props.fieldDef);
+  emit(
+    'field-clicked',
+    fieldIsSelectedField()
+      ? undefined
+      : {
+          sectionIndex: props.sectionId,
+          fieldIndex: props.fieldId,
+        },
+  );
 };
+
+const fieldIsSelectedField = () =>
+  props.sectionId == props.selectedField?.sectionIndex &&
+  props.fieldId == props.selectedField.fieldIndex;
 
 const bytesCutoff: number = 25;
-const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
-
-const thisFieldIsSelectedField = () =>
-  !(props.sectionId == props.selectedField?.sectionIndex) ||
-  !(props.fieldId == props.selectedField.fieldIndex);
-
-const categories = ['purple', 'red', 'yellow', 'green', 'blue', 'dark_blue'];
-const getColor = (s: string | undefined): string => {
-  if (!s) return 'var(--chart-1)';
-
-  const index = categories.findIndex((color) => s === color);
-  return index !== -1 ? `var(--chart-${index + 1})` : 'var(--chart-1)';
+const cutFieldBytes = (field: ParsedField): ParsedField => {
+  const cutField = structuredClone(field);
+  cutField.bytes = cutField.bytes.slice(0, bytesCutoff);
+  return cutField;
 };
+
+const displaySubfields = (): boolean =>
+  'subFields' in props.field &&
+  props.field.subFields.reduce(
+    (acc: number, subField: ParsedField) => acc + subField.bytes.length,
+    0,
+  ) == props.field.bytes.length;
 </script>
 
+<!-- DONE don't seperate subfields when the field is not expanded -->
+<!-- DONE when expanded, each subfield should have an additional exta hover effect -->
+<!-- PENDING when hovering field in one section, also grey out all fields in the other sections -->
+<!-- PENDING use lucide icons to replace x button -->
+<!-- PENDING also change theme switcher to lucide -->
+<!-- https://lucide.dev/icons/ -->
+<!-- PENDING Do correct line break in the info view table for things like Key, subField of Recievers with key -->
+<!-- PENDING generally clean up the Info Box even more -->
+
 <template>
-  <div class="field-wrapper contents cursor-pointer" @click="handleClick">
-    <div
-      v-for="(byte, indexInner) in thisFieldIsSelectedField()
-        ? field.bytes.slice(0, bytesCutoff)
-        : field.bytes"
-      :key="indexInner"
-    >
-      <div
-        class="padding-wrapper leading-tight"
-        :style="{ backgroundColor: getColor(fieldDef?.category) }"
-      >
-        {{ uint8ToHexString(byte) }}
-      </div>
+  <div @click="handleClick" class="contents cursor-pointer">
+    <div v-if="!fieldIsSelectedField()" class="contents">
+      <BlockField
+        :field="cutFieldBytes(field)"
+        :cut="field.bytes.length > bytesCutoff"
+        :fieldDef="fieldDef"
+      ></BlockField>
     </div>
-    <div v-if="thisFieldIsSelectedField() && field.bytes.length > bytesCutoff">
-      <div
-        class="padding-wrapper leading-tight"
-        :style="{ backgroundColor: getColor(fieldDef?.category) }"
-      >
-        ..
-      </div>
+    <div v-else-if="!displaySubfields()" class="contents">
+      <BlockField :field="field" :cut="false" :fieldDef="fieldDef"></BlockField>
+    </div>
+    <div v-else class="contents">
+      <BlockField
+        v-for="(subField, index) in 'subFields' in field ? field.subFields : []"
+        :key="index"
+        :field="subField"
+        :cut="false"
+        :fieldDef="fieldDef"
+      ></BlockField>
     </div>
   </div>
 </template>
-
-<style scoped>
-.field-wrapper {
-  --total-column-width: 3ch;
-  --column-gap: 0.4ch;
-  --byte-field-radius: var(--radius-sm);
-
-  div {
-    padding: calc(var(--column-gap) / 2) 0ch;
-  }
-  div:first-child {
-    padding-left: calc(var(--column-gap) / 2);
-    .padding-wrapper {
-      padding-left: calc((var(--total-column-width) - 2ch - var(--column-gap)) / 2);
-      border-bottom-left-radius: var(--byte-field-radius);
-      border-top-left-radius: var(--byte-field-radius);
-    }
-  }
-  :not(div:first-child) {
-    .padding-wrapper {
-      padding-left: calc((var(--total-column-width) - 2ch) / 2);
-    }
-  }
-  div:last-child {
-    padding-right: calc(var(--column-gap) / 2);
-    .padding-wrapper {
-      padding-right: calc((var(--total-column-width) - 2ch - var(--column-gap)) / 2);
-      border-bottom-right-radius: var(--byte-field-radius);
-      border-top-right-radius: var(--byte-field-radius);
-    }
-  }
-  :not(div:last-child) {
-    .padding-wrapper {
-      padding-right: calc((var(--total-column-width) - 2ch) / 2);
-    }
-  }
-}
-</style>

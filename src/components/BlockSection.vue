@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import BlockField from '@/components/BlockField.vue';
 import type { FieldIdentifier } from '@/types/block-protocol-view';
 import type { ParsedSection, SectionDefinition } from '@unyt/speck';
+import BlockFieldWrapper from './BlockFieldWrapper.vue';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
@@ -32,7 +32,7 @@ const handleFieldClick = (data: FieldIdentifier | undefined) => {
             : ''
         }`"
       >
-        <BlockField
+        <BlockFieldWrapper
           :field="field"
           :fieldDef="sectionDef?.fields.find((fi) => fi.name == field.name)"
           :sectionId="sectionId"
@@ -46,11 +46,13 @@ const handleFieldClick = (data: FieldIdentifier | undefined) => {
 </template>
 
 <style>
-.grid-box :not(.selected-field) div div div div {
+/* .grid-box :not(.selected-field) div div div div {
   filter: grayscale(100%) opacity(80%);
 }
+  */
 
 /* when hovering over a field in the grid-box, grey out all other fields and remove greyscale from hovered field */
+/*
 .grid-box:has(.field-wrapper:hover) {
   div div {
     :not(.field-wrapper:hover) div div {
@@ -60,5 +62,5 @@ const handleFieldClick = (data: FieldIdentifier | undefined) => {
       filter: none;
     }
   }
-}
+} */
 </style>
