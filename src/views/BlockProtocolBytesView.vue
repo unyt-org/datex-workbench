@@ -25,7 +25,7 @@ const handleSectionFieldClick = (data: FieldIdentifier | undefined) => {
 </script>
 
 <template>
-  <Accordion type="multiple" class="sections-wrapper">
+  <Accordion type="multiple" class="sections-wrapper" :unmountOnHide="false">
     <AccordionItem
       v-for="(section, index) in structure"
       :key="index"
@@ -85,22 +85,22 @@ const handleSectionFieldClick = (data: FieldIdentifier | undefined) => {
 
 /* field hovering */
 
-.section-wrapper:has(.field-wrapper:hover) {
+.sections-wrapper:has(.field-wrapper:hover) {
   .section:not(:has(.field-wrapper:hover)) {
-    .byte-wrapper {
+    /* selected field stays colored when hovering other field */
+    .byte-wrapper:not(.selected-field .byte-wrapper) {
+      filter: grayscale(100%) opacity(80%);
+    }
+  }
+
+  .section:has(.field-wrapper:hover) {
+    .field-wrapper:hover .byte-wrapper {
+      filter: none;
+    }
+
+    .field-wrapper:not(:hover) .byte-wrapper:not(.selected-field .byte-wrapper) {
       filter: grayscale(100%) opacity(80%);
     }
   }
 }
-
-/* hovering should grey out everything, every other field in this and every other section */
-
-/* .section:has(.field-wrapper:hover) div div {
-  .field-wrapper:hover div div div div {
-    filter: none;
-  }
-  :not(.field-wrapper:hover) div div div div {
-    filter: grayscale(100%) opacity(80%);
-  }
-} */
 </style>
