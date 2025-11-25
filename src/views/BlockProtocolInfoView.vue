@@ -7,6 +7,7 @@ import {
   TableRow,
   TableHeader,
   TableHead,
+  TableCaption,
 } from '@/components/ui/table';
 import type { FieldIdentifier } from '@/types/block-protocol-view';
 import { computed } from 'vue';
@@ -27,29 +28,37 @@ const closeInfo = () => {
 const field = computed(
   () => props.structure[props.selectedField.sectionIndex]?.fields[props.selectedField.fieldIndex],
 );
+console.log(field);
 </script>
 
 <template>
   <div v-if="field" class="contents">
-    <div class="text-foreground text-md flex flex-1 items-center justify-between py-3 font-medium">
-      Field Info
-      <X
-        class="hover:text-muted-foreground flex size-4 h-4 w-4 shrink-0 cursor-pointer items-center justify-center"
-        @click="closeInfo"
-      />
+    <div class="px-4">
+      <div
+        class="text-foreground text-md flex flex-1 items-center justify-between font-medium"
+      >
+        <div class="py-4 has-[p]:pb-0">
+          {{ field.name }}
+          <p v-if="'id' in field" class="text-xs">id: {{ field.id }}</p>
+        </div>
+        <X
+          class="hover:text-muted-foreground flex size-4 h-4 w-4 shrink-0 cursor-pointer items-center justify-center"
+          @click="closeInfo"
+        />
+      </div>
+      <Separator />
+      <p v-if="'parsedValue' in field" class="py-2 text-sm">
+        Value: {{ String(field.parsedValue) }}
+      </p>
+      <!-- <p>if possible, description</p> -->
     </div>
-    <Separator />
-    <p class="py-2 text-sm">{{ field.name }}</p>
-    <p v-if="'id' in field" class="pb-2 text-xs">id: {{ field.id }}</p>
-    <p v-if="'parsedValue' in field" class="py-2 text-sm">Value: {{ field.parsedValue }}</p>
-    <!-- <p>if possible, description</p> -->
     <div v-if="'subFields' in field">
-      <p class="py-2 text-sm">Subfields</p>
       <Table>
+        <TableCaption>Subfields</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead class="w-[30%]">Name</TableHead>
-            <TableHead class="w-[30%]">Id</TableHead>
+            <TableHead class="w-[30%]">name</TableHead>
+            <TableHead class="w-[30%]">id</TableHead>
             <TableHead class="w-[40%]">parsedValue</TableHead>
           </TableRow>
         </TableHeader>

@@ -20,7 +20,6 @@ const blockDataExample: Uint8Array = new Uint8Array(
   ).arrayBuffer(),
 );
 const structureExample = parseStructure(jsonDataExample, blockDataExample);
-console.log(jsonDataExample)
 
 const selectedField = ref<FieldIdentifier | undefined>(undefined);
 const handleBytesSectionFieldClick = (
@@ -45,7 +44,7 @@ const handleInfoCloseButtionClick = () => {
       ></BlockProtocolBytes>
     </div>
     <div
-      class="bg-background m-1 max-h-2/5 overflow-y-auto rounded-lg border px-4"
+      class="bg-background m-1 max-h-2/5 overflow-y-auto rounded-lg border"
       v-if="selectedField"
     >
       <BlockProtocolInfo
@@ -60,13 +59,12 @@ const handleInfoCloseButtionClick = () => {
 
 <!-- DONE don't seperate subfields when the field is not expanded -->
 <!-- DONE when expanded, each subfield should have an additional exta hover effect -->
-<!-- PENDING when hovering field in one section, also grey out all fields in the other sections -->
-<!-- PENDING use lucide icons to replace x button -->
+<!-- DONE when hovering field in one section, also grey out all fields in the other sections -->
+<!-- DONE use lucide icons to replace x button -->
 <!-- PENDING also change theme switcher to lucide -->
-<!-- https://lucide.dev/icons/ -->
-<!-- PENDING Do correct line break in the info view table for things like Key, subField of Recievers with key -->
 <!-- PENDING generally clean up the Info Box even more -->
-
-<!-- incooperate category color in some way-->
-<!-- add tooltip when hovering over a byte containing the name of the field and the
+<!-- PENDING clean up the correct display of the id -->
+<!-- PENDING incooperate category color in some way-->
+<!-- PENDING Do correct line break in the info view table for things like Key, subField of Recievers with key -->
+<!-- PENDING add tooltip when hovering over a byte containing the name of the field and the
   absolut byte offset of the whole block and where the field starts and ends as byte offset -->
