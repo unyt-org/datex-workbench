@@ -20,8 +20,6 @@ const emit = defineEmits(['bytes-section-field-clicked']);
 const handleSectionFieldClick = (data: FieldIdentifier | undefined) => {
   emit('bytes-section-field-clicked', data);
 };
-
-// console.log(props.structureDef?.sections.find(sect => sect.name === props.structure[0]?.name))
 </script>
 
 <template>
@@ -90,11 +88,23 @@ const handleSectionFieldClick = (data: FieldIdentifier | undefined) => {
       }
     }
     .section:has(.field-wrapper:hover) {
-      .field-wrapper:hover .byte-wrapper {
-        filter: none;
+      .field-wrapper {
+        &:hover {
+          .byte-wrapper {
+            /* border: 1px solid white; */
+            filter: none;
+          }
+        }
+        &:not(:hover) .byte-wrapper:not(.selected-field .byte-wrapper) {
+          filter: var(--grey-out);
+        }
+        .byte-wrapper:hover {
+          filter: hue-rotate(10deg);
+        }
       }
-      .field-wrapper:not(:hover) .byte-wrapper:not(.selected-field .byte-wrapper) {
-        filter: var(--grey-out);
+
+      .subfield-wrapper .field-styling:hover .byte-wrapper {
+        filter: brightness(1.3);
       }
     }
   }
