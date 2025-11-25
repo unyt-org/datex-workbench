@@ -19,14 +19,13 @@ const handleFieldClick = (data: FieldIdentifier | undefined) => {
 
 <template>
   <div class="text-foreground font-mono">
-    <div class="grid-box grid" :style="`grid-template-columns: repeat(auto-fit, 3ch);`">
+    <div class="grid" :style="`grid-template-columns: repeat(auto-fit, 3ch);`">
       <div
         v-for="(field, index) in section.fields"
         :key="index"
         class="contents"
-        :class="`${
-          !selectedField ||
-          sectionId !== selectedField.sectionIndex ||
+        :class="`${selectedField &&
+          sectionId == selectedField.sectionIndex &&
           index === selectedField.fieldIndex
             ? 'selected-field'
             : ''
@@ -46,21 +45,16 @@ const handleFieldClick = (data: FieldIdentifier | undefined) => {
 </template>
 
 <style>
-/* .grid-box :not(.selected-field) div div div div {
-  filter: grayscale(100%) opacity(80%);
-}
-  */
-
-/* when hovering over a field in the grid-box, grey out all other fields and remove greyscale from hovered field */
-/*
-.grid-box:has(.field-wrapper:hover) {
-  div div {
-    :not(.field-wrapper:hover) div div {
-      filter: grayscale(100%) opacity(80%);
-    }
-    .field-wrapper:hover div div {
-      filter: none;
-    }
+/* .grid-box:has(.field-wrapper:hover) div {
+  .field-wrapper:hover div div div div {
+    filter: none;
   }
+  :not(.field-wrapper:hover) div div div div {
+    filter: grayscale(100%) opacity(80%);
+  }
+}
+*/
+/* .grid-box :not(.selected-field) div div div div div {
+  filter: grayscale(100%) opacity(80%);
 } */
 </style>

@@ -25,7 +25,7 @@ const handleSectionFieldClick = (data: FieldIdentifier | undefined) => {
 </script>
 
 <template>
-  <Accordion type="multiple">
+  <Accordion type="multiple" class="sections-wrapper">
     <AccordionItem
       v-for="(section, index) in structure"
       :key="index"
@@ -43,8 +43,64 @@ const handleSectionFieldClick = (data: FieldIdentifier | undefined) => {
           :sectionId="index"
           :selectedField="selectedField"
           @section-field-clicked="handleSectionFieldClick"
+          class="section"
         />
       </AccordionContent>
     </AccordionItem>
   </Accordion>
 </template>
+
+<style>
+/* field selection */
+
+/* if a field is selected */
+.sections-wrapper:has(.selected-field) {
+  /* grey out all other sections */
+  .section:not(:has(.selected-field)) {
+    .byte-wrapper {
+      filter: grayscale(100%) opacity(80%);
+    }
+  }
+
+  /* grey out all other fields in the section with the selected field */
+  .section:has(.selected-field) {
+    :not(.selected-field) .byte-wrapper {
+      filter: grayscale(100%) opacity(80%);
+    }
+
+    /* leave selected field colored */
+    .selected-field .byte-wrapper {
+      filter: none;
+    }
+  }
+}
+
+/* if no field is selected */
+.sections-wrapper:not(:has(.selected-field)) {
+  /* leave all fields colored */
+  .byte-wrapper {
+    filter: none;
+  }
+}
+
+/* field hovering */
+
+.section-wrapper:has(.field-wrapper:hover) {
+  .section:not(:has(.field-wrapper:hover)) {
+    .byte-wrapper {
+      filter: grayscale(100%) opacity(80%);
+    }
+  }
+}
+
+/* hovering should grey out everything, every other field in this and every other section */
+
+/* .section:has(.field-wrapper:hover) div div {
+  .field-wrapper:hover div div div div {
+    filter: none;
+  }
+  :not(.field-wrapper:hover) div div div div {
+    filter: grayscale(100%) opacity(80%);
+  }
+} */
+</style>
