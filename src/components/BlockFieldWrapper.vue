@@ -66,7 +66,7 @@ const displaySubfields = (): boolean =>
     <div v-else-if="!displaySubfields()" class="contents">
       <BlockField :field="field" :cut="false" :fieldDef="fieldDef"></BlockField>
     </div>
-    <div v-else class="contents">
+    <div v-else class="contents subfield-wrapper">
       <BlockField
         v-for="(subField, index) in 'subFields' in field ? field.subFields : []"
         :key="index"
