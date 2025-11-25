@@ -19,12 +19,13 @@ const handleFieldClick = (data: FieldIdentifier | undefined) => {
 
 <template>
   <div class="text-foreground font-mono">
-    <div class="grid" :style="`grid-template-columns: repeat(auto-fit, 3ch);`">
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, 3ch)">
       <div
         v-for="(field, index) in section.fields"
         :key="index"
         class="contents"
-        :class="`${selectedField &&
+        :class="`${
+          selectedField &&
           sectionId == selectedField.sectionIndex &&
           index === selectedField.fieldIndex
             ? 'selected-field'
@@ -43,18 +44,3 @@ const handleFieldClick = (data: FieldIdentifier | undefined) => {
     </div>
   </div>
 </template>
-
-<style>
-/* .grid-box:has(.field-wrapper:hover) div {
-  .field-wrapper:hover div div div div {
-    filter: none;
-  }
-  :not(.field-wrapper:hover) div div div div {
-    filter: grayscale(100%) opacity(80%);
-  }
-}
-*/
-/* .grid-box :not(.selected-field) div div div div div {
-  filter: grayscale(100%) opacity(80%);
-} */
-</style>
