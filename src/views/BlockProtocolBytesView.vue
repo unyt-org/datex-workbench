@@ -51,55 +51,51 @@ const handleSectionFieldClick = (data: FieldIdentifier | undefined) => {
 </template>
 
 <style>
-/* field selection */
+.sections-wrapper {
+  --grey-out: grayscale(100%) opacity(80%);
 
-/* if a field is selected */
-.sections-wrapper:has(.selected-field) {
-  /* grey out all other sections */
-  .section:not(:has(.selected-field)) {
+  /* default color when no field is selected */
+  &:not(:has(.selected-field)) {
     .byte-wrapper {
-      filter: grayscale(100%) opacity(80%);
-    }
-  }
-
-  /* grey out all other fields in the section with the selected field */
-  .section:has(.selected-field) {
-    :not(.selected-field) .byte-wrapper {
-      filter: grayscale(100%) opacity(80%);
-    }
-
-    /* leave selected field colored */
-    .selected-field .byte-wrapper {
       filter: none;
     }
   }
-}
 
-/* if no field is selected */
-.sections-wrapper:not(:has(.selected-field)) {
-  /* leave all fields colored */
-  .byte-wrapper {
-    filter: none;
-  }
-}
-
-/* field hovering */
-
-.sections-wrapper:has(.field-wrapper:hover) {
-  .section:not(:has(.field-wrapper:hover)) {
-    /* selected field stays colored when hovering other field */
-    .byte-wrapper:not(.selected-field .byte-wrapper) {
-      filter: grayscale(100%) opacity(80%);
+  /* Field selecting */
+  &:has(.selected-field) {
+    /* Grey out all other sections */
+    .section:not(:has(.selected-field)) {
+      .byte-wrapper {
+        filter: var(--grey-out);
+      }
+    }
+    /* Grey out all other fields in the section with the selected field */
+    .section:has(.selected-field) {
+      :not(.selected-field) .byte-wrapper {
+        filter: var(--grey-out);
+      }
+      /* Leave selected field colored */
+      .selected-field .byte-wrapper {
+        filter: none;
+      }
     }
   }
 
-  .section:has(.field-wrapper:hover) {
-    .field-wrapper:hover .byte-wrapper {
-      filter: none;
+  /* Field hovering */
+  &:has(.field-wrapper:hover) {
+    .section:not(:has(.field-wrapper:hover)) {
+      /* Selected field stays colored when hovering other field */
+      .byte-wrapper:not(.selected-field .byte-wrapper) {
+        filter: var(--grey-out);
+      }
     }
-
-    .field-wrapper:not(:hover) .byte-wrapper:not(.selected-field .byte-wrapper) {
-      filter: grayscale(100%) opacity(80%);
+    .section:has(.field-wrapper:hover) {
+      .field-wrapper:hover .byte-wrapper {
+        filter: none;
+      }
+      .field-wrapper:not(:hover) .byte-wrapper:not(.selected-field .byte-wrapper) {
+        filter: var(--grey-out);
+      }
     }
   }
 }
