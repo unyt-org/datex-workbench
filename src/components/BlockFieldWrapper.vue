@@ -13,8 +13,6 @@ const props = defineProps<{
 
 const emit = defineEmits(['field-clicked']);
 const handleClick = () => {
-  // console.log(props.field);
-  // console.log(props.fieldDef);
   emit(
     'field-clicked',
     fieldIsSelectedField()
