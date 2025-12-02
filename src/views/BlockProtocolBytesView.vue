@@ -37,7 +37,7 @@ const handleSectionFieldClick = (data: FieldIdentifier | undefined) => {
         <BlockSection
           v-if="section.fields.length > 0"
           :section="section"
-          :sectionDef="structureDef?.sections.find((sect) => sect.name == section.name)"
+          :sectionDef="structureDef?.sections.find((sect) => sect.name === section.name)"
           :sectionId="index"
           :selectedField="selectedField"
           @section-field-clicked="handleSectionFieldClick"
