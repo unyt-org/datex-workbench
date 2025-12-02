@@ -48,7 +48,7 @@ function findSectionDef(section: ParsedSection) {
           :sectionId="index"
           :selectedField="selectedField"
           @section-field-clicked="handleSectionFieldClick"
-          class="section"
+          class="section text-[0.7rem]"
         />
       </AccordionContent>
     </AccordionItem>

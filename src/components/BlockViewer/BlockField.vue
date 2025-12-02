@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { FieldDefinition, ParsedField } from '@unyt/speck';
 import { getColor } from '@/views/BlockViewer/settings';
+// import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
@@ -15,6 +16,35 @@ function byteToHexString(b: number): string {
 </script>
 
 <template>
+  <!-- <TooltipProvider>
+    <div class="field-styling contents">
+      <div v-for="(byte, indexInner) in field.bytes" :key="indexInner">
+        <Tooltip>
+          <TooltipTrigger
+            class="byte-wrapper"
+            :style="{ backgroundColor: getColor(fieldDef?.category) }"
+            >{{ byteToHexString(byte) }}</TooltipTrigger
+          >
+          <TooltipContent>
+            <p>{{ field.name }}</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+      <div v-if="shortenWithDots">
+        <Tooltip>
+          <TooltipTrigger
+            class="byte-wrapper"
+            :style="{ backgroundColor: getColor(fieldDef?.category) }"
+            >..</TooltipTrigger
+          >
+          <TooltipContent>
+            <p>{{ field.name }}</p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    </div>
+  </TooltipProvider> -->
+
   <div class="field-styling contents">
     <div v-for="(byte, indexInner) in field.bytes" :key="indexInner">
       <div
@@ -38,8 +68,10 @@ function byteToHexString(b: number): string {
 <style scoped>
 .field-styling {
   --total-column-width: 3ch;
-  --column-gap: 0.4ch;
-  --byte-field-radius: var(--radius-sm);
+  --column-gap: 0.3ch;
+  --byte-field-radius: var(--radius-xs);
+
+  font-family: mono;
 
   div {
     padding: calc(var(--column-gap) / 2) 0ch;

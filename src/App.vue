@@ -14,9 +14,9 @@ import { RouterView } from 'vue-router';
 </template> -->
 
 <template>
-    <div class="flex flex-col h-screen">
+    <div class="flex h-screen flex-col">
         <!-- Header -->
-        <HeaderProvider class="flex-none z-10" />
+        <HeaderProvider class="z-10 flex-none" />
 
         <!-- Main area: below header -->
         <!--    <div class="flex flex-1 overflow-hidden mt-40">-->
