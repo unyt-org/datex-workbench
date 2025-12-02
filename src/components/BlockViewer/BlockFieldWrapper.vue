@@ -24,23 +24,29 @@ function handleClick() {
   );
 }
 
-const fieldIsSelectedField = () =>
-  props.sectionId === props.selectedField?.sectionIndex &&
-  props.fieldId === props.selectedField.fieldIndex;
+function fieldIsSelectedField() {
+  return (
+    props.sectionId === props.selectedField?.sectionIndex &&
+    props.fieldId === props.selectedField.fieldIndex
+  );
+}
 
 const bytesCutoff: number = 25;
-const cutFieldBytes = (field: ParsedField): ParsedField => {
+function cutFieldBytes(field: ParsedField): ParsedField {
   const cutField = structuredClone(field);
   cutField.bytes = cutField.bytes.slice(0, bytesCutoff);
   return cutField;
-};
+}
 
-const displaySubfields = (): boolean =>
-  'subFields' in props.field &&
-  props.field.subFields.reduce(
-    (acc: number, subField: ParsedField) => acc + subField.bytes.length,
-    0,
-  ) === props.field.bytes.length;
+function displaySubfields(): boolean {
+  return (
+    'subFields' in props.field &&
+    props.field.subFields.reduce(
+      (acc: number, subField: ParsedField) => acc + subField.bytes.length,
+      0,
+    ) === props.field.bytes.length
+  );
+}
 </script>
 
 <template>
