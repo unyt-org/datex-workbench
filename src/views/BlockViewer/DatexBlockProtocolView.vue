@@ -5,20 +5,16 @@ import BlockProtocolInfo from '@/views/BlockViewer/BlockProtocolInfoView.vue';
 import { parseStructure, type StructureDefinition } from '@unyt/speck';
 import { ref } from 'vue';
 
-// this will later not be fetched from the example data
+const props = defineProps<{
+  blockData: Uint8Array;
+}>();
+
 const dxbDefinition: StructureDefinition = await (
   await fetch(
     'https://raw.githubusercontent.com/unyt-org/datex-specification/refs/heads/main/assets/structures/dxb.json',
   )
 ).json();
-const blockDataExample: Uint8Array = new Uint8Array(
-  await (
-    await fetch(
-      'https://raw.githubusercontent.com/unyt-org/datex-core/main/tests/structs/receivers_with_keys/block.bin',
-    )
-  ).arrayBuffer(),
-);
-const structureExample = parseStructure(dxbDefinition, blockDataExample);
+const structureExample = parseStructure(dxbDefinition, props.blockData);
 
 const selectedField = ref<FieldIdentifier | undefined>(undefined);
 
