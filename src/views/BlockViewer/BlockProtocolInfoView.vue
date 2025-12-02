@@ -26,9 +26,12 @@ function closeInfo() {
   emit('close-button-clicked');
 }
 
-const field = computed(
-  () => props.structure[props.selectedField.sectionIndex]?.fields[props.selectedField.fieldIndex],
-);
+const field = computed(() => {
+  if (!props.selectedField) {
+    throw new Error(`InfoView is being rendered with undefined selectedField`);
+  }
+  return props.structure[props.selectedField.sectionIndex]?.fields[props.selectedField.fieldIndex];
+});
 
 function renderParsedValue(value: ParsedValue): string {
   // showing the bytes of the magic number not as js array, but also as hex or whatever.

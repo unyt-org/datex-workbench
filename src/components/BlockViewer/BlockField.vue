@@ -7,7 +7,7 @@ import { getColor } from '@/views/BlockViewer/settings';
 const props = defineProps<{
   field: ParsedField;
   shortenWithDots: boolean;
-  fieldDef: FieldDefinition | undefined;
+  fieldDef: FieldDefinition;
 }>();
 
 function byteToHexString(b: number): string {

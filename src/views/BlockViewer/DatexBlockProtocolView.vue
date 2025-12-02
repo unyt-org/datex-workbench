@@ -12,9 +12,9 @@ const props = defineProps<{
 
 const structureExample = parseStructure(dxbDefinition, props.blockData);
 
-const selectedField = ref<FieldIdentifier | undefined>(undefined);
+const selectedField = ref<FieldIdentifier>(undefined);
 
-function handleBytesSectionFieldClick(data: FieldIdentifier | undefined) {
+function handleBytesSectionFieldClick(data: FieldIdentifier) {
   selectedField.value = data;
 }
 function handleInfoCloseButtonClick() {

@@ -1,1 +1,1 @@
-export type FieldIdentifier = { sectionIndex: number; fieldIndex: number };
+export type FieldIdentifier = { sectionIndex: number; fieldIndex: number } | undefined;

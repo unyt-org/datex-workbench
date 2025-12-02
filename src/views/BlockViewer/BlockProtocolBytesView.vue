@@ -12,11 +12,11 @@ import type { FieldIdentifier } from '@/types/BlockViewer/blockProtocolView';
 const props = defineProps<{
   structure: ParsedStructure;
   structureDef: StructureDefinition;
-  selectedField: FieldIdentifier | undefined;
+  selectedField: FieldIdentifier;
 }>();
 
 const emit = defineEmits(['bytes-section-field-clicked']);
-function handleSectionFieldClick(data: FieldIdentifier | undefined) {
+function handleSectionFieldClick(data: FieldIdentifier) {
   emit('bytes-section-field-clicked', data);
 }
 

@@ -7,11 +7,11 @@ const props = defineProps<{
   section: ParsedSection;
   sectionDef: SectionDefinition;
   sectionId: number;
-  selectedField: FieldIdentifier | undefined;
+  selectedField: FieldIdentifier;
 }>();
 
 const emit = defineEmits(['section-field-clicked']);
-function handleFieldClick(data: FieldIdentifier | undefined) {
+function handleFieldClick(data: FieldIdentifier) {
   emit('section-field-clicked', data);
 }
 

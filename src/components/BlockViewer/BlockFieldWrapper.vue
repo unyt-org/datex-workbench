@@ -9,7 +9,7 @@ const props = defineProps<{
   fieldDef: FieldDefinition;
   sectionId: number;
   fieldId: number;
-  selectedField: FieldIdentifier | undefined;
+  selectedField: FieldIdentifier;
 }>();
 
 const emit = defineEmits(['field-clicked']);
