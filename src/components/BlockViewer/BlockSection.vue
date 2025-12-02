@@ -24,13 +24,12 @@ function handleFieldClick(data: FieldIdentifier | undefined) {
         v-for="(field, index) in section.fields"
         :key="index"
         class="contents"
-        :class="`${
-          selectedField &&
-          sectionId === selectedField.sectionIndex &&
-          index === selectedField.fieldIndex
-            ? 'selected-field'
-            : ''
-        }`"
+        :class="{
+          'selected-field':
+            selectedField &&
+            sectionId === selectedField.sectionIndex &&
+            index === selectedField.fieldIndex,
+        }"
       >
         <BlockFieldWrapper
           :field="field"
