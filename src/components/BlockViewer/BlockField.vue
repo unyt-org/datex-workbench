@@ -49,27 +49,33 @@ const getColor = (s: string | undefined): string => {
   div {
     padding: calc(var(--column-gap) / 2) 0ch;
   }
+
   div:first-child {
     padding-left: calc(var(--column-gap) / 2);
+
     .byte-wrapper {
       padding-left: calc((var(--total-column-width) - 2ch - var(--column-gap)) / 2);
       border-bottom-left-radius: var(--byte-field-radius);
       border-top-left-radius: var(--byte-field-radius);
     }
   }
+
   :not(div:first-child) {
     .byte-wrapper {
       padding-left: calc((var(--total-column-width) - 2ch) / 2);
     }
   }
+
   div:last-child {
     padding-right: calc(var(--column-gap) / 2);
+
     .byte-wrapper {
       padding-right: calc((var(--total-column-width) - 2ch - var(--column-gap)) / 2);
       border-bottom-right-radius: var(--byte-field-radius);
       border-top-right-radius: var(--byte-field-radius);
     }
   }
+
   :not(div:last-child) {
     .byte-wrapper {
       padding-right: calc((var(--total-column-width) - 2ch) / 2);

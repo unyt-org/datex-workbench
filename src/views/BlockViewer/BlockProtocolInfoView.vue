@@ -9,7 +9,7 @@ import {
   TableHead,
   TableCaption,
 } from '@/components/ui/table';
-import type { FieldIdentifier } from '@/types/block-protocol-view';
+import type { FieldIdentifier } from '@/types/BlockViewer/blockProtocolView';
 import { computed } from 'vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 import { X } from 'lucide-vue-next';

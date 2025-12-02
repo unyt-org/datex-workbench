@@ -6,8 +6,8 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import type { ParsedStructure, StructureDefinition } from '@unyt/speck';
-import BlockSection from '@/components/BlockSection.vue';
-import type { FieldIdentifier } from '@/types/block-protocol-view';
+import BlockSection from '@/components/BlockViewer/BlockSection.vue';
+import type { FieldIdentifier } from '@/types/BlockViewer/blockProtocolView';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
@@ -30,9 +30,9 @@ const handleSectionFieldClick = (data: FieldIdentifier | undefined) => {
       :value="`item-${index}`"
       class="last:border-b-0"
     >
-      <AccordionTrigger class="text-foreground text-md cursor-pointer py-3 hover:no-underline">{{
-        section.name
-      }}</AccordionTrigger>
+      <AccordionTrigger class="text-foreground text-md cursor-pointer py-3 hover:no-underline">
+        {{ section.name }}
+      </AccordionTrigger>
       <AccordionContent>
         <BlockSection
           v-if="section.fields.length > 0"
@@ -67,11 +67,13 @@ const handleSectionFieldClick = (data: FieldIdentifier | undefined) => {
         filter: var(--grey-out);
       }
     }
+
     /* Grey out all other fields in the section with the selected field */
     .section:has(.selected-field) {
       :not(.selected-field) .byte-wrapper {
         filter: var(--grey-out);
       }
+
       /* Leave selected field colored */
       .selected-field .byte-wrapper {
         filter: none;
@@ -87,6 +89,7 @@ const handleSectionFieldClick = (data: FieldIdentifier | undefined) => {
         filter: var(--grey-out);
       }
     }
+
     .section:has(.field-wrapper:hover) {
       .field-wrapper {
         &:hover {
@@ -95,9 +98,11 @@ const handleSectionFieldClick = (data: FieldIdentifier | undefined) => {
             filter: none;
           }
         }
+
         &:not(:hover) .byte-wrapper:not(.selected-field .byte-wrapper) {
           filter: var(--grey-out);
         }
+
         .byte-wrapper:hover {
           filter: hue-rotate(10deg);
         }

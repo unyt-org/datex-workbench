@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { FieldIdentifier } from '@/types/block-protocol-view';
-import BlockProtocolBytes from '@/views/BlockProtocolBytesView.vue';
-import BlockProtocolInfo from '@/views/BlockProtocolInfoView.vue';
+import type { FieldIdentifier } from '@/types/BlockViewer/blockProtocolView';
+import BlockProtocolBytes from '@/views/BlockViewer/BlockProtocolBytesView.vue';
+import BlockProtocolInfo from '@/views/BlockViewer/BlockProtocolInfoView.vue';
 import { parseStructure, type StructureDefinition } from '@unyt/speck';
 import { ref } from 'vue';
 
@@ -25,7 +25,7 @@ const handleBytesSectionFieldClick = (data: FieldIdentifier | undefined) => {
   selectedField.value = data;
 };
 
-const handleInfoCloseButtionClick = () => {
+const handleInfoCloseButtonClick = () => {
   selectedField.value = undefined;
 };
 </script>
@@ -45,7 +45,7 @@ const handleInfoCloseButtionClick = () => {
         :structure="structureExample"
         :structureDef="jsonDataExample"
         :selectedField="selectedField"
-        @close-button-clicked="handleInfoCloseButtionClick"
+        @close-button-clicked="handleInfoCloseButtonClick"
       ></BlockProtocolInfo>
     </div>
   </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FieldIdentifier } from '@/types/block-protocol-view';
+import type { FieldIdentifier } from '@/types/BlockViewer/blockProtocolView';
 import type { ParsedSection, SectionDefinition } from '@unyt/speck';
 import BlockFieldWrapper from './BlockFieldWrapper.vue';
 

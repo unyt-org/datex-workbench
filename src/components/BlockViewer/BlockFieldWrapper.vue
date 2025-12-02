@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FieldIdentifier } from '@/types/block-protocol-view';
+import type { FieldIdentifier } from '@/types/BlockViewer/blockProtocolView';
 import type { FieldDefinition, ParsedField } from '@unyt/speck';
 import BlockField from './BlockField.vue';
 
@@ -50,7 +50,8 @@ const displaySubfields = (): boolean =>
         :field="cutFieldBytes(field)"
         :cut="field.bytes.length > bytesCutoff"
         :fieldDef="fieldDef"
-      ></BlockField>
+      >
+      </BlockField>
     </div>
     <div v-else-if="!displaySubfields()" class="contents">
       <BlockField :field="field" :cut="false" :fieldDef="fieldDef"></BlockField>
