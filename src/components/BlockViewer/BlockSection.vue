@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import type { FieldIdentifier } from '@/types/BlockViewer/blockProtocolView';
-import type { ParsedSection, SectionDefinition } from '@unyt/speck';
+import type { ParsedField, ParsedSection, SectionDefinition } from '@unyt/speck';
 import BlockFieldWrapper from './BlockFieldWrapper.vue';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   section: ParsedSection;
-  sectionDef: SectionDefinition | undefined;
+  sectionDef: SectionDefinition;
   sectionId: number;
   selectedField: FieldIdentifier | undefined;
 }>();
@@ -14,6 +13,14 @@ const props = defineProps<{
 const emit = defineEmits(['section-field-clicked']);
 function handleFieldClick(data: FieldIdentifier | undefined) {
   emit('section-field-clicked', data);
+}
+
+function findFieldDef(field: ParsedField) {
+  const fi = props.sectionDef.fields.find((fieldDef) => fieldDef.name === field.name);
+  if (fi === undefined) {
+    throw new Error(`Field definition not found for field name: ${field.name}`);
+  }
+  return fi;
 }
 </script>
 
@@ -33,7 +40,7 @@ function handleFieldClick(data: FieldIdentifier | undefined) {
       >
         <BlockFieldWrapper
           :field="field"
-          :fieldDef="sectionDef?.fields.find((fi) => fi.name === field.name)"
+          :fieldDef="findFieldDef(field)"
           :sectionId="sectionId"
           :fieldId="index"
           :selectedField="selectedField"

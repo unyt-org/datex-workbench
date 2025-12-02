@@ -6,7 +6,7 @@ import { bytesCutoff } from '@/views/BlockViewer/settings';
 
 const props = defineProps<{
   field: ParsedField;
-  fieldDef: FieldDefinition | undefined;
+  fieldDef: FieldDefinition;
   sectionId: number;
   fieldId: number;
   selectedField: FieldIdentifier | undefined;

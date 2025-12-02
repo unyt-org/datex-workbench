@@ -9,7 +9,6 @@ import type { ParsedSection, ParsedStructure, StructureDefinition } from '@unyt/
 import BlockSection from '@/components/BlockViewer/BlockSection.vue';
 import type { FieldIdentifier } from '@/types/BlockViewer/blockProtocolView';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   structure: ParsedStructure;
   structureDef: StructureDefinition;
@@ -22,7 +21,7 @@ function handleSectionFieldClick(data: FieldIdentifier | undefined) {
 }
 
 function findSectionDef(section: ParsedSection) {
-  const sect = props.structureDef.sections.find((sect) => sect.name === section.name);
+  const sect = props.structureDef.sections.find((sectionDef) => sectionDef.name === section.name);
   if (sect === undefined) {
     throw new Error(`Section definition not found for section name: ${section.name}`);
   }
