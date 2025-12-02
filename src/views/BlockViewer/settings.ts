@@ -1,4 +1,4 @@
-import type { StructureDefinition } from '@unyt/speck';
+import type { FieldDefinition, StructureDefinition } from '@unyt/speck';
 
 export const dxbDefinition: StructureDefinition = await (
   await fetch(
@@ -17,10 +17,11 @@ const CATEGORIES = dxbDefinition.sections
   .map((section) => section.fields.map((field) => field.category))
   .flat()
   .filter((category, index, self) => self.indexOf(category) === index);
-export function getColor(s: string | undefined): string {
-  if (!s) return 'var(--chart-1)';
 
-  const index = CATEGORIES.indexOf(s);
+export function getColor(fieldDef: FieldDefinition | undefined): string {
+  if (!fieldDef) return 'var(--chart-1)';
+
+  const index = CATEGORIES.indexOf(fieldDef.category);
   return index !== -1 ? `var(--chart-${index + 1})` : 'var(--chart-1)';
 }
 

@@ -14,10 +14,11 @@ import { computed } from 'vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 import { X } from 'lucide-vue-next';
 import { showSubfieldId } from '@/views/BlockViewer/settings';
+import { getColor } from '@/views/BlockViewer/settings';
 
 const props = defineProps<{
   structure: ParsedStructure;
-  structureDef: StructureDefinition | undefined;
+  structureDef: StructureDefinition;
   selectedField: FieldIdentifier;
 }>();
 
@@ -30,21 +31,54 @@ const field = computed(() => {
   if (!props.selectedField) {
     throw new Error(`InfoView is being rendered with undefined selectedField`);
   }
-  return props.structure[props.selectedField.sectionIndex]?.fields[props.selectedField.fieldIndex];
+  const f =
+    props.structure[props.selectedField.sectionIndex]?.fields[props.selectedField.fieldIndex];
+  return f;
 });
 
+const fieldDef = computed(() => {
+  if (!props.selectedField) {
+    throw new Error(`InfoView is being rendered with undefined selectedField`);
+  }
+  const fd = props.structureDef.sections[props.selectedField.sectionIndex]?.fields.find(
+    (fieldDef) => fieldDef.name === field.value?.name,
+  );
+  return fd;
+});
+
+// showing the bytes of the magic number not as js array, but also as hex or whatever.
+// Like if there is a big string maybe we'll decide to cut it off later and only expand it on click?!
 function renderParsedValue(value: ParsedValue): string {
-  // showing the bytes of the magic number not as js array, but also as hex or whatever.
-  // Like if there is a big string maybe we'll decide to cut it off later and only expand it on click?!
-  return String(value);
+  if (value === null) {
+    return 'null';
+  }
+  if (value === undefined) {
+    return 'undefined';
+  }
+  if (Array.isArray(value)) {
+    return `[${value.join(', ')}]`;
+  }
+  if (typeof value === 'string') {
+    return `"${value}"`; // Wrap strings in quotes
+  }
+  if (typeof value === 'number') {
+    return value.toString();
+  }
+  if (typeof value === 'boolean') {
+    return value ? 'true' : 'false';
+  }
+  return 'Unknown type';
 }
 </script>
 
 <template>
-  <div v-if="field" class="contents">
-    <div class="px-4">
-      <div class="text-foreground text-md flex flex-1 items-center justify-between font-medium">
-        <div class="py-4 has-[p]:pb-0">
+  <div v-if="field" class="bg-background mt-3 rounded-t-lg">
+    <div class="px-4 pt-2">
+      <div class="text-foreground text-md flex items-center justify-between gap-4 font-medium">
+        <div
+          class="h-14 shrink rounded-sm px-2 py-4 has-[p]:pb-0"
+          :style="{ backgroundColor: getColor(fieldDef) }"
+        >
           {{ field.name }}
           <p v-if="'id' in field" class="text-xs">id: {{ field.id }}</p>
         </div>
@@ -53,7 +87,7 @@ function renderParsedValue(value: ParsedValue): string {
           @click="closeInfo"
         />
       </div>
-      <Separator />
+      <!-- <Separator /> -->
       <p v-if="'parsedValue' in field" class="py-2 text-sm">
         Value: {{ renderParsedValue(field.parsedValue) }}
       </p>
@@ -78,7 +112,7 @@ function renderParsedValue(value: ParsedValue): string {
               'id' in subField ? subField.id : '-'
             }}</TableCell>
             <TableCell class="break-all">{{
-              'parsedValue' in subField ? subField.parsedValue : '-'
+              'parsedValue' in subField ? renderParsedValue(subField.parsedValue) : '-'
             }}</TableCell>
           </TableRow>
         </TableBody>

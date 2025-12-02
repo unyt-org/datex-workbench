@@ -32,7 +32,7 @@ function handleInfoCloseButtonClick() {
         @bytes-section-field-clicked="handleBytesSectionFieldClick"
       ></BlockProtocolBytes>
     </div>
-    <div class="bg-background m-1 max-h-2/5 overflow-y-auto rounded-lg border" v-if="selectedField">
+    <div class="m-1 max-h-2/5 overflow-y-auto rounded-lg border bg-red-600" v-if="selectedField">
       <BlockProtocolInfo
         :structure="structureExample"
         :structureDef="dxbDefinition"

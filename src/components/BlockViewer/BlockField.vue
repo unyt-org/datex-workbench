@@ -47,18 +47,12 @@ function byteToHexString(b: number): string {
 
   <div class="field-styling contents">
     <div v-for="(byte, indexInner) in field.bytes" :key="indexInner">
-      <div
-        class="byte-wrapper leading-tight"
-        :style="{ backgroundColor: getColor(fieldDef?.category) }"
-      >
+      <div class="byte-wrapper leading-tight" :style="{ backgroundColor: getColor(fieldDef) }">
         {{ byteToHexString(byte) }}
       </div>
     </div>
     <div v-if="shortenWithDots">
-      <div
-        class="byte-wrapper leading-tight"
-        :style="{ backgroundColor: getColor(fieldDef?.category) }"
-      >
+      <div class="byte-wrapper leading-tight" :style="{ backgroundColor: getColor(fieldDef) }">
         ..
       </div>
     </div>
