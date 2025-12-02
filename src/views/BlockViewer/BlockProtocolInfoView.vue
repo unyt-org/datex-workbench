@@ -13,6 +13,7 @@ import type { FieldIdentifier } from '@/types/BlockViewer/blockProtocolView';
 import { computed } from 'vue';
 import Separator from '@/components/ui/separator/Separator.vue';
 import { X } from 'lucide-vue-next';
+import { showSubfieldId } from '@/views/BlockViewer/settings';
 
 const props = defineProps<{
   structure: ParsedStructure;
@@ -55,14 +56,16 @@ const field = computed(
         <TableHeader>
           <TableRow>
             <TableHead class="w-1/3">name</TableHead>
-            <!-- <TableHead class="w-1/3">id</TableHead> -->
-            <TableHead class="w-2/3">value</TableHead>
+            <TableHead v-if="showSubfieldId" class="w-1/3">id</TableHead>
+            <TableHead class="w-2/3" :class="{ 'w-1/3': showSubfieldId, 'w-2/3': !showSubfieldId }"
+              >value</TableHead
+            >
           </TableRow>
         </TableHeader>
         <TableBody>
           <TableRow v-for="(subField, i) in field.subFields" :key="i">
             <TableCell>{{ subField.name }}</TableCell>
-            <!-- <TableCell>{{ 'id' in subField ? subField.id : '-' }}</TableCell> -->
+            <TableCell v-if="showSubfieldId">{{ 'id' in subField ? subField.id : '-' }}</TableCell>
             <TableCell class="break-all">{{
               'parsedValue' in subField ? subField.parsedValue : '-'
             }}</TableCell>
