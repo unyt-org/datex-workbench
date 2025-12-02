@@ -33,9 +33,7 @@ const field = computed(
 <template>
   <div v-if="field" class="contents">
     <div class="px-4">
-      <div
-        class="text-foreground text-md flex flex-1 items-center justify-between font-medium"
-      >
+      <div class="text-foreground text-md flex flex-1 items-center justify-between font-medium">
         <div class="py-4 has-[p]:pb-0">
           {{ field.name }}
           <p v-if="'id' in field" class="text-xs">id: {{ field.id }}</p>
@@ -57,15 +55,17 @@ const field = computed(
         <TableHeader>
           <TableRow>
             <TableHead class="w-1/3">name</TableHead>
-            <TableHead class="w-1/3">id</TableHead>
-            <TableHead class="w-1/3">parsedValue</TableHead>
+            <!-- <TableHead class="w-1/3">id</TableHead> -->
+            <TableHead class="w-2/3">value</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           <TableRow v-for="(subField, i) in field.subFields" :key="i">
             <TableCell>{{ subField.name }}</TableCell>
-            <TableCell>{{ 'id' in subField ? subField.id : '-' }}</TableCell>
-            <TableCell class="break-all">{{ 'parsedValue' in subField ? subField.parsedValue : '-' }}</TableCell>
+            <!-- <TableCell>{{ 'id' in subField ? subField.id : '-' }}</TableCell> -->
+            <TableCell class="break-all">{{
+              'parsedValue' in subField ? subField.parsedValue : '-'
+            }}</TableCell>
           </TableRow>
         </TableBody>
       </Table>
