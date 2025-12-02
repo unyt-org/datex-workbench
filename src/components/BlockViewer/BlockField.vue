@@ -8,7 +8,7 @@ const props = defineProps<{
   fieldDef: FieldDefinition | undefined;
 }>();
 
-const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
+const byteToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 
 const CATEGORIES = ['purple', 'red', 'yellow', 'green', 'blue', 'dark_blue'];
 const getColor = (s: string | undefined): string => {
@@ -26,7 +26,7 @@ const getColor = (s: string | undefined): string => {
         class="byte-wrapper leading-tight"
         :style="{ backgroundColor: getColor(fieldDef?.category) }"
       >
-        {{ uint8ToHexString(byte) }}
+        {{ byteToHexString(byte) }}
       </div>
     </div>
     <div v-if="cut">
