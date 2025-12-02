@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ParsedStructure, StructureDefinition } from '@unyt/speck';
+import type { ParsedStructure, ParsedValue, StructureDefinition } from '@unyt/speck';
 import {
   Table,
   TableBody,
@@ -29,6 +29,12 @@ function closeInfo() {
 const field = computed(
   () => props.structure[props.selectedField.sectionIndex]?.fields[props.selectedField.fieldIndex],
 );
+
+function renderParsedValue(value: ParsedValue): string {
+  // showing the bytes of the magic number not as js array, but also as hex or whatever.
+  // Like if there is a big string maybe we'll decide to cut it off later and only expand it on click?!
+  return String(value);
+}
 </script>
 
 <template>
@@ -46,7 +52,7 @@ const field = computed(
       </div>
       <Separator />
       <p v-if="'parsedValue' in field" class="py-2 text-sm">
-        Value: {{ String(field.parsedValue) }}
+        Value: {{ renderParsedValue(field.parsedValue) }}
       </p>
       <!-- <p>if possible, description</p> -->
     </div>
