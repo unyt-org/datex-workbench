@@ -28,7 +28,6 @@ const closeInfo = () => {
 const field = computed(
   () => props.structure[props.selectedField.sectionIndex]?.fields[props.selectedField.fieldIndex],
 );
-console.log(field);
 </script>
 
 <template>
@@ -57,16 +56,16 @@ console.log(field);
         <TableCaption>Subfields</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead class="w-[30%]">name</TableHead>
-            <TableHead class="w-[30%]">id</TableHead>
-            <TableHead class="w-[40%]">parsedValue</TableHead>
+            <TableHead class="w-1/3">name</TableHead>
+            <TableHead class="w-1/3">id</TableHead>
+            <TableHead class="w-1/3">parsedValue</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           <TableRow v-for="(subField, i) in field.subFields" :key="i">
             <TableCell>{{ subField.name }}</TableCell>
             <TableCell>{{ 'id' in subField ? subField.id : '-' }}</TableCell>
-            <TableCell>{{ 'parsedValue' in subField ? subField.parsedValue : '-' }}</TableCell>
+            <TableCell class="break-all">{{ 'parsedValue' in subField ? subField.parsedValue : '-' }}</TableCell>
           </TableRow>
         </TableBody>
       </Table>
