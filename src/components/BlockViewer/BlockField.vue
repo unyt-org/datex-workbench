@@ -16,7 +16,7 @@ const CATEGORIES = ['purple', 'red', 'yellow', 'green', 'blue', 'dark_blue'];
 function getColor(s: string | undefined): string {
   if (!s) return 'var(--chart-1)';
 
-  const index = CATEGORIES.findIndex((color) => s === color);
+  const index = CATEGORIES.indexOf(s);
   return index !== -1 ? `var(--chart-${index + 1})` : 'var(--chart-1)';
 }
 </script>
