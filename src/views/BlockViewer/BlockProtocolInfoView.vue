@@ -21,9 +21,9 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['close-button-clicked']);
-const closeInfo = () => {
+function closeInfo() {
   emit('close-button-clicked');
-};
+}
 
 const field = computed(
   () => props.structure[props.selectedField.sectionIndex]?.fields[props.selectedField.fieldIndex],

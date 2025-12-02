@@ -12,7 +12,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['field-clicked']);
-const handleClick = () => {
+function handleClick() {
   emit(
     'field-clicked',
     fieldIsSelectedField()
@@ -22,7 +22,7 @@ const handleClick = () => {
           fieldIndex: props.fieldId,
         },
   );
-};
+}
 
 const fieldIsSelectedField = () =>
   props.sectionId === props.selectedField?.sectionIndex &&

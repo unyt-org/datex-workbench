@@ -8,15 +8,17 @@ const props = defineProps<{
   fieldDef: FieldDefinition | undefined;
 }>();
 
-const byteToHexString = (b: number): string => b.toString(16).padStart(2, '0');
+function byteToHexString(b: number): string {
+  return b.toString(16).padStart(2, '0');
+}
 
 const CATEGORIES = ['purple', 'red', 'yellow', 'green', 'blue', 'dark_blue'];
-const getColor = (s: string | undefined): string => {
+function getColor(s: string | undefined): string {
   if (!s) return 'var(--chart-1)';
 
   const index = CATEGORIES.findIndex((color) => s === color);
   return index !== -1 ? `var(--chart-${index + 1})` : 'var(--chart-1)';
-};
+}
 </script>
 
 <template>

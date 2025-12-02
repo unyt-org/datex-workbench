@@ -12,9 +12,9 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['section-field-clicked']);
-const handleFieldClick = (data: FieldIdentifier | undefined) => {
+function handleFieldClick(data: FieldIdentifier | undefined) {
   emit('section-field-clicked', data);
-};
+}
 </script>
 
 <template>

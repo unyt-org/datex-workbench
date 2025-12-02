@@ -21,13 +21,13 @@ const blockDataExample: Uint8Array = new Uint8Array(
 const structureExample = parseStructure(jsonDataExample, blockDataExample);
 
 const selectedField = ref<FieldIdentifier | undefined>(undefined);
-const handleBytesSectionFieldClick = (data: FieldIdentifier | undefined) => {
+function handleBytesSectionFieldClick(data: FieldIdentifier | undefined) {
   selectedField.value = data;
-};
+}
 
-const handleInfoCloseButtonClick = () => {
+function handleInfoCloseButtonClick() {
   selectedField.value = undefined;
-};
+}
 </script>
 
 <template>
