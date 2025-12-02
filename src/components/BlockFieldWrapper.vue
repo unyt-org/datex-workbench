@@ -25,8 +25,8 @@ const handleClick = () => {
 };
 
 const fieldIsSelectedField = () =>
-  props.sectionId == props.selectedField?.sectionIndex &&
-  props.fieldId == props.selectedField.fieldIndex;
+  props.sectionId === props.selectedField?.sectionIndex &&
+  props.fieldId === props.selectedField.fieldIndex;
 
 const bytesCutoff: number = 25;
 const cutFieldBytes = (field: ParsedField): ParsedField => {
@@ -40,7 +40,7 @@ const displaySubfields = (): boolean =>
   props.field.subFields.reduce(
     (acc: number, subField: ParsedField) => acc + subField.bytes.length,
     0,
-  ) == props.field.bytes.length;
+  ) === props.field.bytes.length;
 </script>
 
 <template>

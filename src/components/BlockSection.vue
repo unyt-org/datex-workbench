@@ -26,7 +26,7 @@ const handleFieldClick = (data: FieldIdentifier | undefined) => {
         class="contents"
         :class="`${
           selectedField &&
-          sectionId == selectedField.sectionIndex &&
+          sectionId === selectedField.sectionIndex &&
           index === selectedField.fieldIndex
             ? 'selected-field'
             : ''
@@ -34,7 +34,7 @@ const handleFieldClick = (data: FieldIdentifier | undefined) => {
       >
         <BlockFieldWrapper
           :field="field"
-          :fieldDef="sectionDef?.fields.find((fi) => fi.name == field.name)"
+          :fieldDef="sectionDef?.fields.find((fi) => fi.name === field.name)"
           :sectionId="sectionId"
           :fieldId="index"
           :selectedField="selectedField"
