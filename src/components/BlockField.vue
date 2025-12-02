@@ -22,12 +22,18 @@ const getColor = (s: string | undefined): string => {
 <template>
   <div class="field-styling contents">
     <div v-for="(byte, indexInner) in field.bytes" :key="indexInner">
-      <div class="byte-wrapper leading-tight" :style="{ backgroundColor: getColor(fieldDef?.category) }">
+      <div
+        class="byte-wrapper leading-tight"
+        :style="{ backgroundColor: getColor(fieldDef?.category) }"
+      >
         {{ uint8ToHexString(byte) }}
       </div>
     </div>
     <div v-if="cut">
-      <div class="byte-wrapper leading-tight" :style="{ backgroundColor: getColor(fieldDef?.category) }">
+      <div
+        class="byte-wrapper leading-tight"
+        :style="{ backgroundColor: getColor(fieldDef?.category) }"
+      >
         ..
       </div>
     </div>
