@@ -2,6 +2,7 @@
 import type { FieldIdentifier } from '@/types/BlockViewer/blockProtocolView';
 import type { FieldDefinition, ParsedField } from '@unyt/speck';
 import BlockField from './BlockField.vue';
+import { bytesCutoff } from '@/views/BlockViewer/settings';
 
 const props = defineProps<{
   field: ParsedField;
@@ -31,7 +32,6 @@ function fieldIsSelectedField() {
   );
 }
 
-const bytesCutoff: number = 25;
 function cutFieldBytes(field: ParsedField): ParsedField {
   const cutField = structuredClone(field);
   cutField.bytes = cutField.bytes.slice(0, bytesCutoff);
