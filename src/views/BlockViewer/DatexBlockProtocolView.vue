@@ -6,7 +6,7 @@ import { parseStructure, type StructureDefinition } from '@unyt/speck';
 import { ref } from 'vue';
 
 // this will later not be fetched from the example data
-const jsonDataExample: StructureDefinition = await (
+const dxbDefinition: StructureDefinition = await (
   await fetch(
     'https://raw.githubusercontent.com/unyt-org/datex-specification/refs/heads/main/assets/structures/dxb.json',
   )
@@ -18,7 +18,7 @@ const blockDataExample: Uint8Array = new Uint8Array(
     )
   ).arrayBuffer(),
 );
-const structureExample = parseStructure(jsonDataExample, blockDataExample);
+const structureExample = parseStructure(dxbDefinition, blockDataExample);
 
 const selectedField = ref<FieldIdentifier | undefined>(undefined);
 
@@ -35,7 +35,7 @@ function handleInfoCloseButtonClick() {
     <div class="bg-background m-1 max-h-3/5 overflow-y-auto rounded-lg border px-4">
       <BlockProtocolBytes
         :structure="structureExample"
-        :structureDef="jsonDataExample"
+        :structureDef="dxbDefinition"
         :selectedField="selectedField"
         @bytes-section-field-clicked="handleBytesSectionFieldClick"
       ></BlockProtocolBytes>
@@ -43,7 +43,7 @@ function handleInfoCloseButtonClick() {
     <div class="bg-background m-1 max-h-2/5 overflow-y-auto rounded-lg border" v-if="selectedField">
       <BlockProtocolInfo
         :structure="structureExample"
-        :structureDef="jsonDataExample"
+        :structureDef="dxbDefinition"
         :selectedField="selectedField"
         @close-button-clicked="handleInfoCloseButtonClick"
       ></BlockProtocolInfo>
