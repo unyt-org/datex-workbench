@@ -2,18 +2,14 @@
 import type { FieldIdentifier } from '@/types/BlockViewer/blockProtocolView';
 import BlockProtocolBytes from '@/views/BlockViewer/BlockProtocolBytesView.vue';
 import BlockProtocolInfo from '@/views/BlockViewer/BlockProtocolInfoView.vue';
-import { parseStructure, type StructureDefinition } from '@unyt/speck';
+import { parseStructure } from '@unyt/speck';
 import { ref } from 'vue';
+import { dxbDefinition } from '@/views/BlockViewer/settings';
 
 const props = defineProps<{
   blockData: Uint8Array;
 }>();
 
-const dxbDefinition: StructureDefinition = await (
-  await fetch(
-    'https://raw.githubusercontent.com/unyt-org/datex-specification/refs/heads/main/assets/structures/dxb.json',
-  )
-).json();
 const structureExample = parseStructure(dxbDefinition, props.blockData);
 
 const selectedField = ref<FieldIdentifier | undefined>(undefined);
