@@ -10,11 +10,11 @@ const props = defineProps<{
 
 const uint8ToHexString = (b: number): string => b.toString(16).padStart(2, '0');
 
-const categories = ['purple', 'red', 'yellow', 'green', 'blue', 'dark_blue'];
+const CATEGORIES = ['purple', 'red', 'yellow', 'green', 'blue', 'dark_blue'];
 const getColor = (s: string | undefined): string => {
   if (!s) return 'var(--chart-1)';
 
-  const index = categories.findIndex((color) => s === color);
+  const index = CATEGORIES.findIndex((color) => s === color);
   return index !== -1 ? `var(--chart-${index + 1})` : 'var(--chart-1)';
 };
 </script>
