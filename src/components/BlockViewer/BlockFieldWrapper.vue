@@ -38,13 +38,10 @@ function cutFieldBytes(field: ParsedField): ParsedField {
   return cutField;
 }
 
-function displaySubfields(): boolean {
-  return (
-    'subFields' in props.field &&
-    props.field.subFields.reduce((acc, subField) => acc + subField.bytes.length, 0) ===
-      props.field.bytes.length
-  );
-}
+const subfieldsMatchByteLength =
+  'subFields' in props.field &&
+  props.field.subFields.reduce((acc, subField) => acc + subField.bytes.length, 0) ===
+    props.field.bytes.length;
 </script>
 
 <template>
@@ -52,20 +49,20 @@ function displaySubfields(): boolean {
     <div v-if="!fieldIsSelectedField()" class="contents">
       <BlockField
         :field="cutFieldBytes(field)"
-        :cut="field.bytes.length > bytesCutoff"
+        :shortenWithDots="field.bytes.length > bytesCutoff"
         :fieldDef="fieldDef"
       >
       </BlockField>
     </div>
-    <div v-else-if="!displaySubfields()" class="contents">
-      <BlockField :field="field" :cut="false" :fieldDef="fieldDef"></BlockField>
+    <div v-else-if="!subfieldsMatchByteLength" class="contents">
+      <BlockField :field="field" :shortenWithDots="false" :fieldDef="fieldDef"></BlockField>
     </div>
     <div v-else class="subfield-wrapper contents">
       <BlockField
         v-for="(subField, index) in 'subFields' in field ? field.subFields : []"
         :key="index"
         :field="subField"
-        :cut="false"
+        :shortenWithDots="false"
         :fieldDef="fieldDef"
       ></BlockField>
     </div>

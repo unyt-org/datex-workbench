@@ -5,7 +5,7 @@ import { getColor } from '@/views/BlockViewer/settings';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   field: ParsedField;
-  cut: boolean;
+  shortenWithDots: boolean;
   fieldDef: FieldDefinition | undefined;
 }>();
 
@@ -24,7 +24,7 @@ function byteToHexString(b: number): string {
         {{ byteToHexString(byte) }}
       </div>
     </div>
-    <div v-if="cut">
+    <div v-if="shortenWithDots">
       <div
         class="byte-wrapper leading-tight"
         :style="{ backgroundColor: getColor(fieldDef?.category) }"

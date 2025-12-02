@@ -23,4 +23,4 @@ export function getColor(s: string | undefined): string {
   in the BlockProtocolInfoView, Subfields are displayed as a table with the columns name value
   if showSubfieldID is set to true, the table also displays a column for the Subfield id
 */
-export const showSubfieldId = true;
+export const showSubfieldId = false;
