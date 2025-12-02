@@ -5,20 +5,28 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import type { ParsedStructure, StructureDefinition } from '@unyt/speck';
+import type { ParsedSection, ParsedStructure, StructureDefinition } from '@unyt/speck';
 import BlockSection from '@/components/BlockViewer/BlockSection.vue';
 import type { FieldIdentifier } from '@/types/BlockViewer/blockProtocolView';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
   structure: ParsedStructure;
-  structureDef: StructureDefinition | undefined;
+  structureDef: StructureDefinition;
   selectedField: FieldIdentifier | undefined;
 }>();
 
 const emit = defineEmits(['bytes-section-field-clicked']);
 function handleSectionFieldClick(data: FieldIdentifier | undefined) {
   emit('bytes-section-field-clicked', data);
+}
+
+function findSectionDef(section: ParsedSection) {
+  const sect = props.structureDef.sections.find((sect) => sect.name === section.name);
+  if (sect === undefined) {
+    throw new Error(`Section definition not found for section name: ${section.name}`);
+  }
+  return sect;
 }
 </script>
 
@@ -37,7 +45,7 @@ function handleSectionFieldClick(data: FieldIdentifier | undefined) {
         <BlockSection
           v-if="section.fields.length > 0"
           :section="section"
-          :sectionDef="structureDef?.sections.find((sect) => sect.name === section.name)"
+          :sectionDef="findSectionDef(section)"
           :sectionId="index"
           :selectedField="selectedField"
           @section-field-clicked="handleSectionFieldClick"
