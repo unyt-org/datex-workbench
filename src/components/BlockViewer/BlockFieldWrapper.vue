@@ -41,10 +41,8 @@ function cutFieldBytes(field: ParsedField): ParsedField {
 function displaySubfields(): boolean {
   return (
     'subFields' in props.field &&
-    props.field.subFields.reduce(
-      (acc: number, subField: ParsedField) => acc + subField.bytes.length,
-      0,
-    ) === props.field.bytes.length
+    props.field.subFields.reduce((acc, subField) => acc + subField.bytes.length, 0) ===
+      props.field.bytes.length
   );
 }
 </script>
