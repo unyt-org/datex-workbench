@@ -58,7 +58,7 @@ function handleInfoCloseButtonClick() {
 <!-- PENDING also change theme switcher to lucide -->
 <!-- PENDING generally clean up the Info Box even more -->
 <!-- PENDING clean up the correct display of the id -->
-<!-- PENDING incooperate category color in some way-->
-<!-- PENDING Do correct line break in the info view table for things like Key, subField of Recievers with key -->
+<!-- PENDING incorporate category color in some way-->
+<!-- PENDING Do correct line break in the info view table for things like Key, subField of Receivers with key -->
 <!-- PENDING add tooltip when hovering over a byte containing the name of the field and the
-  absolut byte offset of the whole block and where the field starts and ends as byte offset -->
+  absolute byte offset of the whole block and where the field starts and ends as byte offset -->
