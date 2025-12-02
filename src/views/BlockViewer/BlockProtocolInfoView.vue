@@ -65,7 +65,9 @@ const field = computed(
         <TableBody>
           <TableRow v-for="(subField, i) in field.subFields" :key="i">
             <TableCell>{{ subField.name }}</TableCell>
-            <TableCell v-if="showSubfieldId">{{ 'id' in subField ? subField.id : '-' }}</TableCell>
+            <TableCell v-if="showSubfieldId" :class="'id' in subField ? '' : 'brightness-50'">{{
+              'id' in subField ? subField.id : '-'
+            }}</TableCell>
             <TableCell class="break-all">{{
               'parsedValue' in subField ? subField.parsedValue : '-'
             }}</TableCell>
