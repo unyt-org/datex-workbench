@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/table';
 import type { FieldIdentifier } from '@/types/BlockViewer/blockProtocolView';
 import { computed } from 'vue';
-import Separator from '@/components/ui/separator/Separator.vue';
 import { X } from 'lucide-vue-next';
 import { showSubfieldId } from '@/views/BlockViewer/settings';
 import { getColor } from '@/views/BlockViewer/settings';
@@ -73,12 +72,13 @@ function renderParsedValue(value: ParsedValue): string {
 
 <template>
   <div v-if="field" class="bg-background mt-3 rounded-t-lg">
-    <div class="px-4 pt-2">
-      <div class="text-foreground text-md flex items-center justify-between gap-4 font-medium">
+    <div class="px-4 pt-3">
+      <div class="text-foreground text-md flex items-center justify-start gap-4 font-medium">
         <div
-          class="h-14 shrink rounded-sm px-2 py-4 has-[p]:pb-0"
+          class="size-14 shrink rounded-sm"
           :style="{ backgroundColor: getColor(fieldDef) }"
-        >
+        ></div>
+        <div class="h-14 grow rounded-sm px-2 py-4 has-[p]:pb-0">
           {{ field.name }}
           <p v-if="'id' in field" class="text-xs">id: {{ field.id }}</p>
         </div>
