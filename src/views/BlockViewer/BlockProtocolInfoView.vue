@@ -87,7 +87,7 @@ function renderParsedValue(value: ParsedValue): string {
         </div>
         <!-- <p>if possible, description</p> -->
         <div v-if="'subFields' in field" class="">
-            <Table>
+            <Table class="text-base">
                 <!-- <TableCaption>Subfields</TableCaption> -->
                 <TableHeader>
                     <TableRow>

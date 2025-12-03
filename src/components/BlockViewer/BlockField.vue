@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FieldDefinition, ParsedField } from '@unyt/speck';
 import { getColor } from '@/views/BlockViewer/settings';
-import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+// import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
@@ -47,18 +47,12 @@ function byteToHexString(b: number): string {
 
     <div class="field-styling contents">
         <div v-for="(byte, indexInner) in field.bytes" :key="indexInner">
-            <div
-                class="byte-wrapper leading-tight"
-                :style="{ backgroundColor: getColor(fieldDef) }"
-            >
+            <div class="byte-wrapper text-base" :style="{ backgroundColor: getColor(fieldDef) }">
                 {{ byteToHexString(byte) }}
             </div>
         </div>
         <div v-if="shortenWithDots">
-            <div
-                class="byte-wrapper leading-tight"
-                :style="{ backgroundColor: getColor(fieldDef) }"
-            >
+            <div class="byte-wrapper text-base" :style="{ backgroundColor: getColor(fieldDef) }">
                 ..
             </div>
         </div>
@@ -70,8 +64,6 @@ function byteToHexString(b: number): string {
     --total-column-width: 3ch;
     --column-gap: 0.3ch;
     --byte-field-radius: var(--radius-sm);
-
-    font-family: mono;
 
     div {
         padding: calc(var(--column-gap) / 2) 0ch;
