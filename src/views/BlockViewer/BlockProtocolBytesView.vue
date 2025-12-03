@@ -30,7 +30,11 @@ function findSectionDef(section: ParsedSection) {
 </script>
 
 <template>
-  <Accordion type="multiple" class="sections-wrapper" :unmountOnHide="false">
+  <Accordion
+    type="multiple"
+    :unmountOnHide="false"
+    class="sections-wrapper bg-background overflow-y-auto px-4"
+  >
     <AccordionItem
       v-for="(section, index) in structure"
       :key="index"

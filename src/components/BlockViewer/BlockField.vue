@@ -63,7 +63,7 @@ function byteToHexString(b: number): string {
 .field-styling {
   --total-column-width: 3ch;
   --column-gap: 0.3ch;
-  --byte-field-radius: var(--radius-xs);
+  --byte-field-radius: var(--radius-sm);
 
   font-family: mono;
 

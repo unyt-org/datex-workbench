@@ -24,21 +24,20 @@ function handleInfoCloseButtonClick() {
 
 <template>
   <div class="h-[calc(100%-15px)]">
-    <div class="bg-background m-1 max-h-3/5 overflow-y-auto rounded-lg border px-4">
-      <BlockProtocolBytes
-        :structure="structureExample"
-        :structureDef="dxbDefinition"
-        :selectedField="selectedField"
-        @bytes-section-field-clicked="handleBytesSectionFieldClick"
-      ></BlockProtocolBytes>
-    </div>
-    <div class="m-1 max-h-2/5 overflow-y-auto rounded-lg border bg-red-600" v-if="selectedField">
-      <BlockProtocolInfo
-        :structure="structureExample"
-        :structureDef="dxbDefinition"
-        :selectedField="selectedField"
-        @close-button-clicked="handleInfoCloseButtonClick"
-      ></BlockProtocolInfo>
-    </div>
+    <BlockProtocolBytes
+      class="m-1 max-h-3/5 rounded-lg border"
+      :structure="structureExample"
+      :structureDef="dxbDefinition"
+      :selectedField="selectedField"
+      @bytes-section-field-clicked="handleBytesSectionFieldClick"
+    ></BlockProtocolBytes>
+    <BlockProtocolInfo
+      v-if="selectedField"
+      class="m-1 max-h-2/5 rounded-lg border"
+      :structure="structureExample"
+      :structureDef="dxbDefinition"
+      :selectedField="selectedField"
+      @close-button-clicked="handleInfoCloseButtonClick"
+    ></BlockProtocolInfo>
   </div>
 </template>

@@ -7,7 +7,6 @@ import {
   TableRow,
   TableHeader,
   TableHead,
-  TableCaption,
 } from '@/components/ui/table';
 import type { FieldIdentifier } from '@/types/BlockViewer/blockProtocolView';
 import { computed } from 'vue';
@@ -71,49 +70,48 @@ function renderParsedValue(value: ParsedValue): string {
 </script>
 
 <template>
-  <div v-if="field" class="bg-background mt-3 rounded-t-lg">
-    <div class="px-4 pt-3">
-      <div class="text-foreground text-md flex items-center justify-start gap-4 font-medium">
-        <div
-          class="size-14 shrink rounded-sm"
-          :style="{ backgroundColor: getColor(fieldDef) }"
-        ></div>
-        <div class="h-14 grow rounded-sm px-2 py-4 has-[p]:pb-0">
-          {{ field.name }}
-          <p v-if="'id' in field" class="text-xs">id: {{ field.id }}</p>
-        </div>
-        <X
-          class="hover:text-muted-foreground flex size-4 h-4 w-4 shrink-0 cursor-pointer items-center justify-center"
-          @click="closeInfo"
-        />
+  <div
+    v-if="field"
+    class="*:bg-background overflow-y-auto pl-3"
+    :style="{ backgroundColor: getColor(fieldDef) }"
+  >
+    <div class="text-foreground flex items-center justify-start border-b px-4 font-medium">
+      <div class="grow py-5 has-[p]:pb-1">
+        <div class="text-lg">{{ field.name }}</div>
+        <p v-if="'id' in field" class="text-xs">id: {{ field.id }}</p>
       </div>
-      <!-- <Separator /> -->
-      <p v-if="'parsedValue' in field" class="py-2 text-sm">
-        Value: {{ renderParsedValue(field.parsedValue) }}
-      </p>
-      <!-- <p>if possible, description</p> -->
+      <X class="hover:text-muted-foreground size-4 cursor-pointer" @click="closeInfo" />
     </div>
-    <div v-if="'subFields' in field">
+    <div v-if="'parsedValue' in field" class="px-4 py-2 text-base">
+      Value: {{ renderParsedValue(field.parsedValue) }}
+    </div>
+    <!-- <p>if possible, description</p> -->
+    <div v-if="'subFields' in field" class="">
       <Table>
-        <TableCaption>Subfields</TableCaption>
+        <!-- <TableCaption>Subfields</TableCaption> -->
         <TableHeader>
           <TableRow>
-            <TableHead class="w-1/3">name</TableHead>
-            <TableHead v-if="showSubfieldId" class="w-1/3">id</TableHead>
-            <TableHead class="w-2/3" :class="{ 'w-1/3': showSubfieldId, 'w-2/3': !showSubfieldId }"
-              >value</TableHead
-            >
+            <TableHead>name</TableHead>
+            <TableHead v-if="showSubfieldId">id</TableHead>
+            <TableHead>value</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           <TableRow v-for="(subField, i) in field.subFields" :key="i">
-            <TableCell>{{ subField.name }}</TableCell>
-            <TableCell v-if="showSubfieldId" :class="'id' in subField ? '' : 'brightness-50'">{{
-              'id' in subField ? subField.id : '-'
-            }}</TableCell>
-            <TableCell class="break-all">{{
-              'parsedValue' in subField ? renderParsedValue(subField.parsedValue) : '-'
-            }}</TableCell>
+            <TableCell class="w-1/3 min-w-max whitespace-nowrap">{{ subField.name }}</TableCell>
+            <TableCell
+              v-if="showSubfieldId"
+              class="w-1/3"
+              :class="'id' in subField ? '' : 'brightness-50'"
+              >{{ 'id' in subField ? subField.id : '-' }}</TableCell
+            >
+            <TableCell
+              class="w-2/3 break-all"
+              :class="{ 'w-1/3': showSubfieldId, 'w-2/3': !showSubfieldId }"
+              >{{
+                'parsedValue' in subField ? renderParsedValue(subField.parsedValue) : '-'
+              }}</TableCell
+            >
           </TableRow>
         </TableBody>
       </Table>
