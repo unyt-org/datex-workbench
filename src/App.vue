@@ -3,10 +3,20 @@ import HeaderProvider from '@/components/HeaderProvider.vue';
 import { RouterView } from 'vue-router';
 </script>
 
+<!-- <template>
+  <HeaderProvider />
+  <SidebarProvider>
+    <RouterView />
+    <Suspense>
+      <DatexBlockProtocolViewer />
+    </Suspense>
+  </SidebarProvider>
+</template> -->
+
 <template>
-    <div class="flex flex-col h-screen">
+    <div class="flex h-screen flex-col">
         <!-- Header -->
-        <HeaderProvider class="flex-none z-10" />
+        <HeaderProvider class="z-10 flex-none" />
 
         <!-- Main area: below header -->
         <!--    <div class="flex flex-1 overflow-hidden mt-40">-->
@@ -24,7 +34,9 @@ import { RouterView } from 'vue-router';
 
         <!-- Main content area -->
         <div class="flex-1 overflow-hidden bg-gray-900 text-white">
-            <RouterView />
+            <Suspense>
+                <RouterView />
+            </Suspense>
         </div>
 
         <!-- Right sidebar -->
