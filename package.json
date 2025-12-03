@@ -20,6 +20,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",
     "@unyt/datex": "^0.0.10",
+    "@unyt/speck": "^0.0.11",
     "@vueuse/core": "^14.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -36,7 +37,7 @@
     "@iconify/vue": "^5.0.0",
     "@tsconfig/node22": "^22.0.2",
     "@types/jsdom": "^27.0.0",
-    "@types/node": "^22.18.11",
+    "@types/node": "^22.18.13",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vitest/eslint-plugin": "^1.3.23",
     "@vue/eslint-config-prettier": "^10.2.0",
