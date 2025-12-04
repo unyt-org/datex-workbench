@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import NetworkNode from '@/components/NetworkTree/NetworkNode.vue';
 import { ref } from 'vue';
-
-interface Position {
-    x: number;
-    y: number;
-}
+import { type Position } from '@/types/node-tree';
 
 const isDragging = ref(false);
 const currentNodeId = ref<string | null>(null);
@@ -13,6 +9,7 @@ const startPos = ref<Position>({ x: 0, y: 0 });
 const nodePositions = ref<Record<string, Position>>({
     node1: { x: 50, y: 50 },
     node2: { x: 300, y: 300 },
+    node3: { x: 100, y: 500 },
 });
 
 function mouseDown(event: MouseEvent, nodeId: string) {
@@ -68,6 +65,15 @@ function mouseUp() {
                 left: `${nodePositions.node2?.x}px`,
                 top: `${nodePositions.node2?.y}px`,
                 zIndex: currentNodeId === 'node2' ? 10 : 1,
+            }"
+        />
+        <NetworkNode
+            @mousedown.left="(e: MouseEvent) => mouseDown(e, 'node3')"
+            :style="{
+                position: 'absolute',
+                left: `${nodePositions.node3?.x}px`,
+                top: `${nodePositions.node3?.y}px`,
+                zIndex: currentNodeId === 'node3' ? 10 : 1,
             }"
         />
     </div>
