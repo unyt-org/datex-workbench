@@ -8,25 +8,10 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-
-function mouseDown(event: MouseEvent) {
-    const card = event.currentTarget as HTMLElement;
-    card.classList.add('border-thick');
-}
-
-function mouseUp(event: MouseEvent) {
-    const card = event.currentTarget as HTMLElement;
-    card.classList.remove('border-thick');
-}
 </script>
 
 <template>
-    <Card
-        class="box-border w-xs border-2 border-transparent transition-all duration-100"
-        @mousedown.left="mouseDown"
-        @mouseup.left="mouseUp"
-        @mouseleave="mouseUp"
-    >
+    <Card class="w-xs">
         <CardHeader>
             <CardTitle>Node</CardTitle>
             <CardDescription>very pretty</CardDescription>
@@ -40,9 +25,3 @@ function mouseUp(event: MouseEvent) {
         </CardFooter>
     </Card>
 </template>
-
-<style scoped>
-.border-thick {
-    border-color: inherit !important;
-}
-</style>
