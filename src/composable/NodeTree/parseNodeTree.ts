@@ -12,8 +12,8 @@ import type { Edge, Node, NodeField, NodeTree } from '@/types/node-tree';
 //    and potentially even
 //    edge: "haha123_abcd->haha123_efgh"
 export function parseNodeTree(treeIn: NodeTree<string, string>) {
-    const maxXPosition = 800;
-    const maxYPosition = 500;
+    const maxXPosition = 700;
+    const maxYPosition = 600;
 
     const treeOut: NodeTree<string, string> = structuredClone(treeIn);
 
@@ -45,6 +45,7 @@ export function parseNodeTree(treeIn: NodeTree<string, string>) {
             return;
         }
         allIds.push(item.id);
+        nodeAndFieldIds.push(item.id);
     }
 
     function correctEdgeId(item: Edge<string>) {
@@ -88,9 +89,13 @@ export function parseNodeTree(treeIn: NodeTree<string, string>) {
         });
     });
 
+    console.log(allIds)
+    console.log(nodeAndFieldIds)
+
     treeOut.edges.map((edge) => {
         correctEdgeId(edge);
 
+        // do we discard the edge if the id can't be found or do we leave it in?
         if (!nodeAndFieldIds.includes(edge.source)) {
             console.error(
                 `source ${edge.source} of edge with id ${edge.id} does not exist in any node or field`,

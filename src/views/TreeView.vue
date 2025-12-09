@@ -3,7 +3,7 @@ import NetworkNode from '@/components/NodeTree/Node.vue';
 import { ref } from 'vue';
 import type { Position, NodeTree } from '@/types/node-tree';
 import { parseNodeTree } from '@/composable/NodeTree/parseNodeTree';
-import exampleJson1 from '@/composable/NodeTree/validExample1.json';
+import exampleJson from '@/composable/NodeTree/validExampleLong.json';
 
 const isDragging = ref(false);
 const currentNodeId = ref<string | null>(null);
@@ -44,7 +44,7 @@ function mouseUp() {
     currentNodeId.value = null;
 }
 
-const example = exampleJson1 as NodeTree<string, string>;
+const example = exampleJson as NodeTree<string, string>;
 console.log(example);
 const tree = parseNodeTree(example);
 console.log(tree);

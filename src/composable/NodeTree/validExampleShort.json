@@ -1,7 +1,7 @@
 {
     "nodes": [
         {
-            "name": "Node with everything",
+            "name": "Node A",
             "id": "1",
             "position": {
                 "x": 200,
@@ -15,6 +15,7 @@
             ]
         },
         {
+            "name": "Node B",
             "id": "2",
             "position": {
                 "x": 600,
@@ -27,18 +28,24 @@
             ]
         },
         {
-            "name": "Node without fields",
+            "name": "Node C",
             "id": "3",
             "position": {
                 "x": 550,
                 "y": 50
             },
-            "fields": []
+            "fields": [
+                { "name": "ahsdso", "id": "3.1", "in": false, "out": true },
+                { "name": "cnyxcl", "id": "3.2", "in": true, "out": false }
+            ]
         },
         {
-            "name": "Node without position",
+            "name": "Node D",
             "id": "4",
-            "position": {},
+            "position": {
+                "x": 100,
+                "y": 700
+            },
             "fields": [
                 { "name": "asaaspspsss", "id": "4.3", "in": false, "out": true },
                 { "name": "xchxhct", "id": "4.4", "in": false, "out": false }
@@ -48,20 +55,20 @@
     "edges": [
         {
             "id": "cjxopppcs",
-            "source": "jsadoas",
-            "target": "cnyxcl",
+            "source": "1.1",
+            "target": "4.3",
             "edgetype": "tempType"
         },
         {
             "id": "yxllöxcb",
-            "source": "cnyxcl",
-            "target": "jsadoas",
+            "source": "3.2",
+            "target": "1.4",
             "edgetype": "tempType"
         },
         {
             "id": "aspalspaps",
-            "source": "qwejj",
-            "target": "aslslqpqüc",
+            "source": "1.4",
+            "target": "2.3",
             "edgetype": "tempType"
         }
     ]
