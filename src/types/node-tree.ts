@@ -15,7 +15,7 @@ export interface NodeField<NodeMetaData> {
     name: string;
     in: boolean;
     out: boolean;
-    data: NodeMetaData;
+    data?: NodeMetaData;
 }
 
 export interface Position {

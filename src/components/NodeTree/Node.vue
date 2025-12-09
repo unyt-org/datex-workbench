@@ -9,14 +9,13 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
     name?: string;
 }>();
 </script>
 
 <template>
-    <Card class="w-xs">
+    <Card class="absolute w-xs">
         <CardHeader>
             <CardTitle>{{ props.name }}</CardTitle>
             <CardDescription>very pretty</CardDescription>
