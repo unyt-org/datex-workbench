@@ -44,10 +44,11 @@ function mouseUp() {
     currentNodeId.value = null;
 }
 
-const example = exampleJson as NodeTree<string, string>;
+const example = exampleJson as NodeTree;
 console.log(example);
-const tree = parseNodeTree(example);
-console.log(tree);
+// turn this into a ref so the position can be updated
+const tree = ref(parseNodeTree(example));
+console.log(tree.value);
 </script>
 
 <template>

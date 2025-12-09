@@ -110,50 +110,50 @@
     "edges": [
         {
             "id": "edge1",
-            "source": "1.1",
-            "target": "2.1",
+            "sourceId": "1.1",
+            "targetId": "2.1",
             "edgetype": "tempType"
         },
         {
             "id": "edge2",
-            "source": "2.2",
-            "target": "3.1",
+            "sourceId": "2.2",
+            "targetId": "3.1",
             "edgetype": "tempType"
         },
         {
             "id": 3,
-            "source": "4.1",
-            "target": "5.1",
+            "sourceId": "4.1",
+            "targetId": "5.1",
             "edgetype": "tempType"
         },
         {
             "id": "edge4",
-            "source": "6.1",
-            "target": "7.1",
+            "sourceId": "6.1",
+            "targetId": "7.1",
             "edgetype": 123
         },
         {
             "id": "",
-            "source": "8.1",
-            "target": "9.1",
+            "sourceId": "8.1",
+            "targetId": "9.1",
             "edgetype": "tempType"
         },
         {
             "id": "edge6",
-            "source": "9.2",
-            "target": "10.1",
+            "sourceId": "9.2",
+            "targetId": "10.1",
             "edgetype": "tempType"
         },
         {
             "id": "edge7",
-            "source": "10.3",
-            "target": "1.2",
+            "sourceId": "10.3",
+            "targetId": "1.2",
             "edgetype": "tempType"
         },
         {
             "id": "edge8",
-            "source": "nonexistent",
-            "target": "also nonexistent",
+            "sourceId": "nonexistent",
+            "targetId": "also nonexistent",
             "edgetype": "tempType"
         }
     ]

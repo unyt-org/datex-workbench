@@ -232,56 +232,56 @@
     "edges": [
         {
             "id": "edge1",
-            "source": "5.1",
-            "target": "6.3",
+            "sourceId": "5.1",
+            "targetId": "6.3",
             "edgetype": "tempType"
         },
         {
             "id": "edge2",
-            "source": "6.2",
-            "target": "7.1",
+            "sourceId": "6.2",
+            "targetId": "7.1",
             "edgetype": "tempType"
         },
         {
             "id": "edge3",
-            "source": "7.2",
-            "target": "8.1",
+            "sourceId": "7.2",
+            "targetId": "8.1",
             "edgetype": "tempType"
         },
         {
             "id": "edge4",
-            "source": "8.2",
-            "target": "9.1",
+            "sourceId": "8.2",
+            "targetId": "9.1",
             "edgetype": "tempType"
         },
         {
             "id": "edge5",
-            "source": "9.2",
-            "target": "5.3",
+            "sourceId": "9.2",
+            "targetId": "5.3",
             "edgetype": "tempType"
         },
         {
             "id": "edge6",
-            "source": "5.2",
-            "target": "6.1",
+            "sourceId": "5.2",
+            "targetId": "6.1",
             "edgetype": "tempType"
         },
         {
             "id": "cjxopppcs",
-            "source": "1.1",
-            "target": "4.3",
+            "sourceId": "1.1",
+            "targetId": "4.3",
             "edgetype": "tempType"
         },
         {
             "id": "yxllöxcb",
-            "source": "3.2",
-            "target": "1.4",
+            "sourceId": "3.2",
+            "targetId": "1.4",
             "edgetype": "tempType"
         },
         {
             "id": "aspalspaps",
-            "source": "1.4",
-            "target": "2.3",
+            "sourceId": "1.4",
+            "targetId": "2.3",
             "edgetype": "tempType"
         }
     ]

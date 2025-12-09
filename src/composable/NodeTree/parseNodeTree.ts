@@ -1,21 +1,10 @@
 import type { Edge, Node, NodeField, NodeTree } from '@/types/node-tree';
 
-// extra
-// the ids of fields of node could be expanded to also make all the ids be of the same "shape":
-//    currently any string can be used as an id but
-//    if we were to have the id of a field be a combination of the id of the node followed by a unique id of the field,
-//    this could make the id contain more and clearer information without more overhead
-// example:
-//    node id: "haha123"
-//    field1 id: "haha123_abcd"
-//    field2 id: "haha123_efgh"
-//    and potentially even
-//    edge: "haha123_abcd->haha123_efgh"
-export function parseNodeTree(treeIn: NodeTree<string, string>) {
+export function parseNodeTree(treeIn: NodeTree) {
     const maxXPosition = 700;
     const maxYPosition = 600;
 
-    const treeOut: NodeTree<string, string> = structuredClone(treeIn);
+    const treeOut: NodeTree = structuredClone(treeIn);
 
     const allIds: string[] = [];
     const nodeAndFieldIds: string[] = [];
@@ -26,8 +15,8 @@ export function parseNodeTree(treeIn: NodeTree<string, string>) {
         return rand;
     }
 
-    function correctId(item: Node<string> | NodeField<string>) {
-        if (item.id === undefined) {
+    function correctId(item: Node | NodeField) {
+        if (item.id === undefined || item.id === '') {
             const id = generateUniqueId();
             allIds.push(id);
             nodeAndFieldIds.push(id);
@@ -35,35 +24,28 @@ export function parseNodeTree(treeIn: NodeTree<string, string>) {
             return;
         }
         if (allIds.includes(item.id)) {
-            console.error(
-                `node or field with name ${item.name} and id ${item.id} has the same id as another item`,
+            throw new Error(
+                `The provided NodeTree has the value with id "${item.id}" at node/field "${item.name}" at least twice`,
             );
-            const id = generateUniqueId();
-            allIds.push(id);
-            nodeAndFieldIds.push(id);
-            item.id = id;
-            return;
         }
         allIds.push(item.id);
         nodeAndFieldIds.push(item.id);
     }
 
-    function correctEdgeId(item: Edge<string>) {
-        if (item.id === undefined) {
+    function correctEdgeId(edge: Edge) {
+        if (edge.id === undefined) {
             const id = generateUniqueId();
             allIds.push(id);
             nodeAndFieldIds.push(id);
-            item.id = id;
+            edge.id = id;
             return;
         }
-        if (allIds.includes(item.id)) {
-            console.error(`edge with id ${item.id} has the same id as another item`);
-            const id = generateUniqueId();
-            allIds.push(id);
-            item.id = id;
-            return;
+        if (allIds.includes(edge.id)) {
+            throw new Error(
+                `The provided NodeTree has the value with id "${edge.id}" at least twice.`,
+            );
         }
-        allIds.push(item.id);
+        allIds.push(edge.id);
     }
 
     treeOut.nodes.map((node) => {
@@ -86,6 +68,13 @@ export function parseNodeTree(treeIn: NodeTree<string, string>) {
             field.name = field.name ?? 'name not defined';
 
             correctId(field);
+
+            if (typeof field.in !== 'boolean') {
+                field.in = false;
+            }
+            if (typeof field.out !== 'boolean') {
+                field.out = false;
+            }
         });
     });
 
@@ -93,18 +82,34 @@ export function parseNodeTree(treeIn: NodeTree<string, string>) {
         correctEdgeId(edge);
 
         // do we discard the edge if the id can't be found or do we leave it in?
-        if (!nodeAndFieldIds.includes(edge.source)) {
-            console.error(
-                `source ${edge.source} of edge with id ${edge.id} does not exist in any node or field`,
+        if (!nodeAndFieldIds.includes(edge.sourceId)) {
+            throw new Error(
+                `source ${edge.sourceId} of edge with id ${edge.id} does not exist in any node or field.`,
             );
         }
-        if (!nodeAndFieldIds.includes(edge.target)) {
-            console.error(
-                `target ${edge.target} of  edge with id ${edge.id} does not exist in any node or field`,
+        if (!nodeAndFieldIds.includes(edge.targetId)) {
+            throw new Error(
+                `target ${edge.targetId} of  edge with id ${edge.id} does not exist in any node or field.`,
             );
         }
 
-        // TODO check if the node or field that source or target points to has its in/out value set to true
+        // check if the field that source or target points to has its in/out value set to true
+        if (
+            !treeOut.nodes.some((node) =>
+                node.fields?.some((field) => field.id === edge.sourceId && field.out === true),
+            )
+        )
+            throw new Error(
+                `The edge with id "${edge.id}" has its sourceId set to "${edge.sourceId}". This field can't be sourced from because its field.out value is set to false.`,
+            );
+        if (
+            !treeOut.nodes.some((node) =>
+                node.fields?.some((field) => field.id === edge.targetId && field.in === true),
+            )
+        )
+            throw new Error(
+                `The edge with id "${edge.id}" has its targetId set to "${edge.targetId}". This field can't be targeted because its field.in value is set to false.`,
+            );
     });
 
     return treeOut;

@@ -11,7 +11,7 @@ import {
 import type { Node } from '@/types/node-tree';
 
 const props = defineProps<{
-    node: Node<string>;
+    node: Node;
 }>();
 </script>
 
