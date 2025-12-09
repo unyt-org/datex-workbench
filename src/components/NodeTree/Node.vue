@@ -8,17 +8,24 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import type { Node } from '@/types/node-tree';
 
 const props = defineProps<{
-    name?: string;
+    node: Node<string>;
 }>();
 </script>
 
 <template>
-    <Card class="absolute w-xs">
+    <Card
+        class="absolute w-xs"
+        :style="{
+            left: `${node.position.x}px`,
+            top: `${node.position.y}px`,
+        }"
+    >
         <CardHeader>
-            <CardTitle>{{ props.name }}</CardTitle>
-            <CardDescription>very pretty</CardDescription>
+            <CardTitle>{{ props.node.name }}</CardTitle>
+            <CardDescription>id {{ props.node.id }}</CardDescription>
             <CardAction>Card Action</CardAction>
         </CardHeader>
         <CardContent>

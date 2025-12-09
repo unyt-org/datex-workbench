@@ -89,9 +89,6 @@ export function parseNodeTree(treeIn: NodeTree<string, string>) {
         });
     });
 
-    console.log(allIds)
-    console.log(nodeAndFieldIds)
-
     treeOut.edges.map((edge) => {
         correctEdgeId(edge);
 

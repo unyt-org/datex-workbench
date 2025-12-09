@@ -28,7 +28,7 @@ export interface Edge<EdgeMetaData> {
     source: string;
     target: string;
     edgetype: EdgeType;
-    data?: EdgeMetaData
+    data?: EdgeMetaData;
 }
 
 export type EdgeType = string;

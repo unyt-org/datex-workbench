@@ -3,7 +3,7 @@ import NetworkNode from '@/components/NodeTree/Node.vue';
 import { ref } from 'vue';
 import type { Position, NodeTree } from '@/types/node-tree';
 import { parseNodeTree } from '@/composable/NodeTree/parseNodeTree';
-import exampleJson from '@/composable/NodeTree/validExampleLong.json';
+import exampleJson from '@/composable/NodeTree/validExampleShort.json';
 
 const isDragging = ref(false);
 const currentNodeId = ref<string | null>(null);
@@ -65,33 +65,7 @@ console.log(tree);
                 top: `${nodePositions.node1?.y}px`,
                 zIndex: currentNodeId === 'node1' ? 10 : 1,
             }"
-        />
-        <NetworkNode
-            @mousedown.left="(e: MouseEvent) => mouseDown(e, 'node2')"
-            :style="{
-                position: 'absolute',
-                left: `${nodePositions.node2?.x}px`,
-                top: `${nodePositions.node2?.y}px`,
-                zIndex: currentNodeId === 'node2' ? 10 : 1,
-            }"
-        />
-        <NetworkNode
-            @mousedown.left="(e: MouseEvent) => mouseDown(e, 'node3')"
-            :style="{
-                position: 'absolute',
-                left: `${nodePositions.node3?.x}px`,
-                top: `${nodePositions.node3?.y}px`,
-                zIndex: currentNodeId === 'node3' ? 10 : 1,
-            }"
         /> -->
-        <NetworkNode
-            v-for="(node, index) in tree.nodes"
-            :key="index"
-            :style="{
-                left: `${node.position.x}px`,
-                top: `${node.position.y}px`,
-            }"
-            :name="node.name"
-        />
+        <NetworkNode v-for="(node, index) in tree.nodes" :key="index" :node="node" />
     </div>
 </template>
