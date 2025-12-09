@@ -45,6 +45,7 @@ function mouseUp() {
 }
 
 const example = exampleJson1 as NodeTree<string, string>;
+console.log(example);
 const tree = parseNodeTree(example);
 console.log(tree);
 </script>
