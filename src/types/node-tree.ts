@@ -5,14 +5,14 @@ export interface NodeTree<NodeMetaData, EdgeMetaData> {
 
 export interface Node<NodeMetaData> {
     id: string;
-    label: string; // or name
+    name: string; // or name
     position: Position; // this is probably not useful in the def but is needed for dom element positioning
     fields?: Array<NodeField<NodeMetaData>>;
 }
 
 export interface NodeField<NodeMetaData> {
     id: string;
-    label: string;
+    name: string;
     in: boolean;
     out: boolean;
     data: NodeMetaData;

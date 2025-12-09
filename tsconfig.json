@@ -1,20 +1,23 @@
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
+    "files": [],
+    "references": [
+        {
+            "path": "./tsconfig.node.json"
+        },
+        {
+            "path": "./tsconfig.app.json"
+        },
+        {
+            "path": "./tsconfig.vitest.json"
+        }
+    ],
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./src/*"]
+        }
     },
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.vitest.json"
-    }
-  ],
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  }
+
+    "resolveJsonModule": true,
+    "esModuleInterop": true
 }

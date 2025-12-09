@@ -8,12 +8,17 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = defineProps<{
+    name?: string;
+}>();
 </script>
 
 <template>
     <Card class="w-xs">
         <CardHeader>
-            <CardTitle>Node</CardTitle>
+            <CardTitle>{{ props.name }}</CardTitle>
             <CardDescription>very pretty</CardDescription>
             <CardAction>Card Action</CardAction>
         </CardHeader>

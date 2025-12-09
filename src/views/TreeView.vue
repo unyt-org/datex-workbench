@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import NetworkNode from '@/components/NetworkTree/NetworkNode.vue';
+import NetworkNode from '@/components/NodeTree/Node.vue';
 import { ref } from 'vue';
-import { type Position } from '@/types/node-tree';
+import type { Position, NodeTree } from '@/types/node-tree';
+import { parseNodeTree } from '@/composable/NodeTree/parseNodeTree';
+import exampleJson from '@/composable/NodeTree/validExample1.json';
 
 const isDragging = ref(false);
 const currentNodeId = ref<string | null>(null);
@@ -12,6 +14,7 @@ const nodePositions = ref<Record<string, Position>>({
     node3: { x: 100, y: 500 },
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function mouseDown(event: MouseEvent, nodeId: string) {
     isDragging.value = true;
     currentNodeId.value = nodeId;
@@ -40,6 +43,10 @@ function mouseUp() {
     isDragging.value = false;
     currentNodeId.value = null;
 }
+
+const example = exampleJson as NodeTree<string, string>;
+const tree = parseNodeTree(example);
+console.log(tree);
 </script>
 
 <template>
@@ -49,7 +56,7 @@ function mouseUp() {
         @mouseup="mouseUp"
         @mouseleave="mouseUp"
     >
-        <NetworkNode
+        <!-- <NetworkNode
             @mousedown.left="(e: MouseEvent) => mouseDown(e, 'node1')"
             :style="{
                 position: 'absolute',
@@ -75,6 +82,16 @@ function mouseUp() {
                 top: `${nodePositions.node3?.y}px`,
                 zIndex: currentNodeId === 'node3' ? 10 : 1,
             }"
+        /> -->
+        <NetworkNode
+            v-for="(node, index) in tree.nodes"
+            :key="index"
+            :style="{
+                position: 'absolute',
+                left: `${node.position.x}px`,
+                top: `${node.position.y}px`,
+            }"
+            :name="node.name"
         />
     </div>
 </template>
