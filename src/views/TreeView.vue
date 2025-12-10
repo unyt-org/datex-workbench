@@ -3,7 +3,7 @@ import NetworkNode from '@/components/NodeTree/Node.vue';
 import { ref } from 'vue';
 import type { Position, NodeTree } from '@/types/node-tree';
 import { parseNodeTree } from '@/composable/NodeTree/parseNodeTree';
-import exampleJson from '@/composable/NodeTree/validExampleShort.json';
+import exampleJson from '@/../test/composable/NodeTree/fixtures/validExampleShort.json';
 
 const isDragging = ref(false);
 const currentNodeId = ref<string | null>(null);
@@ -46,7 +46,6 @@ function mouseUp() {
 
 const example = exampleJson as NodeTree;
 console.log(example);
-// turn this into a ref so the position can be updated
 const tree = ref(parseNodeTree(example));
 console.log(tree.value);
 </script>

@@ -13,7 +13,6 @@
         {
             "name": "Node B",
             "id": "2",
-            
             "fields": [
                 { "name": "ahsdso", "id": "2.1", "in": true, "out": true },
                 { "name": "cnyxcl", "id": "2.2", "in": true, "out": true },
@@ -23,7 +22,6 @@
         {
             "name": "Node C",
             "id": "3",
-            
             "fields": [
                 { "name": "ahsdso", "id": "3.1", "in": false, "out": true },
                 { "name": "cnyxcl", "id": "3.2", "in": true, "out": false }
@@ -32,7 +30,6 @@
         {
             "name": "Node D",
             "id": "4",
-            
             "fields": [
                 { "name": "asaaspspsss", "id": "4.3", "in": false, "out": true },
                 { "name": "xchxhct", "id": "4.4", "in": false, "out": false }

@@ -1,10 +1,16 @@
 import type { Edge, Node, NodeField, NodeTree } from '@/types/node-tree';
 
-export function parseNodeTree(treeIn: NodeTree) {
+// export function parseNodeTree(treeIn: NodeTree) {
+export function parseNodeTree(treeIn: NodeTree | unknown): NodeTree {
+    if (!isNodeTree(treeIn)) {
+        throw new Error('Invalid NodeTree JSON');
+    }
+
+    const tree = treeIn as NodeTree;
     const maxXPosition = 700;
     const maxYPosition = 600;
 
-    const treeOut: NodeTree = structuredClone(treeIn);
+    const treeOut: NodeTree = structuredClone(tree);
 
     const allIds: string[] = [];
     const nodeAndFieldIds: string[] = [];
@@ -113,4 +119,20 @@ export function parseNodeTree(treeIn: NodeTree) {
     });
 
     return treeOut;
+}
+
+function isNodeTree(data: unknown): data is NodeTree {
+    if (typeof data !== 'object' || data === null) return false;
+    const tree = data as NodeTree;
+    return Array.isArray(tree.nodes) && Array.isArray(tree.edges);
+}
+
+export function add(numbers: string): number {
+    const integers = numbers.split(',').map((x) => parseInt(x));
+    const negatives = integers.filter((x) => x < 0);
+
+    if (negatives.length > 0)
+        throw new RangeError('Negatives are not allowed: ' + negatives.join(', '));
+
+    return integers.filter((x) => x <= 1000).reduce((a, b) => a + b, 0);
 }
