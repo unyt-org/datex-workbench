@@ -1,0 +1,16 @@
+{
+    "nodes": [
+        {
+            "name": "",
+            "id": "abc",
+            "position": {
+                "x": 200,
+                "y": 100
+            },
+            "fields": [
+                { "name": "field1", "id": "123", "in": true, "out": false },
+                { "name": "field2", "id": "456", "in": false, "out": true }
+            ]
+        }
+    ]
+}

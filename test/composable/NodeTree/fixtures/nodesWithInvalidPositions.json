@@ -1,0 +1,12 @@
+{
+    "nodes": [
+        {
+            "name": "field1", 
+            "id": "abc",
+            "position": {
+                "x": -5,
+                "y": "hello"
+            }
+        }
+    ]
+}
