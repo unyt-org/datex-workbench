@@ -27,6 +27,36 @@ describe('parseNodeTree', () => {
             });
         });
 
+        /*
+        // alternatively, the testing part could also be done in a seperate function so that we can run the test as well with larger json files
+        // this import would be needed
+        // import type { NodeTreeInput } from '../../../src/types/NodeTree/node-tree-input';
+
+        function testMissingNodeAttributes(input: NodeTreeInput, shouldThrow: boolean) {
+            if (shouldThrow) {
+                expect(() => parseNodeTree(input)).toThrow();
+                return;
+            }
+            const result = parseNodeTree(input);
+            expectTypeOf(result).toEqualTypeOf<NodeTree>();
+            expect(result.nodes).toBeDefined();
+            result.nodes.forEach((node: Node) => {
+                expect(node.id).toBeDefined();
+                expectTypeOf(node.id).toEqualTypeOf<string>();
+                expect(node.fields).toBeDefined();
+                expect(node.position).toBeDefined();
+            });
+        }
+        test.each([
+            { input: { nodes: [{ name: 'hi' }] }, description: 'node with name' },
+            { input: { nodes: [{ id: 'abc' }] }, description: 'node with id' },
+            { input: { nodes: [{ fields: [{ in: false }] }] }, description: 'node with fields' },
+            { input: { nodes: [{ position: { x: 0, y: 0 } }] }, description: 'node with position' },
+        ])('should return a NodeTree for $description', ({ input }) => {
+            testMissingNodeAttributes(input, false);
+        });
+        */
+
         // node ids
         test.each([
             { input: { nodes: [{}, {}] }, description: 'ids are not defined' },
