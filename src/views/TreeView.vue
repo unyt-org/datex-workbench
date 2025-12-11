@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import NetworkNode from '@/components/NodeTree/Node.vue';
-import { ref } from 'vue';
-import type { Position } from '@/types/node-tree';
+import { ref, type Ref } from 'vue';
+import type { NodeTree, Position } from '@/types/NodeTree/node-tree';
+import type { NodeTreeInput } from '@/types/NodeTree/node-tree-input';
 import { parseNodeTree } from '@/composable/NodeTree/parseNodeTree';
 import exampleJson from '@/../test/composable/NodeTree/fixtures/validExampleShort.json';
 
@@ -45,7 +46,8 @@ function mouseUp() {
 }
 
 console.log(exampleJson);
-const tree = ref(parseNodeTree(exampleJson));
+const example = exampleJson as NodeTreeInput;
+const tree: Ref<NodeTree> = ref(parseNodeTree(example));
 console.log(tree.value);
 </script>
 

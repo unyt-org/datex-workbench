@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { parseNodeTree, maxXPosition, maxYPosition } from '../../../src/composable/NodeTree/parseNodeTree';
-import type { Node } from '../../../src/types/node-tree';
+import {
+    parseNodeTree,
+    maxXPosition,
+    maxYPosition,
+} from '../../../src/composable/NodeTree/parseNodeTree';
+// import type { Node } from '@/types/node-tree';
+import type { Node } from '../../../src/types/NodeTree/node-tree';
 import nodeWithoutNameAttribute from './fixtures/nodeWithoutNameAttribute.json';
 import nodeWithEmptyNameValue from './fixtures/nodeWithEmptyNameValue.json';
 import nodeWithDuplicateIds from './fixtures/nodeWithDuplicateIds.json';
@@ -11,6 +16,8 @@ import nodesWithInvalidFields from './fixtures/nodesWithInvalidFields.json';
 import edgesWithInvalidIds from './fixtures/edgesWithInvalidIds.json';
 import edgesWithInvalidSourceTarget from './fixtures/edgesWithInvalidSourceTarget.json';
 */
+
+// in meinen tests die minimal examples, bestehend aus nur einer node oder so einfach inline schreiben
 
 describe('parseNodeTree', () => {
     // node array and edge array
@@ -28,7 +35,7 @@ describe('parseNodeTree', () => {
     });
 
     // node names
-    it('should throw an error for nodes with missing name attribute', () => {
+    it('should not throw an error if no name is provided', () => {
         expect(() => parseNodeTree(nodeWithoutNameAttribute)).toThrow();
     });
 
@@ -49,7 +56,7 @@ describe('parseNodeTree', () => {
         expect(() => parseNodeTree(nodeWithDuplicateIds)).toThrow();
     });
 
-    // Node positions
+    // node positions
     it('should set default positions for nodes with invalid or missing positions', () => {
         const result = parseNodeTree(nodesWithInvalidPositions);
         result.nodes.forEach((node: Node) => {
@@ -64,7 +71,7 @@ describe('parseNodeTree', () => {
     // Node fields
     it('should ensure each field has a name', () => {
         const result = parseNodeTree(nodesWithInvalidFields);
-        result.nodes.forEach((node) => {
+        result.nodes.forEach((node: Node) => {
             node.fields?.forEach((field) => {
                 expect(field.name).toBeDefined();
                 expect(typeof field.name).toBe('string');

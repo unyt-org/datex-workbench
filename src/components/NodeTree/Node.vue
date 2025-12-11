@@ -8,7 +8,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import type { Node } from '@/types/node-tree';
+import type { Node } from '@/types/NodeTree/node-tree';
 
 const props = defineProps<{
     node: Node;

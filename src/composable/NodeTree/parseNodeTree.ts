@@ -1,9 +1,10 @@
-import type { Edge, Node, NodeField, NodeTree } from '@/types/node-tree';
+import type { Edge, Node, NodeField, NodeTree } from '@/types/NodeTree/node-tree';
+import type { NodeTreeInput } from '@/types/NodeTree/node-tree-input';
 
 export const maxXPosition = 700;
 export const maxYPosition = 600;
 
-export function parseNodeTree(treeIn: NodeTree | unknown): NodeTree {
+export function parseNodeTree(treeIn: NodeTreeInput ): NodeTree {
     if (typeof treeIn !== 'object' || treeIn === null || treeIn === undefined) {
         throw new Error('Invalid NodeTree JSON');
     }
