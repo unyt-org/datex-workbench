@@ -18,46 +18,44 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
 
     const treeOut: NodeTree = structuredClone(tree);
 
-    const allIds: string[] = [];
     const nodeAndFieldIds: string[] = [];
+    const edgeIds: string[] = [];
 
     function generateUniqueId(): string {
         let rand = (Math.random() + 1).toString(36).split('.')[1];
-        if (rand === undefined || allIds.includes(rand)) rand = generateUniqueId();
+        if (rand === undefined || nodeAndFieldIds.includes(rand) || edgeIds.includes(rand))
+            rand = generateUniqueId();
         return rand;
     }
 
     function correctId(item: Node | NodeField) {
         if (item.id === undefined || item.id === '') {
             const id = generateUniqueId();
-            allIds.push(id);
             nodeAndFieldIds.push(id);
             item.id = id;
             return;
         }
-        if (allIds.includes(item.id)) {
+        if (nodeAndFieldIds.includes(item.id) || edgeIds.includes(item.id)) {
             throw new Error(
                 `The provided NodeTree has the value with id "${item.id}" at node/field "${item.name}" at least twice`,
             );
         }
-        allIds.push(item.id);
         nodeAndFieldIds.push(item.id);
     }
 
     function correctEdgeId(edge: Edge) {
         if (edge.id === undefined || edge.id === '') {
             const id = generateUniqueId();
-            allIds.push(id);
-            nodeAndFieldIds.push(id);
+            edgeIds.push(id);
             edge.id = id;
             return;
         }
-        if (allIds.includes(edge.id)) {
+        if (nodeAndFieldIds.includes(edge.id) || edgeIds.includes(edge.id)) {
             throw new Error(
                 `The provided NodeTree has the value with id "${edge.id}" at least twice.`,
             );
         }
-        allIds.push(edge.id);
+        edgeIds.push(edge.id);
     }
 
     treeOut.nodes.map((node) => {
@@ -82,7 +80,7 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
 
         node.fields = node.fields ?? [];
 
-        node.fields?.map((field) => {
+        node.fields.map((field) => {
             field.name = field.name ?? 'name not defined';
 
             correctId(field);
@@ -110,23 +108,17 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
             );
         }
 
-        // // check if the field that source or target points to has its in/out value set to true
-        // if (
-        //     !treeOut.nodes.some((node) =>
-        //         node.fields?.some((field) => field.id === edge.sourceId && field.out === true),
-        //     )
-        // )
-        //     throw new Error(
-        //         `The edge with id "${edge.id}" has its sourceId set to "${edge.sourceId}". This field can't be sourced from because its field.out value is set to false.`,
-        //     );
-        // if (
-        //     !treeOut.nodes.some((node) =>
-        //         node.fields?.some((field) => field.id === edge.targetId && field.in === true),
-        //     )
-        // )
-        //     throw new Error(
-        //         `The edge with id "${edge.id}" has its targetId set to "${edge.targetId}". This field can't be targeted because its field.in value is set to false.`,
-        //     );
+        const fieldsArray = treeOut.nodes.map((node) => node.fields).flat();
+
+        if (fieldsArray.some((field) => field.id === edge.sourceId && field.out === false))
+            throw new Error(
+                `The edge with id "${edge.id}" has its sourceId set to "${edge.sourceId}". This field can't be sourced from because its field.out value is set to false.`,
+            );
+
+        if (fieldsArray.some((field) => field.id === edge.targetId && field.in === false))
+            throw new Error(
+                `The edge with id "${edge.id}" has its targetId set to "${edge.targetId}". This field can't be targeted because its field.in value is set to false.`,
+            );
     });
 
     return treeOut;
