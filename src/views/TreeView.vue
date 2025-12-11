@@ -6,49 +6,43 @@ import type { NodeTreeInput } from '@/types/NodeTree/node-tree-input';
 import { parseNodeTree } from '@/composable/NodeTree/parseNodeTree';
 import exampleJson from '@/../test/composable/NodeTree/fixtures/validExampleShort.json';
 
+const example = exampleJson as NodeTreeInput;
+const tree: Ref<NodeTree<unknown, unknown>> = ref(parseNodeTree(example));
+
+console.log(tree.value);
+
 const isDragging = ref(false);
 const currentNodeId = ref<string | null>(null);
 const startPos = ref<Position>({ x: 0, y: 0 });
-const nodePositions = ref<Record<string, Position>>({
-    node1: { x: 50, y: 50 },
-    node2: { x: 300, y: 300 },
-    node3: { x: 100, y: 500 },
-});
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function mouseDown(event: MouseEvent, nodeId: string) {
     isDragging.value = true;
     currentNodeId.value = nodeId;
-    if (!nodePositions.value[nodeId]) {
-        console.error(`Node with id ${nodeId} not found!`);
-        return;
-    }
+    const node = tree.value.nodes.find((node) => node.id === nodeId);
+    if (node === undefined) throw new Error('id didnt find node');
     startPos.value = {
-        x: event.clientX - nodePositions.value[nodeId].x,
-        y: event.clientY - nodePositions.value[nodeId].y,
+        x: event.clientX - node.position.x,
+        y: event.clientY - node.position.y,
     };
     event.preventDefault(); // Prevent text selection
 }
 
 function mouseMove(event: MouseEvent) {
     if (!isDragging.value || !currentNodeId.value) return;
-
     const nodeId = currentNodeId.value;
-    nodePositions.value[nodeId] = {
-        x: event.clientX - startPos.value.x,
-        y: event.clientY - startPos.value.y,
-    };
+    const node = tree.value.nodes.find((node) => node.id === nodeId);
+    if (node) {
+        node.position = {
+            x: event.clientX - startPos.value.x, // Use startPos.x (offset)
+            y: event.clientY - startPos.value.y, // Use startPos.y (offset)
+        };
+    }
 }
 
 function mouseUp() {
     isDragging.value = false;
     currentNodeId.value = null;
 }
-
-console.log(exampleJson);
-const example = exampleJson as NodeTreeInput;
-const tree: Ref<NodeTree> = ref(parseNodeTree(example));
-console.log(tree.value);
 </script>
 
 <template>
@@ -58,15 +52,11 @@ console.log(tree.value);
         @mouseup="mouseUp"
         @mouseleave="mouseUp"
     >
-        <!-- <NetworkNode
-            @mousedown.left="(e: MouseEvent) => mouseDown(e, 'node1')"
-            :style="{
-                position: 'absolute',
-                left: `${nodePositions.node1?.x}px`,
-                top: `${nodePositions.node1?.y}px`,
-                zIndex: currentNodeId === 'node1' ? 10 : 1,
-            }"
-        /> -->
-        <NetworkNode v-for="(node, index) in tree.nodes" :key="index" :node="node" />
+        <NetworkNode
+            v-for="(node, index) in tree.nodes"
+            :key="index"
+            :node="node"
+            @mousedown.left="(e: MouseEvent) => mouseDown(e, node.id)"
+        />
     </div>
 </template>

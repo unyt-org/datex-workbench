@@ -1,13 +1,6 @@
 <script setup lang="ts">
-import {
-    Card,
-    CardAction,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import type { Node } from '@/types/NodeTree/node-tree';
 
 const props = defineProps<{
@@ -26,13 +19,17 @@ const props = defineProps<{
         <CardHeader>
             <CardTitle>{{ props.node.name }}</CardTitle>
             <CardDescription>id {{ props.node.id }}</CardDescription>
-            <CardAction>Card Action</CardAction>
+            <!-- <CardAction>Card Action</CardAction> -->
         </CardHeader>
         <CardContent>
-            <p>some more data</p>
+            <Table>
+                <TableBody>
+                    <TableRow v-for="(field, index) in node.fields" :key="index">
+                        <TableCell class="w-1/2">id: {{ field.id }}</TableCell>
+                        <TableCell class="w-1/2">und so</TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
         </CardContent>
-        <CardFooter>
-            <p>Card Footer</p>
-        </CardFooter>
     </Card>
 </template>
