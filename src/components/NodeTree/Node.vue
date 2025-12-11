@@ -10,7 +10,7 @@ const props = defineProps<{
 
 <template>
     <Card
-        class="absolute w-xs"
+        class="absolute w-xs pb-0"
         :style="{
             left: `${node.position.x}px`,
             top: `${node.position.y}px`,
@@ -21,12 +21,14 @@ const props = defineProps<{
             <CardDescription>id {{ props.node.id }}</CardDescription>
             <!-- <CardAction>Card Action</CardAction> -->
         </CardHeader>
-        <CardContent>
+        <CardContent class="px-0">
             <Table>
                 <TableBody>
                     <TableRow v-for="(field, index) in node.fields" :key="index">
-                        <TableCell class="w-1/2">id: {{ field.id }}</TableCell>
-                        <TableCell class="w-1/2">und so</TableCell>
+                        <TableCell class="w-1/2">{{
+                            field.name ? field.name : 'no name'
+                        }}</TableCell>
+                        <TableCell class="w-1/2 text-right">id: {{ field.id }}</TableCell>
                     </TableRow>
                 </TableBody>
             </Table>
