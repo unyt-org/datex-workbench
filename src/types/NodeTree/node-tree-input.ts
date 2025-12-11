@@ -1,16 +1,16 @@
 export interface NodeTreeInput<NodeMetaData = unknown, EdgeMetaData = unknown> {
-    nodes?: Array<Node<NodeMetaData>>;
-    edges?: Array<Edge<EdgeMetaData>>;
+    nodes?: Array<NodeInput<NodeMetaData>>;
+    edges?: Array<EdgeInput<EdgeMetaData>>;
 }
 
-export interface Node<NodeMetaData = unknown> {
+export interface NodeInput<NodeMetaData = unknown> {
     id?: string;
     name?: string;
     position?: Position;
-    fields?: Array<NodeField<NodeMetaData>>;
+    fields?: Array<NodeFieldInput<NodeMetaData>>;
 }
 
-export interface NodeField<NodeMetaData = unknown> {
+export interface NodeFieldInput<NodeMetaData = unknown> {
     id?: string;
     name?: string;
     in?: boolean;
@@ -23,7 +23,7 @@ export interface Position {
     y?: number;
 }
 
-export interface Edge<EdgeMetaData = unknown> {
+export interface EdgeInput<EdgeMetaData = unknown> {
     id?: string;
     sourceId: string;
     targetId: string;

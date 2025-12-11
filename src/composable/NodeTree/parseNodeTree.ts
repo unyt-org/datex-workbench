@@ -4,7 +4,7 @@ import type { NodeTreeInput } from '@/types/NodeTree/node-tree-input';
 export const maxXPosition = 700;
 export const maxYPosition = 600;
 
-export function parseNodeTree(treeIn: NodeTreeInput ): NodeTree {
+export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
     if (typeof treeIn !== 'object' || treeIn === null || treeIn === undefined) {
         throw new Error('Invalid NodeTree JSON');
     }
@@ -62,7 +62,7 @@ export function parseNodeTree(treeIn: NodeTreeInput ): NodeTree {
 
     treeOut.nodes.map((node) => {
         if (node.name === undefined || node.name === '') {
-            throw new Error('edge wthout name provided');
+            node.name = undefined;
         }
 
         correctId(node);
@@ -79,6 +79,8 @@ export function parseNodeTree(treeIn: NodeTreeInput ): NodeTree {
         if (node.position.y < 0) node.position.y = 0;
         if (node.position.x > maxXPosition) node.position.x = maxXPosition;
         if (node.position.y > maxYPosition) node.position.y = maxYPosition;
+
+        node.fields = node.fields ?? [];
 
         node.fields?.map((field) => {
             field.name = field.name ?? 'name not defined';
@@ -108,23 +110,23 @@ export function parseNodeTree(treeIn: NodeTreeInput ): NodeTree {
             );
         }
 
-        // check if the field that source or target points to has its in/out value set to true
-        if (
-            !treeOut.nodes.some((node) =>
-                node.fields?.some((field) => field.id === edge.sourceId && field.out === true),
-            )
-        )
-            throw new Error(
-                `The edge with id "${edge.id}" has its sourceId set to "${edge.sourceId}". This field can't be sourced from because its field.out value is set to false.`,
-            );
-        if (
-            !treeOut.nodes.some((node) =>
-                node.fields?.some((field) => field.id === edge.targetId && field.in === true),
-            )
-        )
-            throw new Error(
-                `The edge with id "${edge.id}" has its targetId set to "${edge.targetId}". This field can't be targeted because its field.in value is set to false.`,
-            );
+        // // check if the field that source or target points to has its in/out value set to true
+        // if (
+        //     !treeOut.nodes.some((node) =>
+        //         node.fields?.some((field) => field.id === edge.sourceId && field.out === true),
+        //     )
+        // )
+        //     throw new Error(
+        //         `The edge with id "${edge.id}" has its sourceId set to "${edge.sourceId}". This field can't be sourced from because its field.out value is set to false.`,
+        //     );
+        // if (
+        //     !treeOut.nodes.some((node) =>
+        //         node.fields?.some((field) => field.id === edge.targetId && field.in === true),
+        //     )
+        // )
+        //     throw new Error(
+        //         `The edge with id "${edge.id}" has its targetId set to "${edge.targetId}". This field can't be targeted because its field.in value is set to false.`,
+        //     );
     });
 
     return treeOut;
