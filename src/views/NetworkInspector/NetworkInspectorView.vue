@@ -104,8 +104,8 @@ const tableRows = computed(() => {
                         <TableHead class="w-16">Dir</TableHead>
                         <TableHead>Type</TableHead>
                         <TableHead>Endpoint</TableHead>
-                        <TableHead>Time</TableHead>
-                        <TableHead class="w-24 text-right">Size</TableHead>
+                        <TableHead class="w-32">Time</TableHead>
+                        <TableHead class="w-36 text-right">Size</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -114,15 +114,33 @@ const tableRows = computed(() => {
                             No blocks captured yet. Click "Simulate Block" to test.
                         </TableCell>
                     </TableRow>
-                    <TableRow v-for="(row, index) in tableRows" :key="index">
-                        <TableCell>
-                            <ArrowLeft v-if="row.direction === 'in'" class="h-4 w-4" />
-                            <ArrowRight v-else class="h-4 w-4" />
+                    <TableRow v-for="(row, index) in tableRows" :key="index" class="group">
+                        <TableCell class="p-2">
+                            <div class="flex items-center justify-center gap-2 rounded-md bg-[#212731] px-3 py-2 transition-colors group-hover:bg-[#2d333d]">
+                                <ArrowLeft v-if="row.direction === 'in'" class="h-4 w-4" />
+                                <ArrowRight v-else class="h-4 w-4" />
+                            </div>
                         </TableCell>
-                        <TableCell class="font-medium">{{ row.blockType }}</TableCell>
-                        <TableCell>{{ row.endpoint }}</TableCell>
-                        <TableCell>{{ row.timestamp }}</TableCell>
-                        <TableCell class="text-right">{{ row.size }} bytes</TableCell>
+                        <TableCell class="p-2">
+                            <div class="flex items-center rounded-md bg-[#212731] px-3 py-2 font-medium uppercase transition-colors group-hover:bg-[#2d333d]">
+                                {{ row.blockType }}
+                            </div>
+                        </TableCell>
+                        <TableCell class="p-2">
+                            <div class="flex items-center rounded-md bg-[#212731] px-3 py-2 transition-colors group-hover:bg-[#2d333d]">
+                                {{ row.endpoint }}
+                            </div>
+                        </TableCell>
+                        <TableCell class="p-2">
+                            <div class="flex items-center rounded-md bg-[#212731] px-3 py-2 transition-colors group-hover:bg-[#2d333d]">
+                                {{ row.timestamp }}
+                            </div>
+                        </TableCell>
+                        <TableCell class="p-2">
+                            <div class="flex items-center justify-end whitespace-nowrap rounded-md bg-[#212731] px-3 py-2 transition-colors group-hover:bg-[#2d333d]">
+                                {{ row.size }} bytes
+                            </div>
+                        </TableCell>
                     </TableRow>
                 </TableBody>
             </Table>
