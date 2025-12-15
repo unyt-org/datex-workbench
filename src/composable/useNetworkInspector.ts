@@ -1,13 +1,16 @@
 import { Datex } from '@/lib/runtime';
 import { parseStructure } from '@unyt/speck';
 import { BaseInterfaceImpl, type BaseInterfaceSetupData } from '@unyt/datex/network/interface-impls/base';
-
+import { ref } from 'vue';
+import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
 
 const definition = await (
     await fetch(
         'https://raw.githubusercontent.com/unyt-org/datex-specification/refs/heads/main/assets/structures/dxb.json',
     )
 ).json();
+
+const blocks = ref<RawBlockEntry[]>([]);
 
 const config: BaseInterfaceSetupData = {
     name: "base",
@@ -47,11 +50,20 @@ function sendTestBlock() {
 }
 
 Datex.comHub.registerIncomingBlockInterceptor((block: Uint8Array, socket_uuid: string) => {
-    console.log(parseStructure(definition, block), socket_uuid);
+    const parsedBlock = parseStructure(definition, block);
+    console.log(parsedBlock, socket_uuid);
+    
+    blocks.value.push({
+        direction: 'in',
+        parsedBlock,
+        socketUuid: socket_uuid,
+        capturedAt: Date.now(),
+    });
 });
 
 export function useNetworkInspector() {
     return {
         sendTestBlock,
+        blocks,
     };
 }
