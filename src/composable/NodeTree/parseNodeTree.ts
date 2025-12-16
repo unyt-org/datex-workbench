@@ -21,44 +21,35 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
         tree.edges = [];
     }
 
-    const nodeAndFieldIds: string[] = [];
+    const nodeIds: string[] = [];
+    const fieldIds: string[] = [];
     const edgeIds: string[] = [];
 
     function generateUniqueId(): string {
         let rand = (Math.random() + 1).toString(36).split('.')[1];
-        if (rand === undefined || nodeAndFieldIds.includes(rand) || edgeIds.includes(rand))
+        if (
+            rand === undefined ||
+            nodeIds.includes(rand) ||
+            fieldIds.includes(rand) ||
+            edgeIds.includes(rand)
+        )
             rand = generateUniqueId();
         return rand;
     }
 
-    function correctId(item: NodeInput | NodeFieldInput) {
+    function checkId(item: NodeInput | NodeFieldInput | EdgeInput, ids: string[]) {
         if (item.id === undefined || item.id === '') {
             const id = generateUniqueId();
-            nodeAndFieldIds.push(id);
+            ids.push(id);
             item.id = id;
             return;
         }
-        if (nodeAndFieldIds.includes(item.id) || edgeIds.includes(item.id)) {
+        if (nodeIds.includes(item.id) || fieldIds.includes(item.id) || edgeIds.includes(item.id)) {
             throw new Error(
-                `The provided NodeTree has the value with id "${item.id}" at node/field "${item.name}" at least twice`,
+                `The provided NodeTree has the value with id "${item.id}" at least twice.`,
             );
         }
-        nodeAndFieldIds.push(item.id);
-    }
-
-    function correctEdgeId(edge: EdgeInput) {
-        if (edge.id === undefined || edge.id === '') {
-            const id = generateUniqueId();
-            edgeIds.push(id);
-            edge.id = id;
-            return;
-        }
-        if (nodeAndFieldIds.includes(edge.id) || edgeIds.includes(edge.id)) {
-            throw new Error(
-                `The provided NodeTree has the value with id "${edge.id}" at least twice.`,
-            );
-        }
-        edgeIds.push(edge.id);
+        ids.push(item.id);
     }
 
     tree.nodes.map((node) => {
@@ -66,7 +57,8 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
             node.name = undefined;
         }
 
-        correctId(node);
+        checkId(node, nodeIds);
+        // correctId(node);
 
         node.position = node.position ?? {
             x: Math.floor(Math.random() * maxXPosition),
@@ -86,7 +78,8 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
         node.fields.map((field) => {
             field.name = field.name ?? 'name not defined';
 
-            correctId(field);
+            checkId(field, fieldIds);
+            // correctId(field);
 
             if (typeof field.in !== 'boolean') {
                 field.in = true;
@@ -98,7 +91,8 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
     });
 
     tree.edges.map((edge) => {
-        correctEdgeId(edge);
+        checkId(edge, edgeIds);
+        // correctEdgeId(edge);
 
         // if (edge.source.kind === 'field') {
         //     // check if the field id matches with any field
@@ -123,12 +117,12 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
         //     }
         // }
 
-        if (!nodeAndFieldIds.includes(edge.sourceId)) {
+        if (!nodeIds.includes(edge.sourceId) && !fieldIds.includes(edge.sourceId)) {
             throw new Error(
                 `source ${edge.sourceId} of edge with id ${edge.id} does not exist in any node or field.`,
             );
         }
-        if (!nodeAndFieldIds.includes(edge.targetId)) {
+        if (!nodeIds.includes(edge.targetId) && !fieldIds.includes(edge.targetId)) {
             throw new Error(
                 `target ${edge.targetId} of  edge with id ${edge.id} does not exist in any node or field.`,
             );

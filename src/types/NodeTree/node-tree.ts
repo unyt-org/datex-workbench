@@ -33,6 +33,8 @@ export interface Edge<EdgeMetaData = unknown> {
     data?: EdgeMetaData;
 }
 
+export type Connector = NodeConnector | FieldConnector;
+
 export interface NodeConnector {
     kind: 'node';
     nodeId: string;
@@ -43,7 +45,5 @@ export interface FieldConnector {
     nodeId: string;
     fieldId: string;
 }
-
-export type Connector = NodeConnector | FieldConnector;
 
 export type EdgeType = string;

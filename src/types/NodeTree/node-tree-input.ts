@@ -33,6 +33,8 @@ export interface EdgeInput<EdgeMetaData = unknown> {
     data?: EdgeMetaData;
 }
 
+export type ConnectorInput = NodeConnectorInput | FieldConnectorInput;
+
 export interface NodeConnectorInput {
     kind?: 'node';
     nodeId: string;
@@ -43,7 +45,5 @@ export interface FieldConnectorInput {
     nodeId?: string;
     fieldId: string;
 }
-
-export type ConnectorInput = NodeConnectorInput | FieldConnectorInput;
 
 export type EdgeType = string;
