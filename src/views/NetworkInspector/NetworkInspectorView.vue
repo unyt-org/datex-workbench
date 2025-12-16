@@ -9,6 +9,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { ArrowLeft, ArrowRight } from 'lucide-vue-next';
 import { computed } from 'vue';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
@@ -98,52 +104,53 @@ const tableRows = computed(() => {
         </div>
 
         <div class="flex-1 overflow-auto rounded-lg border">
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead class="w-16">Dir</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Endpoint</TableHead>
-                        <TableHead class="w-32">Time</TableHead>
-                        <TableHead class="w-36 text-right">Size</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    <TableRow v-if="tableRows.length === 0">
-                        <TableCell colspan="5" class="text-center text-muted-foreground">
-                            No blocks captured yet. Click "Simulate Block" to test.
-                        </TableCell>
-                    </TableRow>
-                    <TableRow v-for="(row, index) in tableRows" :key="index" class="group">
-                        <TableCell class="p-2">
-                            <div class="flex items-center justify-center gap-2 rounded-md bg-[#212731] px-3 py-2 transition-colors group-hover:bg-[#2d333d]">
-                                <ArrowLeft v-if="row.direction === 'in'" class="h-4 w-4" />
-                                <ArrowRight v-else class="h-4 w-4" />
-                            </div>
-                        </TableCell>
-                        <TableCell class="p-2">
-                            <div class="flex items-center rounded-md bg-[#212731] px-3 py-2 font-medium uppercase transition-colors group-hover:bg-[#2d333d]">
+            <TooltipProvider>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead class="w-16">Dir</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead class="w-64">Endpoint</TableHead>
+                            <TableHead class="w-32">Time</TableHead>
+                            <TableHead class="w-36">Size</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        <TableRow v-if="tableRows.length === 0">
+                            <TableCell colspan="5" class="text-center text-muted-foreground">
+                                No blocks captured yet. Click "Simulate Block" to test.
+                            </TableCell>
+                        </TableRow>
+                        <TableRow v-for="(row, index) in tableRows" :key="index">
+                            <TableCell>
+                                <ArrowLeft v-if="row.direction === 'in'" class="inline-block h-4 w-4 text-green-500" />
+                                <ArrowRight v-else class="inline-block h-4 w-4 text-orange-500" />
+                            </TableCell>
+                            <TableCell class="font-medium uppercase">
                                 {{ row.blockType }}
-                            </div>
-                        </TableCell>
-                        <TableCell class="p-2">
-                            <div class="flex items-center rounded-md bg-[#212731] px-3 py-2 transition-colors group-hover:bg-[#2d333d]">
-                                {{ row.endpoint }}
-                            </div>
-                        </TableCell>
-                        <TableCell class="p-2">
-                            <div class="flex items-center rounded-md bg-[#212731] px-3 py-2 transition-colors group-hover:bg-[#2d333d]">
+                            </TableCell>
+                            <TableCell class="text-blue-400">
+                                <Tooltip>
+                                    <TooltipTrigger as-child>
+                                        <div class="max-w-64 cursor-default truncate">
+                                            {{ row.endpoint }}
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p class="max-w-sm break-words">{{ row.endpoint }}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TableCell>
+                            <TableCell>
                                 {{ row.timestamp }}
-                            </div>
-                        </TableCell>
-                        <TableCell class="p-2">
-                            <div class="flex items-center justify-end whitespace-nowrap rounded-md bg-[#212731] px-3 py-2 transition-colors group-hover:bg-[#2d333d]">
+                            </TableCell>
+                            <TableCell class="whitespace-nowrap">
                                 {{ row.size }} bytes
-                            </div>
-                        </TableCell>
-                    </TableRow>
-                </TableBody>
-            </Table>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </TooltipProvider>
         </div>
     </div>
 </template>
