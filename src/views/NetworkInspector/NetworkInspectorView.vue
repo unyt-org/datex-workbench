@@ -15,7 +15,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { ArrowLeft, ArrowRight, LockOpen } from 'lucide-vue-next';
+import { ArrowLeft, ArrowRight, LockOpen, FileX } from 'lucide-vue-next';
 import { computed } from 'vue';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
 import type { ParsedSection, FieldDefinition } from '@unyt/speck';
@@ -86,6 +86,17 @@ function getEncryptionType(parsedBlock: ParsedSection[]): string {
     return encryptionType?.parsedValue?.toString() || 'Unknown';
 }
 
+function getSignatureType(parsedBlock: ParsedSection[]): string {
+    const routingHeader = parsedBlock.find((section) => section.name === 'Routing Header');
+    if (!routingHeader) return 'Unknown';
+
+    const flags = routingHeader.fields.find((field) => field.name === 'Flags');
+    if (!flags?.subFields) return 'Unknown';
+
+    const signatureType = flags.subFields.find((field) => field.name === 'Signature Type');
+    return signatureType?.parsedValue?.toString() || 'Unknown';
+}
+
 // Format bytes with compact notation
 const byteFormatter = new Intl.NumberFormat('en', {
     notation: 'compact',
@@ -108,6 +119,7 @@ const tableRows = computed(() => {
         const size = getBlockSize(block.parsedBlock);
 
         const encryptionType = getEncryptionType(block.parsedBlock);
+        const signatureType = getSignatureType(block.parsedBlock);
 
         return {
             direction: block.direction,
@@ -116,6 +128,8 @@ const tableRows = computed(() => {
             timestamp: timestamp === 0 ? new Date(block.capturedAt).toLocaleTimeString() : new Date(timestamp).toLocaleTimeString(),
             size,
             isEncrypted: encryptionType !== 'None' && encryptionType !== 'Unknown',
+            isSigned: signatureType !== 'None' && signatureType !== 'Unknown',
+            interface: 'base', // TODO: Make dynamic based on actual interface
             capturedAt: block.capturedAt,
         };
     });
@@ -135,7 +149,7 @@ const tableRows = computed(() => {
                     <TableHeader>
                         <TableRow>
                             <TableHead class="w-16">Dir</TableHead>
-                            <TableHead class="w-12"></TableHead>
+                            <TableHead class="w-20">If</TableHead>
                             <TableHead>Type</TableHead>
                             <TableHead class="w-64">Endpoint</TableHead>
                             <TableHead class="w-32">Time</TableHead>
@@ -153,20 +167,33 @@ const tableRows = computed(() => {
                                 <ArrowLeft v-if="row.direction === 'in'" class="inline-block h-4 w-4 text-green-500" />
                                 <ArrowRight v-else class="inline-block h-4 w-4 text-orange-500" />
                             </TableCell>
-                            <TableCell>
-                                <Tooltip v-if="!row.isEncrypted">
-                                    <TooltipTrigger as-child>
-                                        <div class="inline-block cursor-default">
-                                            <LockOpen class="h-4 w-4 text-muted-foreground line-through" />
-                                        </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p>Not encrypted</p>
-                                    </TooltipContent>
-                                </Tooltip>
+                            <TableCell class="text-muted-foreground">
+                                {{ row.interface }}
                             </TableCell>
-                            <TableCell class="font-medium uppercase">
-                                {{ row.blockType }}
+                            <TableCell>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-medium uppercase">{{ row.blockType }}</span>
+                                    <Tooltip v-if="!row.isEncrypted">
+                                        <TooltipTrigger as-child>
+                                            <div class="inline-block cursor-default">
+                                                <LockOpen class="h-4 w-4 text-muted-foreground line-through" />
+                                            </div>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Not encrypted</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                    <Tooltip v-if="!row.isSigned">
+                                        <TooltipTrigger as-child>
+                                            <div class="inline-block cursor-default">
+                                                <FileX class="h-4 w-4 text-muted-foreground" />
+                                            </div>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Not signed</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </div>
                             </TableCell>
                             <TableCell class="text-blue-400">
                                 <Tooltip>
