@@ -75,6 +75,18 @@ function getBlockSize(parsedBlock: ParsedSection[]): number {
     return Number(blockSize?.parsedValue) || 0;
 }
 
+// Format bytes with compact notation
+const byteFormatter = new Intl.NumberFormat('en', {
+    notation: 'compact',
+    style: 'unit',
+    unit: 'byte',
+    unitDisplay: 'narrow',
+});
+
+function formatBytes(bytes: number): string {
+    return byteFormatter.format(bytes);
+}
+
 // Computed property to transform raw blocks into table rows
 const tableRows = computed(() => {
     return blocks.value.map((block) => {
@@ -145,7 +157,7 @@ const tableRows = computed(() => {
                                 {{ row.timestamp }}
                             </TableCell>
                             <TableCell class="whitespace-nowrap">
-                                {{ row.size }} bytes
+                                {{ formatBytes(row.size) }}
                             </TableCell>
                         </TableRow>
                     </TableBody>
