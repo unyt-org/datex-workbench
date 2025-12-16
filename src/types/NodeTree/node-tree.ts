@@ -27,8 +27,23 @@ export interface Edge<EdgeMetaData = unknown> {
     id: string;
     sourceId: string;
     targetId: string;
+    source: Connector;
+    target: Connector;
     edgetype: EdgeType;
     data?: EdgeMetaData;
 }
+
+export interface NodeConnector {
+    kind: 'node';
+    nodeId: string;
+}
+
+export interface FieldConnector {
+    kind: 'field';
+    nodeId: string;
+    fieldId: string;
+}
+
+export type Connector = NodeConnector | FieldConnector;
 
 export type EdgeType = string;

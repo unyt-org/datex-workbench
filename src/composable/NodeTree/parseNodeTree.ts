@@ -1,5 +1,10 @@
-import type { Edge, Node, NodeField, NodeTree } from '@/types/NodeTree/node-tree';
-import type { NodeTreeInput } from '@/types/NodeTree/node-tree-input';
+import type { NodeTree } from '@/types/NodeTree/node-tree';
+import type {
+    NodeTreeInput,
+    NodeInput,
+    NodeFieldInput,
+    EdgeInput,
+} from '@/types/NodeTree/node-tree-input';
 
 export const maxXPosition = 700;
 export const maxYPosition = 600;
@@ -8,15 +13,13 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
     if (typeof treeIn !== 'object' || treeIn === null || treeIn === undefined) {
         throw new Error('Invalid NodeTree JSON');
     }
-    const tree = treeIn as NodeTree;
+    const tree = structuredClone(treeIn);
     if (tree.nodes === undefined) {
         tree.nodes = [];
     }
     if (tree.edges === undefined) {
         tree.edges = [];
     }
-
-    const treeOut: NodeTree = structuredClone(tree);
 
     const nodeAndFieldIds: string[] = [];
     const edgeIds: string[] = [];
@@ -28,7 +31,7 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
         return rand;
     }
 
-    function correctId(item: Node | NodeField) {
+    function correctId(item: NodeInput | NodeFieldInput) {
         if (item.id === undefined || item.id === '') {
             const id = generateUniqueId();
             nodeAndFieldIds.push(id);
@@ -43,7 +46,7 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
         nodeAndFieldIds.push(item.id);
     }
 
-    function correctEdgeId(edge: Edge) {
+    function correctEdgeId(edge: EdgeInput) {
         if (edge.id === undefined || edge.id === '') {
             const id = generateUniqueId();
             edgeIds.push(id);
@@ -58,7 +61,7 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
         edgeIds.push(edge.id);
     }
 
-    treeOut.nodes.map((node) => {
+    tree.nodes.map((node) => {
         if (node.name === undefined || node.name === '') {
             node.name = undefined;
         }
@@ -94,8 +97,31 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
         });
     });
 
-    treeOut.edges.map((edge) => {
+    tree.edges.map((edge) => {
         correctEdgeId(edge);
+
+        // if (edge.source.kind === 'field') {
+        //     // check if the field id matches with any field
+        //     // if so on, go to see if there is a nodeId already provided
+        //     // if not, infer the nodeId from the found field
+        //     // if yes, check if the nodId also matches with the one from the found field
+        // }
+
+        // if (edge.source.kind === 'node') {
+        //     // check if the provided nodeId matches with any of the nodes
+        // }
+
+        // if (edge.source.kind === undefined) {
+        //     if ('fieldId' in edge.source) {
+        //         // do all the checks similar to the way we did when kind was set to 'field'
+        //     } else if ('nodeId' in edge.source) {
+        //         // check the same way we checked when kind was set to 'node'
+        //     } else {
+        //         throw new Error(
+        //             `no kind or fieldId or nodeId provided for source of edge ${edge.id}`,
+        //         );
+        //     }
+        // }
 
         if (!nodeAndFieldIds.includes(edge.sourceId)) {
             throw new Error(
@@ -108,7 +134,10 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
             );
         }
 
-        const fieldsArray = treeOut.nodes.map((node) => node.fields).flat();
+        if (tree === undefined || tree.nodes === undefined) {
+            return;
+        }
+        const fieldsArray = tree.nodes.map((node) => node.fields).flat();
 
         if (fieldsArray.some((field) => field.id === edge.sourceId && field.out === false))
             throw new Error(
@@ -120,6 +149,8 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
                 `The edge with id "${edge.id}" has its targetId set to "${edge.targetId}". This field can't be targeted because its field.in value is set to false.`,
             );
     });
+
+    const treeOut = tree as NodeTree;
 
     return treeOut;
 }
