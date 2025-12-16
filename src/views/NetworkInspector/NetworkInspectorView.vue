@@ -15,7 +15,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { ArrowLeft, ArrowRight } from 'lucide-vue-next';
+import { ArrowLeft, ArrowRight, LockOpen } from 'lucide-vue-next';
 import { computed } from 'vue';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
 import type { ParsedSection, FieldDefinition } from '@unyt/speck';
@@ -75,6 +75,17 @@ function getBlockSize(parsedBlock: ParsedSection[]): number {
     return Number(blockSize?.parsedValue) || 0;
 }
 
+function getEncryptionType(parsedBlock: ParsedSection[]): string {
+    const routingHeader = parsedBlock.find((section) => section.name === 'Routing Header');
+    if (!routingHeader) return 'Unknown';
+
+    const flags = routingHeader.fields.find((field) => field.name === 'Flags');
+    if (!flags?.subFields) return 'Unknown';
+
+    const encryptionType = flags.subFields.find((field) => field.name === 'Encryption Type');
+    return encryptionType?.parsedValue?.toString() || 'Unknown';
+}
+
 // Format bytes with compact notation
 const byteFormatter = new Intl.NumberFormat('en', {
     notation: 'compact',
@@ -96,12 +107,15 @@ const tableRows = computed(() => {
         const timestamp = getTimestamp(block.parsedBlock);
         const size = getBlockSize(block.parsedBlock);
 
+        const encryptionType = getEncryptionType(block.parsedBlock);
+
         return {
             direction: block.direction,
             blockType,
             endpoint: block.direction === 'in' ? sender : receivers.join(', '),
             timestamp: timestamp === 0 ? new Date(block.capturedAt).toLocaleTimeString() : new Date(timestamp).toLocaleTimeString(),
             size,
+            isEncrypted: encryptionType !== 'None' && encryptionType !== 'Unknown',
             capturedAt: block.capturedAt,
         };
     });
@@ -121,6 +135,7 @@ const tableRows = computed(() => {
                     <TableHeader>
                         <TableRow>
                             <TableHead class="w-16">Dir</TableHead>
+                            <TableHead class="w-12"></TableHead>
                             <TableHead>Type</TableHead>
                             <TableHead class="w-64">Endpoint</TableHead>
                             <TableHead class="w-32">Time</TableHead>
@@ -129,7 +144,7 @@ const tableRows = computed(() => {
                     </TableHeader>
                     <TableBody>
                         <TableRow v-if="tableRows.length === 0">
-                            <TableCell colspan="5" class="text-center text-muted-foreground">
+                            <TableCell colspan="6" class="text-center text-muted-foreground">
                                 No blocks captured yet. Click "Simulate Block" to test.
                             </TableCell>
                         </TableRow>
@@ -137,6 +152,18 @@ const tableRows = computed(() => {
                             <TableCell>
                                 <ArrowLeft v-if="row.direction === 'in'" class="inline-block h-4 w-4 text-green-500" />
                                 <ArrowRight v-else class="inline-block h-4 w-4 text-orange-500" />
+                            </TableCell>
+                            <TableCell>
+                                <Tooltip v-if="!row.isEncrypted">
+                                    <TooltipTrigger as-child>
+                                        <div class="inline-block cursor-default">
+                                            <LockOpen class="h-4 w-4 text-muted-foreground line-through" />
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Not encrypted</p>
+                                    </TooltipContent>
+                                </Tooltip>
                             </TableCell>
                             <TableCell class="font-medium uppercase">
                                 {{ row.blockType }}
