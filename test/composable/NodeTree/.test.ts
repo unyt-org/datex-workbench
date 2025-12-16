@@ -267,14 +267,6 @@ describe('parseNodeTree', () => {
         });
 
         test.each([
-            // this first one might be changed depending on if we want the parseFunction to infer that a field is being sourced from or targeted
-            {
-                input: {
-                    nodes: [{ fields: [{ id: 'def' }] }, { fields: [{ id: 'ghi' }] }],
-                    edges: [{ id: 'abc', sourceId: 'def', targetId: 'ghi' }],
-                },
-                description: 'sourceId and targetId point to field without in/out values',
-            },
             {
                 input: {
                     nodes: [

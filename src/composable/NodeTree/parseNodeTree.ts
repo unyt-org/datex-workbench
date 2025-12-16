@@ -86,10 +86,10 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
             correctId(field);
 
             if (typeof field.in !== 'boolean') {
-                field.in = false;
+                field.in = true;
             }
             if (typeof field.out !== 'boolean') {
-                field.out = false;
+                field.out = true;
             }
         });
     });
