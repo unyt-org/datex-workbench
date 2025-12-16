@@ -30,10 +30,10 @@ function getBlockType(parsedBlock: ParsedSection[]): string {
     const flagsAndTimestamp = blockHeader.fields.find(
         (field) => field.name === 'Flags and Timestamp',
     );
-    if (!flagsAndTimestamp?.subFields) return 'Unknown';
+    if (!flagsAndTimestamp || !('subFields' in flagsAndTimestamp)) return 'Unknown';
 
-    const blockType = flagsAndTimestamp.subFields.find((field) => field.name === 'Block Type');
-    return blockType?.parsedValue?.toString() || 'Unknown';
+    const blockType = flagsAndTimestamp.subFields.find((field: any) => field.name === 'Block Type');
+    return (blockType && 'parsedValue' in blockType) ? blockType.parsedValue?.toString() || 'Unknown' : 'Unknown';
 }
 
 function getSender(parsedBlock: ParsedSection[]): string {
@@ -41,7 +41,7 @@ function getSender(parsedBlock: ParsedSection[]): string {
     if (!routingHeader) return 'Unknown';
 
     const sender = routingHeader.fields.find((field) => field.name === 'Sender');
-    return sender?.parsedValue?.toString() || 'Unknown';
+    return (sender && 'parsedValue' in sender) ? sender.parsedValue?.toString() || 'Unknown' : 'Unknown';
 }
 
 function getReceivers(parsedBlock: ParsedSection[]): string[] {
@@ -49,7 +49,7 @@ function getReceivers(parsedBlock: ParsedSection[]): string[] {
     if (!routingHeader) return [];
 
     const receivers = routingHeader.fields.filter((field) => field.name === 'Receivers');
-    return receivers.map((field) => field.parsedValue?.toString() || '');
+    return receivers.map((field) => ('parsedValue' in field) ? field.parsedValue?.toString() || '' : '');
 }
 
 function getTimestamp(parsedBlock: ParsedSection[]): number {
@@ -59,12 +59,12 @@ function getTimestamp(parsedBlock: ParsedSection[]): number {
     const flagsAndTimestamp = blockHeader.fields.find(
         (field) => field.name === 'Flags and Timestamp',
     );
-    if (!flagsAndTimestamp?.subFields) return 0;
+    if (!flagsAndTimestamp || !('subFields' in flagsAndTimestamp)) return 0;
 
     const timestamp = flagsAndTimestamp.subFields.find(
         (field) => field.name === 'Creation Timestamp',
     );
-    return Number(timestamp?.parsedValue) || 0;
+    return (timestamp && 'parsedValue' in timestamp) ? Number(timestamp.parsedValue) || 0 : 0;
 }
 
 function getBlockSize(parsedBlock: ParsedSection[]): number {
@@ -72,7 +72,7 @@ function getBlockSize(parsedBlock: ParsedSection[]): number {
     if (!routingHeader) return 0;
 
     const blockSize = routingHeader.fields.find((field) => field.name === 'Block Size');
-    return Number(blockSize?.parsedValue) || 0;
+    return (blockSize && 'parsedValue' in blockSize) ? Number(blockSize.parsedValue) || 0 : 0;
 }
 
 function getEncryptionType(parsedBlock: ParsedSection[]): string {
@@ -80,10 +80,10 @@ function getEncryptionType(parsedBlock: ParsedSection[]): string {
     if (!routingHeader) return 'Unknown';
 
     const flags = routingHeader.fields.find((field) => field.name === 'Flags');
-    if (!flags?.subFields) return 'Unknown';
+    if (!flags || !('subFields' in flags)) return 'Unknown';
 
-    const encryptionType = flags.subFields.find((field) => field.name === 'Encryption Type');
-    return encryptionType?.parsedValue?.toString() || 'Unknown';
+    const encryptionType = flags.subFields.find((field: any) => field.name === 'Encryption Type');
+    return (encryptionType && 'parsedValue' in encryptionType) ? encryptionType.parsedValue?.toString() || 'Unknown' : 'Unknown';
 }
 
 function getSignatureType(parsedBlock: ParsedSection[]): string {
@@ -91,10 +91,10 @@ function getSignatureType(parsedBlock: ParsedSection[]): string {
     if (!routingHeader) return 'Unknown';
 
     const flags = routingHeader.fields.find((field) => field.name === 'Flags');
-    if (!flags?.subFields) return 'Unknown';
+    if (!flags || !('subFields' in flags)) return 'Unknown';
 
-    const signatureType = flags.subFields.find((field) => field.name === 'Signature Type');
-    return signatureType?.parsedValue?.toString() || 'Unknown';
+    const signatureType = flags.subFields.find((field: any) => field.name === 'Signature Type');
+    return (signatureType && 'parsedValue' in signatureType) ? signatureType.parsedValue?.toString() || 'Unknown' : 'Unknown';
 }
 
 // Format bytes with compact notation
