@@ -4,6 +4,8 @@ import type {
     NodeInput,
     NodeFieldInput,
     EdgeInput,
+    FieldConnectorInput,
+    ConnectorInput,
 } from '@/types/NodeTree/node-tree-input';
 
 export const maxXPosition = 700;
@@ -92,55 +94,48 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
     tree.edges.map((edge) => {
         checkId(edge, edgeIds);
 
-        if (edge.source.kind === 'field') {
-            // check if the field id matches with any field
-            // if so on, go to see if there is a nodeId already provided
-            // if not, infer the nodeId from the found field
-            // if yes, check if the nodId also matches with the one from the found field
-        } else if (edge.source.kind === 'node') {
-            // check if the provided nodeId matches with any of the nodes
-        }
+        if (!checkConnector(edge.source))
+            throw new Error(
+                `no correct kind, fieldId or nodeId provided for source of edge ${edge.id}`,
+            );
 
-        if (edge.source.kind === undefined) {
-            if ('fieldId' in edge.source) {
-                // do all the checks similar to the way we did when kind was set to 'field'
-            } else if ('nodeId' in edge.source) {
-                // check the same way we checked when kind was set to 'node'
-            } else {
+        if (!checkConnector(edge.target))
+            throw new Error(
+                `no correct kind, fieldId or nodeId provided for target of edge ${edge.id}`,
+            );
+    });
+
+    function checkConnector(con: ConnectorInput): boolean {
+        if ((con.kind === 'field' && typeof con.fieldId !== 'undefined') || 'fieldId' in con) {
+            // this needs to be cast or otherwise typescript doesn't always recognize that fieldId exists
+            const sourceField = con as FieldConnectorInput;
+            if (!fieldIds.includes(sourceField.fieldId)) {
                 throw new Error(
-                    `no kind or fieldId or nodeId provided for source of edge ${edge.id}`,
+                    'edge source kind is set to "field" but the provided fieldId does not exist as a field',
                 );
             }
+            if (typeof sourceField.nodeId !== 'undefined') {
+                const n = tree.nodes?.find((node) => node.id === sourceField.nodeId);
+                if (!n) throw new Error("the provided nodeId doesn't exist with provided fieldId");
+                if (!n.fields?.some((field) => field.id === sourceField.fieldId))
+                    throw new Error('the provided nodeId doesnt match with provided fieldId');
+            } else {
+                const n = tree.nodes?.find((node) => {
+                    return node.fields?.some((field) => field.id === sourceField.fieldId);
+                });
+                con.nodeId = n?.id;
+            }
+            return true;
         }
-
-        /*
-        if (!nodeIds.includes(edge.sourceId) && !fieldIds.includes(edge.sourceId)) {
-            throw new Error(
-                `source ${edge.sourceId} of edge with id ${edge.id} does not exist in any node or field.`,
-            );
+        if ((con.kind === 'node' && typeof con.nodeId !== 'undefined') || 'nodeId' in con) {
+            if (!nodeIds.includes(con.nodeId))
+                throw new Error(
+                    `the provided node with nodeId ${con.nodeId} doesn't exist in the tree`,
+                );
+            return true;
         }
-        if (!nodeIds.includes(edge.targetId) && !fieldIds.includes(edge.targetId)) {
-            throw new Error(
-                `target ${edge.targetId} of  edge with id ${edge.id} does not exist in any node or field.`,
-            );
-        }
-
-        if (tree === undefined || tree.nodes === undefined) {
-            return;
-        }
-        const fieldsArray = tree.nodes.map((node) => node.fields).flat();
-
-        if (fieldsArray.some((field) => field.id === edge.sourceId && field.out === false))
-            throw new Error(
-                `The edge with id "${edge.id}" has its sourceId set to "${edge.sourceId}". This field can't be sourced from because its field.out value is set to false.`,
-            );
-
-        if (fieldsArray.some((field) => field.id === edge.targetId && field.in === false))
-            throw new Error(
-                `The edge with id "${edge.id}" has its targetId set to "${edge.targetId}". This field can't be targeted because its field.in value is set to false.`,
-            );
-            */
-    });
+        return false;
+    }
 
     const treeOut = tree as NodeTree;
 
