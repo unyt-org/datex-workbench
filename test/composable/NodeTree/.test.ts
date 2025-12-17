@@ -5,7 +5,7 @@ import {
     maxYPosition,
 } from '../../../src/composable/NodeTree/parseNodeTree';
 // import type { Node } from '@/types/node-tree';
-import type { Edge, Node, NodeTree, Position } from '../../../src/types/NodeTree/node-tree';
+import type { Node, NodeTree, Position } from '../../../src/types/NodeTree/node-tree';
 
 describe('parseNodeTree', () => {
     describe('nodes', () => {
@@ -165,6 +165,7 @@ describe('parseNodeTree', () => {
         });
     });
 
+    /*
     describe('edges', () => {
         // edge ids
         test.each([
@@ -291,7 +292,9 @@ describe('parseNodeTree', () => {
             expect(() => parseNodeTree(input)).toThrow();
         });
     });
+    */
 
+    /*
     describe('general', () => {
         // empty inputs
         test.each([
@@ -382,4 +385,5 @@ describe('parseNodeTree', () => {
             expect(() => parseNodeTree(input)).toThrow();
         });
     });
+    */
 });

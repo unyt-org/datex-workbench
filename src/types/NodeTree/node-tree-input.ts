@@ -25,8 +25,6 @@ export interface Position {
 
 export interface EdgeInput<EdgeMetaData = unknown> {
     id?: string;
-    sourceId: string;
-    targetId: string;
     source: ConnectorInput;
     target: ConnectorInput;
     edgetype?: EdgeType;

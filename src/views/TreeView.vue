@@ -52,6 +52,9 @@ function mouseUp() {
         @mouseup="mouseUp"
         @mouseleave="mouseUp"
     >
+        <svg class="w-full h-full">
+            <line x1="360" y1="220" x2="500" y2="300" style="stroke: white; stroke-width: 2" />
+        </svg>
         <NetworkNode
             v-for="(node, index) in tree.nodes"
             :key="index"

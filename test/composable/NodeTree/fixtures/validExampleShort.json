@@ -55,20 +55,38 @@
     "edges": [
         {
             "id": "cjxopppcs",
-            "sourceId": "1.2",
-            "targetId": "3.2",
+            "source": {
+                "kind": "field",
+                "fieldId": "1.2"
+            },
+            "target": {
+                "kind": "field",
+                "fieldId": "3.2"
+            },
             "edgetype": "tempType"
         },
         {
             "id": "yxllöxcb",
-            "sourceId": "4.3",
-            "targetId": "2.1",
+            "source": {
+                "kind": "field",
+                "fieldId": "4.3"
+            },
+            "target": {
+                "kind": "field",
+                "fieldId": "2.1"
+            },
             "edgetype": "tempType"
         },
         {
             "id": "aspalspaps",
-            "sourceId": "1.3",
-            "targetId": "1.1",
+            "source": {
+                "kind": "field",
+                "fieldId": "1.3"
+            },
+            "target": {
+                "kind": "field",
+                "fieldId": "1.1"
+            },
             "edgetype": "tempType"
         }
     ]

@@ -232,56 +232,110 @@
     "edges": [
         {
             "id": "edge1",
-            "sourceId": "5.1",
-            "targetId": "6.3",
+            "source": {
+                "kind": "field",
+                "fieldId": "5.1"
+            },
+            "target": {
+                "kind": "field",
+                "fieldId": "6.3"
+            },
             "edgetype": "tempType"
         },
         {
             "id": "edge2",
-            "sourceId": "6.2",
-            "targetId": "7.1",
+            "source": {
+                "kind": "field",
+                "fieldId": "6.2"
+            },
+            "target": {
+                "kind": "field",
+                "fieldId": "7.1"
+            },
             "edgetype": "tempType"
         },
         {
             "id": "edge3",
-            "sourceId": "7.2",
-            "targetId": "8.1",
+            "source": {
+                "kind": "field",
+                "fieldId": "7.2"
+            },
+            "target": {
+                "kind": "field",
+                "fieldId": "8.1"
+            },
             "edgetype": "tempType"
         },
         {
             "id": "edge4",
-            "sourceId": "8.2",
-            "targetId": "9.1",
+            "source": {
+                "kind": "field",
+                "fieldId": "8.2"
+            },
+            "target": {
+                "kind": "field",
+                "fieldId": "9.1"
+            },
             "edgetype": "tempType"
         },
         {
             "id": "edge5",
-            "sourceId": "9.2",
-            "targetId": "5.3",
+            "source": {
+                "kind": "field",
+                "fieldId": "9.2"
+            },
+            "target": {
+                "kind": "field",
+                "fieldId": "5.3"
+            },
             "edgetype": "tempType"
         },
         {
             "id": "edge6",
-            "sourceId": "5.2",
-            "targetId": "6.1",
+            "source": {
+                "kind": "field",
+                "fieldId": "5.2"
+            },
+            "target": {
+                "kind": "field",
+                "fieldId": "6.1"
+            },
             "edgetype": "tempType"
         },
         {
             "id": "cjxopppcs",
-            "sourceId": "1.1",
-            "targetId": "4.3",
+            "source": {
+                "kind": "field",
+                "fieldId": "1.1"
+            },
+            "target": {
+                "kind": "field",
+                "fieldId": "4.3"
+            },
             "edgetype": "tempType"
         },
         {
             "id": "yxllöxcb",
-            "sourceId": "3.2",
-            "targetId": "1.4",
+            "source": {
+                "kind": "field",
+                "fieldId": "3.2"
+            },
+            "target": {
+                "kind": "field",
+                "fieldId": "1.4"
+            },
             "edgetype": "tempType"
         },
         {
             "id": "aspalspaps",
-            "sourceId": "1.4",
-            "targetId": "2.3",
+            "source": {
+                "kind": "field",
+                "fieldId": "1.4"
+            },
+            "target": {
+                "kind": "field",
+                "fieldId": "2.3"
+            },
             "edgetype": "tempType"
         }
     ]

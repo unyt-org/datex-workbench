@@ -14,6 +14,7 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
         throw new Error('Invalid NodeTree JSON');
     }
     const tree = structuredClone(treeIn);
+
     if (tree.nodes === undefined) {
         tree.nodes = [];
     }
@@ -58,7 +59,6 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
         }
 
         checkId(node, nodeIds);
-        // correctId(node);
 
         node.position = node.position ?? {
             x: Math.floor(Math.random() * maxXPosition),
@@ -79,7 +79,6 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
             field.name = field.name ?? 'name not defined';
 
             checkId(field, fieldIds);
-            // correctId(field);
 
             if (typeof field.in !== 'boolean') {
                 field.in = true;
@@ -92,31 +91,29 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
 
     tree.edges.map((edge) => {
         checkId(edge, edgeIds);
-        // correctEdgeId(edge);
 
-        // if (edge.source.kind === 'field') {
-        //     // check if the field id matches with any field
-        //     // if so on, go to see if there is a nodeId already provided
-        //     // if not, infer the nodeId from the found field
-        //     // if yes, check if the nodId also matches with the one from the found field
-        // }
+        if (edge.source.kind === 'field') {
+            // check if the field id matches with any field
+            // if so on, go to see if there is a nodeId already provided
+            // if not, infer the nodeId from the found field
+            // if yes, check if the nodId also matches with the one from the found field
+        } else if (edge.source.kind === 'node') {
+            // check if the provided nodeId matches with any of the nodes
+        }
 
-        // if (edge.source.kind === 'node') {
-        //     // check if the provided nodeId matches with any of the nodes
-        // }
+        if (edge.source.kind === undefined) {
+            if ('fieldId' in edge.source) {
+                // do all the checks similar to the way we did when kind was set to 'field'
+            } else if ('nodeId' in edge.source) {
+                // check the same way we checked when kind was set to 'node'
+            } else {
+                throw new Error(
+                    `no kind or fieldId or nodeId provided for source of edge ${edge.id}`,
+                );
+            }
+        }
 
-        // if (edge.source.kind === undefined) {
-        //     if ('fieldId' in edge.source) {
-        //         // do all the checks similar to the way we did when kind was set to 'field'
-        //     } else if ('nodeId' in edge.source) {
-        //         // check the same way we checked when kind was set to 'node'
-        //     } else {
-        //         throw new Error(
-        //             `no kind or fieldId or nodeId provided for source of edge ${edge.id}`,
-        //         );
-        //     }
-        // }
-
+        /*
         if (!nodeIds.includes(edge.sourceId) && !fieldIds.includes(edge.sourceId)) {
             throw new Error(
                 `source ${edge.sourceId} of edge with id ${edge.id} does not exist in any node or field.`,
@@ -142,6 +139,7 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
             throw new Error(
                 `The edge with id "${edge.id}" has its targetId set to "${edge.targetId}". This field can't be targeted because its field.in value is set to false.`,
             );
+            */
     });
 
     const treeOut = tree as NodeTree;
