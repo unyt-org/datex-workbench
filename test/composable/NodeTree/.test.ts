@@ -28,8 +28,8 @@ describe('parseNodeTree', () => {
         });
 
         /*
-        // alternatively, the testing part could also be done in a seperate function so that we can run the test as well with larger json files
-        // this import would be needed
+        // alternatively, the testing part could also be done in a seperate function so that we can also run the tests with larger json files
+        // the following import would be needed
         // import type { NodeTreeInput } from '../../../src/types/NodeTree/node-tree-input';
 
         function testMissingNodeAttributes(input: NodeTreeInput, shouldThrow: boolean) {
@@ -165,7 +165,6 @@ describe('parseNodeTree', () => {
         });
     });
 
-    /*
     describe('edges', () => {
         // edge ids
         test.each([
@@ -173,8 +172,15 @@ describe('parseNodeTree', () => {
                 input: {
                     nodes: [{ id: 'def' }, { id: 'ghi' }, { id: 'jkl' }, { id: 'mno' }],
                     edges: [
-                        { sourceId: 'jkl', targetId: 'mno' },
-                        { id: '', sourceId: 'def', targetId: 'ghi' },
+                        {
+                            source: { kind: 'node', nodeId: 'def' },
+                            target: { kind: 'node', nodeId: 'ghi' },
+                        },
+                        {
+                            id: '',
+                            source: { kind: 'node', nodeId: 'def' },
+                            target: { kind: 'node', nodeId: 'ghi' },
+                        },
                     ],
                 },
                 description: 'no edge ids',
@@ -183,8 +189,16 @@ describe('parseNodeTree', () => {
                 input: {
                     nodes: [{ id: 'def' }, { id: 'ghi' }, { id: 'jkl' }, { id: 'mno' }],
                     edges: [
-                        { id: 'abc', sourceId: 'def', targetId: 'ghi' },
-                        { id: 'uvw', sourceId: 'jkl', targetId: 'mno' },
+                        {
+                            id: 'abc',
+                            source: { kind: 'node', nodeId: 'def' },
+                            target: { kind: 'node', nodeId: 'ghi' },
+                        },
+                        {
+                            id: 'pqr',
+                            source: { kind: 'node', nodeId: 'def' },
+                            target: { kind: 'node', nodeId: 'ghi' },
+                        },
                     ],
                 },
                 description: 'unique edge ids',
@@ -201,8 +215,16 @@ describe('parseNodeTree', () => {
                 parseNodeTree({
                     nodes: [{ id: 'def' }, { id: 'ghi' }, { id: 'jkl' }, { id: 'mno' }],
                     edges: [
-                        { id: 'abc', sourceId: 'def', targetId: 'ghi' },
-                        { id: 'abc', sourceId: 'jkl', targetId: 'mno' },
+                        {
+                            id: 'abc',
+                            source: { kind: 'node', nodeId: 'def' },
+                            target: { kind: 'node', nodeId: 'ghi' },
+                        },
+                        {
+                            id: 'abc',
+                            source: { kind: 'node', nodeId: 'def' },
+                            target: { kind: 'node', nodeId: 'ghi' },
+                        },
                     ],
                 }),
             ).toThrow();
@@ -211,16 +233,25 @@ describe('parseNodeTree', () => {
         // edge sourceId and targetId missing
         test.each([
             {
-                input: { nodes: [{ id: 'def' }], edges: [{ id: 'abc', sourceId: 'def' }] },
-                description: 'edge is missing targetId',
+                input: {
+                    nodes: [{ id: 'abc' }, { id: 'def' }],
+                    edges: [{ id: 'ghi', source: { kind: 'node', nodeId: 'abc' } }],
+                },
+                description: 'edge is missing target',
             },
             {
-                input: { nodes: [{ id: 'def' }], edges: [{ id: 'abc', targetId: 'def' }] },
-                description: 'edge is missing sourceId',
+                input: {
+                    nodes: [{ id: 'abc' }, { id: 'def' }],
+                    edges: [{ id: 'ghi', target: { kind: 'node', nodeId: 'def' } }],
+                },
+                description: 'edge is missing source',
             },
             {
-                input: { edges: [{ id: 'abc' }] },
-                description: 'edge is missing sourceId and targetId',
+                input: {
+                    nodes: [{ id: 'abc' }, { id: 'def' }],
+                    edges: [{ id: 'ghi' }],
+                },
+                description: 'edge is missing source and target',
             },
         ])('should throw an error when $description', ({ input }) => {
             expect(() => parseNodeTree(input)).toThrow();
@@ -231,7 +262,13 @@ describe('parseNodeTree', () => {
             {
                 input: {
                     nodes: [{ id: 'def' }, { id: 'ghi' }],
-                    edges: [{ id: 'abc', sourceId: 'def', targetId: 'ghi' }],
+                    edges: [
+                        {
+                            id: 'abc',
+                            source: { kind: 'node', nodeId: 'def' },
+                            target: { kind: 'node', nodeId: 'ghi' },
+                        },
+                    ],
                 },
                 description: 'sourceId and targetId point to node ids',
             },
@@ -241,16 +278,28 @@ describe('parseNodeTree', () => {
                         { fields: [{ id: 'def', out: true }] },
                         { fields: [{ id: 'ghi', in: true }] },
                     ],
-                    edges: [{ id: 'abc', sourceId: 'def', targetId: 'ghi' }],
+                    edges: [
+                        {
+                            id: 'abc',
+                            source: { kind: 'field', fieldId: 'def' },
+                            target: { kind: 'field', fieldId: 'ghi' },
+                        },
+                    ],
                 },
-                description: 'sourceId and targetId point to field ids with correct in/out values',
+                description: 'source and target point to field ids with correct in/out values',
             },
             {
                 input: {
                     nodes: [{ id: 'def' }, { fields: [{ id: 'ghi', in: true }] }],
-                    edges: [{ id: 'abc', sourceId: 'def', targetId: 'ghi' }],
+                    edges: [
+                        {
+                            id: 'abc',
+                            source: { kind: 'node', nodeId: 'def' },
+                            target: { kind: 'field', fieldId: 'ghi' },
+                        },
+                    ],
                 },
-                description: 'sourceId points to node id and targetId points to field id',
+                description: 'source points to node id and target points to field id',
             },
         ])('should return NodeTree when $description', ({ input }) => {
             const result = parseNodeTree(input);
@@ -262,8 +311,17 @@ describe('parseNodeTree', () => {
                 node.fields.filter((field) => field.out).map((field) => field.id),
             );
             result.edges.forEach((edge: Edge) => {
-                expect(nodeIds.concat(fieldOutIds)).toContain(edge.sourceId);
-                expect(nodeIds.concat(fieldInIds)).toContain(edge.targetId);
+                if (edge.source.kind === 'node') {
+                    expect(nodeIds).toContain(edge.source.nodeId);
+                } else if ((edge.source.kind = 'field')) {
+                    expect(fieldOutIds).toContain(edge.source.fieldId);
+                }
+
+                if (edge.target.kind === 'node') {
+                    expect(nodeIds).toContain(edge.target.nodeId);
+                } else if ((edge.target.kind = 'field')) {
+                    expect(fieldInIds).toContain(edge.target.fieldId);
+                }
             });
         });
 
@@ -274,9 +332,15 @@ describe('parseNodeTree', () => {
                         { fields: [{ id: 'def', out: false }] },
                         { fields: [{ id: 'ghi', in: true }] },
                     ],
-                    edges: [{ id: 'abc', sourceId: 'def', targetId: 'ghi' }],
+                    edges: [
+                        {
+                            id: 'abc',
+                            source: { kind: 'field', fieldId: 'def' },
+                            target: { kind: 'field', fieldId: 'ghi' },
+                        },
+                    ],
                 },
-                description: 'sourceId and targetId point to field with false out value',
+                description: 'source points to field with false out value',
             },
             {
                 input: {
@@ -284,17 +348,46 @@ describe('parseNodeTree', () => {
                         { fields: [{ id: 'def', out: true }] },
                         { fields: [{ id: 'ghi', in: false }] },
                     ],
-                    edges: [{ id: 'abc', sourceId: 'def', targetId: 'ghi' }],
+                    edges: [
+                        {
+                            id: 'abc',
+                            source: { kind: 'field', fieldId: 'def' },
+                            target: { kind: 'field', fieldId: 'ghi' },
+                        },
+                    ],
                 },
-                description: 'sourceId and targetId point to field with false in value',
+                description: 'target points to field with false in value',
             },
         ])('should throw an error when $description', ({ input }) => {
             expect(() => parseNodeTree(input)).toThrow();
         });
-    });
-    */
 
-    /*
+        test.each([
+            {
+                input: {
+                    nodes: [
+                        { id: 'abc', fields: [{ id: 'ghi', out: true }] },
+                        { id: 'def', fields: [{ id: 'jkl', in: true }] },
+                    ],
+                    edges: [
+                        {
+                            id: 'mno',
+                            source: { fieldId: 'ghi' },
+                            target: { fieldId: 'jkl' },
+                        },
+                    ],
+                },
+                description: 'source and target only have fieldId defined',
+            },
+        ])('should return NodeTree when $description', ({ input }) => {
+            const result = parseNodeTree(input);
+            expect(result.edges[0].source.kind).toBe('field');
+            expect(result.edges[0].target.kind).toBe('field');
+            expect(result.edges[0].source.nodeId).toBe('abc');
+            expect(result.edges[0].target.nodeId).toBe('def');
+        });
+    });
+
     describe('general', () => {
         // empty inputs
         test.each([
@@ -327,8 +420,11 @@ describe('parseNodeTree', () => {
                         { fields: [{}] },
                     ],
                     edges: [
-                        { id: 'abc', sourceId: 'def', targetId: 'ghi' },
-                        { sourceId: 'def', targetId: 'ghi' },
+                        {
+                            id: 'abc',
+                            source: { kind: 'node', nodeId: 'def' },
+                            target: { kind: 'field', fieldId: 'ghi' },
+                        },
                     ],
                 },
                 description: 'no ids are set in some nodes/fields/edges',
@@ -336,7 +432,13 @@ describe('parseNodeTree', () => {
             {
                 input: {
                     nodes: [{ id: 'def' }, { fields: [{ id: 'ghi', in: true }] }],
-                    edges: [{ id: 'abc', sourceId: 'def', targetId: 'ghi' }],
+                    edges: [
+                        {
+                            id: 'abc',
+                            source: { kind: 'node', nodeId: 'def' },
+                            target: { kind: 'field', fieldId: 'ghi' },
+                        },
+                    ],
                 },
                 description: 'unique ids are set in all nodes/fields/edges',
             },
@@ -356,28 +458,52 @@ describe('parseNodeTree', () => {
             {
                 input: {
                     nodes: [{ id: 'abc' }, { fields: [{ id: 'abc', in: true }] }],
-                    edges: [{ id: 'def', sourceId: 'abc', targetId: 'abc' }],
+                    edges: [
+                        {
+                            id: 'def',
+                            source: { kind: 'node', nodeId: 'abc' },
+                            target: { kind: 'node', nodeId: 'abc' },
+                        },
+                    ],
                 },
                 description: 'node and field ids are the same',
             },
             {
                 input: {
                     nodes: [{ id: 'abc' }, { fields: [{ id: 'def', in: true }] }],
-                    edges: [{ id: 'abc', sourceId: 'abc', targetId: 'def' }],
+                    edges: [
+                        {
+                            id: 'abc',
+                            source: { kind: 'node', nodeId: 'abc' },
+                            target: { kind: 'node', nodeId: 'abc' },
+                        },
+                    ],
                 },
                 description: 'node and edge ids are the same',
             },
             {
                 input: {
-                    nodes: [{ id: 'def' }, { fields: [{ id: 'abc', in: true }] }],
-                    edges: [{ id: 'abc', sourceId: 'def', targetId: 'abc' }],
+                    nodes: [{ id: 'abc' }, { fields: [{ id: 'def', in: true }] }],
+                    edges: [
+                        {
+                            id: 'def',
+                            source: { kind: 'node', nodeId: 'abc' },
+                            target: { kind: 'node', nodeId: 'abc' },
+                        },
+                    ],
                 },
                 description: 'field and edge ids are the same',
             },
             {
                 input: {
                     nodes: [{ id: 'abc' }, { fields: [{ id: 'abc', in: true }] }],
-                    edges: [{ id: 'abc', sourceId: 'abc', targetId: 'abc' }],
+                    edges: [
+                        {
+                            id: 'abc',
+                            source: { kind: 'node', nodeId: 'abc' },
+                            target: { kind: 'node', nodeId: 'abc' },
+                        },
+                    ],
                 },
                 description: 'node and field and edge ids are the same',
             },
@@ -385,5 +511,4 @@ describe('parseNodeTree', () => {
             expect(() => parseNodeTree(input)).toThrow();
         });
     });
-    */
 });

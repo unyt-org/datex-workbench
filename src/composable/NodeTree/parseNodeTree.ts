@@ -53,12 +53,12 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
     tree.edges.map((edge) => {
         checkId(edge, edgeIds);
 
-        if (!checkConnector(edge.source))
+        if (!checkConnector(edge.source, true))
             throw new Error(
                 `no correct combination of kind, fieldId or nodeId provided for source of edge ${edge.id}`,
             );
 
-        if (!checkConnector(edge.target))
+        if (!checkConnector(edge.target, false))
             throw new Error(
                 `no correct combination of kind, fieldId or nodeId provided for target of edge ${edge.id}`,
             );
@@ -115,8 +115,13 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
         return fie;
     }
 
-    function checkConnector(con: ConnectorInput): boolean {
-        if ((con.kind === 'field' && typeof con.fieldId !== 'undefined') || 'fieldId' in con) {
+    function checkConnector(con: ConnectorInput, isSource: boolean): boolean {
+        if (typeof con === 'undefined') return false;
+
+        if (
+            ('kind' in con && con.kind === 'field' && typeof con.fieldId !== 'undefined') ||
+            'fieldId' in con
+        ) {
             // this needs to be cast or otherwise typescript doesn't always recognize that fieldId exists
             const sourceField = con as FieldConnectorInput;
             if (!fieldIds.includes(sourceField.fieldId)) {
@@ -124,6 +129,7 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
                     `edge.source.kind is set to "field" but the provided fieldId does not exist as a field`,
                 );
             }
+
             if (typeof sourceField.nodeId !== 'undefined') {
                 const n = tree.nodes?.find((node) => node.id === sourceField.nodeId);
                 if (!n) throw new Error("the provided nodeId doesn't exist with provided fieldId");
@@ -135,13 +141,31 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
                 });
                 con.nodeId = n?.id;
             }
+
+            // Also need to check if the in or out value for that field is correctly set
+            if (
+                !tree.nodes?.some((node) => {
+                    return node.fields?.some(
+                        (field) => field.id === con.fieldId && (isSource ? field.out : field.in),
+                    );
+                })
+            ) {
+                throw new Error(`in and out values aren't correctly set for the fields`);
+            }
+
+            con.kind = 'field';
             return true;
         }
-        if ((con.kind === 'node' && typeof con.nodeId !== 'undefined') || 'nodeId' in con) {
+        if (
+            ('kind' in con && con.kind === 'node' && typeof con.nodeId !== 'undefined') ||
+            'nodeId' in con
+        ) {
+            if ('fieldId' in con) return false;
             if (!nodeIds.includes(con.nodeId))
                 throw new Error(
                     `the provided node with nodeId ${con.nodeId} doesn't exist in the tree`,
                 );
+            con.kind = 'node';
             return true;
         }
         return false;
