@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import NetworkNode from '@/components/NodeTree/Node.vue';
+import NodeView from '@/components/NodeTree/Node.vue';
+import EdgeView from '@/components/NodeTree/Edge.vue';
 import { ref, type Ref } from 'vue';
 import type { NodeTree, Position } from '@/types/NodeTree/node-tree';
 import type { NodeTreeInput } from '@/types/NodeTree/node-tree-input';
@@ -24,7 +25,7 @@ function mouseDown(event: MouseEvent, nodeId: string) {
         x: event.clientX - node.position.x,
         y: event.clientY - node.position.y,
     };
-    event.preventDefault(); // Prevent text selection
+    event.preventDefault(); // Prevent text selection for now
 }
 
 function mouseMove(event: MouseEvent) {
@@ -33,8 +34,8 @@ function mouseMove(event: MouseEvent) {
     const node = tree.value.nodes.find((node) => node.id === nodeId);
     if (node) {
         node.position = {
-            x: event.clientX - startPos.value.x, // Use startPos.x (offset)
-            y: event.clientY - startPos.value.y, // Use startPos.y (offset)
+            x: event.clientX - startPos.value.x,
+            y: event.clientY - startPos.value.y,
         };
     }
 }
@@ -52,10 +53,8 @@ function mouseUp() {
         @mouseup="mouseUp"
         @mouseleave="mouseUp"
     >
-        <svg class="w-full h-full">
-            <line x1="360" y1="220" x2="500" y2="300" style="stroke: white; stroke-width: 2" />
-        </svg>
-        <NetworkNode
+        <EdgeView :x1="360" :y1="220" :x2="500" :y2="300"></EdgeView>
+        <NodeView
             v-for="(node, index) in tree.nodes"
             :key="index"
             :node="node"
