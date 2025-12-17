@@ -6,6 +6,7 @@ import type {
     EdgeInput,
     FieldConnectorInput,
     ConnectorInput,
+    Position,
 } from '@/types/NodeTree/node-tree-input';
 
 export const maxXPosition = 700;
@@ -40,6 +41,29 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
         return rand;
     }
 
+    tree.nodes.map((node) => {
+        if (node.name === undefined || node.name === '') {
+            node.name = undefined;
+        }
+        checkId(node, nodeIds);
+        node.position = checkPosition(node.position);
+        node.fields = checkFields(node.fields);
+    });
+
+    tree.edges.map((edge) => {
+        checkId(edge, edgeIds);
+
+        if (!checkConnector(edge.source))
+            throw new Error(
+                `no correct combination of kind, fieldId or nodeId provided for source of edge ${edge.id}`,
+            );
+
+        if (!checkConnector(edge.target))
+            throw new Error(
+                `no correct combination of kind, fieldId or nodeId provided for target of edge ${edge.id}`,
+            );
+    });
+
     function checkId(item: NodeInput | NodeFieldInput | EdgeInput, ids: string[]) {
         if (item.id === undefined || item.id === '') {
             const id = generateUniqueId();
@@ -55,30 +79,29 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
         ids.push(item.id);
     }
 
-    tree.nodes.map((node) => {
-        if (node.name === undefined || node.name === '') {
-            node.name = undefined;
-        }
-
-        checkId(node, nodeIds);
-
-        node.position = node.position ?? {
+    function checkPosition(pos: Position | undefined): Position {
+        pos = pos ?? {
             x: Math.floor(Math.random() * maxXPosition),
             y: Math.floor(Math.random() * maxYPosition),
         };
-        if (node.position.x === undefined || typeof node.position.x !== 'number')
-            node.position.x = Math.floor(Math.random() * maxXPosition);
-        if (node.position.y === undefined || typeof node.position.y !== 'number')
-            node.position.y = Math.floor(Math.random() * maxYPosition);
-        if (node.position.x < 0) node.position.x = 0;
-        if (node.position.y < 0) node.position.y = 0;
-        if (node.position.x > maxXPosition) node.position.x = maxXPosition;
-        if (node.position.y > maxYPosition) node.position.y = maxYPosition;
+        if (pos.x === undefined || typeof pos.x !== 'number')
+            pos.x = Math.floor(Math.random() * maxXPosition);
+        if (pos.y === undefined || typeof pos.y !== 'number')
+            pos.y = Math.floor(Math.random() * maxYPosition);
+        if (pos.x < 0) pos.x = 0;
+        if (pos.y < 0) pos.y = 0;
+        if (pos.x > maxXPosition) pos.x = maxXPosition;
+        if (pos.y > maxYPosition) pos.y = maxYPosition;
+        return pos;
+    }
 
-        node.fields = node.fields ?? [];
+    function checkFields(fie: NodeFieldInput[] | undefined): NodeFieldInput[] {
+        fie = fie ?? [];
 
-        node.fields.map((field) => {
-            field.name = field.name ?? 'name not defined';
+        fie.map((field) => {
+            if (field.name === undefined || field.name === '') {
+                field.name = undefined;
+            }
 
             checkId(field, fieldIds);
 
@@ -89,21 +112,8 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
                 field.out = true;
             }
         });
-    });
-
-    tree.edges.map((edge) => {
-        checkId(edge, edgeIds);
-
-        if (!checkConnector(edge.source))
-            throw new Error(
-                `no correct kind, fieldId or nodeId provided for source of edge ${edge.id}`,
-            );
-
-        if (!checkConnector(edge.target))
-            throw new Error(
-                `no correct kind, fieldId or nodeId provided for target of edge ${edge.id}`,
-            );
-    });
+        return fie;
+    }
 
     function checkConnector(con: ConnectorInput): boolean {
         if ((con.kind === 'field' && typeof con.fieldId !== 'undefined') || 'fieldId' in con) {
@@ -111,7 +121,7 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
             const sourceField = con as FieldConnectorInput;
             if (!fieldIds.includes(sourceField.fieldId)) {
                 throw new Error(
-                    'edge source kind is set to "field" but the provided fieldId does not exist as a field',
+                    `edge.source.kind is set to "field" but the provided fieldId does not exist as a field`,
                 );
             }
             if (typeof sourceField.nodeId !== 'undefined') {
