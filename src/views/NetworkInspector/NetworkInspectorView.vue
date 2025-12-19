@@ -19,6 +19,7 @@ import { ArrowLeft, ArrowRight, LockOpen, FileX } from 'lucide-vue-next';
 import { computed, ref, watch, nextTick } from 'vue';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
 import type { ParsedSection, FieldDefinition } from '@unyt/speck';
+import NetworkFilter from '@/components/NetworkInspector/NetworkFilter.vue';
 
 const { sendTestBlock, blocks } = useNetworkInspector();
 
@@ -51,6 +52,13 @@ watch(
         }
     },
 );
+
+// Filtered rows from the filter component
+const filteredTableRows = ref<any[]>([]);
+
+function handleFilterChange(filtered: typeof filteredTableRows.value) {
+    filteredTableRows.value = filtered;
+}
 
 // Helper functions to extract data from parsed block structure
 function getBlockType(parsedBlock: ParsedSection[]): string {
@@ -154,7 +162,8 @@ const tableRows = computed(() => {
         return {
             direction: block.direction,
             blockType,
-            endpoint: block.direction === 'in' ? sender : receivers.join(', '),
+            sender,
+            receiver: receivers.join(', '),
             timestamp: timestamp === 0 ? new Date(block.capturedAt).toLocaleTimeString() : new Date(timestamp).toLocaleTimeString(),
             size,
             isEncrypted: encryptionType !== 'None' && encryptionType !== 'Unknown',
@@ -173,7 +182,14 @@ const tableRows = computed(() => {
             <Button @click="sendTestBlock">Simulate Block</Button>
         </div>
 
-        <div ref="scrollContainerRef" class="flex-1 max-h-[calc(100vh-200px)] overflow-y-auto rounded-lg border">
+        <!-- Filter Component -->
+        <NetworkFilter 
+            class="mb-4"
+            :rows="tableRows" 
+            @filter-change="handleFilterChange"
+        />
+
+        <div ref="scrollContainerRef" class="flex-1 max-h-[calc(100vh-280px)] overflow-y-auto rounded-lg border">
             <TooltipProvider>
                 <Table>
                     <TableHeader>
@@ -192,7 +208,12 @@ const tableRows = computed(() => {
                                 No blocks captured yet. Click "Simulate Block" to test.
                             </TableCell>
                         </TableRow>
-                        <TableRow v-for="row in tableRows" :key="row.capturedAt">
+                        <TableRow v-if="tableRows.length > 0 && filteredTableRows.length === 0">
+                            <TableCell colspan="6" class="text-center text-muted-foreground">
+                                No blocks match the filter criteria.
+                            </TableCell>
+                        </TableRow>
+                        <TableRow v-for="row in filteredTableRows" :key="row.capturedAt">
                             <TableCell>
                                 <ArrowLeft v-if="row.direction === 'in'" class="inline-block h-4 w-4 text-green-500" />
                                 <ArrowRight v-else class="inline-block h-4 w-4 text-orange-500" />
@@ -229,11 +250,11 @@ const tableRows = computed(() => {
                                 <Tooltip>
                                     <TooltipTrigger as-child>
                                         <div class="max-w-64 cursor-default truncate">
-                                            {{ row.endpoint }}
+                                            {{ row.direction === 'in' ? row.sender : row.receiver }}
                                         </div>
                                     </TooltipTrigger>
                                     <TooltipContent>
-                                        <p class="max-w-sm break-words">{{ row.endpoint }}</p>
+                                        <p class="max-w-sm break-words">{{ row.direction === 'in' ? row.sender : row.receiver }}</p>
                                     </TooltipContent>
                                 </Tooltip>
                             </TableCell>
