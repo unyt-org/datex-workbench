@@ -6,5 +6,6 @@ export interface RawBlockEntry {
     direction: BlockDirection;
     parsedBlock: ParsedSection[];
     socketUuid: string;
+    interfaceName: string;
     capturedAt: number;
 }

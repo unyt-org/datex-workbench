@@ -53,12 +53,19 @@ Datex.comHub.registerIncomingBlockInterceptor((block: Uint8Array, socket_uuid: s
     const parsedBlock = parseStructure(definition, block);
     console.log(parsedBlock, socket_uuid);
     
-    blocks.value.push({
+    // Add new block at the beginning (top of list)
+    blocks.value.unshift({
         direction: 'in',
         parsedBlock,
         socketUuid: socket_uuid,
+        interfaceName: config.name,
         capturedAt: Date.now(),
     });
+    
+    // Keep only the most recent 20 blocks
+    if (blocks.value.length > 20) {
+        blocks.value = blocks.value.slice(0, 20);
+    }
 });
 
 export function useNetworkInspector() {

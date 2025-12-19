@@ -16,11 +16,41 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { ArrowLeft, ArrowRight, LockOpen, FileX } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { computed, ref, watch, nextTick } from 'vue';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
 import type { ParsedSection, FieldDefinition } from '@unyt/speck';
 
 const { sendTestBlock, blocks } = useNetworkInspector();
+
+// Scroll container ref for maintaining scroll position
+const scrollContainerRef = ref<HTMLElement | null>(null);
+let savedScrollTop = 0;
+let savedScrollHeight = 0;
+
+// Watch for new blocks and preserve scroll position
+watch(
+    () => blocks.value.length,
+    (newLength, oldLength) => {
+        if (newLength > oldLength && scrollContainerRef.value) {
+            // Save scroll position before DOM update
+            savedScrollTop = scrollContainerRef.value.scrollTop;
+            savedScrollHeight = scrollContainerRef.value.scrollHeight;
+            
+            // Adjust scroll after DOM update
+            nextTick(() => {
+                if (scrollContainerRef.value) {
+                    const newScrollHeight = scrollContainerRef.value.scrollHeight;
+                    const heightDiff = newScrollHeight - savedScrollHeight;
+                    
+                    // Only adjust if user is scrolled down (not watching new items at top)
+                    if (savedScrollTop > 50) {
+                        scrollContainerRef.value.scrollTop = savedScrollTop + heightDiff;
+                    }
+                }
+            });
+        }
+    },
+);
 
 // Helper functions to extract data from parsed block structure
 function getBlockType(parsedBlock: ParsedSection[]): string {
@@ -129,7 +159,7 @@ const tableRows = computed(() => {
             size,
             isEncrypted: encryptionType !== 'None' && encryptionType !== 'Unknown',
             isSigned: signatureType !== 'None' && signatureType !== 'Unknown',
-            interface: 'base', // TODO: Make dynamic based on actual interface
+            interface: block.interfaceName,
             capturedAt: block.capturedAt,
         };
     });
@@ -143,7 +173,7 @@ const tableRows = computed(() => {
             <Button @click="sendTestBlock">Simulate Block</Button>
         </div>
 
-        <div class="flex-1 overflow-auto rounded-lg border">
+        <div ref="scrollContainerRef" class="flex-1 max-h-[calc(100vh-200px)] overflow-y-auto rounded-lg border">
             <TooltipProvider>
                 <Table>
                     <TableHeader>
@@ -162,7 +192,7 @@ const tableRows = computed(() => {
                                 No blocks captured yet. Click "Simulate Block" to test.
                             </TableCell>
                         </TableRow>
-                        <TableRow v-for="(row, index) in tableRows" :key="index">
+                        <TableRow v-for="row in tableRows" :key="row.capturedAt">
                             <TableCell>
                                 <ArrowLeft v-if="row.direction === 'in'" class="inline-block h-4 w-4 text-green-500" />
                                 <ArrowRight v-else class="inline-block h-4 w-4 text-orange-500" />
