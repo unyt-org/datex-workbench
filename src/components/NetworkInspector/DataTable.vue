@@ -22,7 +22,6 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -30,15 +29,23 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-vue-next';
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { valueUpdater } from '@/lib/utils';
 
 interface DataTableProps {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
+    filterValue?: string;
+    filterPlaceholder?: string;
 }
 
-const props = defineProps<DataTableProps>();
+const props = withDefaults(defineProps<DataTableProps>(), {
+    filterPlaceholder: 'Filter...'
+});
+
+const emit = defineEmits<{
+    'update:filterValue': [value: string];
+}>();
 
 const sorting = ref<SortingState>([]);
 const columnFilters = ref<ColumnFiltersState>([]);
@@ -72,21 +79,16 @@ const table = useVueTable({
 });
 
 // Computed to get the filter value
-const filterValue = computed({
-    get: () => (table.getColumn('blockType')?.getFilterValue() as string) ?? '',
-    set: (value: string) => table.getColumn('blockType')?.setFilterValue(value),
-});
 </script>
 
 <template>
-    <div class="w-full">
-        <div class="flex items-center gap-4 py-4">
-            <Input
-                class="max-w-sm"
-                placeholder="Filter by block type..."
-                :model-value="filterValue"
-                @update:model-value="(value) => filterValue = String(value)"
-            />
+    <div class="w-full overflow-visible">
+        <div class="flex items-center justify-between gap-4 py-4 px-1 overflow-visible">
+            <div class="flex-1 max-w-sm overflow-visible">
+                <slot name="filter">
+                    <!-- Default filter slot if not provided -->
+                </slot>
+            </div>
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>
                     <Button variant="outline" class="ml-auto">
@@ -100,8 +102,8 @@ const filterValue = computed({
                             .filter((column) => column.getCanHide())"
                         :key="column.id"
                         class="capitalize"
-                        :checked="column.getIsVisible()"
-                        @update:checked="
+                        :model-value="column.getIsVisible()"
+                        @update:model-value="
                             (value: boolean) => {
                                 column.toggleVisibility(!!value);
                             }

@@ -5,9 +5,13 @@ import { computed, ref, watch, nextTick } from 'vue';
 import type { ParsedSection } from '@unyt/speck';
 import type { NetworkBlockTableRow } from '@/types/NetworkInspector/TableRow';
 import DataTable from '@/components/NetworkInspector/DataTable.vue';
+import NetworkFilter from '@/components/NetworkInspector/NetworkFilter.vue';
 import { columns } from '@/components/NetworkInspector/columns';
 
 const { sendTestBlock, blocks } = useNetworkInspector();
+
+// Filter state
+const blockTypeFilter = ref('');
 
 // Scroll container ref for maintaining scroll position
 const scrollContainerRef = ref<HTMLElement | null>(null);
@@ -115,7 +119,7 @@ function getSignatureType(parsedBlock: ParsedSection[]): string {
 }
 
 // Computed property to transform raw blocks into table rows
-const tableRows = computed<NetworkBlockTableRow[]>(() => {
+const allTableRows = computed<NetworkBlockTableRow[]>(() => {
     return blocks.value.map((block) => {
         const blockType = getBlockType(block.parsedBlock);
         const sender = getSender(block.parsedBlock);
@@ -140,6 +144,16 @@ const tableRows = computed<NetworkBlockTableRow[]>(() => {
         };
     });
 });
+
+// Filtered table rows based on blockType filter
+const tableRows = computed<NetworkBlockTableRow[]>(() => {
+    if (!blockTypeFilter.value.trim()) return allTableRows.value;
+    
+    const filterText = blockTypeFilter.value.toLowerCase();
+    return allTableRows.value.filter(row => 
+        row.blockType.toLowerCase().includes(filterText)
+    );
+});
 </script>
 
 <template>
@@ -150,7 +164,14 @@ const tableRows = computed<NetworkBlockTableRow[]>(() => {
         </div>
 
         <div ref="scrollContainerRef" class="flex-1 max-h-[calc(100vh-200px)] overflow-y-auto">
-            <DataTable :columns="columns" :data="tableRows" />
+            <DataTable :columns="columns" :data="tableRows">
+                <template #filter>
+                    <NetworkFilter 
+                        v-model:filter-value="blockTypeFilter" 
+                        placeholder="Filter by block type..."
+                    />
+                </template>
+            </DataTable>
         </div>
     </div>
 </template>
