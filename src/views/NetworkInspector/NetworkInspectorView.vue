@@ -1,25 +1,11 @@
 <script setup lang="ts">
 import { useNetworkInspector } from '@/composable/useNetworkInspector';
 import { Button } from '@/components/ui/button';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { ArrowLeft, ArrowRight, LockOpen, FileX } from 'lucide-vue-next';
 import { computed, ref, watch, nextTick } from 'vue';
-import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
-import type { ParsedSection, FieldDefinition } from '@unyt/speck';
-import NetworkFilter from '@/components/NetworkInspector/NetworkFilter.vue';
+import type { ParsedSection } from '@unyt/speck';
+import type { NetworkBlockTableRow } from '@/types/NetworkInspector/TableRow';
+import DataTable from '@/components/NetworkInspector/DataTable.vue';
+import { columns } from '@/components/NetworkInspector/columns';
 
 const { sendTestBlock, blocks } = useNetworkInspector();
 
@@ -53,13 +39,6 @@ watch(
     },
 );
 
-// Filtered rows from the filter component
-const filteredTableRows = ref<any[]>([]);
-
-function handleFilterChange(filtered: typeof filteredTableRows.value) {
-    filteredTableRows.value = filtered;
-}
-
 // Helper functions to extract data from parsed block structure
 function getBlockType(parsedBlock: ParsedSection[]): string {
     const blockHeader = parsedBlock.find((section) => section.name === 'Block Header');
@@ -70,7 +49,7 @@ function getBlockType(parsedBlock: ParsedSection[]): string {
     );
     if (!flagsAndTimestamp || !('subFields' in flagsAndTimestamp)) return 'Unknown';
 
-    const blockType = flagsAndTimestamp.subFields.find((field: any) => field.name === 'Block Type');
+    const blockType = flagsAndTimestamp.subFields.find((field: { name: string }) => field.name === 'Block Type');
     return (blockType && 'parsedValue' in blockType) ? blockType.parsedValue?.toString() || 'Unknown' : 'Unknown';
 }
 
@@ -120,7 +99,7 @@ function getEncryptionType(parsedBlock: ParsedSection[]): string {
     const flags = routingHeader.fields.find((field) => field.name === 'Flags');
     if (!flags || !('subFields' in flags)) return 'Unknown';
 
-    const encryptionType = flags.subFields.find((field: any) => field.name === 'Encryption Type');
+    const encryptionType = flags.subFields.find((field: { name: string }) => field.name === 'Encryption Type');
     return (encryptionType && 'parsedValue' in encryptionType) ? encryptionType.parsedValue?.toString() || 'Unknown' : 'Unknown';
 }
 
@@ -131,24 +110,12 @@ function getSignatureType(parsedBlock: ParsedSection[]): string {
     const flags = routingHeader.fields.find((field) => field.name === 'Flags');
     if (!flags || !('subFields' in flags)) return 'Unknown';
 
-    const signatureType = flags.subFields.find((field: any) => field.name === 'Signature Type');
+    const signatureType = flags.subFields.find((field: { name: string }) => field.name === 'Signature Type');
     return (signatureType && 'parsedValue' in signatureType) ? signatureType.parsedValue?.toString() || 'Unknown' : 'Unknown';
 }
 
-// Format bytes with compact notation
-const byteFormatter = new Intl.NumberFormat('en', {
-    notation: 'compact',
-    style: 'unit',
-    unit: 'byte',
-    unitDisplay: 'narrow',
-});
-
-function formatBytes(bytes: number): string {
-    return byteFormatter.format(bytes);
-}
-
 // Computed property to transform raw blocks into table rows
-const tableRows = computed(() => {
+const tableRows = computed<NetworkBlockTableRow[]>(() => {
     return blocks.value.map((block) => {
         const blockType = getBlockType(block.parsedBlock);
         const sender = getSender(block.parsedBlock);
@@ -182,92 +149,8 @@ const tableRows = computed(() => {
             <Button @click="sendTestBlock">Simulate Block</Button>
         </div>
 
-        <!-- Filter Component -->
-        <NetworkFilter 
-            class="mb-4"
-            :rows="tableRows" 
-            @filter-change="handleFilterChange"
-        />
-
-        <div ref="scrollContainerRef" class="flex-1 max-h-[calc(100vh-280px)] overflow-y-auto rounded-lg border">
-            <TooltipProvider>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead class="w-16">Dir</TableHead>
-                            <TableHead class="w-20">Interface</TableHead>
-                            <TableHead>Type</TableHead>
-                            <TableHead class="w-64">Endpoint</TableHead>
-                            <TableHead class="w-32">Time</TableHead>
-                            <TableHead class="w-36">Size</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        <TableRow v-if="tableRows.length === 0">
-                            <TableCell colspan="6" class="text-center text-muted-foreground">
-                                No blocks captured yet. Click "Simulate Block" to test.
-                            </TableCell>
-                        </TableRow>
-                        <TableRow v-if="tableRows.length > 0 && filteredTableRows.length === 0">
-                            <TableCell colspan="6" class="text-center text-muted-foreground">
-                                No blocks match the filter criteria.
-                            </TableCell>
-                        </TableRow>
-                        <TableRow v-for="row in filteredTableRows" :key="row.capturedAt">
-                            <TableCell>
-                                <ArrowLeft v-if="row.direction === 'in'" class="inline-block h-4 w-4 text-green-500" />
-                                <ArrowRight v-else class="inline-block h-4 w-4 text-orange-500" />
-                            </TableCell>
-                            <TableCell class="text-muted-foreground">
-                                {{ row.interface }}
-                            </TableCell>
-                            <TableCell>
-                                <div class="flex items-center gap-2">
-                                    <span class="font-medium uppercase">{{ row.blockType }}</span>
-                                    <Tooltip v-if="!row.isEncrypted">
-                                        <TooltipTrigger as-child>
-                                            <div class="inline-block cursor-default">
-                                                <LockOpen class="h-4 w-4 text-muted-foreground line-through" />
-                                            </div>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Not encrypted</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                    <Tooltip v-if="!row.isSigned">
-                                        <TooltipTrigger as-child>
-                                            <div class="inline-block cursor-default">
-                                                <FileX class="h-4 w-4 text-muted-foreground" />
-                                            </div>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Not signed</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </div>
-                            </TableCell>
-                            <TableCell class="text-blue-400">
-                                <Tooltip>
-                                    <TooltipTrigger as-child>
-                                        <div class="max-w-64 cursor-default truncate">
-                                            {{ row.direction === 'in' ? row.sender : row.receiver }}
-                                        </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                        <p class="max-w-sm break-words">{{ row.direction === 'in' ? row.sender : row.receiver }}</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TableCell>
-                            <TableCell>
-                                {{ row.timestamp }}
-                            </TableCell>
-                            <TableCell class="whitespace-nowrap">
-                                {{ formatBytes(row.size) }}
-                            </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </TooltipProvider>
+        <div ref="scrollContainerRef" class="flex-1 max-h-[calc(100vh-200px)] overflow-y-auto">
+            <DataTable :columns="columns" :data="tableRows" />
         </div>
     </div>
 </template>
