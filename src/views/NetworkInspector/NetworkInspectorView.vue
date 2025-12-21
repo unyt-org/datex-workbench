@@ -195,7 +195,7 @@ const tableRows = computed(() => {
                     <TableHeader>
                         <TableRow>
                             <TableHead class="w-16">Dir</TableHead>
-                            <TableHead class="w-20">If</TableHead>
+                            <TableHead class="w-20">Interface</TableHead>
                             <TableHead>Type</TableHead>
                             <TableHead class="w-64">Endpoint</TableHead>
                             <TableHead class="w-32">Time</TableHead>
