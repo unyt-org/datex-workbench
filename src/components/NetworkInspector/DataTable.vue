@@ -80,7 +80,7 @@ const table = useVueTable({
 <template>
     <div class="w-full h-full flex flex-col overflow-hidden">
         <!-- Fixed header section: Search and Column filters -->
-        <div class="flex items-center justify-between gap-4 py-4 px-1 flex-shrink-0">
+        <div class="flex items-center justify-between gap-4 py-4 px-1 shrink-0">
             <div class="flex-1 max-w-sm">
                 <slot name="filter">
                     <!-- Default filter slot if not provided -->
