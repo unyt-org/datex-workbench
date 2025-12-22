@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useNetworkInspector } from '@/composable/useNetworkInspector';
+import { useBlockSimulator, BLOCK_TYPES } from '@/composable/useBlockSimulator';
 import { Button } from '@/components/ui/button';
 import { computed, ref, watch, nextTick } from 'vue';
 import type { ParsedSection } from '@unyt/speck';
@@ -8,10 +9,23 @@ import DataTable from '@/components/NetworkInspector/DataTable.vue';
 import NetworkFilter from '@/components/NetworkInspector/NetworkFilter.vue';
 import { columns } from '@/components/NetworkInspector/columns';
 
-const { sendTestBlock, blocks } = useNetworkInspector();
+const { sendTestBlock, blocks, baseInterface, socketUUID } = useNetworkInspector();
+const { sendBlock } = useBlockSimulator();
 
 // Filter state
 const blockTypeFilter = ref('');
+
+// Block sending functionality
+async function handleSendBlock(blockTypeId: string) {
+    try {
+        const blockType = BLOCK_TYPES.find(bt => bt.id === blockTypeId);
+        if (blockType) {
+            await sendBlock(blockType, baseInterface, socketUUID);
+        }
+    } catch (error) {
+        console.error('Failed to send block:', error);
+    }
+}
 
 // Scroll container ref for maintaining scroll position
 const scrollContainerRef = ref<HTMLElement | null>(null);
@@ -158,9 +172,32 @@ const tableRows = computed<NetworkBlockTableRow[]>(() => {
 
 <template>
     <div class="flex h-full flex-col p-4">
-        <div class="mb-4 flex items-center justify-between">
-            <h1 class="text-2xl font-bold">Network Inspector</h1>
-            <Button @click="sendTestBlock">Simulate Block</Button>
+        <div class="mb-4">
+            <h1 class="text-2xl font-bold mb-3">Network Inspector</h1>
+            
+            <!-- Block simulation buttons -->
+            <div class="flex flex-wrap gap-2">
+                <Button 
+                    v-for="blockType in BLOCK_TYPES" 
+                    :key="blockType.id"
+                    @click="handleSendBlock(blockType.id)"
+                    variant="outline"
+                    size="sm"
+                    :title="blockType.description"
+                >
+                    {{ blockType.label }}
+                </Button>
+                
+                <!-- Legacy TraceBack button -->
+                <Button 
+                    @click="sendTestBlock"
+                    variant="outline"
+                    size="sm"
+                    title="Legacy traceback block (base64 encoded)"
+                >
+                    TraceBack (Legacy)
+                </Button>
+            </div>
         </div>
 
         <div ref="scrollContainerRef" class="flex-1 max-h-[calc(100vh-200px)] overflow-y-auto">

@@ -30,8 +30,7 @@ const baseInterface = await Datex.comHub.createInterface<BaseInterfaceImpl>(
     'base',
     config,
 );
-baseInterface.impl.onSend((_block: Uint8Array, _receiver_socket_uuid: string) => {
-
+baseInterface.impl.onSend(() => {
     return Promise.resolve(true);
 });
 
@@ -72,5 +71,7 @@ export function useNetworkInspector() {
     return {
         sendTestBlock,
         blocks,
+        baseInterface,
+        socketUUID,
     };
 }

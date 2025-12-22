@@ -43,10 +43,6 @@ const props = withDefaults(defineProps<DataTableProps>(), {
     filterPlaceholder: 'Filter...'
 });
 
-const emit = defineEmits<{
-    'update:filterValue': [value: string];
-}>();
-
 const sorting = ref<SortingState>([]);
 const columnFilters = ref<ColumnFiltersState>([]);
 const columnVisibility = ref<VisibilityState>({});
