@@ -147,3 +147,154 @@ export function filterRowsBySearch<T extends {
         return true;
     });
 }
+
+/**
+ * Escapes HTML special characters to prevent XSS
+ */
+function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/**
+ * Highlights search terms in text with HTML mark tags
+ * Returns HTML string with highlighted matches
+ */
+export function highlightMatches(text: string, searchTerms: string[]): string {
+    if (!text || searchTerms.length === 0) {
+        return escapeHtml(text);
+    }
+    
+    // Escape the original text first
+    let result = escapeHtml(text);
+    
+    // Create a regex pattern for all search terms (case-insensitive)
+    // Sort by length descending to match longer terms first
+    const sortedTerms = [...searchTerms]
+        .filter(term => term.trim().length > 0)
+        .sort((a, b) => b.length - a.length);
+    
+    if (sortedTerms.length === 0) return result;
+    
+    // Build regex pattern
+    const pattern = sortedTerms
+        .map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) // Escape special regex chars
+        .join('|');
+    
+    const regex = new RegExp(`(${pattern})`, 'gi');
+    
+    // Replace matches with highlighted version
+    result = result.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-900/50 px-0.5 rounded">$1</mark>');
+    
+    return result;
+}
+
+/**
+ * Get all relevant search terms for a specific field
+ */
+export function getSearchTermsForField(
+    parsedQuery: ParsedSearchQuery, 
+    field: 'type' | 'sender' | 'receiver' | 'interface'
+): string[] {
+    const terms = [...parsedQuery[field]];
+    
+    // Also include plain text if present
+    if (parsedQuery.plainText) {
+        terms.push(parsedQuery.plainText);
+    }
+    
+    return terms;
+}
+
+/**
+ * Token types for syntax highlighting in search input
+ */
+export type TokenType = 'qualifier' | 'colon' | 'value' | 'text' | 'whitespace';
+
+export interface SearchToken {
+    type: TokenType;
+    text: string;
+}
+
+/**
+ * Tokenizes search query for syntax highlighting
+ * Returns array of tokens with their types
+ */
+export function tokenizeSearchQuery(query: string): SearchToken[] {
+    if (!query) return [];
+    
+    const tokens: SearchToken[] = [];
+    const qualifierRegex = /(\w+)(:)((?:"[^"]*")|(?:[^\s]+))|(\s+)|([^\s:]+)/g;
+    
+    let match;
+    let lastIndex = 0;
+    
+    while ((match = qualifierRegex.exec(query)) !== null) {
+        // Check if we skipped any characters (shouldn't happen with our regex)
+        if (match.index > lastIndex) {
+            tokens.push({
+                type: 'text',
+                text: query.substring(lastIndex, match.index)
+            });
+        }
+        
+        if (match[1] && match[2] && match[3]) {
+            // Qualifier:value pattern
+            const qualifier = match[1];
+            const validQualifiers = ['type', 'sender', 'receiver', 'interface'];
+            
+            if (validQualifiers.includes(qualifier.toLowerCase())) {
+                // Known qualifier - highlight it
+                tokens.push({ type: 'qualifier', text: qualifier });
+                tokens.push({ type: 'colon', text: match[2] });
+                tokens.push({ type: 'value', text: match[3] });
+            } else {
+                // Unknown qualifier - treat as plain text
+                tokens.push({ type: 'text', text: match[0] });
+            }
+        } else if (match[4]) {
+            // Whitespace
+            tokens.push({ type: 'whitespace', text: match[4] });
+        } else if (match[5]) {
+            // Plain text
+            tokens.push({ type: 'text', text: match[5] });
+        }
+        
+        lastIndex = match.index + match[0].length;
+    }
+    
+    // Add any remaining text
+    if (lastIndex < query.length) {
+        tokens.push({
+            type: 'text',
+            text: query.substring(lastIndex)
+        });
+    }
+    
+    return tokens;
+}
+
+/**
+ * Converts tokens to styled HTML for display
+ */
+export function tokensToStyledHtml(tokens: SearchToken[]): string {
+    return tokens.map(token => {
+        const escapedText = escapeHtml(token.text);
+        
+        switch (token.type) {
+            case 'qualifier':
+                return `<span class="text-foreground font-medium">${escapedText}</span>`;
+            case 'colon':
+                return `<span class="text-foreground">${escapedText}</span>`;
+            case 'value':
+                return `<span class="text-blue-500 dark:text-blue-400">${escapedText}</span>`;
+            case 'whitespace':
+                return escapedText;
+            case 'text':
+                return `<span class="text-gray-600 dark:text-gray-300">${escapedText}</span>`;
+            default:
+                return escapedText;
+        }
+    }).join('');
+}

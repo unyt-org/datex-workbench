@@ -7,7 +7,7 @@ import type { ParsedSection } from '@unyt/speck';
 import type { NetworkBlockTableRow } from '@/types/NetworkInspector/TableRow';
 import DataTable from '@/components/NetworkInspector/DataTable.vue';
 import NetworkFilter from '@/components/NetworkInspector/NetworkFilter.vue';
-import { columns } from '@/components/NetworkInspector/columns';
+import { createColumns } from '@/components/NetworkInspector/columns';
 import { parseSearchQuery, filterRowsBySearch } from '@/utils/searchParser';
 
 const { sendTestBlock, blocks, baseInterface, socketUUID } = useNetworkInspector();
@@ -167,6 +167,14 @@ const tableRows = computed<NetworkBlockTableRow[]>(() => {
     const parsedQuery = parseSearchQuery(searchQuery.value);
     return filterRowsBySearch(allTableRows.value, parsedQuery);
 });
+
+// Dynamic columns with search highlighting
+const dynamicColumns = computed(() => {
+    if (!searchQuery.value.trim()) return createColumns();
+    
+    const parsedQuery = parseSearchQuery(searchQuery.value);
+    return createColumns(parsedQuery);
+});
 </script>
 
 <template>
@@ -200,11 +208,11 @@ const tableRows = computed<NetworkBlockTableRow[]>(() => {
         </div>
 
         <div ref="scrollContainerRef" class="flex-1 max-h-[calc(100vh-200px)] overflow-y-auto">
-            <DataTable :columns="columns" :data="tableRows">
+            <DataTable :columns="dynamicColumns" :data="tableRows">
                 <template #filter>
                     <NetworkFilter 
                         v-model:filter-value="searchQuery" 
-                        placeholder="Search: type:traceback "
+                        placeholder="Search: type:traceback"
                     />
                 </template>
             </DataTable>

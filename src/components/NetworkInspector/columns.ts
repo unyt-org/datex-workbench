@@ -1,7 +1,10 @@
 import type { ColumnDef } from '@tanstack/vue-table';
 import type { NetworkBlockTableRow } from '@/types/NetworkInspector/TableRow';
+import type { ParsedSearchQuery } from '@/utils/searchParser';
 import { h } from 'vue';
 import { ArrowLeft, ArrowRight, LockOpen, FileX } from 'lucide-vue-next';
+import HighlightedText from '@/components/NetworkInspector/HighlightedText.vue';
+import { getSearchTermsForField } from '@/utils/searchParser';
 import {
     Tooltip,
     TooltipContent,
@@ -21,7 +24,8 @@ function formatBytes(bytes: number): string {
     return byteFormatter.format(bytes);
 }
 
-export const columns: ColumnDef<NetworkBlockTableRow>[] = [
+export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<NetworkBlockTableRow>[] {
+    return [
     {
         accessorKey: 'direction',
         header: 'Dir',
@@ -43,7 +47,13 @@ export const columns: ColumnDef<NetworkBlockTableRow>[] = [
         header: 'Interface',
         cell: ({ row }) => {
             const value = row.getValue('interface') as string;
-            return h('div', { class: 'text-muted-foreground' }, value);
+            const searchTerms = parsedQuery ? getSearchTermsForField(parsedQuery, 'interface') : [];
+            
+            return h(HighlightedText, {
+                text: value,
+                searchTerms,
+                class: 'text-muted-foreground'
+            });
         },
     },
     {
@@ -53,6 +63,7 @@ export const columns: ColumnDef<NetworkBlockTableRow>[] = [
             const blockType = row.getValue('blockType') as string;
             const isEncrypted = row.original.isEncrypted;
             const isSigned = row.original.isSigned;
+            const searchTerms = parsedQuery ? getSearchTermsForField(parsedQuery, 'type') : [];
 
             return h(
                 TooltipProvider,
@@ -60,7 +71,11 @@ export const columns: ColumnDef<NetworkBlockTableRow>[] = [
                 {
                     default: () =>
                         h('div', { class: 'flex items-center gap-2' }, [
-                            h('span', { class: 'font-medium uppercase' }, blockType),
+                            h(HighlightedText, {
+                                text: blockType,
+                                searchTerms,
+                                class: 'font-medium uppercase'
+                            }),
                             !isEncrypted
                                 ? h(
                                       Tooltip,
@@ -128,6 +143,8 @@ export const columns: ColumnDef<NetworkBlockTableRow>[] = [
         header: 'Sender',
         cell: ({ row }) => {
             const sender = row.getValue('sender') as string;
+            const searchTerms = parsedQuery ? getSearchTermsForField(parsedQuery, 'sender') : [];
+            
             return h(
                 TooltipProvider,
                 {},
@@ -146,7 +163,12 @@ export const columns: ColumnDef<NetworkBlockTableRow>[] = [
                                                 h(
                                                     'div',
                                                     { class: 'max-w-64 cursor-default truncate text-blue-400' },
-                                                    sender,
+                                                    [
+                                                        h(HighlightedText, {
+                                                            text: sender,
+                                                            searchTerms
+                                                        })
+                                                    ]
                                                 ),
                                         },
                                     ),
@@ -165,6 +187,8 @@ export const columns: ColumnDef<NetworkBlockTableRow>[] = [
         header: 'Receiver',
         cell: ({ row }) => {
             const receiver = row.getValue('receiver') as string;
+            const searchTerms = parsedQuery ? getSearchTermsForField(parsedQuery, 'receiver') : [];
+            
             return h(
                 TooltipProvider,
                 {},
@@ -183,7 +207,12 @@ export const columns: ColumnDef<NetworkBlockTableRow>[] = [
                                                 h(
                                                     'div',
                                                     { class: 'max-w-64 cursor-default truncate text-blue-400' },
-                                                    receiver,
+                                                    [
+                                                        h(HighlightedText, {
+                                                            text: receiver,
+                                                            searchTerms
+                                                        })
+                                                    ]
                                                 ),
                                         },
                                     ),
@@ -210,3 +239,7 @@ export const columns: ColumnDef<NetworkBlockTableRow>[] = [
         },
     },
 ];
+}
+
+// Default columns without search highlighting
+export const columns = createColumns();
