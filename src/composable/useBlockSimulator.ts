@@ -8,12 +8,6 @@ export interface BlockType {
 
 export const BLOCK_TYPES: BlockType[] = [
     {
-        id: 'simple',
-        label: 'Simple',
-        description: 'Basic DATEX block',
-        url: 'https://raw.githubusercontent.com/unyt-org/datex-core/feat/variant-access/tests/structs/simple/block.bin'
-    },
-    {
         id: 'receivers',
         label: 'Receivers',
         description: 'Block with multiple receivers',
@@ -24,12 +18,6 @@ export const BLOCK_TYPES: BlockType[] = [
         label: 'No Receivers',
         description: 'Block without receivers',
         url: 'https://raw.githubusercontent.com/unyt-org/datex-core/feat/variant-access/tests/structs/no_receivers/block.bin'
-    },
-    {
-        id: 'receiver_pointer_id',
-        label: 'Receiver Pointer',
-        description: 'Block using pointer for receivers',
-        url: 'https://raw.githubusercontent.com/unyt-org/datex-core/feat/variant-access/tests/structs/receiver_pointer_id/block.bin'
     },
     {
         id: 'receivers_with_keys',
