@@ -78,9 +78,10 @@ const table = useVueTable({
 </script>
 
 <template>
-    <div class="w-full overflow-visible">
-        <div class="flex items-center justify-between gap-4 py-4 px-1 overflow-visible">
-            <div class="flex-1 max-w-sm overflow-visible">
+    <div class="w-full h-full flex flex-col overflow-hidden">
+        <!-- Fixed header section: Search and Column filters -->
+        <div class="flex items-center justify-between gap-4 py-4 px-1 flex-shrink-0">
+            <div class="flex-1 max-w-sm">
                 <slot name="filter">
                     <!-- Default filter slot if not provided -->
                 </slot>
@@ -110,45 +111,49 @@ const table = useVueTable({
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>
-        <div class="rounded-md border">
-            <Table>
-                <TableHeader>
-                    <TableRow
-                        v-for="headerGroup in table.getHeaderGroups()"
-                        :key="headerGroup.id"
-                    >
-                        <TableHead v-for="header in headerGroup.headers" :key="header.id">
-                            <FlexRender
-                                v-if="!header.isPlaceholder"
-                                :render="header.column.columnDef.header"
-                                :props="header.getContext()"
-                            />
-                        </TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    <template v-if="table.getRowModel().rows?.length">
+        
+        <!-- Scrollable table container -->
+        <div class="rounded-md border flex-1 overflow-y-auto">
+            <div class="relative w-full">
+                <table class="w-full caption-bottom text-sm">
+                    <TableHeader class="sticky top-0 bg-background z-10">
                         <TableRow
-                            v-for="row in table.getRowModel().rows"
-                            :key="row.id"
-                            :data-state="row.getIsSelected() && 'selected'"
+                            v-for="headerGroup in table.getHeaderGroups()"
+                            :key="headerGroup.id"
                         >
-                            <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                            <TableHead v-for="header in headerGroup.headers" :key="header.id">
                                 <FlexRender
-                                    :render="cell.column.columnDef.cell"
-                                    :props="cell.getContext()"
+                                    v-if="!header.isPlaceholder"
+                                    :render="header.column.columnDef.header"
+                                    :props="header.getContext()"
                                 />
+                            </TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        <template v-if="table.getRowModel().rows?.length">
+                            <TableRow
+                                v-for="row in table.getRowModel().rows"
+                                :key="row.id"
+                                :data-state="row.getIsSelected() && 'selected'"
+                            >
+                                <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                                    <FlexRender
+                                        :render="cell.column.columnDef.cell"
+                                        :props="cell.getContext()"
+                                    />
+                                </TableCell>
+                            </TableRow>
+                        </template>
+
+                        <TableRow v-else>
+                            <TableCell :colspan="columns.length" class="h-24 text-center">
+                                No blocks captured yet. Click "Simulate Block" to test.
                             </TableCell>
                         </TableRow>
-                    </template>
-
-                    <TableRow v-else>
-                        <TableCell :colspan="columns.length" class="h-24 text-center">
-                            No blocks captured yet. Click "Simulate Block" to test.
-                        </TableCell>
-                    </TableRow>
-                </TableBody>
-            </Table>
+                    </TableBody>
+                </table>
+            </div>
         </div>
     </div>
 </template>
