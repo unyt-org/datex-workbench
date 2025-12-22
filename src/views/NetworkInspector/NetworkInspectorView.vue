@@ -8,12 +8,13 @@ import type { NetworkBlockTableRow } from '@/types/NetworkInspector/TableRow';
 import DataTable from '@/components/NetworkInspector/DataTable.vue';
 import NetworkFilter from '@/components/NetworkInspector/NetworkFilter.vue';
 import { columns } from '@/components/NetworkInspector/columns';
+import { parseSearchQuery, filterRowsBySearch } from '@/utils/searchParser';
 
 const { sendTestBlock, blocks, baseInterface, socketUUID } = useNetworkInspector();
 const { sendBlock } = useBlockSimulator();
 
-// Filter state
-const blockTypeFilter = ref('');
+// Search query state
+const searchQuery = ref('');
 
 // Block sending functionality
 async function handleSendBlock(blockTypeId: string) {
@@ -159,14 +160,12 @@ const allTableRows = computed<NetworkBlockTableRow[]>(() => {
     });
 });
 
-// Filtered table rows based on blockType filter
+// Filtered table rows 
 const tableRows = computed<NetworkBlockTableRow[]>(() => {
-    if (!blockTypeFilter.value.trim()) return allTableRows.value;
+    if (!searchQuery.value.trim()) return allTableRows.value;
     
-    const filterText = blockTypeFilter.value.toLowerCase();
-    return allTableRows.value.filter(row => 
-        row.blockType.toLowerCase().includes(filterText)
-    );
+    const parsedQuery = parseSearchQuery(searchQuery.value);
+    return filterRowsBySearch(allTableRows.value, parsedQuery);
 });
 </script>
 
@@ -204,8 +203,8 @@ const tableRows = computed<NetworkBlockTableRow[]>(() => {
             <DataTable :columns="columns" :data="tableRows">
                 <template #filter>
                     <NetworkFilter 
-                        v-model:filter-value="blockTypeFilter" 
-                        placeholder="Filter by block type..."
+                        v-model:filter-value="searchQuery" 
+                        placeholder="Search: type:traceback "
                     />
                 </template>
             </DataTable>

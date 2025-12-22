@@ -9,7 +9,7 @@ interface NetworkFilterProps {
 }
 
 const props = withDefaults(defineProps<NetworkFilterProps>(), {
-    placeholder: 'Filter by block type...'
+    placeholder: 'Search: type:value sender:value receiver:value interface:value'
 });
 
 const emit = defineEmits<{
