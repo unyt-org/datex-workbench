@@ -184,8 +184,8 @@ export function highlightMatches(text: string, searchTerms: string[]): string {
     
     const regex = new RegExp(`(${pattern})`, 'gi');
     
-    // Replace matches with highlighted version
-    result = result.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-900/50 px-0.5 rounded">$1</mark>');
+    // Replace matches with highlighted version in blue
+    result = result.replace(regex, '<mark class="bg-blue-900/20 dark:bg-blue-400/30 text-blue-900 dark:text-blue-100 px-0.5 rounded font-medium">$1</mark>');
     
     return result;
 }

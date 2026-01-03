@@ -36,7 +36,7 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
                 { class: 'flex items-center' },
                 direction === 'in'
                     ? h(ArrowLeft, { class: 'h-4 w-4 text-green-500' })
-                    : h(ArrowRight, { class: 'h-4 w-4 text-orange-500' }),
+                    : h(ArrowRight, { class: 'h-4 w-4 text-blue-500' }),
             );
         },
         enableSorting: false,

@@ -6,7 +6,7 @@ import { computed, ref, watch, nextTick } from 'vue';
 import type { ParsedSection } from '@unyt/speck';
 import type { NetworkBlockTableRow } from '@/types/NetworkInspector/TableRow';
 import DataTable from '@/components/NetworkInspector/DataTable.vue';
-import NetworkFilter from '@/components/NetworkInspector/NetworkFilter.vue';
+import NetworkFilter, { type SearchSuggestions } from '@/components/NetworkInspector/NetworkFilter.vue';
 import { createColumns } from '@/components/NetworkInspector/columns';
 import { parseSearchQuery, filterRowsBySearch } from '@/utils/searchParser';
 
@@ -168,6 +168,28 @@ const tableRows = computed<NetworkBlockTableRow[]>(() => {
     return filterRowsBySearch(allTableRows.value, parsedQuery);
 });
 
+// Compute unique suggestions from table data
+const searchSuggestions = computed<SearchSuggestions>(() => {
+    const types = new Set<string>();
+    const senders = new Set<string>();
+    const receivers = new Set<string>();
+    const interfaces = new Set<string>();
+    
+    allTableRows.value.forEach(row => {
+        if (row.blockType) types.add(row.blockType);
+        if (row.sender) senders.add(row.sender);
+        if (row.receiver) receivers.add(row.receiver);
+        if (row.interface) interfaces.add(row.interface);
+    });
+    
+    return {
+        types: Array.from(types).sort(),
+        senders: Array.from(senders).sort(),
+        receivers: Array.from(receivers).sort(),
+        interfaces: Array.from(interfaces).sort()
+    };
+});
+
 // Dynamic columns with search highlighting
 const dynamicColumns = computed(() => {
     if (!searchQuery.value.trim()) return createColumns();
@@ -212,7 +234,8 @@ const dynamicColumns = computed(() => {
                 <template #filter>
                     <NetworkFilter 
                         v-model:filter-value="searchQuery" 
-                        placeholder="Search: type:traceback"
+                        :suggestions="searchSuggestions"
+                        placeholder="Search: type:traceback sender:@sender"
                     />
                 </template>
             </DataTable>
