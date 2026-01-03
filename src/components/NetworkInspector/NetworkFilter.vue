@@ -1,31 +1,48 @@
 <script setup lang="ts">
 import { Input } from '@/components/ui/input';
 import { Search, X } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { watchDebounced } from '@vueuse/core';
 import { tokenizeSearchQuery, tokensToStyledHtml } from '@/utils/searchParser';
 
 interface NetworkFilterProps {
     filterValue: string;
     placeholder?: string;
+    debounce?: number;
 }
 
 const props = withDefaults(defineProps<NetworkFilterProps>(), {
-    placeholder: 'Search: type:value sender:value receiver:value interface:value'
+    placeholder: 'Search: type:value sender:value receiver:value interface:value',
+    debounce: 300
 });
 
 const emit = defineEmits<{
     'update:filterValue': [value: string];
 }>();
 
-const localFilterValue = computed({
-    get: () => props.filterValue,
-    set: (value: string) => emit('update:filterValue', value)
+// Local ref for immediate UI updates (keeps typing responsive)
+const localFilterValue = ref(props.filterValue);
+
+// Watch for external prop changes (e.g., when parent resets the filter)
+watch(() => props.filterValue, (newValue) => {
+    if (newValue !== localFilterValue.value) {
+        localFilterValue.value = newValue;
+    }
 });
 
-// Compute styled HTML for syntax highlighting
+// Debounced watcher that emits to parent only after user stops typing
+watchDebounced(
+    localFilterValue,
+    (newValue) => {
+        emit('update:filterValue', newValue);
+    },
+    { debounce: props.debounce }
+);
+
+// Compute styled HTML for syntax highlighting based on local value
 const styledText = computed(() => {
-    if (!props.filterValue) return '';
-    const tokens = tokenizeSearchQuery(props.filterValue);
+    if (!localFilterValue.value) return '';
+    const tokens = tokenizeSearchQuery(localFilterValue.value);
     return tokensToStyledHtml(tokens);
 });
 
