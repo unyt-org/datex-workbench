@@ -2,9 +2,10 @@ import type { ColumnDef } from '@tanstack/vue-table';
 import type { NetworkBlockTableRow } from '@/types/NetworkInspector/TableRow';
 import type { ParsedSearchQuery } from '@/utils/searchParser';
 import { h } from 'vue';
-import { ArrowLeft, ArrowRight, LockOpen, FileX } from 'lucide-vue-next';
+import { ArrowLeft, ArrowRight, LockOpen, FileX, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-vue-next';
 import HighlightedText from '@/components/NetworkInspector/HighlightedText.vue';
 import { getSearchTermsForField } from '@/utils/searchParser';
+import { Button } from '@/components/ui/button';
 import {
     Tooltip,
     TooltipContent,
@@ -44,7 +45,25 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
     },
     {
         accessorKey: 'interface',
-        header: 'Interface',
+        header: ({ column }) => {
+            return h(
+                Button,
+                {
+                    variant: 'ghost',
+                    onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
+                    class: 'h-8 px-2'
+                },
+                () => [
+                    'Interface',
+                    h(
+                        column.getIsSorted() === 'asc' ? ArrowUp :
+                        column.getIsSorted() === 'desc' ? ArrowDown :
+                        ArrowUpDown,
+                        { class: 'ml-2 h-4 w-4' }
+                    )
+                ]
+            );
+        },
         cell: ({ row }) => {
             const value = row.getValue('interface') as string;
             const searchTerms = parsedQuery ? getSearchTermsForField(parsedQuery, 'interface') : [];
@@ -58,7 +77,25 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
     },
     {
         accessorKey: 'blockType',
-        header: 'Type',
+        header: ({ column }) => {
+            return h(
+                Button,
+                {
+                    variant: 'ghost',
+                    onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
+                    class: 'h-8 px-2'
+                },
+                () => [
+                    'Type',
+                    h(
+                        column.getIsSorted() === 'asc' ? ArrowUp :
+                        column.getIsSorted() === 'desc' ? ArrowDown :
+                        ArrowUpDown,
+                        { class: 'ml-2 h-4 w-4' }
+                    )
+                ]
+            );
+        },
         cell: ({ row }) => {
             const blockType = row.getValue('blockType') as string;
             const isEncrypted = row.original.isEncrypted;
@@ -140,7 +177,25 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
     },
     {
         accessorKey: 'sender',
-        header: 'Sender',
+        header: ({ column }) => {
+            return h(
+                Button,
+                {
+                    variant: 'ghost',
+                    onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
+                    class: 'h-8 px-2'
+                },
+                () => [
+                    'Sender',
+                    h(
+                        column.getIsSorted() === 'asc' ? ArrowUp :
+                        column.getIsSorted() === 'desc' ? ArrowDown :
+                        ArrowUpDown,
+                        { class: 'ml-2 h-4 w-4' }
+                    )
+                ]
+            );
+        },
         cell: ({ row }) => {
             const sender = row.getValue('sender') as string;
             const searchTerms = parsedQuery ? getSearchTermsForField(parsedQuery, 'sender') : [];
@@ -184,7 +239,25 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
     },
     {
         accessorKey: 'receiver',
-        header: 'Receiver',
+        header: ({ column }) => {
+            return h(
+                Button,
+                {
+                    variant: 'ghost',
+                    onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
+                    class: 'h-8 px-2'
+                },
+                () => [
+                    'Receiver',
+                    h(
+                        column.getIsSorted() === 'asc' ? ArrowUp :
+                        column.getIsSorted() === 'desc' ? ArrowDown :
+                        ArrowUpDown,
+                        { class: 'ml-2 h-4 w-4' }
+                    )
+                ]
+            );
+        },
         cell: ({ row }) => {
             const receiver = row.getValue('receiver') as string;
             const searchTerms = parsedQuery ? getSearchTermsForField(parsedQuery, 'receiver') : [];
@@ -228,11 +301,47 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
     },
     {
         accessorKey: 'timestamp',
-        header: 'Time',
+        header: ({ column }) => {
+            return h(
+                Button,
+                {
+                    variant: 'ghost',
+                    onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
+                    class: 'h-8 px-2'
+                },
+                () => [
+                    'Time',
+                    h(
+                        column.getIsSorted() === 'asc' ? ArrowUp :
+                        column.getIsSorted() === 'desc' ? ArrowDown :
+                        ArrowUpDown,
+                        { class: 'ml-2 h-4 w-4' }
+                    )
+                ]
+            );
+        },
     },
     {
         accessorKey: 'size',
-        header: 'Size',
+        header: ({ column }) => {
+            return h(
+                Button,
+                {
+                    variant: 'ghost',
+                    onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
+                    class: 'h-8 px-2'
+                },
+                () => [
+                    'Size',
+                    h(
+                        column.getIsSorted() === 'asc' ? ArrowUp :
+                        column.getIsSorted() === 'desc' ? ArrowDown :
+                        ArrowUpDown,
+                        { class: 'ml-2 h-4 w-4' }
+                    )
+                ]
+            );
+        },
         cell: ({ row }) => {
             const size = row.getValue('size') as number;
             return h('div', { class: 'whitespace-nowrap' }, formatBytes(size));
