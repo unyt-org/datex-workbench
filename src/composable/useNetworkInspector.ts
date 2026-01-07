@@ -157,5 +157,6 @@ export function useNetworkInspector() {
         displayedBlocks,
         baseInterface,
         socketUUID,
+        saveBlocksToStorage,
     };
 }

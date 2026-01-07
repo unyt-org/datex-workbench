@@ -2,6 +2,18 @@
 import { useNetworkInspector } from '@/composable/useNetworkInspector';
 import { useBlockSimulator, BLOCK_TYPES } from '@/composable/useBlockSimulator';
 import { Button } from '@/components/ui/button';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Trash } from 'lucide-vue-next';
 import { computed, ref, watch, nextTick } from 'vue';
 import type { ParsedSection } from '@unyt/speck';
 import type { NetworkBlockTableRow } from '@/types/NetworkInspector/TableRow';
@@ -10,11 +22,83 @@ import NetworkFilter, { type SearchSuggestions } from '@/components/NetworkInspe
 import { createColumns } from '@/components/NetworkInspector/columns';
 import { parseSearchQuery, filterRowsBySearch } from '@/utils/searchParser';
 
-const { sendTestBlock, blocks, displayedBlocks, baseInterface, socketUUID } = useNetworkInspector();
+const { sendTestBlock, blocks, displayedBlocks, baseInterface, socketUUID, saveBlocksToStorage } = useNetworkInspector();
 const { sendBlock } = useBlockSimulator();
 
 // Search query state
 const searchQuery = ref('');
+
+// Alert dialog state
+const showDeleteDialog = ref(false);
+const deleteMessage = computed(() => {
+    if (searchQuery.value.trim()) {
+        // When search is active, count all blocks that match the search
+        const count = tableRows.value.length;
+        return count > 0 ? `This will permanently delete ${count} filtered block${count > 1 ? 's' : ''}.` : '';
+    } else {
+        // When no search, delete all blocks
+        const count = blocks.value.length;
+        return count > 0 ? `This will permanently delete all ${count} block${count > 1 ? 's' : ''}.` : '';
+    }
+});
+
+// Trigger delete dialog
+function handleClearBlocks() {
+    if (searchQuery.value.trim() && tableRows.value.length === 0) {
+        return;
+    }
+    if (!searchQuery.value.trim() && blocks.value.length === 0) {
+        return;
+    }
+    showDeleteDialog.value = true;
+}
+
+// Confirm and execute deletion
+function confirmClearBlocks() {
+    if (searchQuery.value.trim()) {
+        // When search is active, delete only blocks matching the search
+        const parsedQuery = parseSearchQuery(searchQuery.value);
+        
+        // Transform all blocks to table rows to filter them
+        const allBlocksAsRows = blocks.value.map((block) => {
+            const blockType = getBlockType(block.parsedBlock);
+            const sender = getSender(block.parsedBlock);
+            const receivers = getReceivers(block.parsedBlock);
+            const timestamp = getTimestamp(block.parsedBlock);
+            const size = getBlockSize(block.parsedBlock);
+            const encryptionType = getEncryptionType(block.parsedBlock);
+            const signatureType = getSignatureType(block.parsedBlock);
+
+            return {
+                direction: block.direction,
+                blockType,
+                sender,
+                receiver: receivers.join(', '),
+                timestamp: timestamp === 0 ? new Date(block.capturedAt).toLocaleTimeString() : new Date(timestamp).toLocaleTimeString(),
+                size,
+                isEncrypted: encryptionType !== 'None' && encryptionType !== 'Unknown',
+                isSigned: signatureType !== 'None' && signatureType !== 'Unknown',
+                interface: block.interfaceName,
+                capturedAt: block.capturedAt,
+            };
+        });
+        
+        // Filter to get matching blocks
+        const matchingRows = filterRowsBySearch(allBlocksAsRows, parsedQuery);
+        const timestampsToDelete = new Set(matchingRows.map(row => row.capturedAt));
+        
+        // Delete matching blocks
+        blocks.value = blocks.value.filter(block => !timestampsToDelete.has(block.capturedAt));
+    } else {
+        // When no search, delete all blocks
+        blocks.value = [];
+    }
+    
+    // Persist changes to localStorage
+    saveBlocksToStorage(blocks.value);
+    
+    showDeleteDialog.value = false;
+}
 
 // Block sending functionality
 async function handleSendBlock(blockTypeId: string) {
@@ -232,11 +316,44 @@ const dynamicColumns = computed(() => {
         <div ref="scrollContainerRef" class="flex-1 max-h-[calc(100vh-200px)] overflow-y-auto">
             <DataTable :columns="dynamicColumns" :data="tableRows">
                 <template #filter>
-                    <NetworkFilter 
-                        v-model:filter-value="searchQuery" 
-                        :suggestions="searchSuggestions"
-                        placeholder="Search: type:traceback sender:@sender"
-                    />
+                    <div class="flex items-center gap-2">
+                        <NetworkFilter 
+                            v-model:filter-value="searchQuery" 
+                            :suggestions="searchSuggestions"
+                            placeholder="Search: type:traceback sender:@sender"
+                        />
+                        <AlertDialog v-model:open="showDeleteDialog">
+                            <AlertDialogTrigger as-child>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    title="Clear all displayed blocks"
+                                    class="hover:text-red-600 transition-colors"
+                                    :disabled="blocks.length === 0"
+                                >
+                                    <Trash class="h-4 w-4" />
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete Blocks?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        {{ deleteMessage }}
+                                        This action cannot be undone.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                        @click="confirmClearBlocks"
+                                        class="bg-red-600 hover:bg-red-700"
+                                    >
+                                        Delete
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
                 </template>
             </DataTable>
         </div>
