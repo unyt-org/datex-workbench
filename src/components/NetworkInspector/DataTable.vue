@@ -1,5 +1,5 @@
 <script setup lang="ts" generic="TData, TValue">
-import type { ColDef, GridApi, GridReadyEvent, Column } from 'ag-grid-community';
+import type { ColDef, GridApi, GridReadyEvent, Column, ColumnState } from 'ag-grid-community';
 import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 import { AgGridVue } from 'ag-grid-vue3';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,8 @@ import { ChevronDown } from 'lucide-vue-next';
 import { ref, onMounted, watch } from 'vue';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
+
+const COLUMN_STATE_KEY = 'network-inspector-column-state';
 
 interface DataTableProps {
     columns: ColDef<TData>[];
@@ -38,21 +40,40 @@ const defaultColDef: ColDef = {
 const onGridReady = (params: GridReadyEvent<TData>) => {
     gridApi.value = params.api;
     
+    // Restore column state from localStorage
+    const savedState = localStorage.getItem(COLUMN_STATE_KEY);
+    if (savedState) {
+        try {
+            const columnState: ColumnState[] = JSON.parse(savedState);
+            params.api.applyColumnState({ state: columnState, applyOrder: true });
+        } catch (e) {
+            console.error('Failed to restore column state:', e);
+        }
+    }
+    
     // Initialize column visibility state
     const columnState: Record<string, boolean> = {};
-    params.api.getAllDisplayedColumns().forEach((col: Column) => {
+    params.api.getAllGridColumns().forEach((col: Column) => {
         const colDef = col.getColDef();
         if (colDef.field) {
-            columnState[colDef.field] = true;
+            columnState[colDef.field] = col.isVisible();
         }
     });
     visibleColumns.value = columnState;
+};
+
+const saveColumnState = () => {
+    if (gridApi.value) {
+        const columnState = gridApi.value.getColumnState();
+        localStorage.setItem(COLUMN_STATE_KEY, JSON.stringify(columnState));
+    }
 };
 
 const toggleColumnVisibility = (field: string, visible: boolean) => {
     if (gridApi.value) {
         gridApi.value.setColumnsVisible([field], visible);
         visibleColumns.value[field] = visible;
+        saveColumnState();
     }
 };
 
@@ -101,12 +122,16 @@ watch(() => props.filterValue, (newValue) => {
                 :rowData="data"
                 :defaultColDef="defaultColDef"
                 @grid-ready="onGridReady"
+                @drag-stopped="saveColumnState"
+                @column-visible="saveColumnState"
                 :rowHeight="48"
                 :headerHeight="48"
                 :suppressCellFocus="true"
                 :suppressRowClickSelection="true"
                 :enableCellTextSelection="true"
                 :reactiveCustomComponents="true"
+                :suppressDragLeaveHidesColumns="true"
+                :suppressColumnVirtualisation="true"
             />
         </div>
     </div>
@@ -139,10 +164,6 @@ watch(() => props.filterValue, (newValue) => {
     border-right: 1px solid hsl(215 20% 25% / 0.5);
 }
 
-.ag-theme-custom .ag-header-cell:last-child {
-    border-right: none;
-}
-
 .ag-theme-custom .ag-cell {
     border-right: 1px solid hsl(215 20% 25% / 0.3);
     display: flex;
@@ -150,10 +171,6 @@ watch(() => props.filterValue, (newValue) => {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-.ag-theme-custom .ag-cell:last-child {
-    border-right: none;
 }
 
 .ag-theme-custom .ag-cell-value {
