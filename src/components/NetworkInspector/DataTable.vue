@@ -1,27 +1,7 @@
 <script setup lang="ts" generic="TData, TValue">
-import type {
-    ColumnDef,
-    ColumnFiltersState,
-    SortingState,
-    VisibilityState,
-    ColumnOrderState,
-} from '@tanstack/vue-table';
-import {
-    FlexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getSortedRowModel,
-    useVueTable,
-} from '@tanstack/vue-table';
-
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+import type { ColDef, GridApi, GridReadyEvent, Column } from 'ag-grid-community';
+import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
+import { AgGridVue } from 'ag-grid-vue3';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -30,11 +10,12 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-vue-next';
-import { ref, computed } from 'vue';
-import { valueUpdater } from '@/lib/utils';
+import { ref, onMounted, watch } from 'vue';
+
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 interface DataTableProps {
-    columns: ColumnDef<TData, TValue>[];
+    columns: ColDef<TData>[];
     data: TData[];
     filterValue?: string;
     filterPlaceholder?: string;
@@ -44,118 +25,43 @@ const props = withDefaults(defineProps<DataTableProps>(), {
     filterPlaceholder: 'Filter...'
 });
 
-const sorting = ref<SortingState>([]);
-const columnFilters = ref<ColumnFiltersState>([]);
-const columnVisibility = ref<VisibilityState>({});
-const columnOrder = ref<ColumnOrderState>([]);
+const gridApi = ref<GridApi<TData>>();
+const visibleColumns = ref<Record<string, boolean>>({});
 
-// Drag and drop state
-const draggedColumnId = ref<string | null>(null);
-const dragOverColumnId = ref<string | null>(null);
-const dropSide = ref<'left' | 'right'>('right');
+const defaultColDef: ColDef = {
+    resizable: true,
+    sortable: true,
+    filter: false,
+    suppressMovable: false,
+};
 
-const table = useVueTable({
-    get data() {
-        return props.data;
-    },
-    get columns() {
-        return props.columns;
-    },
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onSortingChange: (updaterOrValue) => valueUpdater(updaterOrValue, sorting),
-    onColumnFiltersChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnFilters),
-    onColumnVisibilityChange: (updaterOrValue) =>
-        valueUpdater(updaterOrValue, columnVisibility),
-    onColumnOrderChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnOrder),
-    state: {
-        get sorting() {
-            return sorting.value;
-        },
-        get columnFilters() {
-            return columnFilters.value;
-        },
-        get columnVisibility() {
-            return columnVisibility.value;
-        },
-        get columnOrder() {
-            return columnOrder.value;
-        },
-    },
+const onGridReady = (params: GridReadyEvent<TData>) => {
+    gridApi.value = params.api;
+    
+    // Initialize column visibility state
+    const columnState: Record<string, boolean> = {};
+    params.api.getAllDisplayedColumns().forEach((col: Column) => {
+        const colDef = col.getColDef();
+        if (colDef.field) {
+            columnState[colDef.field] = true;
+        }
+    });
+    visibleColumns.value = columnState;
+};
+
+const toggleColumnVisibility = (field: string, visible: boolean) => {
+    if (gridApi.value) {
+        gridApi.value.setColumnsVisible([field], visible);
+        visibleColumns.value[field] = visible;
+    }
+};
+
+// Watch for filter changes
+watch(() => props.filterValue, (newValue) => {
+    if (gridApi.value && newValue !== undefined) {
+        gridApi.value.setGridOption('quickFilterText', newValue);
+    }
 });
-
-// Drag and drop handlers
-function handleDragStart(e: DragEvent, columnId: string) {
-    draggedColumnId.value = columnId;
-    if (e.dataTransfer) {
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', columnId);
-    }
-}
-
-function handleDragOver(e: DragEvent, columnId: string) {
-    e.preventDefault();
-    if (e.dataTransfer) {
-        e.dataTransfer.dropEffect = 'move';
-    }
-    if (draggedColumnId.value !== columnId) {
-        dragOverColumnId.value = columnId;
-        
-        // Determine which side to show the drop indicator
-        const allColumns = table.getAllLeafColumns();
-        const currentOrder = columnOrder.value.length > 0 
-            ? columnOrder.value 
-            : allColumns.map(col => col.id);
-        
-        const draggedIndex = currentOrder.indexOf(draggedColumnId.value!);
-        const targetIndex = currentOrder.indexOf(columnId);
-        
-        // If dragging left to right, show indicator on the right
-        // If dragging right to left, show indicator on the left
-        dropSide.value = draggedIndex < targetIndex ? 'right' : 'left';
-    }
-}
-
-function handleDragLeave() {
-    dragOverColumnId.value = null;
-    dropSide.value = 'right';
-}
-
-function handleDrop(e: DragEvent, targetColumnId: string) {
-    e.preventDefault();
-    
-    if (!draggedColumnId.value || draggedColumnId.value === targetColumnId) {
-        return;
-    }
-
-    const allColumns = table.getAllLeafColumns();
-    const currentOrder = columnOrder.value.length > 0 
-        ? columnOrder.value 
-        : allColumns.map(col => col.id);
-    
-    const draggedIndex = currentOrder.indexOf(draggedColumnId.value);
-    const targetIndex = currentOrder.indexOf(targetColumnId);
-    
-    if (draggedIndex === -1 || targetIndex === -1) {
-        return;
-    }
-
-    const newOrder = [...currentOrder];
-    newOrder.splice(draggedIndex, 1);
-    newOrder.splice(targetIndex, 0, draggedColumnId.value);
-    
-    columnOrder.value = newOrder;
-    dragOverColumnId.value = null;
-}
-
-function handleDragEnd() {
-    draggedColumnId.value = null;
-    dragOverColumnId.value = null;
-    dropSide.value = 'right';
-}
-
-// Computed to get the filter value
 </script>
 
 <template>
@@ -175,82 +81,93 @@ function handleDragEnd() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuCheckboxItem
-                        v-for="column in table
-                            .getAllColumns()
-                            .filter((column) => column.getCanHide())"
-                        :key="column.id"
+                        v-for="(visible, field) in visibleColumns"
+                        :key="field"
                         class="capitalize"
-                        :model-value="column.getIsVisible()"
-                        @update:model-value="
-                            (value: boolean) => {
-                                column.toggleVisibility(!!value);
-                            }
-                        "
+                        :model-value="visible"
+                        @update:model-value="(value: boolean) => toggleColumnVisibility(field, value)"
                     >
-                        {{ column.id }}
+                        {{ field }}
                     </DropdownMenuCheckboxItem>
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>
         
-        <!-- Scrollable table container -->
-        <div class="rounded-md border flex-1 overflow-y-auto">
-            <div class="relative w-full">
-                <table class="w-full caption-bottom text-sm">
-                    <TableHeader class="sticky top-0 bg-background z-10">
-                        <TableRow
-                            v-for="headerGroup in table.getHeaderGroups()"
-                            :key="headerGroup.id"
-                        >
-                            <TableHead 
-                                v-for="header in headerGroup.headers" 
-                                :key="header.id" 
-                                class="border-r border-border last:border-r-0 relative overflow-visible transition-opacity"
-                                :class="{
-                                    'opacity-50 cursor-grabbing': draggedColumnId === header.column.id,
-                                    'border-l-2 border-l-primary': dragOverColumnId === header.column.id && draggedColumnId !== header.column.id && dropSide === 'left',
-                                    'border-r-2 border-r-primary': dragOverColumnId === header.column.id && draggedColumnId !== header.column.id && dropSide === 'right',
-                                    'cursor-grab': !draggedColumnId
-                                }"
-                                draggable="true"
-                                @dragstart="(e: DragEvent) => handleDragStart(e, header.column.id)"
-                                @dragover="(e: DragEvent) => handleDragOver(e, header.column.id)"
-                                @dragleave="handleDragLeave"
-                                @drop="(e: DragEvent) => handleDrop(e, header.column.id)"
-                                @dragend="handleDragEnd"
-                            >
-                                <FlexRender
-                                    v-if="!header.isPlaceholder"
-                                    :render="header.column.columnDef.header"
-                                    :props="header.getContext()"
-                                />
-                            </TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        <template v-if="table.getRowModel().rows?.length">
-                            <TableRow
-                                v-for="row in table.getRowModel().rows"
-                                :key="row.id"
-                                :data-state="row.getIsSelected() && 'selected'"
-                            >
-                                <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id" class="border-r border-border last:border-r-0">
-                                    <FlexRender
-                                        :render="cell.column.columnDef.cell"
-                                        :props="cell.getContext()"
-                                    />
-                                </TableCell>
-                            </TableRow>
-                        </template>
-
-                        <TableRow v-else>
-                            <TableCell :colspan="columns.length" class="h-24 text-center">
-                                No blocks captured yet. Click "Simulate Block" to test.
-                            </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </table>
-            </div>
+        <!-- AG Grid container -->
+        <div class="ag-theme-custom flex-1 rounded-md border overflow-hidden">
+            <AgGridVue
+                style="width: 100%; height: 100%;"
+                :columnDefs="columns"
+                :rowData="data"
+                :defaultColDef="defaultColDef"
+                @grid-ready="onGridReady"
+                :rowHeight="48"
+                :headerHeight="48"
+                :suppressCellFocus="true"
+                :suppressRowClickSelection="true"
+                :enableCellTextSelection="true"
+                :reactiveCustomComponents="true"
+            />
         </div>
     </div>
 </template>
+
+<style>
+/* AG Grid custom theme matching current dark theme */
+.ag-theme-custom {
+    --ag-background-color: hsl(var(--background));
+    --ag-foreground-color: hsl(var(--foreground));
+    --ag-header-background-color: hsl(222 47% 11% / 1);
+    --ag-header-foreground-color: hsl(var(--foreground));
+    --ag-odd-row-background-color: hsl(var(--background));
+    --ag-row-hover-color: hsl(var(--accent));
+    --ag-border-color: hsl(var(--border));
+    --ag-header-column-resize-handle-color: hsl(var(--border));
+    --ag-font-size: 0.875rem;
+    --ag-font-family: inherit;
+}
+
+.ag-theme-custom .ag-root-wrapper {
+    border: none;
+}
+
+.ag-theme-custom .ag-header {
+    border-bottom: 1px solid hsl(var(--border));
+}
+
+.ag-theme-custom .ag-header-cell {
+    border-right: 1px solid hsl(215 20% 25% / 0.5);
+}
+
+.ag-theme-custom .ag-header-cell:last-child {
+    border-right: none;
+}
+
+.ag-theme-custom .ag-cell {
+    border-right: 1px solid hsl(215 20% 25% / 0.3);
+    display: flex;
+    align-items: center;
+}
+
+.ag-theme-custom .ag-cell:last-child {
+    border-right: none;
+}
+
+.ag-theme-custom .ag-header-cell-text {
+    font-weight: 500;
+}
+
+.ag-theme-custom .ag-row {
+    border-bottom: 1px solid hsl(var(--border));
+}
+
+/* Column drag indicators */
+.ag-theme-custom .ag-header-cell-moving {
+    background-color: hsl(var(--accent));
+}
+
+/* Resize handle styling */
+.ag-theme-custom .ag-header-cell-resize::after {
+    width: 2px;
+}
+</style>
