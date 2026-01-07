@@ -279,7 +279,7 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
                                             default: () =>
                                                 h(
                                                     'div',
-                                                    { class: 'max-w-64 cursor-default truncate text-blue-400' },
+                                                    { class: 'max-w-64 cursor-default text-ellipsis overflow-hidden whitespace-nowrap text-blue-400' },
                                                     [
                                                         h(HighlightedText, {
                                                             text: receiver,
