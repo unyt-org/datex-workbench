@@ -25,11 +25,11 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColDef<NetworkBl
         field: 'direction',
         headerName: 'Dir',
         width: 70,
+        minWidth: 60,
         cellRenderer: DirectionCell,
         sortable: false,
         suppressMovable: true,
         lockPosition: 'left',
-        resizable: false,
     },
     {
         field: 'interface',
@@ -75,13 +75,13 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColDef<NetworkBl
         field: 'timestamp',
         headerName: 'Time',
         width: 120,
-        resizable: false,
+        minWidth: 100,
     },
     {
         field: 'size',
         headerName: 'Size',
         width: 90,
-        resizable: false,
+        minWidth: 70,
         valueFormatter: (params) => {
             const size = params.value as number;
             if (size === undefined || size === null) return '';

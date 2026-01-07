@@ -117,10 +117,10 @@ watch(() => props.filterValue, (newValue) => {
 .ag-theme-custom {
     --ag-background-color: hsl(var(--background));
     --ag-foreground-color: hsl(var(--foreground));
-    --ag-header-background-color: hsl(222 47% 11% / 1);
+    --ag-header-background-color: hsl(217 33% 17% / 1);
     --ag-header-foreground-color: hsl(var(--foreground));
     --ag-odd-row-background-color: hsl(var(--background));
-    --ag-row-hover-color: hsl(var(--accent));
+    --ag-row-hover-color: hsl(215 30% 20% / 0.6);
     --ag-border-color: hsl(var(--border));
     --ag-header-column-resize-handle-color: hsl(var(--border));
     --ag-font-size: 0.875rem;
@@ -147,10 +147,20 @@ watch(() => props.filterValue, (newValue) => {
     border-right: 1px solid hsl(215 20% 25% / 0.3);
     display: flex;
     align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .ag-theme-custom .ag-cell:last-child {
     border-right: none;
+}
+
+.ag-theme-custom .ag-cell-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
 }
 
 .ag-theme-custom .ag-header-cell-text {
