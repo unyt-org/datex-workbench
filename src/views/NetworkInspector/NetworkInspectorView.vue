@@ -10,7 +10,7 @@ import NetworkFilter, { type SearchSuggestions } from '@/components/NetworkInspe
 import { createColumns } from '@/components/NetworkInspector/columns';
 import { parseSearchQuery, filterRowsBySearch } from '@/utils/searchParser';
 
-const { sendTestBlock, blocks, baseInterface, socketUUID } = useNetworkInspector();
+const { sendTestBlock, blocks, displayedBlocks, baseInterface, socketUUID } = useNetworkInspector();
 const { sendBlock } = useBlockSimulator();
 
 // Search query state
@@ -135,7 +135,7 @@ function getSignatureType(parsedBlock: ParsedSection[]): string {
 
 // Computed property to transform raw blocks into table rows
 const allTableRows = computed<NetworkBlockTableRow[]>(() => {
-    return blocks.value.map((block) => {
+    return displayedBlocks.value.map((block) => {
         const blockType = getBlockType(block.parsedBlock);
         const sender = getSender(block.parsedBlock);
         const receivers = getReceivers(block.parsedBlock);
