@@ -51,7 +51,7 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
                 {
                     variant: 'ghost',
                     onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-                    class: 'h-8 px-4 -mx-4 justify-start w-full'
+                    class: 'absolute inset-0 h-full w-full px-4 justify-start rounded-none'
                 },
                 () => [
                     'Interface',
@@ -83,7 +83,7 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
                 {
                     variant: 'ghost',
                     onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-                    class: 'h-8 px-4 -mx-4 justify-start w-full'
+                    class: 'absolute inset-0 h-full w-full px-4 justify-start rounded-none'
                 },
                 () => [
                     'Type',
@@ -183,7 +183,7 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
                 {
                     variant: 'ghost',
                     onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-                    class: 'h-8 px-4 -mx-4 justify-start w-full'
+                    class: 'absolute inset-0 h-full w-full px-4 justify-start rounded-none'
                 },
                 () => [
                     'Sender',
@@ -245,7 +245,7 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
                 {
                     variant: 'ghost',
                     onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-                    class: 'h-8 px-4 -mx-4 justify-start w-full'
+                    class: 'absolute inset-0 h-full w-full px-4 justify-start rounded-none'
                 },
                 () => [
                     'Receiver',
@@ -307,7 +307,7 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
                 {
                     variant: 'ghost',
                     onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-                    class: 'h-8 px-4 -mx-4 justify-start w-full'
+                    class: 'absolute inset-0 h-full w-full px-4 justify-start rounded-none'
                 },
                 () => [
                     'Time',
@@ -329,7 +329,7 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
                 {
                     variant: 'ghost',
                     onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-                    class: 'h-8 px-4 -mx-4 justify-start w-full'
+                    class: 'absolute inset-0 h-full w-full px-4 justify-start rounded-none'
                 },
                 () => [
                     'Size',
