@@ -4,6 +4,7 @@ import type {
     ColumnFiltersState,
     SortingState,
     VisibilityState,
+    ColumnOrderState,
 } from '@tanstack/vue-table';
 import {
     FlexRender,
@@ -29,7 +30,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { valueUpdater } from '@/lib/utils';
 
 interface DataTableProps {
@@ -46,6 +47,12 @@ const props = withDefaults(defineProps<DataTableProps>(), {
 const sorting = ref<SortingState>([]);
 const columnFilters = ref<ColumnFiltersState>([]);
 const columnVisibility = ref<VisibilityState>({});
+const columnOrder = ref<ColumnOrderState>([]);
+
+// Drag and drop state
+const draggedColumnId = ref<string | null>(null);
+const dragOverColumnId = ref<string | null>(null);
+const dropSide = ref<'left' | 'right'>('right');
 
 const table = useVueTable({
     get data() {
@@ -61,6 +68,7 @@ const table = useVueTable({
     onColumnFiltersChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnFilters),
     onColumnVisibilityChange: (updaterOrValue) =>
         valueUpdater(updaterOrValue, columnVisibility),
+    onColumnOrderChange: (updaterOrValue) => valueUpdater(updaterOrValue, columnOrder),
     state: {
         get sorting() {
             return sorting.value;
@@ -71,8 +79,81 @@ const table = useVueTable({
         get columnVisibility() {
             return columnVisibility.value;
         },
+        get columnOrder() {
+            return columnOrder.value;
+        },
     },
 });
+
+// Drag and drop handlers
+function handleDragStart(e: DragEvent, columnId: string) {
+    draggedColumnId.value = columnId;
+    if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', columnId);
+    }
+}
+
+function handleDragOver(e: DragEvent, columnId: string) {
+    e.preventDefault();
+    if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = 'move';
+    }
+    if (draggedColumnId.value !== columnId) {
+        dragOverColumnId.value = columnId;
+        
+        // Determine which side to show the drop indicator
+        const allColumns = table.getAllLeafColumns();
+        const currentOrder = columnOrder.value.length > 0 
+            ? columnOrder.value 
+            : allColumns.map(col => col.id);
+        
+        const draggedIndex = currentOrder.indexOf(draggedColumnId.value!);
+        const targetIndex = currentOrder.indexOf(columnId);
+        
+        // If dragging left to right, show indicator on the right
+        // If dragging right to left, show indicator on the left
+        dropSide.value = draggedIndex < targetIndex ? 'right' : 'left';
+    }
+}
+
+function handleDragLeave() {
+    dragOverColumnId.value = null;
+    dropSide.value = 'right';
+}
+
+function handleDrop(e: DragEvent, targetColumnId: string) {
+    e.preventDefault();
+    
+    if (!draggedColumnId.value || draggedColumnId.value === targetColumnId) {
+        return;
+    }
+
+    const allColumns = table.getAllLeafColumns();
+    const currentOrder = columnOrder.value.length > 0 
+        ? columnOrder.value 
+        : allColumns.map(col => col.id);
+    
+    const draggedIndex = currentOrder.indexOf(draggedColumnId.value);
+    const targetIndex = currentOrder.indexOf(targetColumnId);
+    
+    if (draggedIndex === -1 || targetIndex === -1) {
+        return;
+    }
+
+    const newOrder = [...currentOrder];
+    newOrder.splice(draggedIndex, 1);
+    newOrder.splice(targetIndex, 0, draggedColumnId.value);
+    
+    columnOrder.value = newOrder;
+    dragOverColumnId.value = null;
+}
+
+function handleDragEnd() {
+    draggedColumnId.value = null;
+    dragOverColumnId.value = null;
+    dropSide.value = 'right';
+}
 
 // Computed to get the filter value
 </script>
@@ -121,7 +202,23 @@ const table = useVueTable({
                             v-for="headerGroup in table.getHeaderGroups()"
                             :key="headerGroup.id"
                         >
-                            <TableHead v-for="header in headerGroup.headers" :key="header.id" class="border-r border-border last:border-r-0 relative overflow-visible">
+                            <TableHead 
+                                v-for="header in headerGroup.headers" 
+                                :key="header.id" 
+                                class="border-r border-border last:border-r-0 relative overflow-visible transition-opacity"
+                                :class="{
+                                    'opacity-50 cursor-grabbing': draggedColumnId === header.column.id,
+                                    'border-l-2 border-l-primary': dragOverColumnId === header.column.id && draggedColumnId !== header.column.id && dropSide === 'left',
+                                    'border-r-2 border-r-primary': dragOverColumnId === header.column.id && draggedColumnId !== header.column.id && dropSide === 'right',
+                                    'cursor-grab': !draggedColumnId
+                                }"
+                                draggable="true"
+                                @dragstart="(e: DragEvent) => handleDragStart(e, header.column.id)"
+                                @dragover="(e: DragEvent) => handleDragOver(e, header.column.id)"
+                                @dragleave="handleDragLeave"
+                                @drop="(e: DragEvent) => handleDrop(e, header.column.id)"
+                                @dragend="handleDragEnd"
+                            >
                                 <FlexRender
                                     v-if="!header.isPlaceholder"
                                     :render="header.column.columnDef.header"
