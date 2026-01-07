@@ -1,8 +1,96 @@
 import { Datex } from '@/lib/runtime';
-import { parseStructure } from '@unyt/speck';
+import { parseStructure, type ParsedSection } from '@unyt/speck';
 import { BaseInterfaceImpl, type BaseInterfaceSetupData } from '@unyt/datex/network/interface-impls/base';
 import { ref, computed } from 'vue';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
+
+// Helper functions to extract metadata from parsed block structure (parse once, read many)
+function getBlockType(parsedBlock: ParsedSection[]): string {
+    const blockHeader = parsedBlock.find((section) => section.name === 'Block Header');
+    if (!blockHeader) return 'Unknown';
+
+    const flagsAndTimestamp = blockHeader.fields.find(
+        (field) => field.name === 'Flags and Timestamp',
+    );
+    if (!flagsAndTimestamp || !('subFields' in flagsAndTimestamp)) return 'Unknown';
+
+    const blockType = flagsAndTimestamp.subFields.find((field: { name: string }) => field.name === 'Block Type');
+    return (blockType && 'parsedValue' in blockType) ? blockType.parsedValue?.toString() || 'Unknown' : 'Unknown';
+}
+
+function getSender(parsedBlock: ParsedSection[]): string {
+    const routingHeader = parsedBlock.find((section) => section.name === 'Routing Header');
+    if (!routingHeader) return 'Unknown';
+
+    const sender = routingHeader.fields.find((field) => field.name === 'Sender');
+    return (sender && 'parsedValue' in sender) ? sender.parsedValue?.toString() || 'Unknown' : 'Unknown';
+}
+
+function getReceivers(parsedBlock: ParsedSection[]): string[] {
+    const routingHeader = parsedBlock.find((section) => section.name === 'Routing Header');
+    if (!routingHeader) return [];
+
+    const receivers = routingHeader.fields.filter((field) => field.name === 'Receivers');
+    return receivers.map((field) => ('parsedValue' in field) ? field.parsedValue?.toString() || '' : '');
+}
+
+function getTimestamp(parsedBlock: ParsedSection[]): number {
+    const blockHeader = parsedBlock.find((section) => section.name === 'Block Header');
+    if (!blockHeader) return 0;
+
+    const flagsAndTimestamp = blockHeader.fields.find(
+        (field) => field.name === 'Flags and Timestamp',
+    );
+    if (!flagsAndTimestamp || !('subFields' in flagsAndTimestamp)) return 0;
+
+    const timestamp = flagsAndTimestamp.subFields.find(
+        (field) => field.name === 'Creation Timestamp',
+    );
+    return (timestamp && 'parsedValue' in timestamp) ? Number(timestamp.parsedValue) || 0 : 0;
+}
+
+function getBlockSize(parsedBlock: ParsedSection[]): number {
+    const routingHeader = parsedBlock.find((section) => section.name === 'Routing Header');
+    if (!routingHeader) return 0;
+
+    const blockSize = routingHeader.fields.find((field) => field.name === 'Block Size');
+    return (blockSize && 'parsedValue' in blockSize) ? Number(blockSize.parsedValue) || 0 : 0;
+}
+
+function getEncryptionType(parsedBlock: ParsedSection[]): string {
+    const routingHeader = parsedBlock.find((section) => section.name === 'Routing Header');
+    if (!routingHeader) return 'Unknown';
+
+    const flags = routingHeader.fields.find((field) => field.name === 'Flags');
+    if (!flags || !('subFields' in flags)) return 'Unknown';
+
+    const encryptionType = flags.subFields.find((field: { name: string }) => field.name === 'Encryption Type');
+    return (encryptionType && 'parsedValue' in encryptionType) ? encryptionType.parsedValue?.toString() || 'Unknown' : 'Unknown';
+}
+
+function getSignatureType(parsedBlock: ParsedSection[]): string {
+    const routingHeader = parsedBlock.find((section) => section.name === 'Routing Header');
+    if (!routingHeader) return 'Unknown';
+
+    const flags = routingHeader.fields.find((field) => field.name === 'Flags');
+    if (!flags || !('subFields' in flags)) return 'Unknown';
+
+    const signatureType = flags.subFields.find((field: { name: string }) => field.name === 'Signature Type');
+    return (signatureType && 'parsedValue' in signatureType) ? signatureType.parsedValue?.toString() || 'Unknown' : 'Unknown';
+}
+
+// Extract all metadata once from parsed block
+function extractBlockMetadata(parsedBlock: ParsedSection[]) {
+    return {
+        blockType: getBlockType(parsedBlock),
+        sender: getSender(parsedBlock),
+        receivers: getReceivers(parsedBlock),
+        timestamp: getTimestamp(parsedBlock),
+        size: getBlockSize(parsedBlock),
+        encryptionType: getEncryptionType(parsedBlock),
+        signatureType: getSignatureType(parsedBlock),
+    };
+}
 
 // Storage configuration
 const STORAGE_KEY = 'datex-workbench:network-inspector:blocks';
@@ -23,7 +111,7 @@ function arrayBufferToBase64(buffer: Uint8Array): string {
     let binary = '';
     const len = buffer.byteLength;
     for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(buffer[i]);
+        binary += String.fromCharCode(buffer[i]!);
     }
     return btoa(binary);
 }
@@ -64,6 +152,7 @@ function loadBlocksFromStorage(definition: any): RawBlockEntry[] {
         return storedBlocks.map(stored => {
             const originalBinary = base64ToArrayBuffer(stored.blockBase64);
             const parsedBlock = parseStructure(definition, originalBinary);
+            const metadata = extractBlockMetadata(parsedBlock);
             return {
                 direction: stored.direction,
                 parsedBlock,
@@ -71,6 +160,7 @@ function loadBlocksFromStorage(definition: any): RawBlockEntry[] {
                 socketUuid: stored.socketUuid,
                 interfaceName: stored.interfaceName,
                 capturedAt: stored.capturedAt,
+                ...metadata,
             };
         });
     } catch (error) {
@@ -131,6 +221,9 @@ Datex.comHub.registerIncomingBlockInterceptor((block: Uint8Array, socket_uuid: s
     const parsedBlock = parseStructure(definition, block);
     console.log(parsedBlock, socket_uuid);
     
+    // Extract metadata once at capture time
+    const metadata = extractBlockMetadata(parsedBlock);
+    
     // Add new block at the beginning (top of list)
     blocks.value.unshift({
         direction: 'in',
@@ -139,6 +232,7 @@ Datex.comHub.registerIncomingBlockInterceptor((block: Uint8Array, socket_uuid: s
         socketUuid: socket_uuid,
         interfaceName: config.name,
         capturedAt: Date.now(),
+        ...metadata,
     });
     
     // Keep only the most recent 200 blocks (FIFO rotation)

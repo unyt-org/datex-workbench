@@ -9,4 +9,12 @@ export interface RawBlockEntry {
     socketUuid: string;
     interfaceName: string;
     capturedAt: number;
+    // Pre-parsed metadata (extracted once at capture time)
+    blockType: string;
+    sender: string;
+    receivers: string[];
+    timestamp: number;
+    size: number;
+    encryptionType: string;
+    signatureType: string;
 }

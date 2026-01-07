@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Trash } from 'lucide-vue-next';
 import { computed, ref, watch, nextTick } from 'vue';
-import type { ParsedSection } from '@unyt/speck';
 import type { NetworkBlockTableRow } from '@/types/NetworkInspector/TableRow';
 import DataTable from '@/components/NetworkInspector/DataTable.vue';
 import NetworkFilter, { type SearchSuggestions } from '@/components/NetworkInspector/NetworkFilter.vue';
@@ -31,23 +30,15 @@ const searchQuery = ref('');
 // Alert dialog state
 const showDeleteDialog = ref(false);
 const deleteMessage = computed(() => {
-    if (searchQuery.value.trim()) {
-        // When search is active, count all blocks that match the search
-        const count = tableRows.value.length;
-        return count > 0 ? `This will permanently delete ${count} filtered block${count > 1 ? 's' : ''}.` : '';
-    } else {
-        // When no search, delete all blocks
-        const count = blocks.value.length;
-        return count > 0 ? `This will permanently delete all ${count} block${count > 1 ? 's' : ''}.` : '';
-    }
+    // Always count from filtered view (when no search, filtered = all blocks)
+    const count = filteredTableRows.value.length;
+    return count > 0 ? `This will permanently delete ${count} block${count > 1 ? 's' : ''}.` : '';
 });
 
 // Trigger delete dialog
 function handleClearBlocks() {
-    if (searchQuery.value.trim() && tableRows.value.length === 0) {
-        return;
-    }
-    if (!searchQuery.value.trim() && blocks.value.length === 0) {
+    // Don't show dialog if there's nothing to delete
+    if (filteredTableRows.value.length === 0) {
         return;
     }
     showDeleteDialog.value = true;
@@ -55,44 +46,9 @@ function handleClearBlocks() {
 
 // Confirm and execute deletion
 function confirmClearBlocks() {
-    if (searchQuery.value.trim()) {
-        // When search is active, delete only blocks matching the search
-        const parsedQuery = parseSearchQuery(searchQuery.value);
-        
-        // Transform all blocks to table rows to filter them
-        const allBlocksAsRows = blocks.value.map((block) => {
-            const blockType = getBlockType(block.parsedBlock);
-            const sender = getSender(block.parsedBlock);
-            const receivers = getReceivers(block.parsedBlock);
-            const timestamp = getTimestamp(block.parsedBlock);
-            const size = getBlockSize(block.parsedBlock);
-            const encryptionType = getEncryptionType(block.parsedBlock);
-            const signatureType = getSignatureType(block.parsedBlock);
-
-            return {
-                direction: block.direction,
-                blockType,
-                sender,
-                receiver: receivers.join(', '),
-                timestamp: timestamp === 0 ? new Date(block.capturedAt).toLocaleTimeString() : new Date(timestamp).toLocaleTimeString(),
-                size,
-                isEncrypted: encryptionType !== 'None' && encryptionType !== 'Unknown',
-                isSigned: signatureType !== 'None' && signatureType !== 'Unknown',
-                interface: block.interfaceName,
-                capturedAt: block.capturedAt,
-            };
-        });
-        
-        // Filter to get matching blocks
-        const matchingRows = filterRowsBySearch(allBlocksAsRows, parsedQuery);
-        const timestampsToDelete = new Set(matchingRows.map(row => row.capturedAt));
-        
-        // Delete matching blocks
-        blocks.value = blocks.value.filter(block => !timestampsToDelete.has(block.capturedAt));
-    } else {
-        // When no search, delete all blocks
-        blocks.value = [];
-    }
+    // Always delete based on current filtered view
+    const timestampsToDelete = new Set(filteredTableRows.value.map(row => row.capturedAt));
+    blocks.value = blocks.value.filter(block => !timestampsToDelete.has(block.capturedAt));
     
     // Persist changes to localStorage
     saveBlocksToStorage(blocks.value);
@@ -142,114 +98,37 @@ watch(
     },
 );
 
-// Helper functions to extract data from parsed block structure
-function getBlockType(parsedBlock: ParsedSection[]): string {
-    const blockHeader = parsedBlock.find((section) => section.name === 'Block Header');
-    if (!blockHeader) return 'Unknown';
-
-    const flagsAndTimestamp = blockHeader.fields.find(
-        (field) => field.name === 'Flags and Timestamp',
-    );
-    if (!flagsAndTimestamp || !('subFields' in flagsAndTimestamp)) return 'Unknown';
-
-    const blockType = flagsAndTimestamp.subFields.find((field: { name: string }) => field.name === 'Block Type');
-    return (blockType && 'parsedValue' in blockType) ? blockType.parsedValue?.toString() || 'Unknown' : 'Unknown';
-}
-
-function getSender(parsedBlock: ParsedSection[]): string {
-    const routingHeader = parsedBlock.find((section) => section.name === 'Routing Header');
-    if (!routingHeader) return 'Unknown';
-
-    const sender = routingHeader.fields.find((field) => field.name === 'Sender');
-    return (sender && 'parsedValue' in sender) ? sender.parsedValue?.toString() || 'Unknown' : 'Unknown';
-}
-
-function getReceivers(parsedBlock: ParsedSection[]): string[] {
-    const routingHeader = parsedBlock.find((section) => section.name === 'Routing Header');
-    if (!routingHeader) return [];
-
-    const receivers = routingHeader.fields.filter((field) => field.name === 'Receivers');
-    return receivers.map((field) => ('parsedValue' in field) ? field.parsedValue?.toString() || '' : '');
-}
-
-function getTimestamp(parsedBlock: ParsedSection[]): number {
-    const blockHeader = parsedBlock.find((section) => section.name === 'Block Header');
-    if (!blockHeader) return 0;
-
-    const flagsAndTimestamp = blockHeader.fields.find(
-        (field) => field.name === 'Flags and Timestamp',
-    );
-    if (!flagsAndTimestamp || !('subFields' in flagsAndTimestamp)) return 0;
-
-    const timestamp = flagsAndTimestamp.subFields.find(
-        (field) => field.name === 'Creation Timestamp',
-    );
-    return (timestamp && 'parsedValue' in timestamp) ? Number(timestamp.parsedValue) || 0 : 0;
-}
-
-function getBlockSize(parsedBlock: ParsedSection[]): number {
-    const routingHeader = parsedBlock.find((section) => section.name === 'Routing Header');
-    if (!routingHeader) return 0;
-
-    const blockSize = routingHeader.fields.find((field) => field.name === 'Block Size');
-    return (blockSize && 'parsedValue' in blockSize) ? Number(blockSize.parsedValue) || 0 : 0;
-}
-
-function getEncryptionType(parsedBlock: ParsedSection[]): string {
-    const routingHeader = parsedBlock.find((section) => section.name === 'Routing Header');
-    if (!routingHeader) return 'Unknown';
-
-    const flags = routingHeader.fields.find((field) => field.name === 'Flags');
-    if (!flags || !('subFields' in flags)) return 'Unknown';
-
-    const encryptionType = flags.subFields.find((field: { name: string }) => field.name === 'Encryption Type');
-    return (encryptionType && 'parsedValue' in encryptionType) ? encryptionType.parsedValue?.toString() || 'Unknown' : 'Unknown';
-}
-
-function getSignatureType(parsedBlock: ParsedSection[]): string {
-    const routingHeader = parsedBlock.find((section) => section.name === 'Routing Header');
-    if (!routingHeader) return 'Unknown';
-
-    const flags = routingHeader.fields.find((field) => field.name === 'Flags');
-    if (!flags || !('subFields' in flags)) return 'Unknown';
-
-    const signatureType = flags.subFields.find((field: { name: string }) => field.name === 'Signature Type');
-    return (signatureType && 'parsedValue' in signatureType) ? signatureType.parsedValue?.toString() || 'Unknown' : 'Unknown';
-}
-
-// Computed property to transform raw blocks into table rows
+// Computed property to transform ALL raw blocks into table rows (using pre-parsed metadata)
 const allTableRows = computed<NetworkBlockTableRow[]>(() => {
-    return displayedBlocks.value.map((block) => {
-        const blockType = getBlockType(block.parsedBlock);
-        const sender = getSender(block.parsedBlock);
-        const receivers = getReceivers(block.parsedBlock);
-        const timestamp = getTimestamp(block.parsedBlock);
-        const size = getBlockSize(block.parsedBlock);
-
-        const encryptionType = getEncryptionType(block.parsedBlock);
-        const signatureType = getSignatureType(block.parsedBlock);
-
+    return blocks.value.map((block) => {
         return {
             direction: block.direction,
-            blockType,
-            sender,
-            receiver: receivers.join(', '),
-            timestamp: timestamp === 0 ? new Date(block.capturedAt).toLocaleTimeString() : new Date(timestamp).toLocaleTimeString(),
-            size,
-            isEncrypted: encryptionType !== 'None' && encryptionType !== 'Unknown',
-            isSigned: signatureType !== 'None' && signatureType !== 'Unknown',
+            blockType: block.blockType,
+            sender: block.sender,
+            receiver: block.receivers.join(', '),
+            timestamp: block.timestamp === 0 
+                ? new Date(block.capturedAt).toLocaleTimeString() 
+                : new Date(block.timestamp).toLocaleTimeString(),
+            size: block.size,
+            isEncrypted: block.encryptionType !== 'None' && block.encryptionType !== 'Unknown',
+            isSigned: block.signatureType !== 'None' && block.signatureType !== 'Unknown',
             interface: block.interfaceName,
             capturedAt: block.capturedAt,
         };
     });
 });
 
-// Filtered table rows 
-const tableRows = computed<NetworkBlockTableRow[]>(() => {
+// Filtered table rows based on search query (operates on full blocks array)
+const filteredTableRows = computed<NetworkBlockTableRow[]>(() => {
     if (!searchQuery.value.trim()) return allTableRows.value;
     
     const parsedQuery = parseSearchQuery(searchQuery.value);
     return filterRowsBySearch(allTableRows.value, parsedQuery);
+});
+
+// Limit displayed rows for performance (show top 20 filtered results)
+const tableRows = computed<NetworkBlockTableRow[]>(() => {
+    return filteredTableRows.value.slice(0, 20);
 });
 
 // Compute unique suggestions from table data

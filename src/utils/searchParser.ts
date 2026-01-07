@@ -1,7 +1,27 @@
 /**
  * Search query parser for GitHub-style key:value search syntax
- * Supports multiple filters like: type:traceback sender:alice receiver:bob
+ * Now using search-query-parser library for more robust parsing
  */
+
+import * as searchQuery from 'search-query-parser';
+
+// TypeScript type definitions for search-query-parser (no official types available)
+declare module 'search-query-parser' {
+    export interface ParseOptions {
+        keywords?: string[];
+        ranges?: string[];
+        tokenize?: boolean;
+        alwaysArray?: boolean;
+        offsets?: boolean;
+    }
+
+    export interface ParsedQuery {
+        text?: string | string[];
+        [key: string]: string | string[] | { from: string; to: string } | undefined;
+    }
+
+    export function parse(query: string, options?: ParseOptions): string | string[] | ParsedQuery;
+}
 
 export interface ParsedSearchQuery {
     type: string[];
@@ -12,7 +32,15 @@ export interface ParsedSearchQuery {
 }
 
 /**
- * Parses a search query string into structured filters
+ * Normalizes library output to always return an array
+ */
+function normalizeToArray(value: string | string[] | undefined): string[] {
+    if (!value) return [];
+    return Array.isArray(value) ? value : [value];
+}
+
+/**
+ * Parses a search query string into structured filters using search-query-parser library
  * Example: "type:traceback sender:alice hello" 
  * Returns: { type: ['traceback'], sender: ['alice'], receiver: [], interface: [], plainText: 'hello' }
  */
@@ -29,62 +57,35 @@ export function parseSearchQuery(query: string): ParsedSearchQuery {
         return result;
     }
 
-    // Regular expression to match key:value pairs
-    // Supports quoted values: key:"value with spaces" or key:value
-    const qualifierRegex = /(\w+):((?:"[^"]*")|(?:[^\s]+))/g;
-    
-    let match;
-    const matchedIndices: Array<[number, number]> = [];
-    
-    // Extract all key:value pairs
-    while ((match = qualifierRegex.exec(query)) !== null) {
-        if (!match[1] || !match[2]) continue;
-        
-        const key = match[1].toLowerCase();
-        let value = match[2];
-        
-        // Remove quotes if present
-        if (value.startsWith('"') && value.endsWith('"')) {
-            value = value.slice(1, -1);
-        }
-        
-        // Store matched position to exclude from plainText later
-        matchedIndices.push([match.index, match.index + match[0].length]);
-        
-        // Add value to appropriate filter array
-        switch (key) {
-            case 'type':
-                result.type.push(value);
-                break;
-            case 'sender':
-                result.sender.push(value);
-                break;
-            case 'receiver':
-                result.receiver.push(value);
-                break;
-            case 'interface':
-                result.interface.push(value);
-                break;
-            // Ignore unknown qualifiers - they'll be part of plainText
-        }
+    // Configure parser to recognize our keywords
+    const parsed = searchQuery.parse(query, {
+        keywords: ['type', 'sender', 'receiver', 'interface'],
+        alwaysArray: true,  // Always return arrays for consistency
+        offsets: false      // We don't need offset tracking
+    });
+
+    // If result is a string or string array, it means no keywords matched - treat as plainText
+    if (typeof parsed === 'string') {
+        result.plainText = parsed;
+        return result;
     }
-    
-    // Extract plain text (everything not matched by qualifiers)
-    let plainText = '';
-    let lastIndex = 0;
-    
-    for (const [start, end] of matchedIndices) {
-        if (start > lastIndex) {
-            plainText += query.substring(lastIndex, start);
-        }
-        lastIndex = end;
+
+    if (Array.isArray(parsed)) {
+        result.plainText = parsed.join(' ');
+        return result;
     }
+
+    // Extract matched keywords
+    result.type = normalizeToArray(parsed.type as string | string[]);
+    result.sender = normalizeToArray(parsed.sender as string | string[]);
+    result.receiver = normalizeToArray(parsed.receiver as string | string[]);
+    result.interface = normalizeToArray(parsed.interface as string | string[]);
     
-    if (lastIndex < query.length) {
-        plainText += query.substring(lastIndex);
+    // Extract plain text if present
+    const textValue = parsed.text;
+    if (textValue) {
+        result.plainText = Array.isArray(textValue) ? textValue.join(' ') : textValue;
     }
-    
-    result.plainText = plainText.trim();
     
     return result;
 }
@@ -219,33 +220,24 @@ export interface SearchToken {
 
 /**
  * Tokenizes search query for syntax highlighting
- * Returns array of tokens with their types
+ * Uses a simplified regex approach for visual feedback
  */
 export function tokenizeSearchQuery(query: string): SearchToken[] {
     if (!query) return [];
     
     const tokens: SearchToken[] = [];
-    const qualifierRegex = /(\w+)(:)((?:"[^"]*")|(?:[^\s]+))|(\s+)|([^\s:]+)/g;
+    // Match qualifier:value or qualifier:"quoted value" patterns
+    const pattern = /(\w+)(:)("(?:[^"\\]|\\.)*"|[^\s]+)|(\s+)|([^\s:]+)/g;
     
     let match;
-    let lastIndex = 0;
     
-    while ((match = qualifierRegex.exec(query)) !== null) {
-        // Check if we skipped any characters (shouldn't happen with our regex)
-        if (match.index > lastIndex) {
-            tokens.push({
-                type: 'text',
-                text: query.substring(lastIndex, match.index)
-            });
-        }
-        
+    while ((match = pattern.exec(query)) !== null) {
         if (match[1] && match[2] && match[3]) {
             // Qualifier:value pattern
             const qualifier = match[1];
             const validQualifiers = ['type', 'sender', 'receiver', 'interface'];
             
             if (validQualifiers.includes(qualifier.toLowerCase())) {
-                // Known qualifier - highlight it
                 tokens.push({ type: 'qualifier', text: qualifier });
                 tokens.push({ type: 'colon', text: match[2] });
                 tokens.push({ type: 'value', text: match[3] });
@@ -260,16 +252,6 @@ export function tokenizeSearchQuery(query: string): SearchToken[] {
             // Plain text
             tokens.push({ type: 'text', text: match[5] });
         }
-        
-        lastIndex = match.index + match[0].length;
-    }
-    
-    // Add any remaining text
-    if (lastIndex < query.length) {
-        tokens.push({
-            type: 'text',
-            text: query.substring(lastIndex)
-        });
     }
     
     return tokens;
