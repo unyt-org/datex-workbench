@@ -66,6 +66,16 @@ const saveColumnState = () => {
     if (gridApi.value) {
         const columnState = gridApi.value.getColumnState();
         localStorage.setItem(COLUMN_STATE_KEY, JSON.stringify(columnState));
+        
+        // Update visibleColumns state to reflect current column visibility
+        const updatedVisibility: Record<string, boolean> = {};
+        gridApi.value.getAllGridColumns().forEach((col: Column) => {
+            const colDef = col.getColDef();
+            if (colDef.field) {
+                updatedVisibility[colDef.field] = col.isVisible();
+            }
+        });
+        visibleColumns.value = updatedVisibility;
     }
 };
 
