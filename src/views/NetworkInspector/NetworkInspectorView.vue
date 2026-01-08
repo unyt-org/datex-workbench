@@ -21,7 +21,7 @@ import NetworkFilter, { type SearchSuggestions } from '@/components/NetworkInspe
 import { createColumns } from '@/components/NetworkInspector/columns';
 import { parseSearchQuery, filterRowsBySearch } from '@/utils/searchParser';
 
-const { sendTestBlock, blocks, displayedBlocks, baseInterface, socketUUID, saveBlocksToStorage } = useNetworkInspector();
+const { sendTestBlock, blocks, displayedBlocks, hasMoreBlocks, loadMoreBlocks, resetLoadedCount, baseInterface, socketUUID, saveBlocksToStorage } = useNetworkInspector();
 const { sendBlock } = useBlockSimulator();
 
 // Search query state
@@ -98,9 +98,9 @@ watch(
     },
 );
 
-// Computed property to transform ALL raw blocks into table rows (using pre-parsed metadata)
+// Computed property to transform DISPLAYED blocks into table rows (using pre-parsed metadata)
 const allTableRows = computed<NetworkBlockTableRow[]>(() => {
-    return blocks.value.map((block) => {
+    return displayedBlocks.value.map((block) => {
         return {
             direction: block.direction,
             blockType: block.blockType,
@@ -118,7 +118,7 @@ const allTableRows = computed<NetworkBlockTableRow[]>(() => {
     });
 });
 
-// Filtered table rows based on search query (operates on full blocks array)
+// Filtered table rows based on search query
 const filteredTableRows = computed<NetworkBlockTableRow[]>(() => {
     if (!searchQuery.value.trim()) return allTableRows.value;
     
@@ -126,9 +126,9 @@ const filteredTableRows = computed<NetworkBlockTableRow[]>(() => {
     return filterRowsBySearch(allTableRows.value, parsedQuery);
 });
 
-// Limit displayed rows for performance (show top 20 filtered results)
+// Final table rows to display (filtered results)
 const tableRows = computed<NetworkBlockTableRow[]>(() => {
-    return filteredTableRows.value.slice(0, 20);
+    return filteredTableRows.value;
 });
 
 // Compute unique suggestions from table data
@@ -193,7 +193,12 @@ const dynamicColumns = computed(() => {
         </div>
 
         <div ref="scrollContainerRef" class="flex-1 max-h-[calc(100vh-200px)] overflow-y-auto">
-            <DataTable :columns="dynamicColumns" :data="tableRows">
+            <DataTable 
+                :columns="dynamicColumns" 
+                :data="tableRows"
+                :has-more-data="hasMoreBlocks && !searchQuery.trim()"
+                @load-more="loadMoreBlocks"
+            >
                 <template #filter>
                     <div class="flex items-center gap-2">
                         <NetworkFilter 

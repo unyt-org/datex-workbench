@@ -10,7 +10,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-vue-next';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, nextTick } from 'vue';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -21,14 +21,21 @@ interface DataTableProps {
     data: TData[];
     filterValue?: string;
     filterPlaceholder?: string;
+    hasMoreData?: boolean;
 }
 
 const props = withDefaults(defineProps<DataTableProps>(), {
-    filterPlaceholder: 'Filter...'
+    filterPlaceholder: 'Filter...',
+    hasMoreData: false
 });
+
+const emit = defineEmits<{
+    'load-more': [];
+}>();
 
 const gridApi = ref<GridApi<TData>>();
 const visibleColumns = ref<Record<string, boolean>>({});
+const isLoadingMore = ref(false);
 
 const defaultColDef: ColDef = {
     resizable: true,
@@ -60,6 +67,51 @@ const onGridReady = (params: GridReadyEvent<TData>) => {
         }
     });
     visibleColumns.value = columnState;
+};
+
+// Detect scroll near bottom and load more data
+let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+const onBodyScroll = () => {
+    if (!gridApi.value || !props.hasMoreData || isLoadingMore.value) return;
+    
+    // Debounce scroll events
+    if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+    }
+    
+    scrollTimeout = setTimeout(() => {
+        if (!gridApi.value || isLoadingMore.value) return;
+        
+        const gridElement = document.querySelector('.ag-body-viewport') as HTMLElement;
+        if (!gridElement) return;
+        
+        const scrollTop = gridElement.scrollTop;
+        const scrollHeight = gridElement.scrollHeight;
+        const clientHeight = gridElement.clientHeight;
+        
+        // Load more when scrolled within 300px of bottom
+        const threshold = 300;
+        if (scrollHeight - scrollTop - clientHeight < threshold) {
+            isLoadingMore.value = true;
+            
+            // Save scroll position before loading
+            const savedScrollTop = scrollTop;
+            
+            // Emit load-more event
+            emit('load-more');
+            
+            // Use nextTick to wait for DOM update, then restore scroll
+            nextTick(() => {
+                // Give AG Grid time to render new rows
+                requestAnimationFrame(() => {
+                    if (gridElement) {
+                        gridElement.scrollTop = savedScrollTop;
+                    }
+                    isLoadingMore.value = false;
+                });
+            });
+        }
+    }, 50);
 };
 
 const saveColumnState = () => {
@@ -134,6 +186,7 @@ watch(() => props.filterValue, (newValue) => {
                 @grid-ready="onGridReady"
                 @drag-stopped="saveColumnState"
                 @column-visible="saveColumnState"
+                @body-scroll="onBodyScroll"
                 :rowHeight="48"
                 :headerHeight="48"
                 :suppressCellFocus="true"

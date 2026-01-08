@@ -95,7 +95,8 @@ function extractBlockMetadata(parsedBlock: ParsedSection[]) {
 // Storage configuration
 const STORAGE_KEY = 'datex-workbench:network-inspector:blocks';
 const MAX_STORED_BLOCKS = 200;
-const MAX_DISPLAYED_BLOCKS = 20;
+const INITIAL_DISPLAYED_BLOCKS = 20;
+const LOAD_MORE_INCREMENT = 20;
 
 // Serializable block entry for localStorage
 interface StoredBlockEntry {
@@ -178,8 +179,27 @@ const definition = await (
 // Initialize blocks from storage
 const blocks = ref<RawBlockEntry[]>(loadBlocksFromStorage(definition));
 
-// Computed property for displaying only the latest 20 blocks
-const displayedBlocks = computed(() => blocks.value.slice(0, MAX_DISPLAYED_BLOCKS));
+// Lazy loading state
+const loadedBlocksCount = ref(INITIAL_DISPLAYED_BLOCKS);
+
+// Computed property for progressively displaying blocks
+const displayedBlocks = computed(() => blocks.value.slice(0, loadedBlocksCount.value));
+
+// Check if more blocks are available to load
+const hasMoreBlocks = computed(() => loadedBlocksCount.value < blocks.value.length);
+
+// Load more blocks (called when user scrolls near bottom)
+function loadMoreBlocks() {
+    if (hasMoreBlocks.value) {
+        const remaining = blocks.value.length - loadedBlocksCount.value;
+        loadedBlocksCount.value += Math.min(LOAD_MORE_INCREMENT, remaining);
+    }
+}
+
+// Reset loaded count when blocks array significantly changes
+function resetLoadedCount() {
+    loadedBlocksCount.value = Math.min(INITIAL_DISPLAYED_BLOCKS, blocks.value.length);
+}
 
 const config: BaseInterfaceSetupData = {
     name: "base",
@@ -240,6 +260,15 @@ Datex.comHub.registerIncomingBlockInterceptor((block: Uint8Array, socket_uuid: s
         blocks.value = blocks.value.slice(0, MAX_STORED_BLOCKS);
     }
     
+    // Reset loaded count to show new block while maintaining scroll position logic
+    // Only reset if we're at the top (showing initial blocks)
+    if (loadedBlocksCount.value <= INITIAL_DISPLAYED_BLOCKS) {
+        loadedBlocksCount.value = INITIAL_DISPLAYED_BLOCKS;
+    } else {
+        // User has scrolled down, increment to include new block
+        loadedBlocksCount.value = Math.min(loadedBlocksCount.value + 1, blocks.value.length);
+    }
+    
     // Persist to localStorage
     saveBlocksToStorage(blocks.value);
 });
@@ -249,6 +278,10 @@ export function useNetworkInspector() {
         sendTestBlock,
         blocks,
         displayedBlocks,
+        hasMoreBlocks,
+        loadMoreBlocks,
+        resetLoadedCount,
+        loadedBlocksCount,
         baseInterface,
         socketUUID,
         saveBlocksToStorage,
