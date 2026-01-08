@@ -30,15 +30,16 @@ const searchQuery = ref('');
 // Alert dialog state
 const showDeleteDialog = ref(false);
 const deleteMessage = computed(() => {
-    // Always count from filtered view (when no search, filtered = all blocks)
-    const count = filteredTableRows.value.length;
+    // When search is empty, delete all blocks; otherwise delete filtered blocks
+    const count = searchQuery.value.trim() ? filteredTableRows.value.length : blocks.value.length;
     return count > 0 ? `This will permanently delete ${count} block${count > 1 ? 's' : ''}.` : '';
 });
 
 // Trigger delete dialog
 function handleClearBlocks() {
-    // Don't show dialog if there's nothing to delete
-    if (filteredTableRows.value.length === 0) {
+    // Check if there's anything to delete (all blocks when no search, filtered when searching)
+    const hasBlocksToDelete = searchQuery.value.trim() ? filteredTableRows.value.length > 0 : blocks.value.length > 0;
+    if (!hasBlocksToDelete) {
         return;
     }
     showDeleteDialog.value = true;
@@ -46,9 +47,15 @@ function handleClearBlocks() {
 
 // Confirm and execute deletion
 function confirmClearBlocks() {
-    // Always delete based on current filtered view
-    const timestampsToDelete = new Set(filteredTableRows.value.map(row => row.capturedAt));
-    blocks.value = blocks.value.filter(block => !timestampsToDelete.has(block.capturedAt));
+    if (searchQuery.value.trim()) {
+        // Delete only filtered blocks when searching
+        const timestampsToDelete = new Set(filteredTableRows.value.map(row => row.capturedAt));
+        blocks.value = blocks.value.filter(block => !timestampsToDelete.has(block.capturedAt));
+    } else {
+        // Delete ALL blocks when search is empty
+        blocks.value = [];
+        resetLoadedCount();
+    }
     
     // Persist changes to localStorage
     saveBlocksToStorage(blocks.value);
