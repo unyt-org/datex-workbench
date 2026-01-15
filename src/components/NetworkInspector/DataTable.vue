@@ -36,6 +36,7 @@ const emit = defineEmits<{
 const gridApi = ref<GridApi<TData>>();
 const visibleColumns = ref<Record<string, boolean>>({});
 const isLoadingMore = ref(false);
+const suppressColumnMoveAnimation = ref(true);
 
 const defaultColDef: ColDef = {
     resizable: true,
@@ -53,6 +54,14 @@ const onGridReady = (params: GridReadyEvent<TData>) => {
         try {
             const columnState: ColumnState[] = JSON.parse(savedState);
             params.api.applyColumnState({ state: columnState, applyOrder: true });
+            
+            // Enable animations after initial state is applied
+            nextTick(() => {
+                if (gridApi.value) {
+                    gridApi.value.setGridOption('suppressColumnMoveAnimation', false);
+                    suppressColumnMoveAnimation.value = false;
+                }
+            });
         } catch (e) {
             console.error('Failed to restore column state:', e);
         }
@@ -195,6 +204,7 @@ watch(() => props.filterValue, (newValue) => {
                 :reactiveCustomComponents="true"
                 :suppressDragLeaveHidesColumns="true"
                 :suppressColumnVirtualisation="true"
+                :suppressColumnMoveAnimation="suppressColumnMoveAnimation"
             />
         </div>
     </div>
