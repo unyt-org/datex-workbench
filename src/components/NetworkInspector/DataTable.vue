@@ -192,6 +192,7 @@ watch(() => props.filterValue, (newValue) => {
                 :columnDefs="columns"
                 :rowData="data"
                 :defaultColDef="defaultColDef"
+                :autoSizeStrategy="{ type: 'fitGridWidth' }"
                 @grid-ready="onGridReady"
                 @drag-stopped="saveColumnState"
                 @column-visible="saveColumnState"
