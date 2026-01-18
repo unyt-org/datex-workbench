@@ -182,6 +182,7 @@ const dynamicColumns = computed(() => {
                     @click="handleSendBlock(blockType.id)"
                     variant="outline"
                     size="sm"
+                    class="text-foreground border-border"
                     :title="blockType.description"
                 >
                     {{ blockType.label }}
@@ -192,6 +193,7 @@ const dynamicColumns = computed(() => {
                     @click="sendTestBlock"
                     variant="outline"
                     size="sm"
+                    class="text-foreground border-border"
                     title="Legacy traceback block (base64 encoded)"
                 >
                     TraceBack (Legacy)
@@ -219,7 +221,7 @@ const dynamicColumns = computed(() => {
                                     variant="outline"
                                     size="icon"
                                     title="Clear all displayed blocks"
-                                    class="hover:text-red-600 transition-colors"
+                                    class="text-foreground border-border hover:text-red-600 transition-colors"
                                     :disabled="blocks.length === 0"
                                 >
                                     <Trash class="h-4 w-4" />

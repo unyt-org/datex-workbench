@@ -55,6 +55,9 @@ const onGridReady = (params: GridReadyEvent<TData>) => {
             const columnState: ColumnState[] = JSON.parse(savedState);
             params.api.applyColumnState({ state: columnState, applyOrder: true });
             
+            // Resize columns to fit grid width after restoring state
+            params.api.sizeColumnsToFit();
+            
             // Enable animations after initial state is applied
             nextTick(() => {
                 if (gridApi.value) {
@@ -167,7 +170,7 @@ watch(() => props.filterValue, (newValue) => {
             </div>
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>
-                    <Button variant="outline" class="ml-auto">
+                    <Button variant="outline" class="ml-auto text-foreground border-border">
                         Columns <ChevronDown class="ml-2 h-4 w-4" />
                     </Button>
                 </DropdownMenuTrigger>
@@ -193,6 +196,7 @@ watch(() => props.filterValue, (newValue) => {
                 :rowData="data"
                 :defaultColDef="defaultColDef"
                 :autoSizeStrategy="{ type: 'fitGridWidth' }"
+                colResizeDefault="shift"
                 @grid-ready="onGridReady"
                 @drag-stopped="saveColumnState"
                 @column-visible="saveColumnState"
@@ -226,6 +230,17 @@ watch(() => props.filterValue, (newValue) => {
     --ag-font-family: inherit;
 }
 
+/* Light mode overrides */
+html:not(.dark) .ag-theme-custom {
+    --ag-background-color: #ffffff;
+    --ag-foreground-color: #1a1a1a;
+    --ag-header-background-color: #f5f5f5;
+    --ag-header-foreground-color: #1a1a1a;
+    --ag-odd-row-background-color: #ffffff;
+    --ag-row-hover-color: #f0f0f0;
+    --ag-border-color: #e0e0e0;
+}
+
 .ag-theme-custom .ag-root-wrapper {
     border: none;
 }
@@ -238,6 +253,11 @@ watch(() => props.filterValue, (newValue) => {
     border-right: 1px solid hsl(215 20% 25% / 0.5);
 }
 
+/* Light mode: lighter borders for header cells */
+html:not(.dark) .ag-theme-custom .ag-header-cell {
+    border-right: 1px solid #e5e5e5;
+}
+
 .ag-theme-custom .ag-cell {
     border-right: 1px solid hsl(215 20% 25% / 0.3);
     display: flex;
@@ -245,6 +265,11 @@ watch(() => props.filterValue, (newValue) => {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* Light mode: lighter borders for cells */
+html:not(.dark) .ag-theme-custom .ag-cell {
+    border-right: 1px solid #e8e8e8;
 }
 
 .ag-theme-custom .ag-cell-value {
