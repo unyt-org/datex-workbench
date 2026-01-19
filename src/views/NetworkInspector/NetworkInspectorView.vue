@@ -170,7 +170,7 @@ const dynamicColumns = computed(() => {
 </script>
 
 <template>
-    <div class="flex h-full flex-col p-4">
+    <div class="flex h-full flex-col p-4 bg-background text-foreground">
         <div class="mb-4">
             <h1 class="text-2xl font-bold mb-3">Network Inspector</h1>
             
