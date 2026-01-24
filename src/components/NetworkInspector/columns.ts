@@ -1,4 +1,4 @@
-import type { ColDef, ICellRendererParams } from 'ag-grid-community';
+import type { ColDef } from 'ag-grid-community';
 import type { NetworkBlockTableRow } from '@/types/NetworkInspector/TableRow';
 import type { ParsedSearchQuery } from '@/utils/searchParser';
 import { getSearchTermsForField } from '@/utils/searchParser';

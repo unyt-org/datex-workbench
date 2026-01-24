@@ -144,7 +144,7 @@ function saveBlocksToStorage(blocks: RawBlockEntry[]): void {
 }
 
 // Load blocks from localStorage
-function loadBlocksFromStorage(definition: any): RawBlockEntry[] {
+function loadBlocksFromStorage(definition: object): RawBlockEntry[] {
     try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (!stored) return [];

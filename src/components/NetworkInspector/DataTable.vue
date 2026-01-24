@@ -10,7 +10,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-vue-next';
-import { ref, onMounted, watch, nextTick } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 

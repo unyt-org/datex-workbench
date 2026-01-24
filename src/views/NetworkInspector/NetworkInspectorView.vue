@@ -35,16 +35,6 @@ const deleteMessage = computed(() => {
     return count > 0 ? `This will permanently delete ${count} block${count > 1 ? 's' : ''}.` : '';
 });
 
-// Trigger delete dialog
-function handleClearBlocks() {
-    // Check if there's anything to delete (all blocks when no search, filtered when searching)
-    const hasBlocksToDelete = searchQuery.value.trim() ? filteredTableRows.value.length > 0 : blocks.value.length > 0;
-    if (!hasBlocksToDelete) {
-        return;
-    }
-    showDeleteDialog.value = true;
-}
-
 // Confirm and execute deletion
 function confirmClearBlocks() {
     if (searchQuery.value.trim()) {
