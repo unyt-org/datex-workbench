@@ -1,6 +1,6 @@
 import { Datex } from '@/lib/runtime';
 import { parseStructure, type ParsedSection } from '@unyt/speck';
-import { BaseInterfaceImpl, type BaseInterfaceSetupData } from '@unyt/datex/network/interface-impls/base';
+import { BaseInterfaceImpl, type BaseInterfaceSetupData } from '@unyt/datex/interface-impls/base';
 import { ref, computed } from 'vue';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
 
