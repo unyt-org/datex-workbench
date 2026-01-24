@@ -1,5 +1,5 @@
 import { Datex } from '@/lib/runtime';
-import { parseStructure, type ParsedSection } from '@unyt/speck';
+import { parseStructure, type ParsedSection, type StructureDefinition } from '@unyt/speck';
 import { BaseInterfaceImpl, type BaseInterfaceSetupData } from '@unyt/datex/interface-impls/base';
 import { ref, computed } from 'vue';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
@@ -144,7 +144,7 @@ function saveBlocksToStorage(blocks: RawBlockEntry[]): void {
 }
 
 // Load blocks from localStorage
-function loadBlocksFromStorage(definition: object): RawBlockEntry[] {
+function loadBlocksFromStorage(definition: StructureDefinition): RawBlockEntry[] {
     try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (!stored) return [];
