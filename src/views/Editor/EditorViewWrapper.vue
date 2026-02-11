@@ -1,16 +1,16 @@
 <script setup lang="ts">
+import EditorView from './EditorView.vue';
 </script>
 
 <template>
   <div class="editor-wrapper">
-    <h1>Editor</h1>
-    <p>Editor component will be implemented here</p>
-
+    <EditorView />
   </div>
 </template>
 
 <style scoped>
 .editor-wrapper {
   padding: 50px;
+  height: 100vh;
 }
 </style>
