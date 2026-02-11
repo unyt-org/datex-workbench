@@ -14,7 +14,7 @@ const workspace = new Workspace({
     "index.html": `<html><body>...</body></html>`,
     "main.js": `console.log("Hello, world!")`,
   },
-  entryFile: "main.js",
+  entryFile: "main.js", // This sets the initial file to open on first load
 });
 
 // Reactive list of files
@@ -38,6 +38,8 @@ async function loadFiles() {
 async function handleFileClick(filename: string) {
   currentFile.value = filename;
   await workspace.openTextDocument(filename);
+  // Save to localStorage so we remember it on refresh
+  localStorage.setItem('editor-current-file', filename);
 }
 
 // Handle creating a new file
@@ -52,6 +54,8 @@ async function handleCreateFile(filename: string) {
     // Open the new file
     currentFile.value = filename;
     await workspace.openTextDocument(filename);
+    // Save to localStorage
+    localStorage.setItem('editor-current-file', filename);
 
     console.log('Created file:', filename);
   } catch (error) {
@@ -79,11 +83,27 @@ lazy({ workspace });
 
 // Load files after workspace is ready
 onMounted(async () => {
-  await workspace.fs.writeFile("util.js", "export function add(a, b) { return a + b; }");
   await loadFiles();
-  console.log('Files in workspace:', files.value); // Debug line
-  currentFile.value = "util.js";
-  workspace.openTextDocument("util.js");
+  console.log('Files in workspace:', files.value);
+
+  // Try to restore the last opened file from localStorage
+  const savedFile = localStorage.getItem('editor-current-file');
+
+  // Check if the saved file still exists in the workspace
+  if (savedFile && files.value.includes(savedFile)) {
+    currentFile.value = savedFile;
+    await workspace.openTextDocument(savedFile);
+  } else {
+    // Fall back to entryFile or first file
+    const fileToOpen = workspace.entryFile || files.value[0] || '';
+    if (fileToOpen) {
+      currentFile.value = fileToOpen;
+      await workspace.openTextDocument(fileToOpen);
+      localStorage.setItem('editor-current-file', fileToOpen);
+    }
+  }
+
+  console.log('Opened file:', currentFile.value);
 });
 </script>
 
