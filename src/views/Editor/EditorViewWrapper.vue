@@ -10,7 +10,7 @@ import EditorView from './EditorView.vue';
 
 <style scoped>
 .editor-wrapper {
-  padding: 50px;
+  padding: 2px;
   height: 100vh;
 }
 </style>

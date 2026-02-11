@@ -40,6 +40,40 @@ async function handleFileClick(filename: string) {
   await workspace.openTextDocument(filename);
 }
 
+// Handle creating a new file
+async function handleCreateFile(filename: string) {
+  try {
+    // Create the file in the workspace with empty content
+    await workspace.fs.writeFile(filename, '');
+
+    // Reload the file list
+    await loadFiles();
+
+    // Open the new file
+    currentFile.value = filename;
+    await workspace.openTextDocument(filename);
+
+    console.log('Created file:', filename);
+  } catch (error) {
+    console.error('Failed to create file:', error);
+  }
+}
+
+// Handle creating a new folder
+async function handleCreateFolder(foldername: string) {
+  try {
+    // Create the folder in the workspace
+    await workspace.fs.createDirectory(foldername);
+
+    // Reload the file list
+    await loadFiles();
+
+    console.log('Created folder:', foldername);
+  } catch (error) {
+    console.error('Failed to create folder:', error);
+  }
+}
+
 // Initialize the editor lazily
 lazy({ workspace });
 
@@ -60,6 +94,8 @@ onMounted(async () => {
         :files="files"
         :current-file="currentFile"
         @file-click="handleFileClick"
+        @create-file="handleCreateFile"
+        @create-folder="handleCreateFolder"
       />
     </ResizablePanel>
 
