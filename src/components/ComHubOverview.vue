@@ -34,11 +34,12 @@
       </div>
 
       <!-- Expanded Socket List -->
-      <div v-if="expanded[iface.uuid]" class="mt-3 border-t pt-3">
+      <div v-if="expanded[iface.uuid]" class="mt-3 border-t py-2">
+        <div class="flex flex-col gap-2">
         <div
           v-for="socket in getSortedSockets(iface.sockets)"
           :key="socket.uuid + socket.endpoint"
-          class="text-sm p-3 rounded bg-neutral-100 dark:bg-neutral-800 mb-2"
+          class="text-sm p-3 rounded bg-neutral-100 dark:bg-neutral-800"
         >
           <!-- 5. Endpoint highlighted as heading + 7. direct label + 3. arrow -->
           <h4 class="font-semibold flex items-center gap-2">
@@ -59,14 +60,15 @@
           </h4>
 
           <!-- 6. Distance + time in one line with bullet -->
-          <div class="text-xs text-neutral-500 mt-1">
-            Distance: {{ socket.properties.distance }}
-            • {{ formatTime(socket.properties.known_since) }}
+          <div class="text-xs text-neutral-500 mt-1 space-y-0.5">
+             <div>Distance: {{ socket.properties.distance }}</div>
+            <div>Created: {{ formatTime(socket.properties.known_since) }}
+          </div>
           </div>
         </div>
       </div>
     </div>
-
+  </div>
     <div v-if="!comhub.interfaces.length" class="text-sm text-neutral-500">
       No active interfaces found.
     </div>
