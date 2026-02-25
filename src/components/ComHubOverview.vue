@@ -61,9 +61,9 @@
 
           <!-- 6. Distance + time in one line with bullet -->
           <div class="text-xs text-neutral-500 mt-1 space-y-0.5">
-             <div>Distance: {{ socket.properties.distance }}</div>
-            <div>Created: {{ formatTime(socket.properties.known_since) }}
-          </div>
+             Distance: {{ socket.properties.distance }}
+             • Created: {{ formatTime(socket.properties.known_since) }}
+          
           </div>
         </div>
       </div>
