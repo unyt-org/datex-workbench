@@ -132,6 +132,19 @@ const comhub = reactive({
 
 const expanded = reactive<Record<string, boolean>>({})
 
+type ComHubSocket = {
+  uuid: string
+  direction: string
+  endpoint: string
+  properties: {
+    known_since: number
+    distance: number
+    is_direct: boolean
+    channel_factor: number
+    direction: string
+  }
+}
+
 function toggle(uuid: string) {
   expanded[uuid] = !expanded[uuid]
 }
@@ -141,7 +154,7 @@ function toggle(uuid: string) {
  * - Direct sockets first
  * - Then newest first (lower known_since = newer)
  */
-function getSortedSockets(sockets: any[]) {
+function getSortedSockets(sockets: ComHubSocket[]) {
   return [...sockets].sort((a, b) => {
     if (a.properties.is_direct !== b.properties.is_direct) {
       return a.properties.is_direct ? -1 : 1
