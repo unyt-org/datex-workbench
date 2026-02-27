@@ -34,8 +34,8 @@
       </div>
 
       <!-- Expanded Socket List -->
-      <div v-if="expanded[iface.uuid]" class="mt-3 border-t py-2">
-        <div class="flex flex-col gap-2">
+      <div v-if="expanded[iface.uuid]" class="mt-3 border-t pt-3 flex flex-col gap-3">
+      
         <div
           v-for="socket in getSortedSockets(iface.sockets)"
           :key="socket.uuid + socket.endpoint"
@@ -60,11 +60,10 @@
           </h4>
 
           <!-- 6. Distance + time in one line with bullet -->
-          <div class="text-xs text-neutral-500 mt-1 space-y-0.5">
+          <div class="text-xs text-neutral-500 mt-1">
              Distance: {{ socket.properties.distance }}
              • Created: {{ formatTime(socket.properties.known_since) }}
           
-          </div>
         </div>
       </div>
     </div>
