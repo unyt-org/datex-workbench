@@ -17,18 +17,22 @@ const workspace = new Workspace({
   entryFile: "main.js", // This sets the initial file to open on first load
 });
 
-// Reactive list of files
+// Reactive list of files and folders
 const files = ref<string[]>([]);
+const folders = ref<string[]>([]);
 const currentFile = ref<string>('');
 
-// Function to load all files from the workspace
+// Function to load all files and folders from the workspace
 async function loadFiles() {
   try {
     const entries = await workspace.fs.readDirectory('/');
-    // Filter to only get files (type 1 = file)
+    // type 1 = file, type 2 = directory
     files.value = entries
       .filter(([, type]) => type === 1)
-      .map(([name]) => name);
+      .map(([name]) => decodeURIComponent(name));
+    folders.value = entries
+      .filter(([, type]) => type === 2)
+      .map(([name]) => decodeURIComponent(name));
   } catch (error) {
     console.error('Failed to load files:', error);
   }
@@ -112,6 +116,7 @@ onMounted(async () => {
     <ResizablePanel :default-size="20" :min-size="15" :max-size="40">
       <EditorSidebar
         :files="files"
+        :folders="folders"
         :current-file="currentFile"
         @file-click="handleFileClick"
         @create-file="handleCreateFile"
