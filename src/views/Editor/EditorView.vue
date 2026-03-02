@@ -7,107 +7,262 @@ import {
   ResizableHandle,
 } from '@/components/ui/resizable';
 import EditorSidebar from '@/components/Editor/EditorSidebar.vue';
+import type { FileTreeNode } from '@/types/FileTree';
 
-// Create a workspace with an initial demo file
+// ── Workspace setup ────────────────────────────────────────────────
 const workspace = new Workspace({
   initialFiles: {
     "index.html": `<html><body>...</body></html>`,
     "main.js": `console.log("Hello, world!")`,
   },
-  entryFile: "main.js", // This sets the initial file to open on first load
+  entryFile: "main.js",
 });
 
-// Reactive list of files and folders
-const files = ref<string[]>([]);
-const folders = ref<string[]>([]);
-const currentFile = ref<string>('');
+// ── Expanded state persistence ─────────────────────────────────────
+const EXPANDED_KEY = 'editor-expanded-folders';
 
-// Function to load all files and folders from the workspace
-async function loadFiles() {
+function getExpandedPaths(): Set<string> {
   try {
-    const entries = await workspace.fs.readDirectory('/');
-    // type 1 = file, type 2 = directory
-    files.value = entries
-      .filter(([, type]) => type === 1)
-      .map(([name]) => decodeURIComponent(name));
-    folders.value = entries
-      .filter(([, type]) => type === 2)
-      .map(([name]) => decodeURIComponent(name));
-  } catch (error) {
-    console.error('Failed to load files:', error);
+    const raw = localStorage.getItem(EXPANDED_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
   }
 }
 
-// Handle file click from sidebar
-async function handleFileClick(filename: string) {
-  currentFile.value = filename;
-  await workspace.openTextDocument(filename);
-  // Save to localStorage so we remember it on refresh
-  localStorage.setItem('editor-current-file', filename);
+function saveExpandedPaths() {
+  const paths: string[] = [];
+  function collect(nodes: FileTreeNode[]) {
+    for (const n of nodes) {
+      if (n.type === 'folder' && n.isExpanded) paths.push(n.path);
+      if (n.children) collect(n.children);
+    }
+  }
+  collect(tree.value);
+  localStorage.setItem(EXPANDED_KEY, JSON.stringify(paths));
 }
 
-// Handle creating a new file
+// ── Reactive state ─────────────────────────────────────────────────
+const tree = ref<FileTreeNode[]>([]);
+const currentFile = ref<string>('');
+
+// ── Tree utilities ─────────────────────────────────────────────────
+function findNode(nodes: FileTreeNode[], path: string): FileTreeNode | undefined {
+  for (const node of nodes) {
+    if (node.path === path) return node;
+    if (node.children) {
+      const found = findNode(node.children, path);
+      if (found) return found;
+    }
+  }
+  return undefined;
+}
+
+function findFirstFile(nodes: FileTreeNode[]): string | null {
+  for (const node of nodes) {
+    if (node.type === 'file') return node.path;
+    if (node.children) {
+      const found = findFirstFile(node.children);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+/** Expand all parent folders for a given path and persist */
+function expandParents(filePath: string) {
+  const parts = filePath.split('/').filter(Boolean);
+  let currentPath = '';
+  for (let i = 0; i < parts.length - 1; i++) {
+    currentPath += '/' + parts[i];
+    const node = findNode(tree.value, currentPath);
+    if (node && node.type === 'folder') node.isExpanded = true;
+  }
+  saveExpandedPaths();
+}
+
+// ── Tree loading ───────────────────────────────────────────────────
+async function loadTree(dirPath: string, expandedPaths: Set<string>): Promise<FileTreeNode[]> {
+  try {
+    const entries = await workspace.fs.readDirectory(dirPath);
+    const nodes: FileTreeNode[] = [];
+
+    for (const [rawName, type] of entries) {
+      const name = decodeURIComponent(rawName);
+      const path = dirPath === '/' ? `/${name}` : `${dirPath}/${name}`;
+
+      if (type === 2) {
+        const children = await loadTree(path, expandedPaths);
+        const existing = findNode(tree.value, path);
+        nodes.push({
+          name,
+          path,
+          type: 'folder',
+          children,
+          isExpanded: existing?.isExpanded ?? expandedPaths.has(path),
+        });
+      } else if (type === 1) {
+        nodes.push({ name, path, type: 'file' });
+      }
+    }
+
+    // Sort: folders first, then files, alphabetically
+    nodes.sort((a, b) => {
+      if (a.type !== b.type) return a.type === 'folder' ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+
+    return nodes;
+  } catch (error) {
+    console.error(`Failed to load tree for ${dirPath}:`, error);
+    return [];
+  }
+}
+
+async function reloadTree() {
+  const expandedPaths = getExpandedPaths();
+  tree.value = await loadTree('/', expandedPaths);
+}
+
+// ── Event handlers ─────────────────────────────────────────────────
+
+async function handleFileClick(filePath: string) {
+  currentFile.value = filePath;
+  await workspace.openTextDocument(filePath);
+  localStorage.setItem('editor-current-file', filePath);
+}
+
+function handleToggleFolder(folderPath: string) {
+  const node = findNode(tree.value, folderPath);
+  if (node && node.type === 'folder') {
+    node.isExpanded = !node.isExpanded;
+    saveExpandedPaths();
+  }
+}
+
+/** Ensure a folder is expanded (no toggle — used by context menu creation) */
+function handleEnsureExpand(folderPath: string) {
+  const node = findNode(tree.value, folderPath);
+  if (node && node.type === 'folder' && !node.isExpanded) {
+    node.isExpanded = true;
+    saveExpandedPaths();
+  }
+}
+
 async function handleCreateFile(filename: string) {
   try {
-    // Create the file in the workspace with empty content
-    await workspace.fs.writeFile(filename, '');
-
-    // Reload the file list
-    await loadFiles();
-
-    // Open the new file
-    currentFile.value = filename;
-    await workspace.openTextDocument(filename);
-    // Save to localStorage
-    localStorage.setItem('editor-current-file', filename);
-
-    console.log('Created file:', filename);
+    const path = `/${filename}`;
+    await workspace.fs.writeFile(path, '');
+    await reloadTree();
+    currentFile.value = path;
+    await workspace.openTextDocument(path);
+    localStorage.setItem('editor-current-file', path);
   } catch (error) {
     console.error('Failed to create file:', error);
   }
 }
 
-// Handle creating a new folder
 async function handleCreateFolder(foldername: string) {
   try {
-    // Create the folder in the workspace
-    await workspace.fs.createDirectory(foldername);
-
-    // Reload the file list
-    await loadFiles();
-
-    console.log('Created folder:', foldername);
+    const path = `/${foldername}`;
+    await workspace.fs.createDirectory(path);
+    await reloadTree();
+    const node = findNode(tree.value, path);
+    if (node) node.isExpanded = true;
+    saveExpandedPaths();
   } catch (error) {
     console.error('Failed to create folder:', error);
   }
 }
 
-// Initialize the editor lazily
+async function handleCreateFileInFolder(folderPath: string, filename: string) {
+  try {
+    const filePath = `${folderPath}/${filename}`;
+    await workspace.fs.writeFile(filePath, '');
+    await reloadTree();
+    // Keep parent expanded
+    const parent = findNode(tree.value, folderPath);
+    if (parent) parent.isExpanded = true;
+    saveExpandedPaths();
+    // Open the new file
+    currentFile.value = filePath;
+    await workspace.openTextDocument(filePath);
+    localStorage.setItem('editor-current-file', filePath);
+  } catch (error) {
+    console.error('Failed to create file in folder:', error);
+  }
+}
+
+async function handleCreateFolderInFolder(folderPath: string, foldername: string) {
+  try {
+    const newPath = `${folderPath}/${foldername}`;
+    await workspace.fs.createDirectory(newPath);
+    await reloadTree();
+    // Keep parent expanded + expand new folder
+    const parent = findNode(tree.value, folderPath);
+    if (parent) parent.isExpanded = true;
+    const newFolder = findNode(tree.value, newPath);
+    if (newFolder) newFolder.isExpanded = true;
+    saveExpandedPaths();
+  } catch (error) {
+    console.error('Failed to create folder in folder:', error);
+  }
+}
+
+async function handleRenameItem(oldPath: string, newName: string) {
+  try {
+    const parts = oldPath.split('/');
+    parts[parts.length - 1] = newName;
+    const newPath = parts.join('/');
+
+    await workspace.fs.rename(oldPath, newPath);
+    await reloadTree();
+
+    if (currentFile.value === oldPath) {
+      currentFile.value = newPath;
+      await workspace.openTextDocument(newPath);
+      localStorage.setItem('editor-current-file', newPath);
+    }
+  } catch (error) {
+    console.error('Failed to rename:', error);
+  }
+}
+
+async function handleDeleteItem(path: string) {
+  try {
+    await workspace.fs.delete(path, { recursive: true });
+    await reloadTree();
+    saveExpandedPaths();
+
+    if (currentFile.value === path || currentFile.value.startsWith(path + '/')) {
+      currentFile.value = '';
+      localStorage.removeItem('editor-current-file');
+    }
+  } catch (error) {
+    console.error('Failed to delete:', error);
+  }
+}
+
+// ── Initialize ─────────────────────────────────────────────────────
 lazy({ workspace });
 
-// Load files after workspace is ready
 onMounted(async () => {
-  await loadFiles();
-  console.log('Files in workspace:', files.value);
+  await reloadTree();
 
-  // Try to restore the last opened file from localStorage
   const savedFile = localStorage.getItem('editor-current-file');
-
-  // Check if the saved file still exists in the workspace
-  if (savedFile && files.value.includes(savedFile)) {
+  if (savedFile && findNode(tree.value, savedFile)) {
     currentFile.value = savedFile;
     await workspace.openTextDocument(savedFile);
+    expandParents(savedFile);
   } else {
-    // Fall back to entryFile or first file
-    const fileToOpen = workspace.entryFile || files.value[0] || '';
+    const firstFile = findFirstFile(tree.value);
+    const fileToOpen = workspace.entryFile ? `/${workspace.entryFile}` : firstFile;
     if (fileToOpen) {
       currentFile.value = fileToOpen;
       await workspace.openTextDocument(fileToOpen);
       localStorage.setItem('editor-current-file', fileToOpen);
     }
   }
-
-  console.log('Opened file:', currentFile.value);
 });
 </script>
 
@@ -115,12 +270,17 @@ onMounted(async () => {
   <ResizablePanelGroup direction="horizontal" class="h-screen">
     <ResizablePanel :default-size="20" :min-size="15" :max-size="40">
       <EditorSidebar
-        :files="files"
-        :folders="folders"
+        :tree="tree"
         :current-file="currentFile"
         @file-click="handleFileClick"
+        @toggle-folder="handleToggleFolder"
+        @ensure-expand="handleEnsureExpand"
         @create-file="handleCreateFile"
         @create-folder="handleCreateFolder"
+        @create-file-in-folder="handleCreateFileInFolder"
+        @create-folder-in-folder="handleCreateFolderInFolder"
+        @rename-item="handleRenameItem"
+        @delete-item="handleDeleteItem"
       />
     </ResizablePanel>
 

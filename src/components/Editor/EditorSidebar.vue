@@ -1,106 +1,174 @@
 <script setup lang="ts">
-import { File, Folder, FilePlus, FolderPlus, TriangleAlert } from 'lucide-vue-next';
+import { FilePlus, FolderPlus, TriangleAlert, File as FileIcon, Folder } from 'lucide-vue-next';
 import { cn } from '@/lib/utils';
 import { ref, nextTick, computed } from 'vue';
+import type { FileTreeNode } from '@/types/FileTree';
+import type { CreatingState } from './FileTreeItem.vue';
+import FileTreeItem from './FileTreeItem.vue';
+import FolderContextMenu from './FolderContextMenu.vue';
 
-// Props
+// ── Props ──────────────────────────────────────────────────────────
 interface Props {
-  files: string[];
-  folders: string[];
+  tree: FileTreeNode[];
   currentFile?: string;
 }
 
 const props = defineProps<Props>();
 
-// Emits
+// ── Emits ──────────────────────────────────────────────────────────
 const emit = defineEmits<{
-  fileClick: [filename: string];
-  createFile: [filename: string];
-  createFolder: [foldername: string];
+  'file-click': [path: string];
+  'toggle-folder': [path: string];
+  'ensure-expand': [path: string];
+  'create-file': [filename: string];
+  'create-folder': [foldername: string];
+  'create-file-in-folder': [folderPath: string, filename: string];
+  'create-folder-in-folder': [folderPath: string, foldername: string];
+  'rename-item': [oldPath: string, newName: string];
+  'delete-item': [path: string];
 }>();
 
-// State for creating new items
-const isCreatingFile = ref(false);
-const isCreatingFolder = ref(false);
+// ── Centralized creation/rename state ──────────────────────────────
+/** Which folder is showing an inline creation input, and what type */
+const creatingIn = ref<CreatingState | null>(null);
+
+/** Path of the node currently being renamed */
+const renamingPath = ref<string | null>(null);
+
+// ── Context menu state ─────────────────────────────────────────────
+const contextMenu = ref<{ x: number; y: number; node: FileTreeNode } | null>(null);
+
+// ── Root-level creation state ──────────────────────────────────────
+const isCreatingAtRoot = ref(false);
+const rootCreationType = ref<'file' | 'folder'>('file');
 const newItemName = ref('');
 const inputRef = ref<HTMLInputElement | null>(null);
 
-// Computed duplicate check — check against both files and folders
-const isDuplicate = computed(() => {
+const rootNames = computed(() => props.tree.map((n) => n.name));
+const isRootDuplicate = computed(() => {
   const name = newItemName.value.trim();
   if (!name) return false;
-  const allNames = [...props.files, ...props.folders];
-  return allNames.some(f => f.toLowerCase() === name.toLowerCase());
+  return rootNames.value.some((n) => n.toLowerCase() === name.toLowerCase());
 });
 
-// Handle file click
-function handleFileClick(filename: string) {
-  emit('fileClick', filename);
-}
-
-// Start creating new file
-async function startCreateFile() {
-  isCreatingFile.value = true;
-  isCreatingFolder.value = false;
+// ── Root-level creation actions ────────────────────────────────────
+async function startCreateFileAtRoot() {
+  isCreatingAtRoot.value = true;
+  rootCreationType.value = 'file';
   newItemName.value = '';
-
-  // Wait for DOM to update, then focus the input
   await nextTick();
   inputRef.value?.focus();
 }
 
-// Start creating new folder
-async function startCreateFolder() {
-  isCreatingFolder.value = true;
-  isCreatingFile.value = false;
+async function startCreateFolderAtRoot() {
+  isCreatingAtRoot.value = true;
+  rootCreationType.value = 'folder';
   newItemName.value = '';
-
-  // Wait for DOM to update, then focus the input
   await nextTick();
   inputRef.value?.focus();
 }
 
-// Flag to prevent blur from canceling during confirmation
-let isConfirming = false;
+let isConfirmingRoot = false;
 
-// Confirm creation
-function confirmCreate() {
+function confirmRootCreate() {
   const name = newItemName.value.trim();
-  if (!name || isDuplicate.value) return;
+  if (!name || isRootDuplicate.value) return;
 
-  isConfirming = true;
-
-  if (isCreatingFile.value) {
-    emit('createFile', name);
-  } else if (isCreatingFolder.value) {
-    emit('createFolder', name);
+  isConfirmingRoot = true;
+  if (rootCreationType.value === 'file') {
+    emit('create-file', name);
+  } else {
+    emit('create-folder', name);
   }
-
-  cancelCreate();
-  isConfirming = false;
+  cancelRootCreate();
+  isConfirmingRoot = false;
 }
 
-// Cancel creation
-function cancelCreate() {
-  isCreatingFile.value = false;
-  isCreatingFolder.value = false;
+function cancelRootCreate() {
+  isCreatingAtRoot.value = false;
   newItemName.value = '';
 }
 
-// Handle blur - only cancel if not in the middle of confirming
-function handleBlur() {
-  if (!isConfirming) {
-    cancelCreate();
+function handleRootBlur() {
+  if (!isConfirmingRoot) cancelRootCreate();
+}
+
+function handleRootKeydown(e: KeyboardEvent) {
+  if (e.key === 'Enter') confirmRootCreate();
+  else if (e.key === 'Escape') cancelRootCreate();
+}
+
+// ── Context menu handlers ──────────────────────────────────────────
+function handleContextMenu(e: MouseEvent, node: FileTreeNode) {
+  contextMenu.value = { x: e.clientX, y: e.clientY, node };
+}
+
+function closeContextMenu() {
+  contextMenu.value = null;
+}
+
+function handleContextNewFile() {
+  if (!contextMenu.value) return;
+  const folderPath = contextMenu.value.node.path;
+  closeContextMenu();
+  // Ensure the folder is expanded (don't toggle — just expand if needed)
+  emit('ensure-expand', folderPath);
+  // Set centralized creation state — FileTreeItem will show the input
+  nextTick(() => {
+    creatingIn.value = { folderPath, type: 'file' };
+  });
+}
+
+function handleContextNewFolder() {
+  if (!contextMenu.value) return;
+  const folderPath = contextMenu.value.node.path;
+  closeContextMenu();
+  emit('ensure-expand', folderPath);
+  nextTick(() => {
+    creatingIn.value = { folderPath, type: 'folder' };
+  });
+}
+
+function handleContextRename() {
+  if (!contextMenu.value) return;
+  const path = contextMenu.value.node.path;
+  closeContextMenu();
+  renamingPath.value = path;
+}
+
+function handleContextDelete() {
+  if (!contextMenu.value) return;
+  emit('delete-item', contextMenu.value.node.path);
+  closeContextMenu();
+}
+
+// ── Centralized creation confirm/cancel from FileTreeItem ──────────
+function handleConfirmCreate(folderPath: string, name: string, type: 'file' | 'folder') {
+  creatingIn.value = null;
+  if (type === 'file') {
+    emit('create-file-in-folder', folderPath, name);
+  } else {
+    emit('create-folder-in-folder', folderPath, name);
   }
 }
 
-// Handle keyboard events
-function handleKeydown(e: KeyboardEvent) {
-  if (e.key === 'Enter') {
-    confirmCreate();
-  } else if (e.key === 'Escape') {
-    cancelCreate();
-  }
+function handleCancelCreate() {
+  creatingIn.value = null;
+}
+
+// ── Centralized rename confirm/cancel from FileTreeItem ────────────
+function handleConfirmRename(oldPath: string, newName: string) {
+  renamingPath.value = null;
+  emit('rename-item', oldPath, newName);
+}
+
+function handleCancelRename() {
+  renamingPath.value = null;
+}
+
+// ── Toggle folder: ensure folder is expanded when creating inside ──
+function handleToggleFolder(folderPath: string) {
+  emit('toggle-folder', folderPath);
 }
 </script>
 
@@ -111,14 +179,14 @@ function handleKeydown(e: KeyboardEvent) {
       <h2 class="text-sm font-semibold text-sidebar-foreground">Files</h2>
       <div class="flex items-center gap-1">
         <button
-          @click="startCreateFile"
+          @click="startCreateFileAtRoot"
           class="p-1.5 rounded hover:bg-sidebar-accent transition-colors"
           title="New File"
         >
           <FilePlus class="w-4 h-4 text-sidebar-foreground" />
         </button>
         <button
-          @click="startCreateFolder"
+          @click="startCreateFolderAtRoot"
           class="p-1.5 rounded hover:bg-sidebar-accent transition-colors"
           title="New Folder"
         >
@@ -127,59 +195,68 @@ function handleKeydown(e: KeyboardEvent) {
       </div>
     </div>
 
-    <!-- File List -->
+    <!-- File Tree -->
     <div class="flex-1 overflow-y-auto p-2">
-      <!-- New Item Input -->
-      <div v-if="isCreatingFile || isCreatingFolder" class="mb-2">
-        <div class="flex items-center gap-2 px-3 py-2">
-          <File v-if="isCreatingFile" class="w-4 h-4 flex-shrink-0 text-sidebar-foreground" />
-          <FolderPlus v-else class="w-4 h-4 flex-shrink-0 text-sidebar-foreground" />
+      <!-- Root-level New Item Input -->
+      <div v-if="isCreatingAtRoot" class="mb-1">
+        <div class="flex items-center gap-1 py-1 px-2">
+          <span class="w-4 flex-shrink-0" />
+          <FileIcon v-if="rootCreationType === 'file'" class="w-4 h-4 flex-shrink-0 text-sidebar-foreground" />
+          <Folder v-else class="w-4 h-4 flex-shrink-0 text-sidebar-foreground" />
           <input
             ref="inputRef"
             v-model="newItemName"
-            @keydown="handleKeydown"
-            @blur="handleBlur"
+            @keydown="handleRootKeydown"
+            @blur="handleRootBlur"
             type="text"
-            :placeholder="isCreatingFile ? 'filename.ext' : 'foldername'"
+            :placeholder="rootCreationType === 'file' ? 'filename.ext' : 'foldername'"
             :class="cn(
-              'flex-1 bg-sidebar-accent text-sidebar-accent-foreground text-sm px-2 py-1 rounded outline-none focus:ring-1',
-              isDuplicate ? 'ring-1 ring-red-500 focus:ring-red-500' : 'focus:ring-primary'
+              'flex-1 bg-sidebar-accent text-sidebar-accent-foreground text-sm px-2 py-0.5 rounded outline-none focus:ring-1',
+              isRootDuplicate ? 'ring-1 ring-red-500 focus:ring-red-500' : 'focus:ring-primary'
             )"
           />
         </div>
-        <!-- Duplicate Error Message -->
-        <div v-if="isDuplicate" class="mx-3 mt-1 px-2 py-1.5 bg-[#5a1d1d] border border-red-500 rounded text-xs text-red-200 flex items-start gap-1.5">
+        <div
+          v-if="isRootDuplicate"
+          class="mx-3 mt-0.5 px-2 py-1 bg-[#5a1d1d] border border-red-500 rounded text-xs text-red-200 flex items-start gap-1.5"
+        >
           <TriangleAlert class="w-3.5 h-3.5 flex-shrink-0 text-red-400 mt-0.5" />
-          <span>A file or folder <strong>{{ newItemName.trim() }}</strong> already exists at this location. Please choose a different name.</span>
+          <span>A file or folder <strong>{{ newItemName.trim() }}</strong> already exists. Please choose a different name.</span>
         </div>
       </div>
 
-      <!-- Existing Folders -->
-      <div
-        v-for="folder in folders"
-        :key="'folder-' + folder"
-        class="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-sidebar-foreground"
-      >
-        <Folder class="w-4 h-4 flex-shrink-0" />
-        <span class="truncate">{{ folder }}</span>
-      </div>
-
-      <!-- Existing Files -->
-      <button
-        v-for="file in files"
-        :key="file"
-        @click="handleFileClick(file)"
-        :class="cn(
-          'w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors',
-          'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-          file === currentFile
-            ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-            : 'text-sidebar-foreground'
-        )"
-      >
-        <File class="w-4 h-4 flex-shrink-0" />
-        <span class="truncate">{{ file }}</span>
-      </button>
+      <!-- Tree Items -->
+      <FileTreeItem
+        v-for="node in tree"
+        :key="node.path"
+        :node="node"
+        :depth="0"
+        :current-file="currentFile"
+        :sibling-names="tree.map(n => n.name)"
+        :creating-in="creatingIn"
+        :renaming-path="renamingPath"
+        @file-click="emit('file-click', $event)"
+        @toggle-folder="handleToggleFolder"
+        @context-menu="handleContextMenu"
+        @confirm-create="handleConfirmCreate"
+        @cancel-create="handleCancelCreate"
+        @confirm-rename="handleConfirmRename"
+        @cancel-rename="handleCancelRename"
+        @delete-item="emit('delete-item', $event)"
+      />
     </div>
+
+    <!-- Context Menu -->
+    <FolderContextMenu
+      v-if="contextMenu"
+      :x="contextMenu.x"
+      :y="contextMenu.y"
+      :node-type="contextMenu.node.type"
+      @new-file="handleContextNewFile"
+      @new-folder="handleContextNewFolder"
+      @rename="handleContextRename"
+      @delete="handleContextDelete"
+      @close="closeContextMenu"
+    />
   </div>
 </template>
