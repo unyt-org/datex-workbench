@@ -1,9 +1,19 @@
 <template>
   <div class="m-5 p-4 h-full overflow-auto">
-    <h2 class="text-lg font-semibold mb-4">ComHub Overview</h2>
+    <h2 class="text-lg font-semibold mb-3">ComHub Overview</h2>
+
+<!-- Search Bar -->
+<div class="mb-4">
+  <input
+    v-model="searchQuery"
+    type="text"
+    placeholder="Search endpoint identifier (e.g. @@...)"
+    class="w-full px-3 py-2 text-sm rounded border bg-white dark:bg-neutral-900 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+</div>
 
     <div
-      v-for="iface in comhub.interfaces"
+      v-for="iface in filteredInterfaces"
       :key="iface.uuid"
       class="border rounded-lg p-3 mb-3 bg-white dark:bg-neutral-900 shadow-sm"
     >
@@ -68,67 +78,101 @@
       </div>
     </div>
   </div>
-    <div v-if="!comhub.interfaces.length" class="text-sm text-neutral-500">
-      No active interfaces found.
-    </div>
+  <div
+  v-if="filteredInterfaces.length === 0"
+  class="text-sm text-neutral-500"
+>
+  No matching endpoints found.
+</div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref, computed } from 'vue'
 
+const searchQuery = ref('')
 /**
  * TEMP MOCK DATA (from issue JSON)
  * TODO: Replace mock JSON with live ComHub runtime state
  */
 const comhub = reactive({
-  endpoint: "@@FB2D5CF3FBE8CF00FC4518DAF76A189602E1",
-  interfaces: [
-    {
-      uuid: "com_interface::28a6b060-055c-4d20-a715-9bafd9edb90d",
-      properties: {
-        interface_type: "websocket-client",
-        channel: "websocket",
-        name: "ws://localhost:8043",
-        direction: "InOut",
-        round_trip_time: 40,
-        max_bandwidth: 1000,
-        continuous_connection: false,
-        allow_redirects: true,
-        is_secure_channel: false,
-        reconnection_config: "NoReconnect",
-        auto_identify: true
-      },
-      sockets: [
+    "endpoint": "@@FB2D5CF3FBE8CF00FC4518DAF76A189602E1",
+    "interfaces": [
         {
-          uuid: "socket::4a17ec53-6027-4527-9786-abf8db76c61f",
-          direction: "InOut",
-          endpoint: "@server",
-          properties: {
-            known_since: 4,
-            distance: 1,
-            is_direct: true,
-            channel_factor: 1,
-            direction: "InOut"
-          }
+            "uuid": "com_interface::28a6b060-055c-4d20-a715-9bafd9edb90d",
+            "properties": {
+                "interface_type": "websocket-client",
+                "channel": "websocket",
+                "name": "ws://localhost:8043",
+                "direction": "InOut",
+                "round_trip_time": 40,
+                "max_bandwidth": 1000,
+                "continuous_connection": false,
+                "allow_redirects": true,
+                "is_secure_channel": false,
+                "reconnection_config": "NoReconnect",
+                "auto_identify": true
+            },
+            "sockets": [
+                {
+                    "uuid": "socket::4a17ec53-6027-4527-9786-abf8db76c61f",
+                    "direction": "InOut",
+                    "endpoint": "@server",
+                    "properties": {
+                        "known_since": 4,
+                        "distance": 1,
+                        "is_direct": true,
+                        "channel_factor": 1,
+                        "direction": "InOut"
+                    }
+                },
+                {
+                    "uuid": "socket::4a17ec53-6027-4527-9786-abf8db76c61f",
+                    "direction": "InOut",
+                    "endpoint": "@@8FAEBB621D91CB42EA59389EB5C47A9BADEF",
+                    "properties": {
+                        "known_since": 16852,
+                        "distance": 2,
+                        "is_direct": false,
+                        "channel_factor": 1,
+                        "direction": "InOut"
+                    }
+                }
+            ],
+            "is_waiting_for_socket_connections": false
         },
         {
-          uuid: "socket::4a17ec53-6027-4527-9786-abf8db76c61f",
-          direction: "InOut",
-          endpoint: "@@8FAEBB621D91CB42EA59389EB5C47A9BADEF",
-          properties: {
-            known_since: 16852,
-            distance: 2,
-            is_direct: false,
-            channel_factor: 1,
-            direction: "InOut"
-          }
+            "uuid": "com_interface::a8fc3085-9717-4715-bbed-b20f6128e6df",
+            "properties": {
+                "interface_type": "local",
+                "channel": "local",
+                "direction": "InOut",
+                "round_trip_time": 0,
+                "max_bandwidth": 4294967295,
+                "continuous_connection": false,
+                "allow_redirects": true,
+                "is_secure_channel": false,
+                "reconnection_config": "NoReconnect",
+                "auto_identify": false
+            },
+            "sockets": [
+                {
+                    "uuid": "socket::cb2f1a7e-5fc6-4bd1-acdc-ce796606c6bd",
+                    "direction": "InOut",
+                    "endpoint": "@@local",
+                    "properties": {
+                        "known_since": 0,
+                        "distance": 0,
+                        "is_direct": true,
+                        "channel_factor": 1,
+                        "direction": "InOut"
+                    }
+                }
+            ],
+            "is_waiting_for_socket_connections": false
         }
-      ],
-      is_waiting_for_socket_connections: false
-    }
-  ],
-  endpoint_sockets: {}
+    ],
+    "endpoint_sockets": {}
 })
 
 const expanded = reactive<Record<string, boolean>>({})
@@ -145,6 +189,30 @@ type ComHubSocket = {
     direction: string
   }
 }
+
+const filteredInterfaces = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+
+  // If no search, return all interfaces unchanged
+  if (!query) return comhub.interfaces
+
+  return comhub.interfaces
+    .map((iface) => {
+      const matchingSockets = iface.sockets.filter((socket) =>
+        socket.endpoint.toLowerCase().includes(query)
+      )
+
+      // If no matching sockets, this interface should be hidden
+      if (matchingSockets.length === 0) return null
+
+      // Return a shallow copy with ONLY matching sockets
+      return {
+        ...iface,
+        sockets: matchingSockets,
+      }
+    })
+    .filter((iface): iface is typeof comhub.interfaces[number] => iface !== null)
+})
 
 function toggle(uuid: string) {
   expanded[uuid] = !expanded[uuid]
