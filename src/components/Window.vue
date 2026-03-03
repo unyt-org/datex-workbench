@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ComHubOverview from '@/components/ComHubOverview.vue';
 import { useDragDrop } from '@/composable/useDragDrop.ts';
 import { collapseSplit } from '@/composable/useLayoutTree.ts';
 import {
@@ -165,26 +166,13 @@ function collapseNearSide(node: SplitNode, side: CollapseSide): void {
             </div>
         </div>
 
-        <!-- eslint-disable vue/no-mutating-props -->
-        <div class="w-full h-full flex flex-col items-center justify-center p-4 gap-3">
-            <input
-                v-model="node.data.text"
-                type="text"
-                placeholder="Type text..."
-                class="border border-neutral-300 dark:border-neutral-700 rounded-lg px-2 py-1 w-full max-w-xs text-sm bg-transparent focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-            <input
-                v-model="node.data.date"
-                type="date"
-                class="border border-neutral-300 dark:border-neutral-700 rounded-lg px-2 py-1 w-full max-w-xs text-sm bg-transparent focus:outline-none focus:ring-2 focus:ring-primary"
-            />
+    <!-- PANEL CONTENT -->
+    <div class="w-full h-full">
+  <ComHubOverview />
+</div>
 
-            <div class="text-xs text-neutral-500 text-center mt-2">
-                {{ node.data?.text || '— no text —' }} <br />
-                {{ node.data?.date || '— no date —' }}
-            </div>
-        </div>
-    </div>
+
+  </div>
 
     <!-- SPLIT -->
     <div
