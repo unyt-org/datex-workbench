@@ -139,6 +139,19 @@ function handleClickOutside(e: MouseEvent) {
           </template>
         </template>
 
+        <!-- New File / New Folder for background (root-level creation) -->
+        <template v-if="!hasNode">
+          <button class="context-menu-item" @click="handleAction('new-file')">
+            <FilePlus class="w-4 h-4 flex-shrink-0" />
+            <span class="context-menu-label">New File</span>
+          </button>
+          <button class="context-menu-item" @click="handleAction('new-folder')">
+            <FolderPlus class="w-4 h-4 flex-shrink-0" />
+            <span class="context-menu-label">New Folder</span>
+          </button>
+          <div v-if="hasClipboard" class="context-menu-separator" />
+        </template>
+
         <!-- Paste (always shown if clipboard has content) -->
         <template v-if="hasClipboard">
           <button class="context-menu-item" @click="handleAction('paste')">

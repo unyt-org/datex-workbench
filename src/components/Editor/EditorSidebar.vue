@@ -157,23 +157,27 @@ function closeContextMenu() {
 }
 
 function handleContextNewFile() {
-  if (!contextMenu.value?.node) return;
-  const folderPath = contextMenu.value.node.path;
   closeContextMenu();
-  emit('ensure-expand', folderPath);
-  nextTick(() => {
-    creatingIn.value = { folderPath, type: 'file' };
-  });
+  if (contextMenu.value?.node) {
+    // Create inside a specific folder
+    const folderPath = contextMenu.value.node.path;
+    emit('ensure-expand', folderPath);
+    nextTick(() => { creatingIn.value = { folderPath, type: 'file' }; });
+  } else {
+    // Background right-click → create at root
+    startCreateFileAtRoot();
+  }
 }
 
 function handleContextNewFolder() {
-  if (!contextMenu.value?.node) return;
-  const folderPath = contextMenu.value.node.path;
   closeContextMenu();
-  emit('ensure-expand', folderPath);
-  nextTick(() => {
-    creatingIn.value = { folderPath, type: 'folder' };
-  });
+  if (contextMenu.value?.node) {
+    const folderPath = contextMenu.value.node.path;
+    emit('ensure-expand', folderPath);
+    nextTick(() => { creatingIn.value = { folderPath, type: 'folder' }; });
+  } else {
+    startCreateFolderAtRoot();
+  }
 }
 
 function handleContextRename() {
@@ -371,7 +375,7 @@ onUnmounted(() => {
 
     <!-- File Tree: flex-1 min-h-0 constrains height; overflow-y auto scrolls cleanly -->
     <div class="flex-1 min-h-0 overflow-y-auto">
-      <div class="p-2 pb-4">
+      <div class="p-2 pb-20">
         <!-- Root-level New Item Input -->
         <div v-if="isCreatingAtRoot" class="mb-1">
           <div class="flex items-center gap-1 py-1 px-2">
