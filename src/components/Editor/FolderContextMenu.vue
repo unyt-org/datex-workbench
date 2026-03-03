@@ -1,15 +1,36 @@
 <script setup lang="ts">
-import { FilePlus, FolderPlus, Pencil, Trash2 } from 'lucide-vue-next';
+import {
+  FilePlus,
+  FolderPlus,
+  Pencil,
+  Trash2,
+  Scissors,
+  Copy,
+  ClipboardPaste,
+  Link,
+} from 'lucide-vue-next';
+import { shortcuts } from '@/composable/usePlatform';
+import { ref, onMounted, nextTick } from 'vue';
 
+// ── Props ──────────────────────────────────────────────────────────
 interface Props {
   x: number;
   y: number;
-  nodeType: 'file' | 'folder';
+  /** null when right-clicking on empty sidebar space (background context) */
+  nodeType: 'file' | 'folder' | null;
+  hasClipboard?: boolean;
 }
 
-defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  hasClipboard: false,
+});
 
 const emit = defineEmits<{
+  'cut': [];
+  'copy': [];
+  'paste': [];
+  'copy-path': [];
+  'copy-relative-path': [];
   'new-file': [];
   'new-folder': [];
   'rename': [];
@@ -17,8 +38,40 @@ const emit = defineEmits<{
   'close': [];
 }>();
 
-function handleAction(action: 'new-file' | 'new-folder' | 'rename' | 'delete') {
-  emit(action as 'new-file');
+// ── Viewport-aware positioning ─────────────────────────────────────
+const menuRef = ref<HTMLDivElement | null>(null);
+const adjustedX = ref(props.x);
+const adjustedY = ref(props.y);
+
+onMounted(async () => {
+  await nextTick();
+  if (!menuRef.value) return;
+
+  const rect = menuRef.value.getBoundingClientRect();
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const padding = 8;
+
+  // Flip left if menu overflows right edge
+  if (props.x + rect.width + padding > vw) {
+    adjustedX.value = Math.max(padding, props.x - rect.width);
+  }
+
+  // Flip up if menu overflows bottom edge
+  if (props.y + rect.height + padding > vh) {
+    adjustedY.value = Math.max(padding, props.y - rect.height);
+  }
+});
+
+// ── Helpers ────────────────────────────────────────────────────────
+/** Whether the menu was opened on a specific file/folder node */
+const hasNode = props.nodeType !== null;
+
+type Action = 'cut' | 'copy' | 'paste' | 'copy-path' | 'copy-relative-path'
+  | 'new-file' | 'new-folder' | 'rename' | 'delete';
+
+function handleAction(action: Action) {
+  emit(action as 'cut');
   emit('close');
 }
 
@@ -37,32 +90,76 @@ function handleClickOutside(e: MouseEvent) {
       @contextmenu.prevent="emit('close')"
     >
       <div
+        ref="menuRef"
         class="context-menu"
-        :style="{ left: x + 'px', top: y + 'px' }"
+        :style="{ left: adjustedX + 'px', top: adjustedY + 'px' }"
         @keydown.escape="emit('close')"
       >
-        <!-- Folder-only actions -->
-        <template v-if="nodeType === 'folder'">
-          <button class="context-menu-item" @click="handleAction('new-file')">
-            <FilePlus class="w-4 h-4" />
-            <span>New File</span>
+        <!-- File/folder-specific items (hidden for background context menu) -->
+        <template v-if="hasNode">
+          <!-- Cut / Copy -->
+          <button class="context-menu-item" @click="handleAction('cut')">
+            <Scissors class="w-4 h-4 flex-shrink-0" />
+            <span class="context-menu-label">Cut</span>
+            <span class="context-menu-shortcut">{{ shortcuts.cut }}</span>
           </button>
-          <button class="context-menu-item" @click="handleAction('new-folder')">
-            <FolderPlus class="w-4 h-4" />
-            <span>New Folder</span>
+          <button class="context-menu-item" @click="handleAction('copy')">
+            <Copy class="w-4 h-4 flex-shrink-0" />
+            <span class="context-menu-label">Copy</span>
+            <span class="context-menu-shortcut">{{ shortcuts.copy }}</span>
           </button>
+
           <div class="context-menu-separator" />
+
+          <!-- Copy Path / Copy Relative Path -->
+          <button class="context-menu-item" @click="handleAction('copy-path')">
+            <Link class="w-4 h-4 flex-shrink-0" />
+            <span class="context-menu-label">Copy Path</span>
+            <span class="context-menu-shortcut">{{ shortcuts.copyPath }}</span>
+          </button>
+          <button class="context-menu-item" @click="handleAction('copy-relative-path')">
+            <Link class="w-4 h-4 flex-shrink-0" />
+            <span class="context-menu-label">Copy Relative Path</span>
+            <span class="context-menu-shortcut">{{ shortcuts.copyRelativePath }}</span>
+          </button>
+
+          <div class="context-menu-separator" />
+
+          <!-- Folder-only: New File / New Folder -->
+          <template v-if="nodeType === 'folder'">
+            <button class="context-menu-item" @click="handleAction('new-file')">
+              <FilePlus class="w-4 h-4 flex-shrink-0" />
+              <span class="context-menu-label">New File</span>
+            </button>
+            <button class="context-menu-item" @click="handleAction('new-folder')">
+              <FolderPlus class="w-4 h-4 flex-shrink-0" />
+              <span class="context-menu-label">New Folder</span>
+            </button>
+            <div class="context-menu-separator" />
+          </template>
         </template>
 
-        <!-- Common actions (files + folders) -->
-        <button class="context-menu-item" @click="handleAction('rename')">
-          <Pencil class="w-4 h-4" />
-          <span>Rename</span>
-        </button>
-        <button class="context-menu-item context-menu-item--danger" @click="handleAction('delete')">
-          <Trash2 class="w-4 h-4" />
-          <span>Delete</span>
-        </button>
+        <!-- Paste (always shown if clipboard has content) -->
+        <template v-if="hasClipboard">
+          <button class="context-menu-item" @click="handleAction('paste')">
+            <ClipboardPaste class="w-4 h-4 flex-shrink-0" />
+            <span class="context-menu-label">Paste</span>
+            <span class="context-menu-shortcut">{{ shortcuts.paste }}</span>
+          </button>
+          <div v-if="hasNode" class="context-menu-separator" />
+        </template>
+
+        <!-- Rename / Delete (only for file/folder nodes) -->
+        <template v-if="hasNode">
+          <button class="context-menu-item" @click="handleAction('rename')">
+            <Pencil class="w-4 h-4 flex-shrink-0" />
+            <span class="context-menu-label">Rename</span>
+          </button>
+          <button class="context-menu-item context-menu-item--danger" @click="handleAction('delete')">
+            <Trash2 class="w-4 h-4 flex-shrink-0" />
+            <span class="context-menu-label">Delete</span>
+          </button>
+        </template>
       </div>
     </div>
   </Teleport>
@@ -77,7 +174,7 @@ function handleClickOutside(e: MouseEvent) {
 
 .context-menu {
   position: fixed;
-  min-width: 180px;
+  min-width: 220px;
   background: var(--color-sidebar);
   border: 1px solid var(--color-sidebar-border);
   border-radius: 6px;
@@ -109,6 +206,20 @@ function handleClickOutside(e: MouseEvent) {
 .context-menu-item--danger:hover {
   background: rgba(220, 38, 38, 0.2);
   color: #f87171;
+}
+
+.context-menu-label {
+  flex: 1;
+  text-align: left;
+}
+
+.context-menu-shortcut {
+  font-size: 12px;
+  color: var(--color-muted-foreground);
+  opacity: 0.6;
+  margin-left: auto;
+  flex-shrink: 0;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
 .context-menu-separator {

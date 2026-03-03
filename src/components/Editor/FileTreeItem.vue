@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { File, Folder, FolderOpen, ChevronRight, ChevronDown, TriangleAlert } from 'lucide-vue-next';
 import { cn } from '@/lib/utils';
-import { ref, nextTick, computed } from 'vue';
+import { ref, nextTick, computed, watch } from 'vue';
 import type { FileTreeNode } from '@/types/FileTree';
 
 // ── Types ──────────────────────────────────────────────────────────
@@ -20,6 +20,12 @@ interface Props {
   creatingIn?: CreatingState | null;
   /** Path of the node currently being renamed */
   renamingPath?: string | null;
+  /** Currently selected paths for multi-select */
+  selectedPaths?: Set<string>;
+  /** Paths in the internal clipboard */
+  clipboardPaths?: string[];
+  /** Clipboard operation mode */
+  clipboardMode?: 'cut' | 'copy' | null;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -27,11 +33,14 @@ const props = withDefaults(defineProps<Props>(), {
   siblingNames: () => [],
   creatingIn: null,
   renamingPath: null,
+  selectedPaths: () => new Set<string>(),
+  clipboardPaths: () => [],
+  clipboardMode: null,
 });
 
 // ── Emits ──────────────────────────────────────────────────────────
 const emit = defineEmits<{
-  'file-click': [path: string];
+  'item-click': [event: MouseEvent, node: FileTreeNode];
   'toggle-folder': [path: string];
   'context-menu': [event: MouseEvent, node: FileTreeNode];
   'confirm-create': [folderPath: string, name: string, type: 'file' | 'folder'];
@@ -49,6 +58,12 @@ const creatingType = computed(() => props.creatingIn?.type ?? 'file');
 
 // ── Computed: is THIS node currently being renamed? ────────────────
 const isRenaming = computed(() => props.renamingPath === props.node.path);
+
+// ── Computed: selection & clipboard state ──────────────────────────
+const isSelected = computed(() => props.selectedPaths.has(props.node.path));
+const isCut = computed(
+  () => props.clipboardMode === 'cut' && props.clipboardPaths.includes(props.node.path),
+);
 
 // ── Inline creation state ──────────────────────────────────────────
 const newItemName = ref('');
@@ -80,11 +95,13 @@ const paddingLeft = computed(() => `${props.depth * 16 + 8}px`);
 const childPaddingLeft = computed(() => `${(props.depth + 1) * 16 + 8}px`);
 
 // ── Event handlers ─────────────────────────────────────────────────
-function handleClick() {
+function handleClick(e: MouseEvent) {
+  // Always emit the raw click for the parent to handle selection
+  emit('item-click', e, props.node);
+
+  // Toggle folder expansion on click (regardless of modifier)
   if (props.node.type === 'folder') {
     emit('toggle-folder', props.node.path);
-  } else {
-    emit('file-click', props.node.path);
   }
 }
 
@@ -94,9 +111,6 @@ function handleContextMenu(e: MouseEvent) {
 }
 
 // ── Creation input lifecycle ───────────────────────────────────────
-// Watch for when this node becomes the creation target
-import { watch } from 'vue';
-
 watch(isCreating, async (val) => {
   if (val) {
     newItemName.value = '';
@@ -167,16 +181,19 @@ function handleRenameKeydown(e: KeyboardEvent) {
 </script>
 
 <template>
-  <div>
+  <div data-tree-item>
     <!-- Normal node row (displayed when NOT renaming this node) -->
     <div
       v-if="!isRenaming"
       :class="cn(
         'flex items-center gap-1 py-1 px-1 rounded-md text-sm cursor-pointer select-none transition-colors',
         'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-        node.type === 'file' && node.path === currentFile
+        isSelected
           ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-          : 'text-sidebar-foreground'
+          : node.type === 'file' && node.path === currentFile
+            ? 'bg-sidebar-accent/60 text-sidebar-accent-foreground'
+            : 'text-sidebar-foreground',
+        isCut && 'opacity-50'
       )"
       :style="{ paddingLeft }"
       @click="handleClick"
@@ -277,7 +294,10 @@ function handleRenameKeydown(e: KeyboardEvent) {
         :sibling-names="(node.children || []).map(c => c.name)"
         :creating-in="creatingIn"
         :renaming-path="renamingPath"
-        @file-click="emit('file-click', $event)"
+        :selected-paths="selectedPaths"
+        :clipboard-paths="clipboardPaths"
+        :clipboard-mode="clipboardMode"
+        @item-click="(e, n) => emit('item-click', e, n)"
         @toggle-folder="emit('toggle-folder', $event)"
         @context-menu="(e, n) => emit('context-menu', e, n)"
         @confirm-create="(fp, name, type) => emit('confirm-create', fp, name, type)"

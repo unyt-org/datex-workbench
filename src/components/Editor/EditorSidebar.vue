@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { FilePlus, FolderPlus, TriangleAlert, File as FileIcon, Folder } from 'lucide-vue-next';
 import { cn } from '@/lib/utils';
-import { ref, nextTick, computed } from 'vue';
+import { ref, nextTick, computed, onMounted, onUnmounted } from 'vue';
 import type { FileTreeNode } from '@/types/FileTree';
 import type { CreatingState } from './FileTreeItem.vue';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import FileTreeItem from './FileTreeItem.vue';
 import FolderContextMenu from './FolderContextMenu.vue';
+import { useFileSelection } from '@/composable/useFileSelection';
+import { useFileClipboard } from '@/composable/useFileClipboard';
+import { isMac } from '@/composable/usePlatform';
 
 // ── Props ──────────────────────────────────────────────────────────
 interface Props {
@@ -27,23 +29,44 @@ const emit = defineEmits<{
   'create-folder-in-folder': [folderPath: string, foldername: string];
   'rename-item': [oldPath: string, newName: string];
   'delete-item': [path: string];
+  'paste-items': [targetPath: string, sourcePaths: string[], mode: 'cut' | 'copy'];
 }>();
 
-// ── Centralized creation/rename state ──────────────────────────────
-/** Which folder is showing an inline creation input, and what type */
-const creatingIn = ref<CreatingState | null>(null);
+// ── Composables ────────────────────────────────────────────────────
+const {
+  selectedPaths,
+  handleItemClick: handleSelectionClick,
+  ensureSelected,
+  clearSelection,
+} = useFileSelection();
 
-/** Path of the node currently being renamed */
+const {
+  clipboardPaths,
+  clipboardMode,
+  hasClipboard,
+  cut,
+  copy,
+  consumeForPaste,
+  copyPathToClipboard,
+  copyRelativePathToClipboard,
+} = useFileClipboard();
+
+// ── Centralized creation/rename state ──────────────────────────────
+const creatingIn = ref<CreatingState | null>(null);
 const renamingPath = ref<string | null>(null);
 
 // ── Context menu state ─────────────────────────────────────────────
-const contextMenu = ref<{ x: number; y: number; node: FileTreeNode } | null>(null);
+// node is null when right-clicking on empty sidebar space
+const contextMenu = ref<{ x: number; y: number; node: FileTreeNode | null } | null>(null);
 
 // ── Root-level creation state ──────────────────────────────────────
 const isCreatingAtRoot = ref(false);
 const rootCreationType = ref<'file' | 'folder'>('file');
 const newItemName = ref('');
 const inputRef = ref<HTMLInputElement | null>(null);
+
+// ── Sidebar container ref (for keyboard focus) ─────────────────────
+const sidebarRef = ref<HTMLDivElement | null>(null);
 
 const rootNames = computed(() => props.tree.map((n) => n.name));
 const isRootDuplicate = computed(() => {
@@ -99,9 +122,34 @@ function handleRootKeydown(e: KeyboardEvent) {
   else if (e.key === 'Escape') cancelRootCreate();
 }
 
+// ── Item click handler (selection + file open) ─────────────────────
+function handleItemClick(event: MouseEvent, node: FileTreeNode) {
+  const isSingleClick = handleSelectionClick(node.path, event, props.tree);
+
+  // Only open file on plain single-click (no modifiers)
+  if (isSingleClick && node.type === 'file') {
+    emit('file-click', node.path);
+  }
+}
+
 // ── Context menu handlers ──────────────────────────────────────────
-function handleContextMenu(e: MouseEvent, node: FileTreeNode) {
+
+/** Right-click on a file/folder node */
+function handleNodeContextMenu(e: MouseEvent, node: FileTreeNode) {
+  e.stopPropagation(); // prevent bubbling to the root @contextmenu handler
+  ensureSelected(node.path);
   contextMenu.value = { x: e.clientX, y: e.clientY, node };
+}
+
+/** Right-click on empty sidebar space (background) */
+function handleBackgroundContextMenu(e: MouseEvent) {
+  // Only trigger if clicked on the scroll area background, not on a tree item
+  const target = e.target as HTMLElement;
+  if (target.closest('[data-tree-item]')) return;
+
+  e.preventDefault();
+  clearSelection();
+  contextMenu.value = { x: e.clientX, y: e.clientY, node: null };
 }
 
 function closeContextMenu() {
@@ -109,19 +157,17 @@ function closeContextMenu() {
 }
 
 function handleContextNewFile() {
-  if (!contextMenu.value) return;
+  if (!contextMenu.value?.node) return;
   const folderPath = contextMenu.value.node.path;
   closeContextMenu();
-  // Ensure the folder is expanded (don't toggle — just expand if needed)
   emit('ensure-expand', folderPath);
-  // Set centralized creation state — FileTreeItem will show the input
   nextTick(() => {
     creatingIn.value = { folderPath, type: 'file' };
   });
 }
 
 function handleContextNewFolder() {
-  if (!contextMenu.value) return;
+  if (!contextMenu.value?.node) return;
   const folderPath = contextMenu.value.node.path;
   closeContextMenu();
   emit('ensure-expand', folderPath);
@@ -131,15 +177,71 @@ function handleContextNewFolder() {
 }
 
 function handleContextRename() {
-  if (!contextMenu.value) return;
+  if (!contextMenu.value?.node) return;
   const path = contextMenu.value.node.path;
   closeContextMenu();
   renamingPath.value = path;
 }
 
 function handleContextDelete() {
+  if (!contextMenu.value?.node) return;
+  const pathsToDelete = selectedPaths.value.size > 0
+    ? [...selectedPaths.value]
+    : [contextMenu.value.node.path];
+
+  closeContextMenu();
+  for (const p of pathsToDelete) {
+    emit('delete-item', p);
+  }
+  clearSelection();
+}
+
+// ── Context menu clipboard handlers ────────────────────────────────
+function handleContextCut() {
+  if (!contextMenu.value?.node) return;
+  const paths = selectedPaths.value.size > 0
+    ? [...selectedPaths.value]
+    : [contextMenu.value.node.path];
+  cut(paths);
+  closeContextMenu();
+}
+
+function handleContextCopy() {
+  if (!contextMenu.value?.node) return;
+  const paths = selectedPaths.value.size > 0
+    ? [...selectedPaths.value]
+    : [contextMenu.value.node.path];
+  copy(paths);
+  closeContextMenu();
+}
+
+function handleContextPaste() {
   if (!contextMenu.value) return;
-  emit('delete-item', contextMenu.value.node.path);
+  const clip = consumeForPaste();
+  if (!clip) return;
+
+  // Determine target: folder node → paste inside, file node → parent dir, background → root
+  const node = contextMenu.value.node;
+  let targetPath = '/';
+  if (node) {
+    targetPath = node.type === 'folder'
+      ? node.path
+      : node.path.substring(0, node.path.lastIndexOf('/')) || '/';
+  }
+
+  closeContextMenu();
+  emit('paste-items', targetPath, clip.paths, clip.mode);
+}
+
+function handleContextCopyPath() {
+  if (!contextMenu.value?.node) return;
+  copyPathToClipboard(contextMenu.value.node.path);
+  closeContextMenu();
+}
+
+function handleContextCopyRelativePath() {
+  if (!contextMenu.value?.node) return;
+  copyRelativePathToClipboard(contextMenu.value.node.path);
   closeContextMenu();
 }
 
@@ -167,14 +269,85 @@ function handleCancelRename() {
   renamingPath.value = null;
 }
 
-// ── Toggle folder: ensure folder is expanded when creating inside ──
+// ── Toggle folder ──────────────────────────────────────────────────
 function handleToggleFolder(folderPath: string) {
   emit('toggle-folder', folderPath);
 }
+
+// ── Keyboard shortcuts ─────────────────────────────────────────────
+function handleKeydown(e: KeyboardEvent) {
+  const metaKey = isMac ? e.metaKey : e.ctrlKey;
+  if (!metaKey) return;
+
+  const key = e.key.toLowerCase();
+
+  // ⌘X / Ctrl+X → Cut
+  if (key === 'x' && !e.altKey && !e.shiftKey) {
+    if (selectedPaths.value.size > 0) {
+      e.preventDefault();
+      cut([...selectedPaths.value]);
+    }
+    return;
+  }
+
+  // ⌘C / Ctrl+C → Copy (but not ⌥⌘C which is Copy Path)
+  if (key === 'c' && !e.altKey && !e.shiftKey) {
+    if (selectedPaths.value.size > 0) {
+      e.preventDefault();
+      copy([...selectedPaths.value]);
+    }
+    return;
+  }
+
+  // ⌘V / Ctrl+V → Paste
+  if (key === 'v' && !e.altKey && !e.shiftKey) {
+    const clip = consumeForPaste();
+    if (clip) {
+      e.preventDefault();
+      const selected = [...selectedPaths.value];
+      const targetPath = selected.length === 1 ? selected[0]! : '/';
+      emit('paste-items', targetPath, clip.paths, clip.mode);
+    }
+    return;
+  }
+
+  // ⌥⌘C / Alt+Ctrl+C → Copy Path
+  if (key === 'c' && e.altKey && !e.shiftKey) {
+    if (selectedPaths.value.size > 0) {
+      e.preventDefault();
+      const firstPath = [...selectedPaths.value][0]!;
+      copyPathToClipboard(firstPath);
+    }
+    return;
+  }
+
+  // ⇧⌥⌘C / Shift+Alt+Ctrl+C → Copy Relative Path
+  if (key === 'c' && e.altKey && e.shiftKey) {
+    if (selectedPaths.value.size > 0) {
+      e.preventDefault();
+      const firstPath = [...selectedPaths.value][0]!;
+      copyRelativePathToClipboard(firstPath);
+    }
+    return;
+  }
+}
+
+onMounted(() => {
+  sidebarRef.value?.addEventListener('keydown', handleKeydown);
+});
+
+onUnmounted(() => {
+  sidebarRef.value?.removeEventListener('keydown', handleKeydown);
+});
 </script>
 
 <template>
-  <div class="h-full bg-sidebar border-r border-sidebar-border flex flex-col">
+  <div
+    ref="sidebarRef"
+    class="h-full bg-sidebar border-r border-sidebar-border flex flex-col focus:outline-none"
+    tabindex="0"
+    @contextmenu="handleBackgroundContextMenu"
+  >
     <!-- Header with Actions -->
     <div class="px-4 py-3 border-b border-sidebar-border flex items-center justify-between">
       <h2 class="text-sm font-semibold text-sidebar-foreground">Files</h2>
@@ -196,9 +369,9 @@ function handleToggleFolder(folderPath: string) {
       </div>
     </div>
 
-    <!-- File Tree -->
-    <ScrollArea class="flex-1 min-h-0">
-      <div class="p-2">
+    <!-- File Tree: flex-1 min-h-0 constrains height; overflow-y auto scrolls cleanly -->
+    <div class="flex-1 min-h-0 overflow-y-auto">
+      <div class="p-2 pb-4">
         <!-- Root-level New Item Input -->
         <div v-if="isCreatingAtRoot" class="mb-1">
           <div class="flex items-center gap-1 py-1 px-2">
@@ -237,9 +410,12 @@ function handleToggleFolder(folderPath: string) {
           :sibling-names="tree.map(n => n.name)"
           :creating-in="creatingIn"
           :renaming-path="renamingPath"
-          @file-click="emit('file-click', $event)"
+          :selected-paths="selectedPaths"
+          :clipboard-paths="clipboardPaths"
+          :clipboard-mode="clipboardMode"
+          @item-click="handleItemClick"
           @toggle-folder="handleToggleFolder"
-          @context-menu="handleContextMenu"
+          @context-menu="handleNodeContextMenu"
           @confirm-create="handleConfirmCreate"
           @cancel-create="handleCancelCreate"
           @confirm-rename="handleConfirmRename"
@@ -247,14 +423,20 @@ function handleToggleFolder(folderPath: string) {
           @delete-item="emit('delete-item', $event)"
         />
       </div>
-    </ScrollArea>
+    </div>
 
     <!-- Context Menu -->
     <FolderContextMenu
       v-if="contextMenu"
       :x="contextMenu.x"
       :y="contextMenu.y"
-      :node-type="contextMenu.node.type"
+      :node-type="contextMenu.node?.type ?? null"
+      :has-clipboard="hasClipboard"
+      @cut="handleContextCut"
+      @copy="handleContextCopy"
+      @paste="handleContextPaste"
+      @copy-path="handleContextCopyPath"
+      @copy-relative-path="handleContextCopyRelativePath"
       @new-file="handleContextNewFile"
       @new-folder="handleContextNewFolder"
       @rename="handleContextRename"

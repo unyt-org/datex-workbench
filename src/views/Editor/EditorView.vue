@@ -243,6 +243,75 @@ async function handleDeleteItem(path: string) {
   }
 }
 
+async function handlePasteItems(targetPath: string, sourcePaths: string[], mode: 'cut' | 'copy') {
+  try {
+    const targetNode = findNode(tree.value, targetPath);
+    const targetDir = targetNode?.type === 'folder'
+      ? targetPath
+      : targetPath.substring(0, targetPath.lastIndexOf('/')) || '/';
+
+    for (const srcPath of sourcePaths) {
+      const destPath = await resolveDestPath(srcPath, targetDir, mode);
+      if (!destPath) continue;
+
+      if (mode === 'cut') {
+        await workspace.fs.rename(srcPath, destPath);
+        if (currentFile.value === srcPath) {
+          currentFile.value = destPath;
+          await workspace.openTextDocument(destPath);
+          localStorage.setItem('editor-current-file', destPath);
+        }
+      } else {
+        try {
+          const content = await workspace.fs.readFile(srcPath);
+          await workspace.fs.writeFile(destPath, content);
+        } catch {
+          await workspace.fs.createDirectory(destPath);
+        }
+      }
+    }
+
+    await reloadTree();
+    const target = findNode(tree.value, targetDir);
+    if (target?.type === 'folder') target.isExpanded = true;
+    saveExpandedPaths();
+  } catch (error) {
+    console.error('Failed to paste items:', error);
+  }
+}
+
+/**
+ * Resolve a unique destination path for a paste.
+ * Cut to same location → skip (returns null).
+ * Name conflict → appends " copy", " copy 2", etc. with extension preserved.
+ */
+async function resolveDestPath(
+  srcPath: string,
+  targetDir: string,
+  mode: 'cut' | 'copy',
+): Promise<string | null> {
+  const fileName = srcPath.split('/').pop() ?? '';
+  const base = (targetDir === '/' ? '' : targetDir) + '/' + fileName;
+
+  if (mode === 'cut' && srcPath === base) return null;
+  if (!(await pathExists(base))) return base;
+
+  const dotIdx = fileName.lastIndexOf('.');
+  const stem = dotIdx > 0 ? fileName.slice(0, dotIdx) : fileName;
+  const ext  = dotIdx > 0 ? fileName.slice(dotIdx)  : '';
+
+  for (let n = 0; ; n++) {
+    const suffix = n === 0 ? ' copy' : ` copy ${n + 1}`;
+    const candidate = (targetDir === '/' ? '' : targetDir) + '/' + stem + suffix + ext;
+    if (!(await pathExists(candidate))) return candidate;
+  }
+}
+
+async function pathExists(path: string): Promise<boolean> {
+  try { await workspace.fs.stat(path); return true; }
+  catch { return false; }
+}
+
 // ── Initialize ─────────────────────────────────────────────────────
 lazy({ workspace });
 
@@ -267,7 +336,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <ResizablePanelGroup direction="horizontal" class="h-screen">
+  <ResizablePanelGroup direction="horizontal" class="h-full">
     <ResizablePanel :default-size="20" :min-size="15" :max-size="40">
       <EditorSidebar
         :tree="tree"
@@ -281,6 +350,7 @@ onMounted(async () => {
         @create-folder-in-folder="handleCreateFolderInFolder"
         @rename-item="handleRenameItem"
         @delete-item="handleDeleteItem"
+        @paste-items="handlePasteItems"
       />
     </ResizablePanel>
 
