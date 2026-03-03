@@ -12,6 +12,14 @@
   />
 </div>
 
+<!-- Advanced Mode Toggle -->
+<div class="mb-4 flex items-center gap-2">
+  <label class="text-sm text-neutral-500 cursor-pointer select-none flex items-center gap-2">
+    <input type="checkbox" v-model="advancedMode" class="accent-blue-500" />
+    Advanced Mode
+  </label>
+</div>
+
     <div
       v-for="iface in filteredInterfaces"
       :key="iface.uuid"
@@ -69,6 +77,15 @@
             </span>
           </h4>
 
+  <!-- Disconnect button (Advanced Mode only) -->
+  <button
+     v-if="advancedMode"
+     @click.stop="disconnectSocket(iface.uuid, socket.uuid, socket.endpoint)"
+     class="mt-2 text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
+      >
+    Disconnect
+    </button>
+
           <!-- 6. Distance + time in one line with bullet -->
           <div class="text-xs text-neutral-500 mt-1">
              Distance: {{ socket.properties.distance }}
@@ -88,9 +105,12 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed } from 'vue'
+import { reactive, ref, computed, watch } from 'vue'
 
 const searchQuery = ref('')
+
+const advancedMode = ref(false) // 
+
 /**
  * TEMP MOCK DATA (from issue JSON)
  * TODO: Replace mock JSON with live ComHub runtime state
@@ -204,6 +224,7 @@ const filteredInterfaces = computed(() => {
 
       // If no matching sockets, this interface should be hidden
       if (matchingSockets.length === 0) return null
+      expanded[iface.uuid] = true
 
       // Return a shallow copy with ONLY matching sockets
       return {
@@ -212,6 +233,14 @@ const filteredInterfaces = computed(() => {
       }
     })
     .filter((iface): iface is typeof comhub.interfaces[number] => iface !== null)
+})
+
+watch(searchQuery, (val) => {
+  if (!val.trim()) {
+    Object.keys(expanded).forEach((key) => {
+      expanded[key] = false
+    })
+  }
 })
 
 function toggle(uuid: string) {
@@ -264,4 +293,13 @@ function formatTime(seconds: number): string {
   const days = Math.floor(hours / 24)
   return rtf.format(-days, "day")
 }
+
+/**
+ * TODO: Implement once new DATEX release is available
+ * Disconnects a socket from its interface
+ */
+ function disconnectSocket(interfaceUuid: string, socketUuid: string, endpoint: string) {
+  console.warn(`[ComHub] disconnectSocket stub called`, { interfaceUuid, socketUuid, endpoint })
+}
+
 </script>
