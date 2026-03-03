@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { ref, nextTick, computed } from 'vue';
 import type { FileTreeNode } from '@/types/FileTree';
 import type { CreatingState } from './FileTreeItem.vue';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import FileTreeItem from './FileTreeItem.vue';
 import FolderContextMenu from './FolderContextMenu.vue';
 
@@ -196,55 +197,57 @@ function handleToggleFolder(folderPath: string) {
     </div>
 
     <!-- File Tree -->
-    <div class="flex-1 overflow-y-auto p-2">
-      <!-- Root-level New Item Input -->
-      <div v-if="isCreatingAtRoot" class="mb-1">
-        <div class="flex items-center gap-1 py-1 px-2">
-          <span class="w-4 flex-shrink-0" />
-          <FileIcon v-if="rootCreationType === 'file'" class="w-4 h-4 flex-shrink-0 text-sidebar-foreground" />
-          <Folder v-else class="w-4 h-4 flex-shrink-0 text-sidebar-foreground" />
-          <input
-            ref="inputRef"
-            v-model="newItemName"
-            @keydown="handleRootKeydown"
-            @blur="handleRootBlur"
-            type="text"
-            :placeholder="rootCreationType === 'file' ? 'filename.ext' : 'foldername'"
-            :class="cn(
-              'flex-1 bg-sidebar-accent text-sidebar-accent-foreground text-sm px-2 py-0.5 rounded outline-none focus:ring-1',
-              isRootDuplicate ? 'ring-1 ring-red-500 focus:ring-red-500' : 'focus:ring-primary'
-            )"
-          />
+    <ScrollArea class="flex-1 min-h-0">
+      <div class="p-2">
+        <!-- Root-level New Item Input -->
+        <div v-if="isCreatingAtRoot" class="mb-1">
+          <div class="flex items-center gap-1 py-1 px-2">
+            <span class="w-4 flex-shrink-0" />
+            <FileIcon v-if="rootCreationType === 'file'" class="w-4 h-4 flex-shrink-0 text-sidebar-foreground" />
+            <Folder v-else class="w-4 h-4 flex-shrink-0 text-sidebar-foreground" />
+            <input
+              ref="inputRef"
+              v-model="newItemName"
+              @keydown="handleRootKeydown"
+              @blur="handleRootBlur"
+              type="text"
+              :placeholder="rootCreationType === 'file' ? 'filename.ext' : 'foldername'"
+              :class="cn(
+                'flex-1 bg-sidebar-accent text-sidebar-accent-foreground text-sm px-2 py-0.5 rounded outline-none focus:ring-1',
+                isRootDuplicate ? 'ring-1 ring-red-500 focus:ring-red-500' : 'focus:ring-primary'
+              )"
+            />
+          </div>
+          <div
+            v-if="isRootDuplicate"
+            class="mx-3 mt-0.5 px-2 py-1 bg-[#5a1d1d] border border-red-500 rounded text-xs text-red-200 flex items-start gap-1.5"
+          >
+            <TriangleAlert class="w-3.5 h-3.5 flex-shrink-0 text-red-400 mt-0.5" />
+            <span>A file or folder <strong>{{ newItemName.trim() }}</strong> already exists. Please choose a different name.</span>
+          </div>
         </div>
-        <div
-          v-if="isRootDuplicate"
-          class="mx-3 mt-0.5 px-2 py-1 bg-[#5a1d1d] border border-red-500 rounded text-xs text-red-200 flex items-start gap-1.5"
-        >
-          <TriangleAlert class="w-3.5 h-3.5 flex-shrink-0 text-red-400 mt-0.5" />
-          <span>A file or folder <strong>{{ newItemName.trim() }}</strong> already exists. Please choose a different name.</span>
-        </div>
-      </div>
 
-      <!-- Tree Items -->
-      <FileTreeItem
-        v-for="node in tree"
-        :key="node.path"
-        :node="node"
-        :depth="0"
-        :current-file="currentFile"
-        :sibling-names="tree.map(n => n.name)"
-        :creating-in="creatingIn"
-        :renaming-path="renamingPath"
-        @file-click="emit('file-click', $event)"
-        @toggle-folder="handleToggleFolder"
-        @context-menu="handleContextMenu"
-        @confirm-create="handleConfirmCreate"
-        @cancel-create="handleCancelCreate"
-        @confirm-rename="handleConfirmRename"
-        @cancel-rename="handleCancelRename"
-        @delete-item="emit('delete-item', $event)"
-      />
-    </div>
+        <!-- Tree Items -->
+        <FileTreeItem
+          v-for="node in tree"
+          :key="node.path"
+          :node="node"
+          :depth="0"
+          :current-file="currentFile"
+          :sibling-names="tree.map(n => n.name)"
+          :creating-in="creatingIn"
+          :renaming-path="renamingPath"
+          @file-click="emit('file-click', $event)"
+          @toggle-folder="handleToggleFolder"
+          @context-menu="handleContextMenu"
+          @confirm-create="handleConfirmCreate"
+          @cancel-create="handleCancelCreate"
+          @confirm-rename="handleConfirmRename"
+          @cancel-rename="handleCancelRename"
+          @delete-item="emit('delete-item', $event)"
+        />
+      </div>
+    </ScrollArea>
 
     <!-- Context Menu -->
     <FolderContextMenu
