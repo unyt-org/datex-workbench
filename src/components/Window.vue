@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import ComHubOverview from '@/components/ComHubOverview.vue';
-import ComHubOverview from '@/components/ComHubOverview.vue';
 import { useDragDrop } from '@/composable/useDragDrop.ts';
 import { collapseSplit } from '@/composable/useLayoutTree.ts';
 import {
@@ -160,12 +158,6 @@ function collapseNearSide(node: SplitNode, side: CollapseSide): void {
         {{ dropPreview.mode === DropMode.Insert ? 'Insert' : 'Replace' }}
       </div>
     </div>
-
-    <!-- PANEL CONTENT -->
-    <div class="w-full h-full">
-  <ComHubOverview />
-</div>
-
 
   </div>
 
