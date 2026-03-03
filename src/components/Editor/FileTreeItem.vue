@@ -3,6 +3,16 @@ import { File, Folder, FolderOpen, ChevronRight, ChevronDown, TriangleAlert } fr
 import { cn } from '@/lib/utils';
 import { ref, nextTick, computed, watch } from 'vue';
 import type { FileTreeNode } from '@/types/FileTree';
+import {
+  draggedPath,
+  dragOverPath,
+  startFileDrag,
+  endFileDrag,
+  setFileDragOver,
+  clearFileDragOver,
+  isInvalidDrop,
+  getFileDragPath,
+} from '@/composable/useFileDragDrop';
 
 // ── Types ──────────────────────────────────────────────────────────
 export interface CreatingState {
@@ -41,8 +51,10 @@ const props = withDefaults(defineProps<Props>(), {
 // ── Emits ──────────────────────────────────────────────────────────
 const emit = defineEmits<{
   'item-click': [event: MouseEvent, node: FileTreeNode];
+  'item-dblclick': [event: MouseEvent, node: FileTreeNode];
   'toggle-folder': [path: string];
   'context-menu': [event: MouseEvent, node: FileTreeNode];
+  'move-item': [srcPath: string, targetDir: string];
   'confirm-create': [folderPath: string, name: string, type: 'file' | 'folder'];
   'cancel-create': [];
   'confirm-rename': [oldPath: string, newName: string];
@@ -63,6 +75,12 @@ const isRenaming = computed(() => props.renamingPath === props.node.path);
 const isSelected = computed(() => props.selectedPaths.has(props.node.path));
 const isCut = computed(
   () => props.clipboardMode === 'cut' && props.clipboardPaths.includes(props.node.path),
+);
+
+// ── Computed: drag state ───────────────────────────────────────────
+const isDragging = computed(() => draggedPath.value === props.node.path);
+const isDragOver = computed(
+  () => props.node.type === 'folder' && dragOverPath.value === props.node.path,
 );
 
 // ── Inline creation state ──────────────────────────────────────────
@@ -96,18 +114,56 @@ const childPaddingLeft = computed(() => `${(props.depth + 1) * 16 + 8}px`);
 
 // ── Event handlers ─────────────────────────────────────────────────
 function handleClick(e: MouseEvent) {
-  // Always emit the raw click for the parent to handle selection
   emit('item-click', e, props.node);
-
-  // Toggle folder expansion on click (regardless of modifier)
   if (props.node.type === 'folder') {
     emit('toggle-folder', props.node.path);
   }
 }
 
+function handleDblClick(e: MouseEvent) {
+  emit('item-dblclick', e, props.node);
+}
+
 function handleContextMenu(e: MouseEvent) {
   e.preventDefault();
   emit('context-menu', e, props.node);
+}
+
+// ── Drag & Drop handlers ───────────────────────────────────────────
+function handleDragStart(e: DragEvent) {
+  startFileDrag(props.node.path, e);
+}
+
+function handleDragEnd() {
+  endFileDrag();
+}
+
+function handleDragOver(e: DragEvent) {
+  if (props.node.type !== 'folder') return;
+  if (!draggedPath.value) return;
+  setFileDragOver(props.node.path, e);
+}
+
+function handleDragLeave() {
+  if (dragOverPath.value === props.node.path) clearFileDragOver();
+}
+
+function handleDrop(e: DragEvent) {
+  e.preventDefault();
+  clearFileDragOver();
+
+  const src = getFileDragPath(e);
+  if (!src) return;
+
+  // Determine target directory
+  const targetDir = props.node.type === 'folder'
+    ? props.node.path
+    : props.node.path.substring(0, props.node.path.lastIndexOf('/')) || '/';
+
+  if (isInvalidDrop(src, targetDir)) return;
+
+  emit('move-item', src, targetDir);
+  endFileDrag();
 }
 
 // ── Creation input lifecycle ───────────────────────────────────────
@@ -185,6 +241,7 @@ function handleRenameKeydown(e: KeyboardEvent) {
     <!-- Normal node row (displayed when NOT renaming this node) -->
     <div
       v-if="!isRenaming"
+      :draggable="true"
       :class="cn(
         'flex items-center gap-1 py-1 px-1 rounded-md text-sm cursor-pointer select-none transition-colors',
         'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
@@ -193,11 +250,19 @@ function handleRenameKeydown(e: KeyboardEvent) {
           : node.type === 'file' && node.path === currentFile
             ? 'bg-sidebar-accent/60 text-sidebar-accent-foreground'
             : 'text-sidebar-foreground',
-        isCut && 'opacity-50'
+        isCut && 'opacity-50',
+        isDragging && 'opacity-30',
+        isDragOver && 'ring-1 ring-inset ring-blue-500/60 bg-blue-500/10',
       )"
       :style="{ paddingLeft }"
       @click="handleClick"
+      @dblclick="handleDblClick"
       @contextmenu="handleContextMenu"
+      @dragstart="handleDragStart"
+      @dragend="handleDragEnd"
+      @dragover="handleDragOver"
+      @dragleave="handleDragLeave"
+      @drop="handleDrop"
     >
       <!-- Chevron + icon for folders -->
       <template v-if="node.type === 'folder'">
@@ -298,8 +363,10 @@ function handleRenameKeydown(e: KeyboardEvent) {
         :clipboard-paths="clipboardPaths"
         :clipboard-mode="clipboardMode"
         @item-click="(e, n) => emit('item-click', e, n)"
+        @item-dblclick="(e, n) => emit('item-dblclick', e, n)"
         @toggle-folder="emit('toggle-folder', $event)"
         @context-menu="(e, n) => emit('context-menu', e, n)"
+        @move-item="(src, dir) => emit('move-item', src, dir)"
         @confirm-create="(fp, name, type) => emit('confirm-create', fp, name, type)"
         @cancel-create="emit('cancel-create')"
         @confirm-rename="(op, nn) => emit('confirm-rename', op, nn)"

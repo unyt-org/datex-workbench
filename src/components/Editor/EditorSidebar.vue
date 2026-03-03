@@ -9,6 +9,7 @@ import FolderContextMenu from './FolderContextMenu.vue';
 import { useFileSelection } from '@/composable/useFileSelection';
 import { useFileClipboard } from '@/composable/useFileClipboard';
 import { isMac } from '@/composable/usePlatform';
+import { getFileDragPath, isInvalidDrop, clearFileDragOver } from '@/composable/useFileDragDrop';
 
 // ── Props ──────────────────────────────────────────────────────────
 interface Props {
@@ -21,6 +22,7 @@ const props = defineProps<Props>();
 // ── Emits ──────────────────────────────────────────────────────────
 const emit = defineEmits<{
   'file-click': [path: string];
+  'file-dblclick': [path: string];
   'toggle-folder': [path: string];
   'ensure-expand': [path: string];
   'create-file': [filename: string];
@@ -30,6 +32,7 @@ const emit = defineEmits<{
   'rename-item': [oldPath: string, newName: string];
   'delete-item': [path: string];
   'paste-items': [targetPath: string, sourcePaths: string[], mode: 'cut' | 'copy'];
+  'move-item': [srcPath: string, targetDir: string];
 }>();
 
 // ── Composables ────────────────────────────────────────────────────
@@ -132,6 +135,12 @@ function handleItemClick(event: MouseEvent, node: FileTreeNode) {
   }
 }
 
+function handleItemDblClick(event: MouseEvent, node: FileTreeNode) {
+  if (node.type === 'file') {
+    emit('file-dblclick', node.path);
+  }
+}
+
 // ── Context menu handlers ──────────────────────────────────────────
 
 /** Right-click on a file/folder node */
@@ -143,13 +152,26 @@ function handleNodeContextMenu(e: MouseEvent, node: FileTreeNode) {
 
 /** Right-click on empty sidebar space (background) */
 function handleBackgroundContextMenu(e: MouseEvent) {
-  // Only trigger if clicked on the scroll area background, not on a tree item
   const target = e.target as HTMLElement;
   if (target.closest('[data-tree-item]')) return;
-
   e.preventDefault();
   clearSelection();
   contextMenu.value = { x: e.clientX, y: e.clientY, node: null };
+}
+
+/** Dragover on background: allow drop if a file is being dragged */
+function handleBackgroundDragOver(e: DragEvent) {
+  const src = getFileDragPath(e);
+  if (src) e.preventDefault();
+}
+
+/** Drop on background: move dragged file/folder to root */
+function handleBackgroundDrop(e: DragEvent) {
+  e.preventDefault();
+  clearFileDragOver();
+  const src = getFileDragPath(e);
+  if (!src || isInvalidDrop(src, '/')) return;
+  emit('move-item', src, '/');
 }
 
 function closeContextMenu() {
@@ -374,7 +396,11 @@ onUnmounted(() => {
     </div>
 
     <!-- File Tree: flex-1 min-h-0 constrains height; overflow-y auto scrolls cleanly -->
-    <div class="flex-1 min-h-0 overflow-y-auto">
+    <div
+      class="flex-1 min-h-0 overflow-y-auto"
+      @dragover="handleBackgroundDragOver"
+      @drop="handleBackgroundDrop"
+    >
       <div class="p-2 pb-20">
         <!-- Root-level New Item Input -->
         <div v-if="isCreatingAtRoot" class="mb-1">
@@ -418,8 +444,10 @@ onUnmounted(() => {
           :clipboard-paths="clipboardPaths"
           :clipboard-mode="clipboardMode"
           @item-click="handleItemClick"
+          @item-dblclick="handleItemDblClick"
           @toggle-folder="handleToggleFolder"
           @context-menu="handleNodeContextMenu"
+          @move-item="(src, dir) => emit('move-item', src, dir)"
           @confirm-create="handleConfirmCreate"
           @cancel-create="handleCancelCreate"
           @confirm-rename="handleConfirmRename"

@@ -7,7 +7,10 @@ import {
   ResizableHandle,
 } from '@/components/ui/resizable';
 import EditorSidebar from '@/components/Editor/EditorSidebar.vue';
+import EditorTabs from '@/components/Editor/EditorTabs.vue';
 import type { FileTreeNode } from '@/types/FileTree';
+import { getFileDragPath } from '@/composable/useFileDragDrop';
+import * as tabs from '@/composable/useEditorTabs';
 
 // ── Workspace setup ────────────────────────────────────────────────
 const workspace = new Workspace({
@@ -44,7 +47,15 @@ function saveExpandedPaths() {
 
 // ── Reactive state ─────────────────────────────────────────────────
 const tree = ref<FileTreeNode[]>([]);
-const currentFile = ref<string>('');
+const isEditorDragOver = ref(false);
+
+const EDITOR_OPEN_FILES_KEY = 'editor-open-files';
+const EDITOR_CURRENT_FILE_KEY = 'editor-current-file';
+
+function saveTabs() {
+  localStorage.setItem(EDITOR_OPEN_FILES_KEY, JSON.stringify(tabs.openFilesList.value));
+  localStorage.setItem(EDITOR_CURRENT_FILE_KEY, tabs.activeFile.value);
+}
 
 // ── Tree utilities ─────────────────────────────────────────────────
 function findNode(nodes: FileTreeNode[], path: string): FileTreeNode | undefined {
@@ -127,9 +138,69 @@ async function reloadTree() {
 // ── Event handlers ─────────────────────────────────────────────────
 
 async function handleFileClick(filePath: string) {
-  currentFile.value = filePath;
+  tabs.openFile(filePath, true); // true = open as preview
   await workspace.openTextDocument(filePath);
-  localStorage.setItem('editor-current-file', filePath);
+  saveTabs();
+}
+
+async function handleFileDblClick(filePath: string) {
+  // Opening again as 'not preview' pins it
+  tabs.openFile(filePath, false);
+  await workspace.openTextDocument(filePath);
+  saveTabs();
+}
+
+async function handleTabClick(filePath: string) {
+  tabs.setActiveFile(filePath);
+  await workspace.openTextDocument(filePath);
+  saveTabs();
+}
+
+async function handleTabDblClick() {
+  tabs.pinCurrentTab();
+  saveTabs();
+}
+
+async function handleTabClose(filePath: string) {
+  const previousActive = tabs.activeFile.value;
+  const newActive = tabs.closeFile(filePath);
+  saveTabs();
+
+  if (previousActive !== newActive) {
+    if (newActive) {
+      await workspace.openTextDocument(newActive);
+    } else {
+      // Clear the editor or handle no open files appropriately
+      // (modern-monaco defaults to empty if the path is invalid or we could just open nothing)
+      // For now, if no tabs are open, it stays on the last view, which is standard.
+    }
+  }
+}
+
+function handleEditorDragOver(e: DragEvent) {
+  if (getFileDragPath(e)) {
+    e.preventDefault();
+    isEditorDragOver.value = true;
+  }
+}
+
+function handleEditorDragLeave() {
+  isEditorDragOver.value = false;
+}
+
+async function handleEditorDrop(e: DragEvent) {
+  e.preventDefault();
+  isEditorDragOver.value = false;
+
+  const path = getFileDragPath(e);
+  if (path && !path.endsWith('/')) { // Only open files
+    const node = findNode(tree.value, path);
+    if (node && node.type === 'file') {
+      tabs.openFile(path, false); // false = open as pinned
+      await workspace.openTextDocument(path);
+      saveTabs();
+    }
+  }
 }
 
 function handleToggleFolder(folderPath: string) {
@@ -154,9 +225,10 @@ async function handleCreateFile(filename: string) {
     const path = `/${filename}`;
     await workspace.fs.writeFile(path, '');
     await reloadTree();
-    currentFile.value = path;
+
+    tabs.openFile(path);
     await workspace.openTextDocument(path);
-    localStorage.setItem('editor-current-file', path);
+    saveTabs();
   } catch (error) {
     console.error('Failed to create file:', error);
   }
@@ -184,10 +256,11 @@ async function handleCreateFileInFolder(folderPath: string, filename: string) {
     const parent = findNode(tree.value, folderPath);
     if (parent) parent.isExpanded = true;
     saveExpandedPaths();
+
     // Open the new file
-    currentFile.value = filePath;
+    tabs.openFile(filePath);
     await workspace.openTextDocument(filePath);
-    localStorage.setItem('editor-current-file', filePath);
+    saveTabs();
   } catch (error) {
     console.error('Failed to create file in folder:', error);
   }
@@ -218,10 +291,11 @@ async function handleRenameItem(oldPath: string, newName: string) {
     await workspace.fs.rename(oldPath, newPath);
     await reloadTree();
 
-    if (currentFile.value === oldPath) {
-      currentFile.value = newPath;
+    tabs.renameOpenFile(oldPath, newPath);
+    saveTabs();
+
+    if (tabs.activeFile.value === newPath) {
       await workspace.openTextDocument(newPath);
-      localStorage.setItem('editor-current-file', newPath);
     }
   } catch (error) {
     console.error('Failed to rename:', error);
@@ -234,9 +308,23 @@ async function handleDeleteItem(path: string) {
     await reloadTree();
     saveExpandedPaths();
 
-    if (currentFile.value === path || currentFile.value.startsWith(path + '/')) {
-      currentFile.value = '';
-      localStorage.removeItem('editor-current-file');
+    // If it's a folder, we might need to close multiple tabs
+    // For now, let's close exactly the path or any paths under it
+    const openFilesCopy = [...tabs.openFilesList.value];
+    let changedActive = false;
+    for (const openPath of openFilesCopy) {
+      if (openPath === path || openPath.startsWith(path + '/')) {
+        const oldActive = tabs.activeFile.value;
+        const newActive = tabs.closeFile(openPath);
+        if (oldActive !== newActive) {
+          changedActive = true;
+        }
+      }
+    }
+
+    saveTabs();
+    if (changedActive && tabs.activeFile.value) {
+      await workspace.openTextDocument(tabs.activeFile.value);
     }
   } catch (error) {
     console.error('Failed to delete:', error);
@@ -256,10 +344,10 @@ async function handlePasteItems(targetPath: string, sourcePaths: string[], mode:
 
       if (mode === 'cut') {
         await workspace.fs.rename(srcPath, destPath);
-        if (currentFile.value === srcPath) {
-          currentFile.value = destPath;
+
+        tabs.renameOpenFile(srcPath, destPath);
+        if (tabs.activeFile.value === destPath) {
           await workspace.openTextDocument(destPath);
-          localStorage.setItem('editor-current-file', destPath);
         }
       } else {
         try {
@@ -271,6 +359,7 @@ async function handlePasteItems(targetPath: string, sourcePaths: string[], mode:
       }
     }
 
+    saveTabs();
     await reloadTree();
     const target = findNode(tree.value, targetDir);
     if (target?.type === 'folder') target.isExpanded = true;
@@ -278,6 +367,10 @@ async function handlePasteItems(targetPath: string, sourcePaths: string[], mode:
   } catch (error) {
     console.error('Failed to paste items:', error);
   }
+}
+
+async function handleMoveItem(srcPath: string, targetDir: string) {
+  await handlePasteItems(targetDir, [srcPath], 'cut');
 }
 
 /**
@@ -318,20 +411,36 @@ lazy({ workspace });
 onMounted(async () => {
   await reloadTree();
 
-  const savedFile = localStorage.getItem('editor-current-file');
-  if (savedFile && findNode(tree.value, savedFile)) {
-    currentFile.value = savedFile;
-    await workspace.openTextDocument(savedFile);
-    expandParents(savedFile);
-  } else {
+  // Load tabs config
+  let savedFiles: string[] = [];
+  try {
+    const raw = localStorage.getItem(EDITOR_OPEN_FILES_KEY);
+    if (raw) savedFiles = JSON.parse(raw);
+  } catch {}
+
+  const savedActive = localStorage.getItem(EDITOR_CURRENT_FILE_KEY) || '';
+
+  // Filter out any tabs that no longer exist
+  savedFiles = savedFiles.filter(p => findNode(tree.value, p));
+  let finalActive = (savedActive && findNode(tree.value, savedActive)) ? savedActive : '';
+
+  if (savedFiles.length === 0) {
     const firstFile = findFirstFile(tree.value);
     const fileToOpen = workspace.entryFile ? `/${workspace.entryFile}` : firstFile;
-    if (fileToOpen) {
-      currentFile.value = fileToOpen;
-      await workspace.openTextDocument(fileToOpen);
-      localStorage.setItem('editor-current-file', fileToOpen);
+    if (fileToOpen && findNode(tree.value, fileToOpen)) {
+      savedFiles.push(fileToOpen);
+      finalActive = fileToOpen;
     }
+  } else if (!finalActive) {
+    finalActive = savedFiles[0]!;
   }
+
+  tabs.initTabs(savedFiles, finalActive);
+  if (finalActive) {
+    await workspace.openTextDocument(finalActive);
+    expandParents(finalActive);
+  }
+  saveTabs();
 });
 </script>
 
@@ -340,8 +449,9 @@ onMounted(async () => {
     <ResizablePanel :default-size="20" :min-size="15" :max-size="40">
       <EditorSidebar
         :tree="tree"
-        :current-file="currentFile"
+        :current-file="tabs.activeFile.value"
         @file-click="handleFileClick"
+        @file-dblclick="handleFileDblClick"
         @toggle-folder="handleToggleFolder"
         @ensure-expand="handleEnsureExpand"
         @create-file="handleCreateFile"
@@ -351,14 +461,49 @@ onMounted(async () => {
         @rename-item="handleRenameItem"
         @delete-item="handleDeleteItem"
         @paste-items="handlePasteItems"
+        @move-item="handleMoveItem"
       />
     </ResizablePanel>
 
     <ResizableHandle />
 
     <ResizablePanel :default-size="80">
-      <div class="editor-container">
-        <monaco-editor></monaco-editor>
+      <div
+        class="editor-area-wrapper flex flex-col h-full bg-[#1e1e1e] relative"
+        @dragover="handleEditorDragOver"
+        @dragleave="handleEditorDragLeave"
+        @drop="handleEditorDrop"
+      >
+        <!-- Overlay when dragging a file over the editor -->
+        <div
+          v-if="isEditorDragOver"
+          class="absolute inset-0 z-50 bg-blue-500/10 border-2 border-blue-500/50 border-dashed flex items-center justify-center pointer-events-none"
+        >
+          <div class="bg-sidebar px-4 py-2 rounded shadow-lg text-sm text-sidebar-foreground">
+            Drop to open file
+          </div>
+        </div>
+
+        <EditorTabs
+          v-if="tabs.openFilesList.value.length > 0"
+          :open-files="tabs.openFilesList.value"
+          :active-file="tabs.activeFile.value"
+          :preview-tab="tabs.previewFile.value"
+          @tab-click="handleTabClick"
+          @tab-dblclick="handleTabDblClick"
+          @tab-close="handleTabClose"
+        />
+
+        <div
+          class="flex-1 min-h-0 editor-container"
+          :style="{ visibility: tabs.activeFile.value ? 'visible' : 'hidden' }"
+        >
+          <monaco-editor></monaco-editor>
+        </div>
+
+        <div v-show="!tabs.activeFile.value" class="absolute inset-0 top-[37px] flex items-center justify-center pointer-events-none opacity-50 select-none bg-[#1e1e1e]">
+           No file is open
+        </div>
       </div>
     </ResizablePanel>
   </ResizablePanelGroup>
