@@ -1,4 +1,5 @@
 import { Runtime, DIF } from '@unyt/datex';
+export type { DIF } from '@unyt/datex'
 
 /**
  * The default configuration for the Datex runtime.
@@ -24,27 +25,11 @@ export const Datex: Runtime = await Runtime.create(defaultConfig, {
  * representing the values stored at the pointer.
  */
 export function getPointers(): Map<string, DIF.Definitions.DIFContainer> {
-    // some example JS values
-    const values = [
-        42,
-        'Hello, World!',
-        true,
-        { a: 1, b: 2 },
-        [1, 2, 3, 4, 5],
-        {
-            nested: {
-                key: 'value',
-                arr: [10, 20, 30],
-            },
-        },
-    ];
-    const pointers = new Map(
-        values.map((value, index) => {
-            const difValue = Datex.dif.convertJSValueToDIFValue(
-                value,
-            ) as DIF.Definitions.DIFContainer;
-            return [`$${index.toString().padStart(16, '0')}`, difValue];
-        }),
-    );
-    return pointers;
-}
+    const mock: [string, DIF.Definitions.DIFContainer][] = [
+      ['$std',         { type: 'object', name: 'std' }         as unknown as DIF.Definitions.DIFContainer],
+      ['$file_server', { type: 'object', name: 'file_server' } as unknown as DIF.Definitions.DIFContainer],
+      ['$webrtc',      { type: 'object', name: 'webrtc' }      as unknown as DIF.Definitions.DIFContainer],
+      ['$Math',        { type: 'object', name: 'Math' }        as unknown as DIF.Definitions.DIFContainer],
+    ]
+    return new Map(mock)
+  }

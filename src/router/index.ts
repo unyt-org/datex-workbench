@@ -16,7 +16,7 @@ const router = createRouter({
       component: () => import('@/views/BlockViewer/DatexBlockProtocolViewWrapper.vue'),
     },
     {
-      path: '/',
+      path: '',
       name: 'Editor',
       component: WindowGeneralView,
     },
@@ -24,6 +24,11 @@ const router = createRouter({
       path: '/comhub',
       name: 'comhub-overview',
       component: () => import('@/components/ComHubOverview.vue'),
+    },
+    {
+      path: '/u/:endpoint_id',
+      name: 'endpoint',
+      component: () => import('@/components/endpoint/EndpointView.vue'),
     },
   ],
 });
