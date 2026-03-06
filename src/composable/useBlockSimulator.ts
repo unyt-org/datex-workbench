@@ -11,31 +11,31 @@ export const BLOCK_TYPES: BlockType[] = [
         id: 'receivers',
         label: 'Receivers',
         description: 'Block with multiple receivers',
-        url: 'https://raw.githubusercontent.com/unyt-org/datex-core/main/tests/structs/receivers/block.bin'
+        url: 'https://raw.githubusercontent.com/unyt-org/datex-core/main/crates/datex-core/tests/structs/receivers/block.bin'
     },
     {
         id: 'no_receivers',
         label: 'No Receivers',
         description: 'Block without receivers',
-        url: 'https://raw.githubusercontent.com/unyt-org/datex-core/main/tests/structs/no_receivers/block.bin'
+        url: 'https://raw.githubusercontent.com/unyt-org/datex-core/main/crates/datex-core/tests/structs/no_receivers/block.bin'
     },
     {
         id: 'receivers_with_keys',
         label: 'Receivers With Keys',
         description: 'Block with encryption keys',
-        url: 'https://raw.githubusercontent.com/unyt-org/datex-core/main/tests/structs/receivers_with_keys/block.bin'
+        url: 'https://raw.githubusercontent.com/unyt-org/datex-core/main/crates/datex-core/tests/structs/receivers_with_keys/block.bin'
     },
     {
         id: 'single_receiver_request',
         label: 'Single Receiver Request',
         description: 'Request block with single receiver',
-        url: 'https://raw.githubusercontent.com/unyt-org/datex-core/main/tests/structs/single_receiver_request/block.bin'
+        url: 'https://raw.githubusercontent.com/unyt-org/datex-core/main/crates/datex-core/tests/structs/single_receiver_request/block.bin'
     },
     {
         id: 'with_payload',
         label: 'With Payload',
         description: 'Block containing payload data',
-        url: 'https://raw.githubusercontent.com/unyt-org/datex-core/main/tests/structs/with_payload/block.bin'
+        url: 'https://raw.githubusercontent.com/unyt-org/datex-core/main/crates/datex-core/tests/structs/with_payload/block.bin'
     }
 ];
 
