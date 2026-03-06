@@ -23,7 +23,7 @@ const router = createRouter({
     {
       path: '/comhub',
       name: 'comhub-overview',
-      component: () => import('@/components/ComHubOverview.vue'),
+      component: () => import('@/components/ComHubOverviewWrapper.vue'),
     },
     {
       path: '/u/:endpoint_id',
