@@ -1,9 +1,17 @@
 <template>
-  <div class="m-5 p-4 h-full overflow-auto">
-    <h2 class="text-lg font-semibold mb-3">ComHub Overview</h2>
+  <div class="h-full overflow-auto">
+
+
+  <div class="flex items-center justify-between mb-3">
+  <h2 class="text-lg font-semibold">ComHub Overview</h2>
+  <span class="text-xs font-mono px-2 py-1 rounded border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400">
+    {{ comhub.endpoint }}
+  </span>
+</div>
+
 
 <!-- Search Bar -->
-<div class="mb-4">
+<div class="mb-4 w-1/2">
   <input
     v-model="searchQuery"
     type="text"
@@ -23,7 +31,7 @@
     <div
       v-for="iface in filteredInterfaces"
       :key="iface.uuid"
-      class="border rounded-lg p-3 mb-3 bg-white dark:bg-neutral-900 shadow-sm"
+      class="border rounded-lg p-3 mb-3 bg-white dark:bg-neutral-900 shadow-sm text-neutral-900 dark:text-neutral-100"
     >
       <!-- Interface Header -->
       <div
@@ -51,55 +59,47 @@
         </div>
       </div>
 
-      <!-- Expanded Socket List -->
-      <div v-if="expanded[iface.uuid]" class="mt-3 border-t pt-3 flex flex-col gap-3">
-      
-        <div
-          v-for="socket in getSortedSockets(iface.sockets)"
-          :key="socket.uuid + socket.endpoint"
-          class="text-sm p-3 rounded bg-neutral-100 dark:bg-neutral-800"
-        >
-          <!-- 5. Endpoint highlighted as heading + 7. direct label + 3. arrow -->
-          <h4 class="font-semibold flex items-center gap-2">
-            {{ socket.endpoint }}
-
-            <!-- Direct label only if direct -->
-            <span
-              v-if="socket.properties.is_direct"
-              class="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-            >
-              direct
-            </span>
-
-            <!-- Direction arrow -->
-            <span class="text-neutral-400">
-              {{ getDirectionArrow(socket.direction) }}
-            </span>
-          </h4>
-
-  <!-- Disconnect button (Advanced Mode only) -->
-  <button
-     v-if="advancedMode"
-     @click.stop="disconnectSocket(iface.uuid, socket.uuid, socket.endpoint)"
-     class="mt-2 text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800"
-      >
-    Disconnect
-    </button>
-
-          <!-- 6. Distance + time in one line with bullet -->
-          <div class="text-xs text-neutral-500 mt-1">
-             Distance: {{ socket.properties.distance }}
-             • Created: {{ formatTime(socket.properties.known_since) }}
-          
+     <!-- Expanded Socket List -->
+<div v-if="expanded[iface.uuid]" class="mt-3 border-t pt-3 flex flex-col gap-3">
+  <div
+    v-for="socket in getSortedSockets(iface.sockets)"
+    :key="socket.uuid + socket.endpoint"
+    class="text-sm p-3 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
+  >
+    <div class="flex items-start justify-between gap-2">
+      <div class="flex flex-col gap-1 flex-1">
+        <h4 class="font-semibold flex items-center gap-2">
+          <span class="font-mono text-blue-600 dark:text-blue-400">{{ socket.endpoint }}</span>
+          <span
+            v-if="socket.properties.is_direct"
+            class="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+          >
+            direct
+          </span>
+          <span class="text-neutral-400">{{ getDirectionArrow(socket.direction) }}</span>
+        </h4>
+        <div class="text-xs text-neutral-500 mt-1">
+          Distance: {{ socket.properties.distance }}
+          • Created: {{ formatTime(socket.properties.known_since) }}
         </div>
       </div>
+
+      <button
+        v-if="advancedMode"
+        @click.stop="disconnectSocket(iface.uuid, socket.uuid, socket.endpoint)"
+        class="shrink-0 text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition"
+      >
+        Disconnect
+      </button>
     </div>
   </div>
+</div>
   <div
   v-if="filteredInterfaces.length === 0"
   class="text-sm text-neutral-500"
 >
   No matching endpoints found.
+</div>
 </div>
   </div>
 </template>
