@@ -5,7 +5,7 @@
   <div class="flex items-center justify-between mb-3">
   <h2 class="text-lg font-semibold">ComHub Overview</h2>
   <span class="text-xs font-mono px-2 py-1 rounded border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400">
-    {{ comhub.endpoint }}
+    {{ comhubMeta.endpoint }}
   </span>
 </div>
 
@@ -34,30 +34,33 @@
       class="border rounded-lg p-3 mb-3 bg-white dark:bg-neutral-900 shadow-sm text-neutral-900 dark:text-neutral-100"
     >
       <!-- Interface Header -->
-      <div
-        class="flex justify-between items-center cursor-pointer"
-        @click="toggle(iface.uuid)"
-      >
-        <div>
-          <!-- 1. Channel type prominent + name -->
-          <h3 class="font-semibold">
-            {{ iface.properties.interface_type }}
-            <span v-if="iface.properties.name">
-              ({{ iface.properties.name }})
-            </span>
-          </h3>
+<div class="flex justify-between items-center">
+  <div class="cursor-pointer flex-1" @click="toggle(iface.uuid)">
+    <h3 class="font-semibold">
+      {{ iface.properties.interface_type }}
+      <span v-if="iface.properties.name">
+        ({{ iface.properties.name }})
+      </span>
+    </h3>
+    <div class="text-xs text-neutral-500 mt-1">
+      Sockets: {{ iface.sockets.length }}
+      • Channel: {{ iface.properties.channel }}
+    </div>
+  </div>
 
-          <!-- 2. Show channel next to socket count -->
-          <div class="text-xs text-neutral-500 mt-1">
-            Sockets: {{ iface.sockets.length }}
-            • Channel: {{ iface.properties.channel }}
-          </div>
-        </div>
-
-        <div class="text-xs text-neutral-400">
-          RTT: {{ iface.properties.round_trip_time }} ms
-        </div>
-      </div>
+  <div class="flex items-center gap-2">
+    <div class="text-xs text-neutral-400">
+      RTT: {{ iface.properties.round_trip_time }} ms
+    </div>
+    <button
+      v-if="advancedMode"
+      @click.stop="disconnectInterface(iface.uuid)"
+      class="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition"
+    >
+      Disconnect
+    </button>
+  </div>
+</div>
 
      <!-- Expanded Socket List -->
 <div v-if="expanded[iface.uuid]" class="mt-3 border-t pt-3 flex flex-col gap-3">
@@ -105,94 +108,61 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed, watch } from 'vue'
+import { reactive, ref, computed, watch, onMounted } from 'vue'
+import { comhub as comhubMeta } from '@/composable/useComHub'
+import { getComHubMetadata } from '@/lib/runtime'
 
 const searchQuery = ref('')
 
-const advancedMode = ref(false) // 
+const advancedMode = ref(false)  
 
-/**
- * TEMP MOCK DATA (from issue JSON)
- * TODO: Replace mock JSON with live ComHub runtime state
- */
-const comhub = reactive({
-    "endpoint": "@@FB2D5CF3FBE8CF00FC4518DAF76A189602E1",
-    "interfaces": [
-        {
-            "uuid": "com_interface::28a6b060-055c-4d20-a715-9bafd9edb90d",
-            "properties": {
-                "interface_type": "websocket-client",
-                "channel": "websocket",
-                "name": "ws://localhost:8043",
-                "direction": "InOut",
-                "round_trip_time": 40,
-                "max_bandwidth": 1000,
-                "continuous_connection": false,
-                "allow_redirects": true,
-                "is_secure_channel": false,
-                "reconnection_config": "NoReconnect",
-                "auto_identify": true
-            },
-            "sockets": [
-                {
-                    "uuid": "socket::4a17ec53-6027-4527-9786-abf8db76c61f",
-                    "direction": "InOut",
-                    "endpoint": "@server",
-                    "properties": {
-                        "known_since": 4,
-                        "distance": 1,
-                        "is_direct": true,
-                        "channel_factor": 1,
-                        "direction": "InOut"
-                    }
-                },
-                {
-                    "uuid": "socket::4a17ec53-6027-4527-9786-abf8db76c61f",
-                    "direction": "InOut",
-                    "endpoint": "@@8FAEBB621D91CB42EA59389EB5C47A9BADEF",
-                    "properties": {
-                        "known_since": 16852,
-                        "distance": 2,
-                        "is_direct": false,
-                        "channel_factor": 1,
-                        "direction": "InOut"
-                    }
-                }
-            ],
-            "is_waiting_for_socket_connections": false
-        },
-        {
-            "uuid": "com_interface::a8fc3085-9717-4715-bbed-b20f6128e6df",
-            "properties": {
-                "interface_type": "local",
-                "channel": "local",
-                "direction": "InOut",
-                "round_trip_time": 0,
-                "max_bandwidth": 4294967295,
-                "continuous_connection": false,
-                "allow_redirects": true,
-                "is_secure_channel": false,
-                "reconnection_config": "NoReconnect",
-                "auto_identify": false
-            },
-            "sockets": [
-                {
-                    "uuid": "socket::cb2f1a7e-5fc6-4bd1-acdc-ce796606c6bd",
-                    "direction": "InOut",
-                    "endpoint": "@@local",
-                    "properties": {
-                        "known_since": 0,
-                        "distance": 0,
-                        "is_direct": true,
-                        "channel_factor": 1,
-                        "direction": "InOut"
-                    }
-                }
-            ],
-            "is_waiting_for_socket_connections": false
-        }
+interface InterfaceProperties {
+  name?: string
+  interface_type?: string
+  channel?: string
+  direction?: string
+  round_trip_time?: number
+  max_bandwidth?: number
+  [key: string]: unknown
+}
+
+interface ComHubInterface {
+  uuid: string
+  properties: InterfaceProperties
+  sockets: ComHubSocket[]
+  is_waiting_for_socket_connections?: boolean
+}
+
+const mockInterfaces: ComHubInterface[] = [
+  {
+    uuid: 'com_interface::28a6b060-055c-4d20-a715-9bafd9edb90d',
+    properties: { interface_type: 'websocket-client', channel: 'websocket', name: 'ws://localhost:8043', direction: 'InOut', round_trip_time: 40, max_bandwidth: 1000 },
+    sockets: [
+      { uuid: 'socket::4a17ec53-6027-4527-9786-abf8db76c61f', direction: 'InOut', endpoint: '@server', properties: { known_since: 4, distance: 1, is_direct: true, channel_factor: 1, direction: 'InOut' } },
+      { uuid: 'socket::4a17ec53-6027-4527-9786-abf8db76c61f', direction: 'InOut', endpoint: '@@8FAEBB621D91CB42EA59389EB5C47A9BADEF', properties: { known_since: 16852, distance: 2, is_direct: false, channel_factor: 1, direction: 'InOut' } },
     ],
-    "endpoint_sockets": {}
+    is_waiting_for_socket_connections: false,
+  },
+  {
+    uuid: 'com_interface::a8fc3085-9717-4715-bbed-b20f6128e6df',
+    properties: { interface_type: 'local', channel: 'local', direction: 'InOut', round_trip_time: 0, max_bandwidth: 4294967295 },
+    sockets: [
+      { uuid: 'socket::cb2f1a7e-5fc6-4bd1-acdc-ce796606c6bd', direction: 'InOut', endpoint: '@@local', properties: { known_since: 0, distance: 0, is_direct: true, channel_factor: 1, direction: 'InOut' } },
+    ],
+    is_waiting_for_socket_connections: false,
+  },
+]
+
+const interfaces = ref<ComHubInterface[]>([])
+
+onMounted(() => {
+  const metadata = getComHubMetadata()
+  if (metadata) {
+    interfaces.value = metadata.interfaces as ComHubInterface[]
+  } else {
+    // TODO: Remove fallback once DATEX runtime is available
+    interfaces.value = mockInterfaces
+  }
 })
 
 const expanded = reactive<Record<string, boolean>>({})
@@ -214,9 +184,9 @@ const filteredInterfaces = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
 
   // If no search, return all interfaces unchanged
-  if (!query) return comhub.interfaces
+  if (!query) return interfaces.value
 
-  return comhub.interfaces
+  return interfaces.value
     .map((iface) => {
       const matchingSockets = iface.sockets.filter((socket) =>
         socket.endpoint.toLowerCase().includes(query)
@@ -232,7 +202,7 @@ const filteredInterfaces = computed(() => {
         sockets: matchingSockets,
       }
     })
-    .filter((iface): iface is typeof comhub.interfaces[number] => iface !== null)
+    .filter((iface): iface is ComHubInterface => iface !== null)
 })
 
 watch(searchQuery, (val) => {
@@ -298,8 +268,21 @@ function formatTime(seconds: number): string {
  * TODO: Implement once new DATEX release is available
  * Disconnects a socket from its interface
  */
- function disconnectSocket(interfaceUuid: string, socketUuid: string, endpoint: string) {
+ async function disconnectSocket(interfaceUuid: string, socketUuid: string, endpoint: string) {
+   // TODO: Uncomment once DATEX runtime is available
+  // const comHub = new Network.ComHub(Datex.jsComHub, Datex.runtime)
+  // await comHub.removeSocket(socketUuid as ComInterfaceSocketUUID)
   console.warn(`[ComHub] disconnectSocket stub called`, { interfaceUuid, socketUuid, endpoint })
+}
+
+/**
+ * TODO: Implement once new DATEX release is available
+ * Disconnects an entire interface from the ComHub
+ */
+ async function disconnectInterface(interfaceUuid: string) {
+  // TODO: Uncomment once DATEX runtime is available
+  // await Datex.com_hub.remove_interface(interfaceUuid)
+  console.warn('[ComHub] disconnectInterface stub called', { interfaceUuid })
 }
 
 </script>

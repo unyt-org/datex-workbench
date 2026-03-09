@@ -5,7 +5,7 @@ import EndpointDocs from '@/components/endpoint/EndpointDocs.vue'
 import EndpointFingerprint from '@/components/endpoint/EndpointFingerprint.vue'
 import EndpointPointers from '@/components/endpoint/EndpointPointers.vue'
 import EndpointInterfaces from '@/components/endpoint/EndpointInterfaces.vue'
-import { Datex } from '@/lib/runtime'
+import { comhub } from '@/composable/useComHub'
 
 interface InterfaceProperties {
   name?: string
