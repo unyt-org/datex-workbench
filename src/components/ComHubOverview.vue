@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full overflow-auto">
+  <div class="h-full overflow-y-auto px-4 py-4 bg-neutral-50 dark:bg-neutral-950">
 
 
   <div class="flex items-center justify-between mb-3">
@@ -16,7 +16,7 @@
     v-model="searchQuery"
     type="text"
     placeholder="Search endpoint identifier (e.g. @@...)"
-    class="w-full px-3 py-2 text-sm rounded border bg-white dark:bg-neutral-900 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    class="w-full px-3 py-2 text-sm rounded border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
   />
 </div>
 
@@ -67,7 +67,7 @@
   <div
     v-for="socket in getSortedSockets(iface.sockets)"
     :key="socket.uuid + socket.endpoint"
-    class="text-sm p-3 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
+    class="text-sm p-3 rounded bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
   >
     <div class="flex items-start justify-between gap-2">
       <div class="flex flex-col gap-1 flex-1">
