@@ -1,5 +1,5 @@
 <template>
-    <div class="m-5">
+    <div class="h-full flex flex-col overflow-hidden p-5">
       <!-- Tab Toggle -->
       <div class="flex gap-1 mb-4 border-b dark:border-neutral-700">
         <button
@@ -21,9 +21,10 @@
           By Endpoint
         </button>
       </div>
-  
+      <div class="flex-1 overflow-hidden">
       <ComHubOverview v-if="activeTab === 'interface'" />
       <ComHubEndpointView v-else />
+      </div>
     </div>
   </template>
   
