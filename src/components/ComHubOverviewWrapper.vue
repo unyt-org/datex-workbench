@@ -1,5 +1,5 @@
 <template>
-    <div class="h-full flex flex-col overflow-hidden p-5">
+    <div class="h-full flex flex-col overflow-hidden p-5 bg-neutral-50 dark:bg-neutral-950">
       <!-- Tab Toggle -->
       <div class="flex gap-1 mb-4 border-b dark:border-neutral-700">
         <button
