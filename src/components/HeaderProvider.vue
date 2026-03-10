@@ -29,7 +29,7 @@ export default {
 </script>
 
 <template>
-    <Menubar class="flex items-center w-full bg-background px-4 py-2">
+    <Menubar class="flex items-center w-full bg-background px-4 py-2 wco-header">
         <RouterLink
             to="/"
             class="flex items-center space-x-2 group mr-4 border-primary transition-all hover:border-b-2 border-b-primary"
@@ -89,4 +89,21 @@ export default {
 .unyt-blue {
     color: rgb(42, 170, 215);
 }
+
+.wco-header {
+  position: fixed;
+  top: env(titlebar-area-y, 0);
+  left: env(titlebar-area-x, 0);
+  width: env(titlebar-area-width, 100%);
+  height: env(titlebar-area-height, 48px);
+  -webkit-app-region: drag;
+  z-index: 1000;
+}
+
+.wco-header :deep(button),
+.wco-header :deep(a),
+.wco-header :deep([role="menuitem"]) {
+  -webkit-app-region: no-drag;
+}
+
 </style>
