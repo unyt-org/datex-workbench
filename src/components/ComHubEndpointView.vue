@@ -1,7 +1,7 @@
 <template>
     <div class="h-full overflow-auto">
       <h2 class="text-lg font-semibold mb-3">ComHub Endpoints</h2>
-  
+
       <!-- Search Bar -->
       <div class="mb-4 w-1/2">
         <input
@@ -11,7 +11,7 @@
           class="w-full px-3 py-2 text-sm rounded border bg-white dark:bg-neutral-900 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
-  
+
       <!-- Endpoint Cards -->
       <div
         v-for="[endpointId, sockets] in filteredEndpoints"
@@ -26,7 +26,7 @@
           <div class="flex flex-col gap-1">
             <div class="flex items-center gap-2">
               <h3 class="font-semibold text-sm font-mono text-blue-600 dark:text-blue-400">{{ endpointId }}</h3>
-  
+
               <!-- Direct badge -->
               <span
                 v-if="isDirect(sockets)"
@@ -35,16 +35,16 @@
                 direct
               </span>
             </div>
-  
+
             <div class="text-xs text-neutral-500">
               Connected via {{ sockets.length }} {{ sockets.length === 1 ? 'socket' : 'sockets' }}
               {{ getEndpointDirection(sockets) }}
             </div>
           </div>
-  
+
           <span class="text-neutral-400 text-xs">{{ expanded[endpointId] ? '▾' : '▸' }}</span>
         </div>
-  
+
         <!-- Expanded Socket List -->
         <div v-if="expanded[endpointId]" class="mt-3 border-t pt-3 flex flex-col gap-2">
           <div
@@ -59,18 +59,18 @@
                 ({{ socket.interface.properties.name }})
               </span>
             </h4>
-  
+
             <!-- Socket UUID -->
             <div class="text-xs text-neutral-400 font-mono mt-0.5">
               {{ socket.uuid }}
             </div>
-  
+
             <!-- Known since + distance -->
             <div class="text-xs text-neutral-500 mt-1 flex items-center gap-2">
               <span>Known since {{ formatTime(socket.properties.known_since) }}</span>
               <span>·</span>
               <span>Distance: {{ socket.properties.distance }}</span>
-  
+
               <!-- Direct badge on socket level -->
               <span
                 v-if="socket.properties.is_direct"
@@ -82,7 +82,7 @@
           </div>
         </div>
       </div>
-  
+
       <!-- Empty state -->
       <div
         v-if="filteredEndpoints.length === 0"
@@ -92,12 +92,12 @@
       </div>
     </div>
   </template>
-  
+
   <script setup lang="ts">
   import { reactive, ref, computed, watch } from 'vue'
-  
+
   // ---- Types ----
-  
+
   interface InterfaceProperties {
     interface_type?: string
     channel?: string
@@ -107,14 +107,14 @@
     max_bandwidth?: number
     [key: string]: unknown
   }
-  
+
   interface ComHubInterface {
     uuid: string
     properties: InterfaceProperties
     sockets: RawSocket[]
     is_waiting_for_socket_connections?: boolean
   }
-  
+
   interface RawSocket {
     uuid: string
     direction: string
@@ -127,17 +127,17 @@
       direction: string
     }
   }
-  
+
   interface SocketWithInterface extends RawSocket {
     interface: {
       uuid: string
       properties: InterfaceProperties
     }
   }
-  
+
   // ---- Mock data (same as ComHubOverview) ----
   // TODO: Replace with live ComHub runtime state
-  
+
   const comhub = reactive({
     endpoint: '@@FB2D5CF3FBE8CF00FC4518DAF76A189602E1',
     interfaces: [
@@ -232,17 +232,17 @@
       },
     ] as ComHubInterface[],
   })
-  
+
   // ---- State ----
-  
+
   const searchQuery = ref('')
   const expanded = reactive<Record<string, boolean>>({})
-  
+
   // ---- Data transformation: interface[] → endpoint → sockets+interface ----
-  
+
   const endpointMap = computed((): Map<string, SocketWithInterface[]> => {
     const map = new Map<string, SocketWithInterface[]>()
-  
+
     for (const iface of comhub.interfaces) {
       for (const socket of iface.sockets) {
         const entry: SocketWithInterface = {
@@ -258,45 +258,35 @@
         map.get(socket.endpoint)!.push(entry)
       }
     }
-  
+
     return map
   })
-  
+
   // ---- Filtered endpoints based on search ----
-  
+
   const filteredEndpoints = computed((): [string, SocketWithInterface[]][] => {
-    const query = searchQuery.value.trim().toLowerCase()
-    const entries = Array.from(endpointMap.value.entries())
-  
-    if (!query) return entries
-  
-    const filtered = entries.filter(([endpointId]) =>
-      endpointId.toLowerCase().includes(query)
-    )
-  
-    // Auto-expand matches
-    for (const [endpointId] of filtered) {
-      expanded[endpointId] = true
-    }
-  
-    return filtered
-  })
-  
-  // Collapse all on search clear
-  watch(searchQuery, (val) => {
-    if (!val.trim()) {
-      Object.keys(expanded).forEach((key) => {
-        expanded[key] = false
-      })
-    }
-  })
-  
+  const query = searchQuery.value.trim().toLowerCase()
+  const entries = Array.from(endpointMap.value.entries())
+  if (!query) return entries
+  return entries.filter(([endpointId]) =>
+    endpointId.toLowerCase().includes(query)
+  )
+})
+
+watch(filteredEndpoints, (entries) => {
+  const query = searchQuery.value.trim()
+  if (!query) return
+  for (const [endpointId] of entries) {
+    expanded[endpointId] = true
+  }
+})
+
   // ---- Helpers ----
-  
+
   function toggle(endpointId: string) {
     expanded[endpointId] = !expanded[endpointId]
   }
-  
+
   /**
    * Direction logic per spec:
    * - "↔" if any socket is InOut, or if both In and Out exist
@@ -311,16 +301,16 @@
     if (dirs.has('Out')) return '→'
     return '↔'
   }
-  
+
   /**
    * Direct badge: shown if ANY socket for this endpoint is direct
    */
   function isDirect(sockets: SocketWithInterface[]): boolean {
     return sockets.some((s) => s.properties.is_direct)
   }
-  
+
   const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
-  
+
   function formatTime(seconds: number): string {
     if (seconds < 60) return rtf.format(-seconds, 'second')
     const minutes = Math.floor(seconds / 60)
