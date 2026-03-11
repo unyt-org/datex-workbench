@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { getPointers } from '@/lib/runtime'
-import { type DIF } from '@/lib/runtime'
 
-type PointerMap = Map<string, DIF.Definitions.DIFContainer>
+type PointerMap = Map<string, unknown>
 
 const pointers = computed<PointerMap>(() => {
   return getPointers()
@@ -13,7 +12,7 @@ const pointerEntries = computed(() => {
   return Array.from(pointers.value.entries())
 })
 
-function formatContainer(value: DIF.Definitions.DIFContainer): string {
+function formatContainer(value: unknown): string {
   try {
     return JSON.stringify(value, null, 2)
   } catch {
