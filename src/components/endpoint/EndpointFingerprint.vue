@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-type Fingerprint = string | Record<string, unknown> | undefined
-
 interface Props {
-  fingerprint?: Fingerprint
+  fingerprint?: string
+  endpointId?: string
 }
 
 const props = defineProps<Props>()
@@ -33,7 +32,7 @@ const downloadFingerprint = () => {
 
   const a = document.createElement('a')
   a.href = url
-  a.download = 'endpoint-fingerprint.json'
+  a.download = `${props.endpointId ?? 'endpoint'}-public-key.json`
   a.click()
 
   URL.revokeObjectURL(url)
