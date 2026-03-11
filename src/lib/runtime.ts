@@ -36,9 +36,10 @@ export function getPointers(): Map<string, unknown> {
   return new Map()
 }
 
-//TODO: Uncomment once Datex is initialized
 export function getComHubMetadata(): ComHubMetadata | null {
-  // const comHub = new Network.ComHub(Datex.jsComHub, Datex.runtime)
-  // return comHub.getMetadata()
+  try {
+  return Datex.comHub.getMetadata() as ComHubMetadata
+} catch {
   return null
+}
 }

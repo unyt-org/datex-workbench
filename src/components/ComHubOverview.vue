@@ -108,13 +108,13 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed, watch, onMounted } from 'vue'
+import { reactive, ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { comhub as comhubMeta } from '@/composable/useComHub'
-import { getComHubMetadata } from '@/lib/runtime'
+import { getComHubMetadata, Datex } from '@/lib/runtime'
 
 const searchQuery = ref('')
 
-const advancedMode = ref(false)  
+const advancedMode = ref(false)
 
 interface InterfaceProperties {
   name?: string
@@ -133,38 +133,26 @@ interface ComHubInterface {
   is_waiting_for_socket_connections?: boolean
 }
 
-const mockInterfaces: ComHubInterface[] = [
-  {
-    uuid: 'com_interface::28a6b060-055c-4d20-a715-9bafd9edb90d',
-    properties: { interface_type: 'websocket-client', channel: 'websocket', name: 'ws://localhost:8043', direction: 'InOut', round_trip_time: 40, max_bandwidth: 1000 },
-    sockets: [
-      { uuid: 'socket::4a17ec53-6027-4527-9786-abf8db76c61f', direction: 'InOut', endpoint: '@server', properties: { known_since: 4, distance: 1, is_direct: true, channel_factor: 1, direction: 'InOut' } },
-      { uuid: 'socket::4a17ec53-6027-4527-9786-abf8db76c61f', direction: 'InOut', endpoint: '@@8FAEBB621D91CB42EA59389EB5C47A9BADEF', properties: { known_since: 16852, distance: 2, is_direct: false, channel_factor: 1, direction: 'InOut' } },
-    ],
-    is_waiting_for_socket_connections: false,
-  },
-  {
-    uuid: 'com_interface::a8fc3085-9717-4715-bbed-b20f6128e6df',
-    properties: { interface_type: 'local', channel: 'local', direction: 'InOut', round_trip_time: 0, max_bandwidth: 4294967295 },
-    sockets: [
-      { uuid: 'socket::cb2f1a7e-5fc6-4bd1-acdc-ce796606c6bd', direction: 'InOut', endpoint: '@@local', properties: { known_since: 0, distance: 0, is_direct: true, channel_factor: 1, direction: 'InOut' } },
-    ],
-    is_waiting_for_socket_connections: false,
-  },
-]
 
 const interfaces = ref<ComHubInterface[]>([])
 
-onMounted(() => {
+function syncMetadata() {
   const metadata = getComHubMetadata()
   if (metadata) {
     interfaces.value = metadata.interfaces as ComHubInterface[]
-  } else {
-    // TODO: Remove fallback once DATEX runtime is available
-    interfaces.value = mockInterfaces
   }
+}
+
+let intervalId: ReturnType<typeof setInterval> | null = null
+
+onMounted(() => {
+  syncMetadata()
+  intervalId = setInterval(syncMetadata, 2000)
 })
 
+onUnmounted(() => {
+  if (intervalId !== null) clearInterval(intervalId)
+})
 const expanded = reactive<Record<string, boolean>>({})
 
 type ComHubSocket = {
@@ -269,10 +257,8 @@ function formatTime(seconds: number): string {
  * Disconnects a socket from its interface
  */
  async function disconnectSocket(interfaceUuid: string, socketUuid: string, endpoint: string) {
-   // TODO: Uncomment once DATEX runtime is available
-  // const comHub = new Network.ComHub(Datex.jsComHub, Datex.runtime)
-  // await comHub.removeSocket(socketUuid as ComInterfaceSocketUUID)
-  console.warn(`[ComHub] disconnectSocket stub called`, { interfaceUuid, socketUuid, endpoint })
+   await Datex.comHub.removeSocket(socketUuid as `socket::${string}`)
+  console.warn(`[ComHub] disconnectSocket called`, { interfaceUuid, socketUuid, endpoint })
 }
 
 /**
@@ -280,8 +266,7 @@ function formatTime(seconds: number): string {
  * Disconnects an entire interface from the ComHub
  */
  async function disconnectInterface(interfaceUuid: string) {
-  // TODO: Uncomment once DATEX runtime is available
-  // await Datex.com_hub.remove_interface(interfaceUuid)
+   await Datex.comHub.removeInterface(interfaceUuid as `com_interface::${string}`)
   console.warn('[ComHub] disconnectInterface stub called', { interfaceUuid })
 }
 
