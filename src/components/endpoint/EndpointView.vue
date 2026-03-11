@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import EndpointDocs from '@/components/endpoint/EndpointDocs.vue'
 import EndpointFingerprint from '@/components/endpoint/EndpointFingerprint.vue'
 import EndpointPointers from '@/components/endpoint/EndpointPointers.vue'
 import EndpointInterfaces from '@/components/endpoint/EndpointInterfaces.vue'
+import { comhub } from '@/composable/useComHub'
 
 interface InterfaceProperties {
   name?: string
@@ -34,7 +35,7 @@ interface Endpoint {
   name: string
   description?: string
   profile?: string
-  fingerprint?: string | Record<string, unknown>
+  fingerprint?: string
   interfaces?: EndpointInterface[]
   methods?: EndpointMethod[]
   documentation?: string
@@ -44,20 +45,46 @@ const route = useRoute()
 
 const endpointId = computed(() => route.params.endpoint_id as string)
 
-// TODO: Replace with runtime.ts or store later
-const endpoint = computed<Endpoint | null>(() => {
-  // temporary mock (structured for easy replacement)
+/**
+ * TODO: Replace with real implementation once DATEX runtime is available
+ * Will call: await Datex.Runtime.execute("#public") on the endpoint
+ */
+ async function fetchEndpointInfo(id: string): Promise<Endpoint> {
+  // TODO: const result = await Datex.Runtime.execute("#public", id)
+  console.warn('[EndpointView] fetchEndpointInfo stub called', { id })
   return {
-    id: endpointId.value,
-    name: `Endpoint ${endpointId.value}`,
+    id,
+    name: `Endpoint ${id}`,
     description: 'Mock endpoint description',
     profile: 'Default profile',
     fingerprint: 'AB:CD:EF:12:34',
     interfaces: [],
     methods: [],
-    documentation: '# Endpoint Documentation\n\nPublic interface methods...'
+    documentation: '# Endpoint Documentation\n\nPublic interface methods...',
   }
+}
+const endpoint = ref<Endpoint | null>(null)
+
+onMounted(async () => {
+  endpoint.value = await fetchEndpointInfo(endpointId.value)
 })
+
+type EndpointTag = 'me' | 'local' | 'anonymous' | 'named'
+
+function getEndpointTag(id: string, currentEndpoint: string): EndpointTag {
+  if (id === currentEndpoint) return 'me'
+  if (id === '@@local') return 'local'
+  if (id.startsWith('@@')) return 'anonymous'
+  return 'named'
+}
+
+const tagStyles: Record<EndpointTag, string> = {
+  me:        'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+  local:     'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
+  anonymous: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300',
+  named:     'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300',
+}
+
 </script>
 
 <template>
@@ -65,9 +92,15 @@ const endpoint = computed<Endpoint | null>(() => {
     <div v-if="endpoint" class="flex flex-col gap-4">
       <!-- Header -->
       <section class="flex flex-col gap-1">
-        <h1 class="text-xl font-semibold">
-          {{ endpoint.name }}
-        </h1>
+        <div class="flex items-center gap-2">
+  <h1 class="text-xl font-semibold font-mono">{{ endpoint.name }}</h1>
+  <span
+    class="text-xs px-2 py-0.5 rounded"
+    :class="tagStyles[getEndpointTag(endpoint.id, comhub.endpoint)]"
+  >
+    {{ getEndpointTag(endpoint.id, comhub.endpoint) }}
+  </span>
+</div>
         <p v-if="endpoint.description" class="text-sm text-neutral-500">
           {{ endpoint.description }}
         </p>
@@ -78,7 +111,7 @@ const endpoint = computed<Endpoint | null>(() => {
 
       <!-- Fingerprint -->
       <section class="flex flex-col gap-2">
-            <EndpointFingerprint :fingerprint="endpoint.fingerprint" />
+            <EndpointFingerprint :fingerprint="endpoint.fingerprint" :endpoint-id="endpoint.id"/>
                 </section>
 
       <section>
