@@ -1,4 +1,4 @@
-import { Runtime } from '@unyt/datex';
+import { Runtime, DIF } from '@unyt/datex';
 import type { RuntimeConfig } from '@unyt/datex'
 
 export type ComHubMetadata = {
@@ -41,11 +41,15 @@ export const Datex: Runtime = await Runtime.create(defaultConfig,  {log_level: '
  * The keys are pointer identifiers and the values are DIFContainer objects
  * representing the values stored at the pointer.
  */
-export function getPointers(): Map<string, unknown> {
-  // TODO: Replace with real runtime pointers once DATEX release is available
-  return new Map()
+export function getPointers(): Map<string, DIF.Definitions.DIFValueContainer> {
+  const mock: [string, DIF.Definitions.DIFValueContainer][] = [
+    ['$std',         { type: 'object', name: 'std' }         as unknown as DIF.Definitions.DIFValueContainer],
+    ['$file_server', { type: 'object', name: 'file_server' } as unknown as DIF.Definitions.DIFValueContainer],
+    ['$webrtc',      { type: 'object', name: 'webrtc' }      as unknown as DIF.Definitions.DIFValueContainer],
+    ['$Math',        { type: 'object', name: 'Math' }        as unknown as DIF.Definitions.DIFValueContainer],
+  ]
+  return new Map(mock)
 }
-
 export function getComHubMetadata(): ComHubMetadata | null {
   try {
   return Datex.comHub.getMetadata() as ComHubMetadata
