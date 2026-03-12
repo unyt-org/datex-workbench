@@ -167,6 +167,5 @@ async function disconnectSocket(interfaceUuid: string, socketUuid: string, endpo
 
 async function disconnectInterface(interfaceUuid: string) {
   await Datex.comHub.removeInterface(interfaceUuid as `com_interface::${string}`)
-  console.warn('[ComHub] disconnectInterface called', { interfaceUuid })
 }
 </script>
