@@ -12,9 +12,7 @@ const defaultConfig: RuntimeConfig = {
   ],
 }
 
-export const Datex: Runtime = await Runtime.create(defaultConfig, {
-  log_level: 'info',
-})
+export const Datex: Runtime = await Runtime.create(defaultConfig)
 
 export function getPointers(): Map<string, unknown> {
   return new Map()
