@@ -5,7 +5,7 @@ import EndpointDocs from '@/components/endpoint/EndpointDocs.vue'
 import EndpointFingerprint from '@/components/endpoint/EndpointFingerprint.vue'
 import EndpointPointers from '@/components/endpoint/EndpointPointers.vue'
 import EndpointInterfaces from '@/components/endpoint/EndpointInterfaces.vue'
-import { comhub } from '@/composable/useComHub'
+import { Datex } from '@/lib/runtime'
 
 interface InterfaceProperties {
   name?: string
@@ -96,9 +96,9 @@ const tagStyles: Record<EndpointTag, string> = {
   <h1 class="text-xl font-semibold font-mono">{{ endpoint.name }}</h1>
   <span
     class="text-xs px-2 py-0.5 rounded"
-    :class="tagStyles[getEndpointTag(endpoint.id, comhub.endpoint)]"
+    :class="tagStyles[getEndpointTag(endpoint.id, String(Datex.endpoint))]"
   >
-    {{ getEndpointTag(endpoint.id, comhub.endpoint) }}
+    {{ getEndpointTag(endpoint.id, String(Datex.endpoint)) }}
   </span>
 </div>
         <p v-if="endpoint.description" class="text-sm text-neutral-500">
@@ -130,7 +130,7 @@ const tagStyles: Record<EndpointTag, string> = {
         <EndpointDocs :markdown="endpoint.documentation" />
       </section>
 
-      
+
     </div>
   </div>
 </template>
