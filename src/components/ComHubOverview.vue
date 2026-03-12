@@ -5,7 +5,7 @@
   <div class="flex items-center justify-between mb-3">
   <h2 class="text-lg font-semibold">ComHub Overview</h2>
   <span class="text-xs font-mono px-2 py-1 rounded border border-neutral-300 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400">
-    {{ comhubMeta.endpoint }}
+    {{ Datex.endpoint }}
   </span>
 </div>
 
@@ -109,7 +109,6 @@
 
 <script setup lang="ts">
 import { reactive, ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { comhub as comhubMeta } from '@/composable/useComHub'
 import { getComHubMetadata, Datex } from '@/lib/runtime'
 
 const searchQuery = ref('')
