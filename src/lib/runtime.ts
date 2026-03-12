@@ -19,12 +19,22 @@ export type ComHubMetadata = {
 /**
  * The default configuration for the Datex runtime.
  */
-const defaultConfig: RuntimeConfig = {}
+const defaultConfig: RuntimeConfig = {
+  interfaces: [
+    {
+      type: 'websocket-client',
+      config: {
+        url: 'wss://example.unyt.land',
+      },
+    },
+  ],
+
+}
 
 /**
  * The default instance of the Datex runtime.
  */
-export const Datex: Runtime = await Runtime.create(defaultConfig);
+export const Datex: Runtime = await Runtime.create(defaultConfig,  {log_level: 'info',});
 
 /**
  * Returns a map of pointers that are currently loaded in the runtime.
