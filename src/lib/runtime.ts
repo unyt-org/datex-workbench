@@ -50,10 +50,6 @@ export function getPointers(): Map<string, DIF.Definitions.DIFValueContainer> {
   ]
   return new Map(mock)
 }
-export function getComHubMetadata(): ComHubMetadata | null {
-  try {
+export function getComHubMetadata(): ComHubMetadata {
   return Datex.comHub.getMetadata() as ComHubMetadata
-} catch {
-  return null
-}
 }

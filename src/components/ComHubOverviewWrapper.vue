@@ -90,10 +90,7 @@ const groupByEndpoint = ref(false)
 const interfaces = ref<ComHubInterface[]>([])
 
 function syncMetadata() {
-  const metadata = getComHubMetadata()
-  if (metadata) {
-    interfaces.value = metadata.interfaces as ComHubInterface[]
-  }
+  interfaces.value = getComHubMetadata().interfaces as ComHubInterface[]
 }
 
 let intervalId: ReturnType<typeof setInterval> | null = null
