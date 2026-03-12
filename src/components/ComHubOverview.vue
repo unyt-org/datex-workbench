@@ -11,7 +11,7 @@
 
 
 <!-- Search Bar -->
-<div class="mb-4 w-1/2">
+<div class="mb-4 max-w-[300px]">
   <input
     v-model="searchQuery"
     type="text"
