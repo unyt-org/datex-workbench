@@ -34,7 +34,3 @@ coverage
 
 # Vitest
 __screenshots__/
-
-# Local AI instructions
-.github/copilot-instructions.md
-*.agent.md
