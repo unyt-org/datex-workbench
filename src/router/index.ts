@@ -18,6 +18,11 @@ const router = createRouter({
       component: () => import('@/views/BlockViewer/DatexBlockProtocolViewWrapper.vue'),
     },
     {
+      path: '/network',
+      name: 'network',
+      component: () => import('@/views/NetworkInspector/NetworkInspectorView.vue'),
+    },
+    {
       path: '',
       name: 'Editor',
       component: WindowGeneralView,

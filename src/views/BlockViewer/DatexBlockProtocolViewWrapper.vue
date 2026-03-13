@@ -6,7 +6,7 @@ import DatexBlockProtocolView from './DatexBlockProtocolView.vue';
 const blockData: Uint8Array = new Uint8Array(
   await (
     await fetch(
-      'https://raw.githubusercontent.com/unyt-org/datex-core/main/tests/structs/receivers_with_keys/block.bin',
+      'https://raw.githubusercontent.com/unyt-org/datex-core/main/crates/datex-core/tests/structs/receivers/block.bin',
     )
   ).arrayBuffer(),
 );
