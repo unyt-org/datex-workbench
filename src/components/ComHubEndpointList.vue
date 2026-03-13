@@ -53,7 +53,7 @@
             </div>
             <button
               v-if="advancedMode"
-              @click.stop="disconnectSocket(socket.uuid)"
+              @click.stop="removeSocket(socket.uuid)"
               class="shrink-0 text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition"
             >
               Disconnect
@@ -71,7 +71,7 @@
 
 <script setup lang="ts">
 import type { ComHubInterface, ComHubSocket } from '@/components/ComHubOverviewWrapper.vue'
-import { Datex } from '@/lib/runtime'
+import { removeSocket } from '@/lib/runtime'
 import { computed, reactive, watch } from 'vue'
 
 interface SocketWithInterface extends ComHubSocket {
@@ -153,11 +153,5 @@ function formatTime(ms: number): string {
   return rtf.format(-Math.floor(hours / 24), 'day')
 }
 
-async function disconnectSocket(socketUuid: string) {
-  await Datex.comHub.removeSocket(socketUuid as `socket::${string}`)
-}
 
-async function disconnectInterface(interfaceUuid: string) {
-  await Datex.comHub.removeInterface(interfaceUuid as `com_interface::${string}`)
-}
 </script>

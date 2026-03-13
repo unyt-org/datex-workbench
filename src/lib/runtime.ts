@@ -63,3 +63,11 @@ export function getPointers(): Map<string, DIF.Definitions.DIFValueContainer> {
 export function getComHubMetadata(): ComHubMetadata {
   return Datex.comHub.getMetadata()
 }
+
+
+export async function removeInterface(interfaceUuid: string) {
+  return await Datex.comHub.removeInterface(interfaceUuid as `com_interface::${string}`)
+}
+export async function removeSocket(socketUuid: string) {
+  return await Datex.comHub.removeSocket(socketUuid as `socket::${string}`)
+}
