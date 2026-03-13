@@ -1,8 +1,7 @@
 import { Datex } from '@/lib/runtime';
-import { parseStructure, type ParsedSection, type StructureDefinition } from '@unyt/speck';
-import { BaseInterfaceImpl, type BaseInterfaceSetupData } from '@unyt/datex/interface-impls/base';
-import { ref, computed } from 'vue';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
+import { parseStructure, type ParsedSection, type StructureDefinition } from '@unyt/speck';
+import { computed, ref } from 'vue';
 
 // Helper functions to extract metadata from parsed block structure (parse once, read many)
 function getBlockType(parsedBlock: ParsedSection[]): string {
@@ -201,40 +200,9 @@ function resetLoadedCount() {
     loadedBlocksCount.value = Math.min(INITIAL_DISPLAYED_BLOCKS, blocks.value.length);
 }
 
-const config: BaseInterfaceSetupData = {
-    name: "base",
-    interface_type: "base",
-    channel: "test",
-    direction: "InOut",
-    round_trip_time: 5,
-    max_bandwidth: 1,
-    continuous_connection: true,
-    allow_redirects: true,
-    is_secure_channel: true,
-    reconnection_config: "NoReconnect",
-    reconnect_attempts: undefined,
-    close_timestamp: undefined,
-};
-const baseInterface = await Datex.comHub.createInterface<BaseInterfaceImpl>(
-    'base',
-    config,
-);
-baseInterface.impl.onSend(() => {
-    return Promise.resolve(true);
-});
-
-const socketUUID = baseInterface.impl.registerSocket('InOut');
 
 function sendTestBlock() {
-    baseInterface.impl.receive(
-        socketUUID,
-        Uint8Array.from(
-            atob(
-                'AWQBWQAQACoCAAAAAAAAAAAAAAAAAAAAAAAAAAACAGpvbmFzAAAAAAAAAAAAAAAAAAAAAGJlbgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKgD0AAAAAAAAAAA=',
-            ),
-            (c) => c.charCodeAt(0),
-        ),
-    );
+    return Datex.execute("@@local :: 1 + 41")
 }
 
 Datex.comHub.registerIncomingBlockInterceptor((block: Uint8Array, socket_uuid: string) => {
@@ -250,7 +218,7 @@ Datex.comHub.registerIncomingBlockInterceptor((block: Uint8Array, socket_uuid: s
         parsedBlock,
         originalBinary: block,
         socketUuid: socket_uuid,
-        interfaceName: config.name,
+        interfaceName: "local",
         capturedAt: Date.now(),
         ...metadata,
     });
@@ -282,8 +250,6 @@ export function useNetworkInspector() {
         loadMoreBlocks,
         resetLoadedCount,
         loadedBlocksCount,
-        baseInterface,
-        socketUUID,
         saveBlocksToStorage,
     };
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useNetworkInspector } from '@/composable/useNetworkInspector';
-import { useBlockSimulator, BLOCK_TYPES } from '@/composable/useBlockSimulator';
-import { Button } from '@/components/ui/button';
+import DataTable from '@/components/NetworkInspector/DataTable.vue';
+import NetworkFilter, { type SearchSuggestions } from '@/components/NetworkInspector/NetworkFilter.vue';
+import { createColumns } from '@/components/NetworkInspector/columns';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -13,16 +13,15 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Trash } from 'lucide-vue-next';
-import { computed, ref, watch, nextTick } from 'vue';
+import { Button } from '@/components/ui/button';
+import { BLOCK_TYPES } from '@/composable/useBlockSimulator';
+import { useNetworkInspector } from '@/composable/useNetworkInspector';
 import type { NetworkBlockTableRow } from '@/types/NetworkInspector/TableRow';
-import DataTable from '@/components/NetworkInspector/DataTable.vue';
-import NetworkFilter, { type SearchSuggestions } from '@/components/NetworkInspector/NetworkFilter.vue';
-import { createColumns } from '@/components/NetworkInspector/columns';
-import { parseSearchQuery, filterRowsBySearch } from '@/utils/searchParser';
+import { filterRowsBySearch, parseSearchQuery } from '@/utils/searchParser';
+import { Trash } from 'lucide-vue-next';
+import { computed, nextTick, ref, watch } from 'vue';
 
-const { sendTestBlock, blocks, displayedBlocks, hasMoreBlocks, loadMoreBlocks, resetLoadedCount, baseInterface, socketUUID, saveBlocksToStorage } = useNetworkInspector();
-const { sendBlock } = useBlockSimulator();
+const { sendTestBlock, blocks, displayedBlocks, hasMoreBlocks, loadMoreBlocks, resetLoadedCount,  saveBlocksToStorage } = useNetworkInspector();
 
 // Search query state
 const searchQuery = ref('');
@@ -53,17 +52,6 @@ function confirmClearBlocks() {
     showDeleteDialog.value = false;
 }
 
-// Block sending functionality
-async function handleSendBlock(blockTypeId: string) {
-    try {
-        const blockType = BLOCK_TYPES.find(bt => bt.id === blockTypeId);
-        if (blockType) {
-            await sendBlock(blockType, baseInterface, socketUUID);
-        }
-    } catch (error) {
-        console.error('Failed to send block:', error);
-    }
-}
 
 // Scroll container ref for maintaining scroll position
 const scrollContainerRef = ref<HTMLElement | null>(null);
@@ -169,7 +157,7 @@ const dynamicColumns = computed(() => {
                 <Button 
                     v-for="blockType in BLOCK_TYPES" 
                     :key="blockType.id"
-                    @click="handleSendBlock(blockType.id)"
+                    @click="sendTestBlock()"
                     variant="outline"
                     size="sm"
                     class="text-foreground border-border"
