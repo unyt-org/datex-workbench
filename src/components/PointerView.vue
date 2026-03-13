@@ -17,14 +17,14 @@ import { getTypeName, TYPE_CONFIGS } from '@/lib/pointer-types';
 import type { DIF } from '@unyt/datex';
 import { Filter, Search, Settings } from 'lucide-vue-next';
 import type { HTMLAttributes } from 'vue';
-import { computed, ref, watchEffect, nextTick, provide } from 'vue';
+import { computed, nextTick, provide, ref, watchEffect } from 'vue';
 import PointerPreferences from './PointerPreferences.vue';
 import PointerTreeItem from './PointerTreeItem.vue';
 
 // Props interface
 interface PointerViewProps {
   class?: HTMLAttributes['class'];
-  pointers: Map<string, DIF.Definitions.DIFContainer>;
+  pointers: Map<string, DIF.Definitions.DIFValueContainer>;
   searchPlaceholder?: string;
 }
 
@@ -36,7 +36,7 @@ const props = withDefaults(defineProps<PointerViewProps>(), {
 console.log(props);
 // Emits to communicate with parent
 const emit = defineEmits<{
-  'pointer-click': [pointerId: string, value: DIF.Definitions.DIFContainer];
+  'pointer-click': [pointerId: string, value: DIF.Definitions.DIFValueContainer];
   'pointer-expand': [pointerId: string, expanded: boolean];
 }>();
 
@@ -64,7 +64,7 @@ const filteredPointers = computed(() => {
   }
   
   // Filter pointers by selected types
-  const filtered = new Map<string, DIF.Definitions.DIFContainer>();
+  const filtered = new Map<string, DIF.Definitions.DIFValueContainer>();
   
   for (const [pointerId, value] of props.pointers) {
     const typeName = getTypeName(value);
@@ -133,7 +133,7 @@ function togglePointer(pointerId: string) {
 }
 
 // Handle pointer click
-function handlePointerClick(pointerId: string, value: DIF.Definitions.DIFContainer) {
+function handlePointerClick(pointerId: string, value: DIF.Definitions.DIFValueContainer) {
   emit('pointer-click', pointerId, value);
 }
 
