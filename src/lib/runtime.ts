@@ -1,5 +1,5 @@
-import { Runtime, DIF } from '@unyt/datex'
 import type { RuntimeConfig } from '@unyt/datex'
+import { DIF, Runtime } from '@unyt/datex'
 
 export type ComHubMetadata = {
   endpoint: string
@@ -18,6 +18,12 @@ export type ComHubMetadata = {
 
 const defaultConfig: RuntimeConfig = {
   interfaces: [
+    {
+      type: 'websocket-client',
+      config: {
+        url: 'wss://example.unyt.land',
+      },
+    },
     {
       type: 'websocket-client',
       config: {
