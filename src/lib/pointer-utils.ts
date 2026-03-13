@@ -124,7 +124,7 @@ export function buildPointerMap(
   for (let i = 0; i < convertedValues.length; i++) {
     const value = convertedValues[i]
     const sequentialId = `$${String(i).padStart(16, '0')}`
-    const difValue = Datex.dif.convertJSValueToDIFValue(value) as DIF.Definitions.DIFValueContainer
+    const difValue = Datex.dif.convertJSValueToDIFValueContainer(value) as DIF.Definitions.DIFValueContainer
     pointers.set(sequentialId, difValue)
   }
 
