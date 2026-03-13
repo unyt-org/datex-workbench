@@ -65,10 +65,10 @@ export const TYPE_CONFIGS: Record<string, TypeConfig> = {
 }
 
 // Get type name from DIF value
-export function getTypeName(difContainer: DIF.Definitions.DIFContainer): string {
+export function getTypeName(difValueContainer: DIF.Definitions.DIFValueContainer): string {
   // Check if DIF container has a type property (e.g., '0c0000' for map)
-  if (typeof difContainer === 'object' && difContainer !== null && 'type' in difContainer && difContainer.type) {
-    const difType = difContainer.type as string
+  if (typeof difValueContainer === 'object' && difValueContainer !== null && 'type' in difValueContainer && difValueContainer.type) {
+    const difType = difValueContainer.type as string
     
     // Map DIF type codes to our type names
     if (difType === '0c0000') return 'map'
@@ -76,9 +76,9 @@ export function getTypeName(difContainer: DIF.Definitions.DIFContainer): string 
   }
   
   // Extract value from container
-  const value = typeof difContainer === 'object' && difContainer !== null && 'value' in difContainer 
-    ? (difContainer as Record<string, unknown>).value 
-    : difContainer
+  const value = typeof difValueContainer === 'object' && difValueContainer !== null && 'value' in difValueContainer 
+    ? (difValueContainer as Record<string, unknown>).value 
+    : difValueContainer
   
   if (value === null || value === undefined) return 'null'
   if (typeof value === 'string') return 'text'
@@ -100,15 +100,15 @@ export function getTypeName(difContainer: DIF.Definitions.DIFContainer): string 
 /**
  * Check if a DIF container represents a pointer reference
  */
-export function isPointerReference(difContainer: DIF.Definitions.DIFContainer): boolean {
+export function isPointerReference(difValueContainer: DIF.Definitions.DIFValueContainer): boolean {
   // Direct string format: "$0000000000000001"
-  if (typeof difContainer === 'string' && difContainer.startsWith('$')) {
+  if (typeof difValueContainer === 'string' && difValueContainer.startsWith('$')) {
     return true
   }
   
   // DIF container format with value property
-  if (typeof difContainer === 'object' && difContainer !== null && 'value' in difContainer) {
-    const value = (difContainer as Record<string, unknown>).value
+  if (typeof difValueContainer === 'object' && difValueContainer !== null && 'value' in difValueContainer) {
+    const value = (difValueContainer as Record<string, unknown>).value
     if (typeof value === 'string' && value.startsWith('$')) {
       return true
     }
@@ -120,15 +120,15 @@ export function isPointerReference(difContainer: DIF.Definitions.DIFContainer): 
 /**
  * Extract pointer ID from various DIF container formats
  */
-export function extractPointerId(difContainer: DIF.Definitions.DIFContainer): string | null {
+export function extractPointerId(difValueContainer: DIF.Definitions.DIFValueContainer): string | null {
   // Direct string format
-  if (typeof difContainer === 'string' && difContainer.startsWith('$')) {
-    return difContainer
+  if (typeof difValueContainer === 'string' && difValueContainer.startsWith('$')) {
+    return difValueContainer
   }
   
   // DIF container format with value property
-  if (typeof difContainer === 'object' && difContainer !== null && 'value' in difContainer) {
-    const value = (difContainer as Record<string, unknown>).value
+  if (typeof difValueContainer === 'object' && difValueContainer !== null && 'value' in difValueContainer) {
+    const value = (difValueContainer as Record<string, unknown>).value
     if (typeof value === 'string' && value.startsWith('$')) {
       return value
     }

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, inject } from 'vue'
-import type { DIF } from '@unyt/datex'
-import { usePointerPreferences } from '@/composable/usePointerPreferences'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { usePointerPreferences } from '@/composable/usePointerPreferences'
 import { getTypeName } from '@/lib/pointer-types'
+import type { DIF } from '@unyt/datex'
+import { computed, inject } from 'vue'
 
 // Props
 interface PointerRefInlineProps {
@@ -18,7 +18,7 @@ const emit = defineEmits<{
 }>()
 
 // Inject the pointers map
-const pointers = inject<Map<string, DIF.Definitions.DIFContainer>>('pointers')
+const pointers = inject<Map<string, DIF.Definitions.DIFValueContainer>>('pointers')
 
 // Use preferences composable
 const { preferences } = usePointerPreferences()
@@ -42,15 +42,15 @@ const displayId = computed(() => {
 const valuePreview = computed(() => {
   if (!pointers) return ''
   
-  const difContainer = pointers.get(props.pointerId)
-  if (!difContainer) return ''
+  const difValueContainer = pointers.get(props.pointerId)
+  if (!difValueContainer) return ''
   
   // Extract value from DIF container
-  const value = typeof difContainer === 'object' && difContainer !== null && 'value' in difContainer
-    ? (difContainer as Record<string, unknown>).value
-    : difContainer
+  const value = typeof difValueContainer === 'object' && difValueContainer !== null && 'value' in difValueContainer
+    ? (difValueContainer as Record<string, unknown>).value
+    : difValueContainer
   
-  const typeName = getTypeName(difContainer)
+  const typeName = getTypeName(difValueContainer)
   
   // Format preview based on type
   if (typeName === 'text') return `"${value}"`

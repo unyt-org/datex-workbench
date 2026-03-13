@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { TYPE_CONFIGS, getTypeName, extractPointerId } from '@/lib/pointer-types';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { TYPE_CONFIGS, extractPointerId, getTypeName } from '@/lib/pointer-types';
 import type { DIF } from '@unyt/datex';
 import { ChevronDown, ChevronRight } from 'lucide-vue-next';
-import { computed, ref, nextTick } from 'vue';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { computed, nextTick, ref } from 'vue';
 import PointerRefInline from './PointerRefInline.vue';
 
 // Props
 interface PointerTreeItemProps {
   nodeId: string;
   label: string;
-  value: DIF.Definitions.DIFContainer;
+  value: DIF.Definitions.DIFValueContainer;
   expandedNodes: Set<string>;
   visitedObjects?: WeakSet<object>;
   showFullIds?: boolean;
@@ -38,7 +38,7 @@ const props = withDefaults(defineProps<PointerTreeItemProps>(), {
 
 // Emits
 const emit = defineEmits<{
-  'node-click': [nodeId: string, value: DIF.Definitions.DIFContainer];
+  'node-click': [nodeId: string, value: DIF.Definitions.DIFValueContainer];
   'node-toggle': [nodeId: string];
   'id-click': [nodeId: string];
   'pointer-ref-click': [pointerId: string];
@@ -51,33 +51,33 @@ const editValue = ref('');
 const editInputRef = ref<HTMLInputElement | null>(null);
 
 // Check if value is circular reference
-function isCircularReference(difContainer: DIF.Definitions.DIFContainer): boolean {
+function isCircularReference(difValueContainer: DIF.Definitions.DIFValueContainer): boolean {
   // Only objects can have circular references
-  if (typeof difContainer !== 'object' || difContainer === null) {
+  if (typeof difValueContainer !== 'object' || difValueContainer === null) {
     return false;
   }
 
-  return props.visitedObjects?.has(difContainer) ?? false;
+  return props.visitedObjects?.has(difValueContainer) ?? false;
 }
 
 // Check if expandable
-function isExpandable(difContainer: DIF.Definitions.DIFContainer): boolean {
-  const typeName = getTypeName(difContainer);
+function isExpandable(difValueContainer: DIF.Definitions.DIFValueContainer): boolean {
+  const typeName = getTypeName(difValueContainer);
   return TYPE_CONFIGS[typeName]?.isExpandable ?? false;
 }
 
 // Extract the actual value from a DIF container, unwrapping nested value properties
-function extractValue(difContainer: DIF.Definitions.DIFContainer): unknown {
-  if (difContainer && typeof difContainer === 'object' && 'value' in difContainer) {
-    return (difContainer as Record<string, unknown>).value;
+function extractValue(difValueContainer: DIF.Definitions.DIFValueContainer): unknown {
+  if (difValueContainer && typeof difValueContainer === 'object' && 'value' in difValueContainer) {
+    return (difValueContainer as Record<string, unknown>).value;
   }
-  return difContainer;
+  return difValueContainer;
 }
 
 // Get value preview
-function getValuePreview(difContainer: DIF.Definitions.DIFContainer): string {
-  const value = extractValue(difContainer);
-  const typeName = getTypeName(difContainer);
+function getValuePreview(difValueContainer: DIF.Definitions.DIFValueContainer): string {
+  const value = extractValue(difValueContainer);
+  const typeName = getTypeName(difValueContainer);
 
   // Build the preview string
   let preview = '';
@@ -114,7 +114,7 @@ function getValuePreview(difContainer: DIF.Definitions.DIFContainer): string {
 
 // Get children
 function getChildren(
-  difContainer: DIF.Definitions.DIFContainer,
+  difValueContainer: DIF.Definitions.DIFValueContainer,
 ): Array<[string, DIF.Definitions.DIFValueContainer, DIF.Definitions.DIFValueContainer?]> {
   // Only compute children if node is expanded (lazy evaluation)
   if (!expanded.value) {
@@ -122,18 +122,18 @@ function getChildren(
   }
 
   // Check for circular reference before processing children
-  if (isCircularReference(difContainer)) {
+  if (isCircularReference(difValueContainer)) {
     return [];
   }
 
   // Check if it's a DIF map type (type: '0c0000')
   if (
-    typeof difContainer === 'object' &&
-    difContainer !== null &&
-    'type' in difContainer &&
-    difContainer.type === '0c0000'
+    typeof difValueContainer === 'object' &&
+    difValueContainer !== null &&
+    'type' in difValueContainer &&
+    difValueContainer.type === '0c0000'
   ) {
-    const value = extractValue(difContainer);
+    const value = extractValue(difValueContainer);
     
     // DIF maps can be stored as an array of [key, value] tuples (DIFMap format)
     if (Array.isArray(value)) {
@@ -176,7 +176,7 @@ function getChildren(
     }
   }
 
-  const value = extractValue(difContainer);
+  const value = extractValue(difValueContainer);
 
   if (Array.isArray(value)) {
     return (value as DIF.Definitions.DIFArray).map((item: DIF.Definitions.DIFValueContainer, index: number) => [String(index), item, undefined]);
@@ -197,15 +197,15 @@ function getChildren(
   }
   
   // Handle plain JavaScript objects
-  if (typeof difContainer === 'object' &&
-      difContainer !== null &&
-      !Array.isArray(difContainer) &&
-      !('type' in difContainer)) {
-    return Object.entries(difContainer).map(([key, val]) => {
+  if (typeof difValueContainer === 'object' &&
+      difValueContainer !== null &&
+      !Array.isArray(difValueContainer) &&
+      !('type' in difValueContainer)) {
+    return Object.entries(difValueContainer).map(([key, val]) => {
       const keyContainer = { value: key } as DIF.Definitions.DIFValueContainer;
       return [
         key,
-        val as DIF.Definitions.DIFContainer,
+        val as DIF.Definitions.DIFValueContainer,
         keyContainer,
       ];
     });
@@ -259,7 +259,7 @@ function getKeyTooltip(keyContainer?: DIF.Definitions.DIFValueContainer): string
 }
 
 // Get tooltip content for values
-function getValueTooltip(valueContainer: DIF.Definitions.DIFContainer): string {
+function getValueTooltip(valueContainer: DIF.Definitions.DIFValueContainer): string {
   const typeName = getTypeName(valueContainer);
   const parts: string[] = [`Type: ${typeName}`];
   

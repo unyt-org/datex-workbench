@@ -1,5 +1,5 @@
-import type { DIF, Runtime } from '@unyt/datex'
-import { getPointerIdFromValue } from './pointer-types'
+import type { DIF, Runtime } from '@unyt/datex';
+import { getPointerIdFromValue } from './pointer-types';
 
 /**
  * Pair of pointer and its value for sequential ID mapping
@@ -89,7 +89,7 @@ export function buildPointerMap(
   pointerValuePairs: PointerValuePair[],
   additionalValues: unknown[],
   Datex: Runtime
-): Map<string, DIF.Definitions.DIFContainer> {
+): Map<string, DIF.Definitions.DIFValueContainer> {
   // Build values array: [value0, pointer0, value1, pointer1, ..., ...additionalValues]
   const values: unknown[] = []
   for (const pair of pointerValuePairs) {
@@ -119,12 +119,12 @@ export function buildPointerMap(
   )
 
   // Build final pointer map with DIF conversion
-  const pointers = new Map<string, DIF.Definitions.DIFContainer>()
+  const pointers = new Map<string, DIF.Definitions.DIFValueContainer>()
   
   for (let i = 0; i < convertedValues.length; i++) {
     const value = convertedValues[i]
     const sequentialId = `$${String(i).padStart(16, '0')}`
-    const difValue = Datex.dif.convertJSValueToDIFValue(value) as DIF.Definitions.DIFContainer
+    const difValue = Datex.dif.convertJSValueToDIFValue(value) as DIF.Definitions.DIFValueContainer
     pointers.set(sequentialId, difValue)
   }
 
