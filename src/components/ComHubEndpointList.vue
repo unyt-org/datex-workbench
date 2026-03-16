@@ -3,7 +3,7 @@
     <div
       v-for="[endpointId, sockets] in filteredEndpoints"
       :key="endpointId"
-      class="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 mb-3 bg-white dark:bg-neutral-900 shadow-sm text-neutral-900 dark:text-neutral-100"
+      class="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 mb-3 bg-white dark:bg-neutral-900 shadow-sm text-neutral-900 dark:text-neutral-100 hover:bg-neutral-80 dark:hover:bg-neutral-700 transition cursor-pointer"
     >
       <!-- Endpoint Header -->
       <div class="flex justify-between items-center cursor-pointer" @click="toggle(endpointId)">

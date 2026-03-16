@@ -3,10 +3,10 @@
     <div
       v-for="iface in filteredInterfaces"
       :key="iface.uuid"
-      class="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 mb-3 bg-white dark:bg-neutral-900 shadow-sm text-neutral-900 dark:text-neutral-100"
+      class="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 mb-3 bg-white dark:bg-neutral-900 shadow-sm text-neutral-900 dark:text-neutral-100 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition cursor-pointer"
     >
       <!-- Interface Header -->
-      <div class="flex justify-between items-center">
+      <div class="flex justify-between items-start gap-2">
         <div class="cursor-pointer flex-1" @click="toggle(iface.uuid)">
           <h3 class="font-semibold">
             {{ iface.properties.interface_type }}
@@ -17,6 +17,7 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
+<<<<<<< HEAD
           <div class="text-xs text-neutral-400">RTT: {{ iface.properties.round_trip_time }} ms</div>
           <button
             v-if="advancedMode"
@@ -25,6 +26,16 @@
           >
             Disconnect
           </button>
+=======
+  <div class="text-xs text-neutral-400">RTT: {{ iface.properties.round_trip_time }} ms</div>
+  <button
+    v-if="advancedMode"
+    @click.stop="disconnectInterface(iface.uuid)"
+    class="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition w-24 text-center"
+  >
+    Disconnect
+  </button>
+>>>>>>> cc19a40 (fix(comhub): align disconnect buttons, add settings dropdown, fix search validation)
         </div>
       </div>
 
@@ -33,7 +44,7 @@
         <div
           v-for="socket in getSortedSockets(iface.sockets)"
           :key="socket.uuid + socket.endpoint"
-          class="text-sm p-3 rounded bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
+          class="text-sm p-3 pr-0 rounded bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
         >
           <div class="flex items-start justify-between gap-2">
             <div class="flex flex-col gap-1 flex-1">
@@ -52,8 +63,13 @@
             </div>
             <button
               v-if="advancedMode"
+<<<<<<< HEAD
               @click.stop="removeSocket(socket.uuid)"
               class="shrink-0 text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition"
+=======
+              @click.stop="disconnectSocket(iface.uuid, socket.uuid, socket.endpoint)"
+              class="shrink-0 text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition w-24 text-center"
+>>>>>>> cc19a40 (fix(comhub): align disconnect buttons, add settings dropdown, fix search validation)
             >
               Disconnect
             </button>
