@@ -17,7 +17,6 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
-<<<<<<< HEAD
           <div class="text-xs text-neutral-400">RTT: {{ iface.properties.round_trip_time }} ms</div>
           <button
             v-if="advancedMode"
@@ -26,16 +25,6 @@
           >
             Disconnect
           </button>
-=======
-  <div class="text-xs text-neutral-400">RTT: {{ iface.properties.round_trip_time }} ms</div>
-  <button
-    v-if="advancedMode"
-    @click.stop="disconnectInterface(iface.uuid)"
-    class="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition w-24 text-center"
-  >
-    Disconnect
-  </button>
->>>>>>> cc19a40 (fix(comhub): align disconnect buttons, add settings dropdown, fix search validation)
         </div>
       </div>
 
@@ -63,13 +52,8 @@
             </div>
             <button
               v-if="advancedMode"
-<<<<<<< HEAD
               @click.stop="removeSocket(socket.uuid)"
               class="shrink-0 text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition"
-=======
-              @click.stop="disconnectSocket(iface.uuid, socket.uuid, socket.endpoint)"
-              class="shrink-0 text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition w-24 text-center"
->>>>>>> cc19a40 (fix(comhub): align disconnect buttons, add settings dropdown, fix search validation)
             >
               Disconnect
             </button>
