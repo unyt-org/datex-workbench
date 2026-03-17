@@ -8,7 +8,7 @@
       <!-- Settings Popover -->
 <Popover>
   <PopoverTrigger as-child>
-    <Button variant="outline" size="icon" title="Settings">
+    <Button variant="outline" size="icon" title="Settings" class="p-1.5 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition text-neutral-600 dark:text-neutral-400">
       <Settings class="h-4 w-4" />
     </Button>
   </PopoverTrigger>
