@@ -20,7 +20,7 @@
           <div class="text-xs text-neutral-400">RTT: {{ iface.properties?.round_trip_time ?? 'N/A' }} ms</div>
           <button
             v-if="advancedMode"
-            @click.stop="removeInterface(iface.uuid)"
+            @click.stop="disconnectInterface(iface.uuid)"
             class="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition"
           >
             Disconnect
@@ -52,7 +52,7 @@
             </div>
             <button
               v-if="advancedMode"
-              @click.stop="removeSocket(socket.uuid)"
+              @click.stop="disconnectSocket(iface.uuid, socket.uuid, socket.endpoint)"
               class="shrink-0 text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition"
             >
               Disconnect
@@ -70,7 +70,7 @@
 
 <script setup lang="ts">
 import type { ComHubInterface, ComHubSocket } from '@/components/ComHubOverviewWrapper.vue';
-import { removeInterface, removeSocket } from '@/lib/runtime';
+import { Datex } from '@/lib/runtime';
 import { computed, reactive, watch } from 'vue';
 
 const props = defineProps<{
@@ -103,6 +103,15 @@ watch(() => props.searchQuery, (val) => {
     Object.keys(expanded).forEach((key) => { expanded[key] = false })
   }
 })
+
+async function disconnectSocket(interfaceUuid: string, socketUuid: string, endpoint: string) {
+  await Datex.comHub.removeSocket(socketUuid as `socket::${string}`)
+  console.warn('[ComHub] disconnectSocket called', { interfaceUuid, socketUuid, endpoint })
+}
+
+async function disconnectInterface(interfaceUuid: string) {
+  await Datex.comHub.removeInterface(interfaceUuid as `com_interface::${string}`)
+}
 
 function toggle(uuid: string) {
   expanded[uuid] = !expanded[uuid]
