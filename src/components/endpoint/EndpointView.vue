@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import EndpointDocs from '@/components/endpoint/EndpointDocs.vue'
 import EndpointFingerprint from '@/components/endpoint/EndpointFingerprint.vue'
@@ -43,8 +43,16 @@ interface Endpoint {
 
 const route = useRoute()
 
-const endpointId = computed(() => route.params.endpoint_id as string)
-
+const endpointId = computed(() => {
+  const raw = route.params.endpoint_id as string
+  try {
+    const url = new URL(raw)
+    const match = url.pathname.match(/\/u\/(.+)$/)
+    return match ? match[1] : raw
+  } catch {
+    return raw
+  }
+})
 /**
  * TODO: Replace with real implementation once DATEX runtime is available
  * Will call: await Datex.Runtime.execute("#public") on the endpoint
@@ -66,7 +74,10 @@ const endpointId = computed(() => route.params.endpoint_id as string)
 const endpoint = ref<Endpoint | null>(null)
 
 onMounted(async () => {
-  endpoint.value = await fetchEndpointInfo(endpointId.value)
+  endpoint.value = await fetchEndpointInfo(endpointId.value as string)
+})
+watch(endpointId, async (id) => {
+  endpoint.value = await fetchEndpointInfo(id as string)
 })
 
 type EndpointTag = 'me' | 'local' | 'anonymous' | 'named'
