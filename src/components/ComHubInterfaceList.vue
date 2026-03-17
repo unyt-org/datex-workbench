@@ -86,9 +86,11 @@ const filteredInterfaces = computed(() => {
   if (!query) return props.interfaces
   return props.interfaces
     .map((iface) => {
-      const matchingSockets = iface.sockets.filter((socket) =>
-        socket.endpoint.toLowerCase().includes(query)
-      )
+      const matchingSockets = iface.sockets.filter((socket) => {
+        const endpoint =
+          typeof socket.endpoint === 'string' ? socket.endpoint.toLowerCase() : ''
+        return endpoint.includes(query)
+      })
       if (matchingSockets.length === 0) return null
       expanded[iface.uuid] = true
       return { ...iface, sockets: matchingSockets }
