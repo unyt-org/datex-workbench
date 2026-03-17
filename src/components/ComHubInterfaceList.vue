@@ -21,7 +21,7 @@
           <button
             v-if="advancedMode"
             @click.stop="disconnectInterface(iface.uuid)"
-            class="btn-danger w-20.5 text-center mr-3"
+            class="btn-danger w-24 text-center mr-3"
           >
             Disconnect
           </button>
