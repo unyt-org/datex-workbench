@@ -41,17 +41,17 @@ const downloadFingerprint = () => {
 
 <template>
   <section class="flex flex-col gap-2">
-    <h2 class="text-sm font-medium">
+    <h2 class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
       Fingerprint
     </h2>
 
     <div class="flex items-start justify-between gap-3 rounded bg-neutral-100 dark:bg-neutral-800 p-3">
-      <pre class="text-xs break-all whitespace-pre-wrap">
+      <pre class="text-xs break-all whitespace-pre-wrap text-neutral-900 dark:text-neutral-100">
 {{ fingerprintText }}
       </pre>
 
       <button
-        class="shrink-0 text-xs px-3 py-1.5 rounded border hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
+        class="shrink-0 text-xs px-3 py-1.5 rounded border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
         :disabled="!props.fingerprint"
         @click="downloadFingerprint"
       >

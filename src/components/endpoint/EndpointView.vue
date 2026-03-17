@@ -88,12 +88,12 @@ const tagStyles: Record<EndpointTag, string> = {
 </script>
 
 <template>
-  <div class="flex flex-col gap-6 p-4 overflow-y-auto h-full">
+  <div class="flex flex-col gap-6 p-5 overflow-y-auto h-full bg-neutral-50 dark:bg-neutral-950">
     <div v-if="endpoint" class="flex flex-col gap-4">
       <!-- Header -->
       <section class="flex flex-col gap-1">
         <div class="flex items-center gap-2">
-  <h1 class="text-xl font-semibold font-mono">{{ endpoint.name }}</h1>
+  <h1 class="text-xl font-semibold font-mono text-neutral-900 dark:text-neutral-100">{{ endpoint.name }}</h1>
   <span
     class="text-xs px-2 py-0.5 rounded"
     :class="tagStyles[getEndpointTag(endpoint.id, String(Datex.endpoint))]"
@@ -101,32 +101,32 @@ const tagStyles: Record<EndpointTag, string> = {
     {{ getEndpointTag(endpoint.id, String(Datex.endpoint)) }}
   </span>
 </div>
-        <p v-if="endpoint.description" class="text-sm text-neutral-500">
+        <p v-if="endpoint.description" class="text-sm text-neutral-500 dark:text-neutral-400">
           {{ endpoint.description }}
         </p>
-        <p v-if="endpoint.profile" class="text-xs text-neutral-400">
+        <p v-if="endpoint.profile" class="text-xs text-neutral-400 dark:text-neutral-500">
           Profile: {{ endpoint.profile }}
         </p>
       </section>
 
       <!-- Fingerprint -->
-      <section class="flex flex-col gap-2">
+      <section class="flex flex-col gap-2 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 bg-white dark:bg-neutral-900">
             <EndpointFingerprint :fingerprint="endpoint.fingerprint" :endpoint-id="endpoint.id"/>
                 </section>
 
-      <section>
+      <section class="border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 bg-white dark:bg-neutral-900">
         <EndpointPointers v-if="endpoint" :methods="endpoint.methods ?? []" />
       </section>
 
       <!-- Interfaces -->
-      <section class="flex flex-col gap-2">
-        <h2 class="text-sm font-medium">Public Interfaces</h2>
+      <section class="flex flex-col gap-2 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 bg-white dark:bg-neutral-900">
+        <h2 class="text-sm font-medium text-neutral-900 dark:text-neutral-100">Public Interfaces</h2>
         <EndpointInterfaces :interfaces="endpoint?.interfaces ?? []" />
       </section>
 
       <!-- Documentation (markdown placeholder) -->
-      <section v-if="endpoint.documentation" class="flex flex-col gap-2">
-        <h2 class="text-sm font-medium">Documentation</h2>
+      <section v-if="endpoint.documentation" class="flex flex-col gap-2 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 bg-white dark:bg-neutral-900">
+        <h2 class="text-sm font-medium text-neutral-900 dark:text-neutral-100">Documentation</h2>
         <EndpointDocs :markdown="endpoint.documentation" />
       </section>
 

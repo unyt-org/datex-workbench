@@ -23,7 +23,7 @@ function formatContainer(value: unknown): string {
 
 <template>
   <section class="flex flex-col gap-3">
-    <h2 class="text-sm font-medium">
+    <h2 class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
       Pointer View
     </h2>
 
@@ -46,7 +46,7 @@ function formatContainer(value: unknown): string {
         </div>
 
         <!-- Container Visualization -->
-        <pre class="text-xs whitespace-pre-wrap break-all">
+        <pre class="text-xs whitespace-pre-wrap break-all text-neutral-900 dark:text-neutral-100">
 {{ formatContainer(container) }}
         </pre>
       </div>
