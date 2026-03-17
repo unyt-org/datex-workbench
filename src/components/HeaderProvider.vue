@@ -36,7 +36,7 @@ export default {
         >
             <IconLogo class="w-6 h-6" />
             <div class="flex items-baseline space-x-1">
-                <span class="text-lg font-bold text-foreground">DATEX Workbench</span>
+                <span class="text-lg font-bold text-primary">DATEX Workbench</span>
                 <span class="text-xs unyt-blue font-semibold">beta</span>
             </div>
         </RouterLink>
