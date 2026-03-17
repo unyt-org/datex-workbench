@@ -21,7 +21,7 @@
           <button
             v-if="advancedMode"
             @click.stop="disconnectInterface(iface.uuid)"
-            class="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition"
+            class="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition w-20.5 text-center mr-3"
           >
             Disconnect
           </button>
@@ -33,7 +33,7 @@
         <div
           v-for="socket in getSortedSockets(iface.sockets)"
           :key="socket.uuid + socket.endpoint"
-          class="text-sm p-3 pr-0 rounded bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
+          class="text-sm p-3 rounded bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
         >
           <div class="flex items-start justify-between gap-2">
             <div class="flex flex-col gap-1 flex-1">
