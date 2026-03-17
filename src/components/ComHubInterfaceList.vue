@@ -9,15 +9,15 @@
       <div class="flex justify-between items-start gap-2">
         <div class="cursor-pointer flex-1" @click="toggle(iface.uuid)">
           <h3 class="font-semibold">
-            {{ iface.properties.interface_type }}
-            <span v-if="iface.properties.name">({{ iface.properties.name }})</span>
+            {{ iface.properties?.interface_type || 'Unknown interface' }}
+            <span v-if="iface.properties && iface.properties.name">({{ iface.properties.name }})</span>
           </h3>
           <div class="text-xs text-neutral-500 mt-1">
-            Sockets: {{ iface.sockets.length }} • Channel: {{ iface.properties.channel }}
+            Sockets: {{ iface.sockets.length }} • Channel: {{ iface.properties?.channel ?? 'unknown' }}
           </div>
         </div>
         <div class="flex items-center gap-2">
-          <div class="text-xs text-neutral-400">RTT: {{ iface.properties.round_trip_time }} ms</div>
+          <div class="text-xs text-neutral-400">RTT: {{ iface.properties?.round_trip_time ?? 'N/A' }} ms</div>
           <button
             v-if="advancedMode"
             @click.stop="removeInterface(iface.uuid)"
@@ -40,14 +40,14 @@
               <h4 class="font-semibold flex items-center gap-2">
                 <span class="font-mono text-blue-600 dark:text-blue-400">{{ socket.endpoint }}</span>
                 <span
-                  v-if="socket.properties.is_direct"
+                  v-if="socket.properties && socket.properties.is_direct"
                   class="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
                 >direct</span>
                 <span class="text-neutral-400">{{ getDirectionArrow(socket.direction) }}</span>
               </h4>
               <div class="text-xs text-neutral-500 mt-1">
-                Distance: {{ socket.properties.distance }}
-                • Created: {{ formatTime(socket.properties.known_since) }}
+                Distance: {{ socket.properties?.distance ?? 'N/A' }}
+                • Created: {{ socket.properties?.known_since ? formatTime(socket.properties.known_since) : 'unknown' }}
               </div>
             </div>
             <button
