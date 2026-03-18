@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Edge } from '@/types/NodeTree/node-tree';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
     edge?: Edge;
     x1: number;
