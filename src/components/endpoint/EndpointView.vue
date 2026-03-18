@@ -121,16 +121,16 @@ const tagStyles: Record<EndpointTag, string> = {
       </section>
 
       <!-- Fingerprint -->
-      <section class="flex flex-col gap-2 border-card rounded-lg p-4 bg-card">
+      <section class="flex flex-col gap-2 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 bg-card">
             <EndpointFingerprint :fingerprint="endpoint.fingerprint" :endpoint-id="endpoint.id"/>
                 </section>
 
-      <section class="border-card rounded-lg p-4 bg-card">
+      <section class="border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 bg-card">
         <EndpointPointers v-if="endpoint" :methods="endpoint.methods ?? []" />
       </section>
 
       <!-- Interfaces -->
-      <section class="flex flex-col gap-2 border-card rounded-lg p-4 bg-card">
+      <section class="flex flex-col gap-2 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 bg-card">
         <h2 class="text-sm font-medium text-primary">Public Interfaces</h2>
         <EndpointInterfaces :interfaces="endpoint?.interfaces ?? []" />
       </section>
