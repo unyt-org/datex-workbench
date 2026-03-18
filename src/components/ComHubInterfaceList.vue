@@ -3,7 +3,7 @@
     <div
       v-for="iface in filteredInterfaces"
       :key="iface.uuid"
-      class="card hover:bg-neutral-200 dark:hover:bg-neutral-700/50 transition cursor-pointer"
+      class="card hover:bg-neutral-100/80 dark:hover:bg-neutral-800/80 transition cursor-pointer"
     >
       <!-- Interface Header -->
       <div class="flex justify-between items-start gap-2">
