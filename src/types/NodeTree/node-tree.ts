@@ -28,6 +28,8 @@ export interface Edge<EdgeMetaData = unknown> {
     source: Connector;
     target: Connector;
     edgetype: EdgeType;
+    direction: EdgeDirection;
+    style?: EdgeStyle;
     data?: EdgeMetaData;
 }
 
@@ -44,4 +46,8 @@ export interface FieldConnector {
     fieldId: string;
 }
 
-export type EdgeType = string;
+export type EdgeType = 'websocket' | 'http' | 'tcp' | 'webpush' | 'local' | (string & {})
+
+export type EdgeDirection = 'unidirectional' | 'bidirectional'
+
+export type EdgeStyle = 'bezier' | 'straight' | 'step'

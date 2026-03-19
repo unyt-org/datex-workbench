@@ -53,15 +53,37 @@ export function parseNodeTree(treeIn: NodeTreeInput): NodeTree {
     tree.edges.map((edge) => {
         checkId(edge, edgeIds);
 
-        if (!checkConnector(edge.source, true))
-            throw new Error(
-                `no correct combination of kind, fieldId or nodeId provided for source of edge ${edge.id}`,
-            );
+  // Set default direction if not provided
+  if (!edge.direction) {
+    edge.direction = 'bidirectional'
+}
 
-        if (!checkConnector(edge.target, false))
-            throw new Error(
-                `no correct combination of kind, fieldId or nodeId provided for target of edge ${edge.id}`,
-            );
+// Validate direction
+if (edge.direction !== 'unidirectional' && edge.direction !== 'bidirectional') {
+    edge.direction = 'bidirectional'
+}
+
+// Set default style if not provided
+if (!edge.style) {
+    edge.style = 'bezier'
+}
+
+// Validate style
+if (!['bezier', 'straight', 'step'].includes(edge.style)) {
+    edge.style = 'bezier'
+}
+
+
+
+   if (!checkConnector(edge.source, true))
+     throw new Error(
+        `no correct combination of kind, fieldId or nodeId provided for source of edge ${edge.id}`,
+    );
+
+   if (!checkConnector(edge.target, false))
+        throw new Error(
+       `no correct combination of kind, fieldId or nodeId provided for target of edge ${edge.id}`,
+    );
     });
 
     function checkId(item: NodeInput | NodeFieldInput | EdgeInput, ids: string[]) {

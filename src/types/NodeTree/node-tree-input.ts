@@ -1,3 +1,5 @@
+import type { EdgeDirection, EdgeStyle } from './node-tree'
+
 export interface NodeTreeInput<NodeMetaData = unknown, EdgeMetaData = unknown> {
     nodes?: Array<NodeInput<NodeMetaData>>;
     edges?: Array<EdgeInput<EdgeMetaData>>;
@@ -28,6 +30,8 @@ export interface EdgeInput<EdgeMetaData = unknown> {
     source: ConnectorInput;
     target: ConnectorInput;
     edgetype?: EdgeType;
+    direction?: EdgeDirection;
+    style?: EdgeStyle;
     data?: EdgeMetaData;
 }
 
