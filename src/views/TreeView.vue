@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import NodeView from '@/components/NodeTree/Node.vue'
 import EdgeView from '@/components/NodeTree/Edge.vue'
-import { ref, type Ref } from 'vue'
+import { ref, type Ref, watch, nextTick, onMounted } from 'vue'
 import type { NodeTree, Position, Edge } from '@/types/NodeTree/node-tree'
 import type { NodeTreeInput } from '@/types/NodeTree/node-tree-input'
 import { parseNodeTree } from '@/composable/NodeTree/parseNodeTree'
@@ -10,6 +10,44 @@ import exampleJson from '@/../test/composable/NodeTree/fixtures/validExampleShor
 const example = exampleJson as NodeTreeInput
 const tree: Ref<NodeTree<unknown, unknown>> = ref(parseNodeTree(example))
 
+const canvasRef = ref<HTMLElement | null>(null)
+
+// Reactive edge coordinates - recalculated when nodes move
+const edgeCoords = ref<Map<string, { x1: number; y1: number; x2: number; y2: number }>>(new Map())
+
+async function recalculateEdges() {
+  await nextTick()
+  const map = new Map<string, { x1: number; y1: number; x2: number; y2: number }>()
+
+  for (const edge of tree.value.edges) {
+    if (edge.source.kind === 'field' && edge.target.kind === 'field') {
+      const srcEl = canvasRef.value?.querySelector(`[data-field-id="${edge.source.fieldId}-out"]`)
+      const tgtEl = canvasRef.value?.querySelector(`[data-field-id="${edge.target.fieldId}-in"]`)
+
+      if (srcEl && tgtEl && canvasRef.value) {
+        const canvasRect = canvasRef.value.getBoundingClientRect()
+        const srcRect = srcEl.getBoundingClientRect()
+        const tgtRect = tgtEl.getBoundingClientRect()
+
+        map.set(edge.id, {
+          x1: (srcRect.left + srcRect.width / 2 - canvasRect.left) / scale.value,
+          y1: (srcRect.top + srcRect.height / 2 - canvasRect.top) / scale.value,
+          x2: (tgtRect.left + tgtRect.width / 2 - canvasRect.left) / scale.value,
+          y2: (tgtRect.top + tgtRect.height / 2 - canvasRect.top) / scale.value,
+        })
+      }
+    }
+  }
+  edgeCoords.value = map
+}
+
+// Watch node positions and edges for changes
+watch(() => tree.value.nodes.map(n => ({ ...n.position })), recalculateEdges, { deep: true })
+watch(() => tree.value.edges.length, recalculateEdges)
+
+onMounted(() => {
+  recalculateEdges()
+})
 
 const scale = ref(1)
 
@@ -105,32 +143,6 @@ const isPanning = ref(false)
 const panOffset = ref<Position>({ x: 0, y: 0 })
 const panStart = ref<Position>({ x: 0, y: 0 })
 
-  function getNodeFieldPosition(fieldId: string, side: 'in' | 'out'): Position | null {
-  const node = tree.value.nodes.find(n => n.fields.some(f => f.id === fieldId))
-  if (!node) return null
-
-  const fieldIndex = node.fields.findIndex(f => f.id === fieldId)
-  if (fieldIndex === -1) return null
-
-  const nodeWidth = 224
-  const headerHeight = 52
-  const rowHeight = 24
-  const dotRadius = 6 // w-3 = 12px, so radius = 6px
-
-  return {
-    x: side === 'out' ? node.position.x + nodeWidth + dotRadius : node.position.x - dotRadius,
-    y: node.position.y + headerHeight + (fieldIndex * rowHeight) + dotRadius,
-  }
-}
-
-function getEdgeCoords(edge: NodeTree['edges'][0]) {
-  if (edge.source.kind === 'field' && edge.target.kind === 'field') {
-    const src = getNodeFieldPosition(edge.source.fieldId, 'out')
-    const tgt = getNodeFieldPosition(edge.target.fieldId, 'in')
-    if (src && tgt) return { x1: src.x, y1: src.y, x2: tgt.x, y2: tgt.y }
-  }
-  return null
-}
 
 function mouseDownNode(event: MouseEvent, nodeId: string) {
   isDraggingNode.value = true
@@ -204,6 +216,7 @@ function handleFieldClick(fieldId: string, nodeId: string, isOut: boolean) {
   >
     <!-- Inner canvas -->
     <div
+    ref="canvasRef"
   class="absolute origin-top-left"
   style="width: 3000px; height: 3000px"
   :style="{
@@ -214,20 +227,20 @@ function handleFieldClick(fieldId: string, nodeId: string, isOut: boolean) {
       <svg class="absolute inset-0 w-full h-full pointer-events-none">
   <template v-for="edge in tree.edges" :key="edge.id">
     <g
-      v-if="getEdgeCoords(edge)"
+      v-if="edgeCoords.get(edge.id)"
       class="pointer-events-auto cursor-pointer group"
       @click="removeEdge(edge.id)"
     >
       <!-- Invisible thick path for easier clicking -->
       <path
-        :d="getPath(getEdgeCoords(edge)!)"
+        :d="getPath(edgeCoords.get(edge.id)!)"
         fill="none"
         stroke="transparent"
         stroke-width="12"
       />
       <EdgeView
         :edge="edge"
-        v-bind="getEdgeCoords(edge)!"
+        v-bind="edgeCoords.get(edge.id)!"
       />
     </g>
   </template>
