@@ -4,14 +4,14 @@
 import DatexBlockProtocolView from './DatexBlockProtocolView.vue';
 
 const blockData: Uint8Array = new Uint8Array(
-  await (
-    await fetch(
-      'https://raw.githubusercontent.com/unyt-org/datex-core/main/crates/datex-core/tests/structs/receivers/block.bin',
-    )
-  ).arrayBuffer(),
+    await (
+        await fetch(
+            'https://raw.githubusercontent.com/unyt-org/datex-core/main/crates/datex-core/tests/structs/receivers/block.bin',
+        )
+    ).arrayBuffer(),
 );
 </script>
 
 <template>
-  <DatexBlockProtocolView :blockData="blockData" />
+    <DatexBlockProtocolView :blockData="blockData" />
 </template>

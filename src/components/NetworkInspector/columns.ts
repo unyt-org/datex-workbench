@@ -21,74 +21,74 @@ function formatBytes(bytes: number): string {
 
 export function createColumns(parsedQuery?: ParsedSearchQuery): ColDef<NetworkBlockTableRow>[] {
     return [
-    {
-        field: 'direction',
-        headerName: 'Dir',
-        width: 70,
-        minWidth: 60,
-        cellRenderer: DirectionCell,
-        sortable: false,
-        suppressMovable: true,
-        lockPosition: 'left',
-    },
-    {
-        field: 'interface',
-        headerName: 'Interface',
-        flex: 1,
-        minWidth: 120,
-        cellRenderer: InterfaceCell,
-        cellRendererParams: {
-            searchTerms: parsedQuery ? getSearchTermsForField(parsedQuery, 'interface') : [],
+        {
+            field: 'direction',
+            headerName: 'Dir',
+            width: 70,
+            minWidth: 60,
+            cellRenderer: DirectionCell,
+            sortable: false,
+            suppressMovable: true,
+            lockPosition: 'left',
         },
-    },
-    {
-        field: 'blockType',
-        headerName: 'Type',
-        flex: 1.2,
-        minWidth: 150,
-        cellRenderer: TypeCell,
-        cellRendererParams: {
-            searchTerms: parsedQuery ? getSearchTermsForField(parsedQuery, 'type') : [],
+        {
+            field: 'interface',
+            headerName: 'Interface',
+            flex: 1,
+            minWidth: 120,
+            cellRenderer: InterfaceCell,
+            cellRendererParams: {
+                searchTerms: parsedQuery ? getSearchTermsForField(parsedQuery, 'interface') : [],
+            },
         },
-    },
-    {
-        field: 'sender',
-        headerName: 'Sender',
-        flex: 1.5,
-        minWidth: 180,
-        cellRenderer: EndpointCell,
-        cellRendererParams: {
-            searchTerms: parsedQuery ? getSearchTermsForField(parsedQuery, 'sender') : [],
+        {
+            field: 'blockType',
+            headerName: 'Type',
+            flex: 1.2,
+            minWidth: 150,
+            cellRenderer: TypeCell,
+            cellRendererParams: {
+                searchTerms: parsedQuery ? getSearchTermsForField(parsedQuery, 'type') : [],
+            },
         },
-    },
-    {
-        field: 'receiver',
-        headerName: 'Receiver',
-        flex: 1.5,
-        minWidth: 180,
-        cellRenderer: EndpointCell,
-        cellRendererParams: {
-            searchTerms: parsedQuery ? getSearchTermsForField(parsedQuery, 'receiver') : [],
+        {
+            field: 'sender',
+            headerName: 'Sender',
+            flex: 1.5,
+            minWidth: 180,
+            cellRenderer: EndpointCell,
+            cellRendererParams: {
+                searchTerms: parsedQuery ? getSearchTermsForField(parsedQuery, 'sender') : [],
+            },
         },
-    },
-    {
-        field: 'timestamp',
-        headerName: 'Time',
-        width: 120,
-        minWidth: 100,
-    },
-    {
-        field: 'size',
-        headerName: 'Size',
-        width: 90,
-        minWidth: 70,
-        valueFormatter: (params) => {
-            const size = params.value as number;
-            if (size === undefined || size === null) return '';
-            return formatBytes(size);
+        {
+            field: 'receiver',
+            headerName: 'Receiver',
+            flex: 1.5,
+            minWidth: 180,
+            cellRenderer: EndpointCell,
+            cellRendererParams: {
+                searchTerms: parsedQuery ? getSearchTermsForField(parsedQuery, 'receiver') : [],
+            },
         },
-    },
-];
+        {
+            field: 'timestamp',
+            headerName: 'Time',
+            width: 120,
+            minWidth: 100,
+        },
+        {
+            field: 'size',
+            headerName: 'Size',
+            width: 90,
+            minWidth: 70,
+            valueFormatter: (params) => {
+                const size = params.value as number;
+                if (size === undefined || size === null) return '';
+                return formatBytes(size);
+            },
+        },
+    ];
 }
 
 // Default columns without search highlighting

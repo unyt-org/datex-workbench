@@ -33,7 +33,7 @@ function findSectionDef(section: ParsedSection) {
     <Accordion
         type="multiple"
         :unmountOnHide="false"
-        class="sections-wrapper bg-background overflow-y-auto px-4"
+        class="sections-wrapper bg-card overflow-y-auto px-4"
     >
         <AccordionItem
             v-for="(section, index) in structure"

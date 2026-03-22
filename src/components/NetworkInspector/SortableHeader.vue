@@ -17,7 +17,7 @@ function toggleSorting() {
 <template>
     <Button
         variant="ghost"
-        class="absolute inset-0 h-full w-full px-4 justify-start rounded-none"
+        class="absolute inset-0 h-full w-full justify-start rounded-none px-4"
         @click="toggleSorting"
     >
         {{ label }}

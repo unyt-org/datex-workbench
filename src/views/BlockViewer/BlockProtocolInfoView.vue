@@ -72,10 +72,10 @@ function renderParsedValue(value: ParsedValue): string {
 <template>
     <div
         v-if="field"
-        class="*:bg-background overflow-y-auto pl-3"
+        class="*:bg-card text-foreground overflow-y-auto pl-3"
         :style="{ backgroundColor: getColor(fieldDef) }"
     >
-        <div class="text-foreground flex items-center justify-start border-b px-4 font-medium">
+        <div class="flex items-center justify-start border-b px-4 font-medium">
             <div class="grow py-5 has-[p]:pb-1">
                 <div class="text-lg">{{ field.name }}</div>
                 <p v-if="'id' in field" class="text-xs">id: {{ field.id }}</p>
@@ -86,14 +86,14 @@ function renderParsedValue(value: ParsedValue): string {
             Value: {{ renderParsedValue(field.parsedValue) }}
         </div>
         <!-- <p>if possible, description</p> -->
-        <div v-if="'subFields' in field" class="">
+        <div v-if="'subFields' in field" class="text-muted-foreground">
             <Table class="text-base">
                 <!-- <TableCaption>Subfields</TableCaption> -->
                 <TableHeader>
                     <TableRow>
-                        <TableHead>name</TableHead>
-                        <TableHead v-if="showSubfieldId">id</TableHead>
-                        <TableHead>value</TableHead>
+                        <TableHead class="text-foreground">name</TableHead>
+                        <TableHead class="text-foreground" v-if="showSubfieldId">id</TableHead>
+                        <TableHead class="text-foreground">value</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
