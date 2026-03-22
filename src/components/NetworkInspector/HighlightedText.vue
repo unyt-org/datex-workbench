@@ -9,7 +9,7 @@ interface HighlightedTextProps {
 }
 
 const props = withDefaults(defineProps<HighlightedTextProps>(), {
-    class: ''
+    class: '',
 });
 
 const highlightedHtml = computed(() => {

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import DataTable from '@/components/NetworkInspector/DataTable.vue';
-import NetworkFilter, { type SearchSuggestions } from '@/components/NetworkInspector/NetworkFilter.vue';
+import NetworkFilter, {
+    type SearchSuggestions,
+} from '@/components/NetworkInspector/NetworkFilter.vue';
 import { createColumns } from '@/components/NetworkInspector/columns';
 import {
     AlertDialog,
@@ -21,7 +23,15 @@ import { filterRowsBySearch, parseSearchQuery } from '@/utils/searchParser';
 import { Trash } from 'lucide-vue-next';
 import { computed, nextTick, ref, watch } from 'vue';
 
-const { sendTestBlock, blocks, displayedBlocks, hasMoreBlocks, loadMoreBlocks, resetLoadedCount,  saveBlocksToStorage } = useNetworkInspector();
+const {
+    sendTestBlock,
+    blocks,
+    displayedBlocks,
+    hasMoreBlocks,
+    loadMoreBlocks,
+    resetLoadedCount,
+    saveBlocksToStorage,
+} = useNetworkInspector();
 
 // Search query state
 const searchQuery = ref('');
@@ -38,20 +48,19 @@ const deleteMessage = computed(() => {
 function confirmClearBlocks() {
     if (searchQuery.value.trim()) {
         // Delete only filtered blocks when searching
-        const timestampsToDelete = new Set(filteredTableRows.value.map(row => row.capturedAt));
-        blocks.value = blocks.value.filter(block => !timestampsToDelete.has(block.capturedAt));
+        const timestampsToDelete = new Set(filteredTableRows.value.map((row) => row.capturedAt));
+        blocks.value = blocks.value.filter((block) => !timestampsToDelete.has(block.capturedAt));
     } else {
         // Delete ALL blocks when search is empty
         blocks.value = [];
         resetLoadedCount();
     }
-    
+
     // Persist changes to localStorage
     saveBlocksToStorage(blocks.value);
-    
+
     showDeleteDialog.value = false;
 }
-
 
 // Scroll container ref for maintaining scroll position
 const scrollContainerRef = ref<HTMLElement | null>(null);
@@ -66,13 +75,13 @@ watch(
             // Save scroll position before DOM update
             savedScrollTop = scrollContainerRef.value.scrollTop;
             savedScrollHeight = scrollContainerRef.value.scrollHeight;
-            
+
             // Adjust scroll after DOM update
             nextTick(() => {
                 if (scrollContainerRef.value) {
                     const newScrollHeight = scrollContainerRef.value.scrollHeight;
                     const heightDiff = newScrollHeight - savedScrollHeight;
-                    
+
                     // Only adjust if user is scrolled down (not watching new items at top)
                     if (savedScrollTop > 50) {
                         scrollContainerRef.value.scrollTop = savedScrollTop + heightDiff;
@@ -91,9 +100,10 @@ const allTableRows = computed<NetworkBlockTableRow[]>(() => {
             blockType: block.blockType,
             sender: block.sender,
             receiver: block.receivers.join(', '),
-            timestamp: block.timestamp === 0 
-                ? new Date(block.capturedAt).toLocaleTimeString() 
-                : new Date(block.timestamp).toLocaleTimeString(),
+            timestamp:
+                block.timestamp === 0
+                    ? new Date(block.capturedAt).toLocaleTimeString()
+                    : new Date(block.timestamp).toLocaleTimeString(),
             size: block.size,
             isEncrypted: block.encryptionType !== 'None' && block.encryptionType !== 'Unknown',
             isSigned: block.signatureType !== 'None' && block.signatureType !== 'Unknown',
@@ -106,7 +116,7 @@ const allTableRows = computed<NetworkBlockTableRow[]>(() => {
 // Filtered table rows based on search query
 const filteredTableRows = computed<NetworkBlockTableRow[]>(() => {
     if (!searchQuery.value.trim()) return allTableRows.value;
-    
+
     const parsedQuery = parseSearchQuery(searchQuery.value);
     return filterRowsBySearch(allTableRows.value, parsedQuery);
 });
@@ -122,40 +132,40 @@ const searchSuggestions = computed<SearchSuggestions>(() => {
     const senders = new Set<string>();
     const receivers = new Set<string>();
     const interfaces = new Set<string>();
-    
-    allTableRows.value.forEach(row => {
+
+    allTableRows.value.forEach((row) => {
         if (row.blockType) types.add(row.blockType);
         if (row.sender) senders.add(row.sender);
         if (row.receiver) receivers.add(row.receiver);
         if (row.interface) interfaces.add(row.interface);
     });
-    
+
     return {
         types: Array.from(types).sort(),
         senders: Array.from(senders).sort(),
         receivers: Array.from(receivers).sort(),
-        interfaces: Array.from(interfaces).sort()
+        interfaces: Array.from(interfaces).sort(),
     };
 });
 
 // Dynamic columns with search highlighting
 const dynamicColumns = computed(() => {
     if (!searchQuery.value.trim()) return createColumns();
-    
+
     const parsedQuery = parseSearchQuery(searchQuery.value);
     return createColumns(parsedQuery);
 });
 </script>
 
 <template>
-    <div class="flex h-full flex-col p-4 bg-background text-foreground">
+    <div class="bg-background text-foreground flex h-full flex-col p-4">
         <div class="mb-4">
-            <h1 class="text-2xl font-bold mb-3">Network Inspector</h1>
-            
+            <h1 class="mb-3 text-2xl font-bold">Network Inspector</h1>
+
             <!-- Block simulation buttons -->
             <div class="flex flex-wrap gap-2">
-                <Button 
-                    v-for="blockType in BLOCK_TYPES" 
+                <Button
+                    v-for="blockType in BLOCK_TYPES"
                     :key="blockType.id"
                     @click="sendTestBlock()"
                     variant="outline"
@@ -165,9 +175,9 @@ const dynamicColumns = computed(() => {
                 >
                     {{ blockType.label }}
                 </Button>
-                
+
                 <!-- Legacy TraceBack button -->
-                <Button 
+                <Button
                     @click="sendTestBlock"
                     variant="outline"
                     size="sm"
@@ -179,17 +189,17 @@ const dynamicColumns = computed(() => {
             </div>
         </div>
 
-        <div ref="scrollContainerRef" class="flex-1 max-h-[calc(100vh-200px)] overflow-y-auto">
-            <DataTable 
-                :columns="dynamicColumns" 
+        <div ref="scrollContainerRef" class="max-h-[calc(100vh-200px)] flex-1 overflow-y-auto">
+            <DataTable
+                :columns="dynamicColumns"
                 :data="tableRows"
                 :has-more-data="hasMoreBlocks && !searchQuery.trim()"
                 @load-more="loadMoreBlocks"
             >
                 <template #filter>
                     <div class="flex items-center gap-2">
-                        <NetworkFilter 
-                            v-model:filter-value="searchQuery" 
+                        <NetworkFilter
+                            v-model:filter-value="searchQuery"
                             :suggestions="searchSuggestions"
                             placeholder="Search: type:traceback sender:@sender"
                         />
@@ -199,7 +209,7 @@ const dynamicColumns = computed(() => {
                                     variant="outline"
                                     size="icon"
                                     title="Clear all displayed blocks"
-                                    class="text-foreground border-border hover:text-red-600 transition-colors"
+                                    class="text-foreground border-border transition-colors hover:text-red-600"
                                     :disabled="blocks.length === 0"
                                 >
                                     <Trash class="h-4 w-4" />
@@ -215,7 +225,7 @@ const dynamicColumns = computed(() => {
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction 
+                                    <AlertDialogAction
                                         @click="confirmClearBlocks"
                                         class="bg-red-600 hover:bg-red-700"
                                     >

@@ -16,36 +16,36 @@ export const dragOverPath = ref<string | null>(null);
  * itself / one of its own descendants).
  */
 export function isInvalidDrop(srcPath: string, targetDir: string): boolean {
-  const srcDir = srcPath.substring(0, srcPath.lastIndexOf('/')) || '/';
-  if (srcDir === targetDir) return true; // already there
-  if (targetDir === srcPath) return true; // dropping onto itself
-  if (targetDir.startsWith(srcPath + '/')) return true; // into a descendant
-  return false;
+    const srcDir = srcPath.substring(0, srcPath.lastIndexOf('/')) || '/';
+    if (srcDir === targetDir) return true; // already there
+    if (targetDir === srcPath) return true; // dropping onto itself
+    if (targetDir.startsWith(srcPath + '/')) return true; // into a descendant
+    return false;
 }
 
 // ── Drag lifecycle helpers ─────────────────────────────────────────
 
 export function startFileDrag(path: string, event: DragEvent) {
-  draggedPath.value = path;
-  event.dataTransfer!.effectAllowed = 'move';
-  event.dataTransfer!.setData(DRAG_DATA_KEY, path);
+    draggedPath.value = path;
+    event.dataTransfer!.effectAllowed = 'move';
+    event.dataTransfer!.setData(DRAG_DATA_KEY, path);
 }
 
 export function endFileDrag() {
-  draggedPath.value = null;
-  dragOverPath.value = null;
+    draggedPath.value = null;
+    dragOverPath.value = null;
 }
 
 export function setFileDragOver(path: string, event: DragEvent) {
-  event.preventDefault();
-  event.dataTransfer!.dropEffect = 'move';
-  dragOverPath.value = path;
+    event.preventDefault();
+    event.dataTransfer!.dropEffect = 'move';
+    dragOverPath.value = path;
 }
 
 export function clearFileDragOver() {
-  dragOverPath.value = null;
+    dragOverPath.value = null;
 }
 
 export function getFileDragPath(event: DragEvent): string | null {
-  return event.dataTransfer?.getData(DRAG_DATA_KEY) ?? null;
+    return event.dataTransfer?.getData(DRAG_DATA_KEY) ?? null;
 }

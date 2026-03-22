@@ -65,5 +65,4 @@ import { RouterView } from 'vue-router';
         margin-top: env(titlebar-area-height, 48px);
     }
 }
-
 </style>

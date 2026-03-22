@@ -12,7 +12,7 @@ const searchTerms = props.params.searchTerms || [];
 </script>
 
 <template>
-    <HighlightedText 
+    <HighlightedText
         v-if="value"
         :text="value"
         :searchTerms="searchTerms"

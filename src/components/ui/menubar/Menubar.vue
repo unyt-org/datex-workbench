@@ -16,9 +16,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
 <template>
     <MenubarRoot
         v-bind="forwarded"
-        :class="
-            cn('flex items-center gap-x-1 bg-background p-1', props.class)
-        "
+        :class="cn('bg-background flex items-center gap-x-1 p-1', props.class)"
     >
         <slot />
     </MenubarRoot>

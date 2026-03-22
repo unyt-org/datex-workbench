@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverTrigger } from '@/components/ui/popover';
@@ -23,21 +23,21 @@ import PointerTreeItem from './PointerTreeItem.vue';
 
 // Props interface
 interface PointerViewProps {
-  class?: HTMLAttributes['class'];
-  pointers: Map<string, DIF.Definitions.DIFValueContainer>;
-  searchPlaceholder?: string;
+    class?: HTMLAttributes['class'];
+    pointers: Map<string, DIF.Definitions.DIFValueContainer>;
+    searchPlaceholder?: string;
 }
 
 // Define props with defaults
 const props = withDefaults(defineProps<PointerViewProps>(), {
-  searchPlaceholder: 'Search...',
-  visitedObjects: new WeakSet(),
+    searchPlaceholder: 'Search...',
+    visitedObjects: new WeakSet(),
 });
 console.log(props);
 // Emits to communicate with parent
 const emit = defineEmits<{
-  'pointer-click': [pointerId: string, value: DIF.Definitions.DIFValueContainer];
-  'pointer-expand': [pointerId: string, expanded: boolean];
+    'pointer-click': [pointerId: string, value: DIF.Definitions.DIFValueContainer];
+    'pointer-expand': [pointerId: string, expanded: boolean];
 }>();
 
 // Use preferences composable
@@ -58,257 +58,278 @@ const currentPointerIds = computed(() => new Set(props.pointers.keys()));
 
 // Computed property for filtered pointers based on type selection
 const filteredPointers = computed(() => {
-  // If no filters selected, show all pointers
-  if (selectedTypeFilters.value.size === 0) {
-    return props.pointers;
-  }
-  
-  // Filter pointers by selected types
-  const filtered = new Map<string, DIF.Definitions.DIFValueContainer>();
-  
-  for (const [pointerId, value] of props.pointers) {
-    const typeName = getTypeName(value);
-    if (selectedTypeFilters.value.has(typeName)) {
-      filtered.set(pointerId, value);
+    // If no filters selected, show all pointers
+    if (selectedTypeFilters.value.size === 0) {
+        return props.pointers;
     }
-  }
-  
-  return filtered;
+
+    // Filter pointers by selected types
+    const filtered = new Map<string, DIF.Definitions.DIFValueContainer>();
+
+    for (const [pointerId, value] of props.pointers) {
+        const typeName = getTypeName(value);
+        if (selectedTypeFilters.value.has(typeName)) {
+            filtered.set(pointerId, value);
+        }
+    }
+
+    return filtered;
 });
 
 // Clean up expanded pointers when pointers change (reactive and efficient)
 watchEffect(() => {
-  const validIds = currentPointerIds.value;
+    const validIds = currentPointerIds.value;
 
-  // Iterate over expandedPointers Set directly - O(m) where m = expanded nodes
-  for (const pointerId of expandedPointers.value) {
-    // Check if this is a root pointer or a child pointer
-    const rootPointerId = pointerId.split('.')[0];
+    // Iterate over expandedPointers Set directly - O(m) where m = expanded nodes
+    for (const pointerId of expandedPointers.value) {
+        // Check if this is a root pointer or a child pointer
+        const rootPointerId = pointerId.split('.')[0];
 
-    // Remove if root pointer doesn't exist anymore - O(1) lookup in Set
-    if (rootPointerId && !validIds.has(rootPointerId)) {
-      expandedPointers.value.delete(pointerId);
+        // Remove if root pointer doesn't exist anymore - O(1) lookup in Set
+        if (rootPointerId && !validIds.has(rootPointerId)) {
+            expandedPointers.value.delete(pointerId);
+        }
     }
-  }
 });
 
 // Clean up expanded children when parent node is collapsed or removed
 function cleanupExpandedChildren(nodeId: string) {
-  const childPrefix = `${nodeId}.`;
+    const childPrefix = `${nodeId}.`;
 
-  // Iterate over Set directly (no array conversion) - O(m) where m = expanded nodes
-  for (const id of expandedPointers.value) {
-    if (id.startsWith(childPrefix)) {
-      expandedPointers.value.delete(id);
+    // Iterate over Set directly (no array conversion) - O(m) where m = expanded nodes
+    for (const id of expandedPointers.value) {
+        if (id.startsWith(childPrefix)) {
+            expandedPointers.value.delete(id);
+        }
     }
-  }
 }
 
 // Format pointer ID based on display mode
 function formatPointerId(pointerId: string): string {
-  if (preferences.value.show_full_pointer_ids) {
+    if (preferences.value.show_full_pointer_ids) {
+        return pointerId;
+    }
+
+    const numericPart = pointerId.slice(1);
+
+    if (numericPart.length > 4) {
+        const lastFour = numericPart.slice(-4);
+        return `$${lastFour}`;
+    }
+
     return pointerId;
-  }
-
-  const numericPart = pointerId.slice(1);
-
-  if (numericPart.length > 4) {
-    const lastFour = numericPart.slice(-4);
-    return `$${lastFour}`;
-  }
-
-  return pointerId;
 }
 
 // Toggle pointer expansion
 function togglePointer(pointerId: string) {
-  if (expandedPointers.value.has(pointerId)) {
-    expandedPointers.value.delete(pointerId);
-    cleanupExpandedChildren(pointerId); // Clean up children when collapsing
-    emit('pointer-expand', pointerId, false);
-  } else {
-    expandedPointers.value.add(pointerId);
-    emit('pointer-expand', pointerId, true);
-  }
+    if (expandedPointers.value.has(pointerId)) {
+        expandedPointers.value.delete(pointerId);
+        cleanupExpandedChildren(pointerId); // Clean up children when collapsing
+        emit('pointer-expand', pointerId, false);
+    } else {
+        expandedPointers.value.add(pointerId);
+        emit('pointer-expand', pointerId, true);
+    }
 }
 
 // Handle pointer click
 function handlePointerClick(pointerId: string, value: DIF.Definitions.DIFValueContainer) {
-  emit('pointer-click', pointerId, value);
+    emit('pointer-click', pointerId, value);
 }
 
 // Handle ID click - toggle full ID display preference
 function handleIdClick(pointerId: string) {
-  // Only toggle the preference for root-level pointers
-  if (!pointerId.includes('.')) {
-    preferences.value.show_full_pointer_ids = !preferences.value.show_full_pointer_ids;
-  }
+    // Only toggle the preference for root-level pointers
+    if (!pointerId.includes('.')) {
+        preferences.value.show_full_pointer_ids = !preferences.value.show_full_pointer_ids;
+    }
 }
 
 // Jump to pointer definition with smooth scrolling and highlighting
 function jumpToPointer(pointerId: string) {
-  // Set selected pointer for highlighting
-  selectedPointerId.value = pointerId;
-  
-  // Auto-expand parent nodes
-  const pathParts = pointerId.split('.');
-  for (let i = 0; i < pathParts.length; i++) {
-    const ancestorPath = pathParts.slice(0, i + 1).join('.');
-    expandedPointers.value.add(ancestorPath);
-  }
-  
-  // Wait for DOM update, then scroll to element
-  nextTick(() => {
-    const element = document.getElementById(`pointer-node-${pointerId}`);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Set selected pointer for highlighting
+    selectedPointerId.value = pointerId;
+
+    // Auto-expand parent nodes
+    const pathParts = pointerId.split('.');
+    for (let i = 0; i < pathParts.length; i++) {
+        const ancestorPath = pathParts.slice(0, i + 1).join('.');
+        expandedPointers.value.add(ancestorPath);
     }
-    
-    // Clear any existing highlight timeout
-    if (highlightTimeout.value !== null) {
-      window.clearTimeout(highlightTimeout.value);
-    }
-    
-    // Clear highlight after 2 seconds
-    highlightTimeout.value = window.setTimeout(() => {
-      selectedPointerId.value = null;
-      highlightTimeout.value = null;
-    }, 2000);
-  });
+
+    // Wait for DOM update, then scroll to element
+    nextTick(() => {
+        const element = document.getElementById(`pointer-node-${pointerId}`);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Clear any existing highlight timeout
+        if (highlightTimeout.value !== null) {
+            window.clearTimeout(highlightTimeout.value);
+        }
+
+        // Clear highlight after 2 seconds
+        highlightTimeout.value = window.setTimeout(() => {
+            selectedPointerId.value = null;
+            highlightTimeout.value = null;
+        }, 2000);
+    });
 }
 
 // Handle value update
 function handleValueUpdate(nodeId: string, newValue: unknown) {
-  console.log('Value updated:', nodeId, newValue);
-  // TODO: Update the actual pointer value in the runtime
-  // This would require integration with the DATEX runtime to persist changes
-  // For now, just log the update
+    console.log('Value updated:', nodeId, newValue);
+    // TODO: Update the actual pointer value in the runtime
+    // This would require integration with the DATEX runtime to persist changes
+    // For now, just log the update
 }
 
 // Toggle type filter
 function toggleTypeFilter(typeName: string) {
-  const newFilters = new Set(selectedTypeFilters.value);
-  if (newFilters.has(typeName)) {
-    newFilters.delete(typeName);
-  } else {
-    newFilters.add(typeName);
-  }
-  selectedTypeFilters.value = newFilters;
+    const newFilters = new Set(selectedTypeFilters.value);
+    if (newFilters.has(typeName)) {
+        newFilters.delete(typeName);
+    } else {
+        newFilters.add(typeName);
+    }
+    selectedTypeFilters.value = newFilters;
 }
 
 // Reset all type filters
 function resetTypeFilters() {
-  selectedTypeFilters.value = new Set();
+    selectedTypeFilters.value = new Set();
 }
 </script>
 
 <template>
-  <!-- Full Screen PointerView -->
-  <div class="h-screen w-full flex flex-col bg-background" :class="props.class">
-    <!-- Search Header (Fixed at top) -->
-    <div class="border-b shrink-0">
-      <div class="p-4">
-        <div class="flex items-center gap-2">
-          <!-- Settings Popover -->
-          <Popover>
-            <PopoverTrigger as-child>
-              <Button variant="outline" size="icon" title="Display Preferences" class="btn-icon">
-                <Settings class="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PointerPreferences />
-          </Popover>
+    <!-- Full Screen PointerView -->
+    <div class="bg-background flex h-screen w-full flex-col" :class="props.class">
+        <!-- Search Header (Fixed at top) -->
+        <div class="shrink-0 border-b">
+            <div class="p-4">
+                <div class="flex items-center gap-2">
+                    <!-- Settings Popover -->
+                    <Popover>
+                        <PopoverTrigger as-child>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                title="Display Preferences"
+                                class="btn-icon"
+                            >
+                                <Settings class="h-4 w-4" />
+                            </Button>
+                        </PopoverTrigger>
+                        <PointerPreferences />
+                    </Popover>
 
-          <!-- Search Input -->
-          <div class="relative flex-1">
-            <Search
-              class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none"
-            />
-            <Input
-              v-model="searchQuery"
-              type="text"
-              :placeholder="props.searchPlaceholder"
-              class="pl-9"
-            />
-          </div>
+                    <!-- Search Input -->
+                    <div class="relative flex-1">
+                        <Search
+                            class="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
+                        />
+                        <Input
+                            v-model="searchQuery"
+                            type="text"
+                            :placeholder="props.searchPlaceholder"
+                            class="pl-9"
+                        />
+                    </div>
 
-          <!-- Filter Button with Dropdown -->
-          <DropdownMenu>
-            <DropdownMenuTrigger as-child>
-              <Button variant="outline" size="icon">
-                <Filter class="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
+                    <!-- Filter Button with Dropdown -->
+                    <DropdownMenu>
+                        <DropdownMenuTrigger as-child>
+                            <Button variant="outline" size="icon">
+                                <Filter class="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end" class="w-56">
-              <DropdownMenuLabel>Filter by Type</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              
-              <DropdownMenuCheckboxItem
-                v-for="(config, typeName) in TYPE_CONFIGS"
-                :key="typeName"
-                :checked="selectedTypeFilters.has(typeName)"
-                @select.prevent="toggleTypeFilter(typeName)"
-              >
-                <span :class="selectedTypeFilters.has(typeName) ? 'font-semibold' : ''">
-                  {{ config.displayName }}
-                </span>
-                <span v-if="selectedTypeFilters.has(typeName)" class="ml-auto text-xs">✓</span>
-              </DropdownMenuCheckboxItem>
-              
-              <DropdownMenuSeparator />
-              <div class="px-2 py-1.5">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  class="w-full"
-                  @click="resetTypeFilters"
-                >
-                  Reset Filters
-                </Button>
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-    </div>
+                        <DropdownMenuContent align="end" class="w-56">
+                            <DropdownMenuLabel>Filter by Type</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
 
-    <!-- Tree Structure (Scrollable) -->
-    <ScrollArea class="flex-1.5 mb-15">
-      <SidebarGroup>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            <PointerTreeItem
-              v-for="[pointerId, value] in filteredPointers"
-              :key="pointerId"
-              :node-id="pointerId"
-              :label="formatPointerId(pointerId)"
-              :value="value"
-              :expanded-nodes="expandedPointers"
-              :visited-objects="visitedObjects"
-              :show-full-ids="preferences.show_full_pointer_ids"
-              :show-data-types="preferences.show_type_hints"
-              :show-indices="preferences.show_array_indicies"
-              :hide-type-hints-for-primitives="preferences.hide_type_hints_for_primitives"
-              :hide-map-key-type-hints-for-primitives="preferences.hide_map_key_type_hints_for_primitives"
-              :selected-pointer-id="selectedPointerId"
-              @node-click="handlePointerClick"
-              @node-toggle="togglePointer"
-              @id-click="handleIdClick"
-              @pointer-ref-click="jumpToPointer"
-              @value-update="handleValueUpdate"
-            />
+                            <DropdownMenuCheckboxItem
+                                v-for="(config, typeName) in TYPE_CONFIGS"
+                                :key="typeName"
+                                :checked="selectedTypeFilters.has(typeName)"
+                                @select.prevent="toggleTypeFilter(typeName)"
+                            >
+                                <span
+                                    :class="
+                                        selectedTypeFilters.has(typeName) ? 'font-semibold' : ''
+                                    "
+                                >
+                                    {{ config.displayName }}
+                                </span>
+                                <span
+                                    v-if="selectedTypeFilters.has(typeName)"
+                                    class="ml-auto text-xs"
+                                    >✓</span
+                                >
+                            </DropdownMenuCheckboxItem>
 
-            <!-- Empty state -->
-            <div
-              v-if="filteredPointers.size === 0"
-              class="p-4 text-sm text-muted-foreground text-center"
-            >
-              {{ props.pointers.size === 0 ? 'No pointers available' : 'No pointers match selected filters' }}
+                            <DropdownMenuSeparator />
+                            <div class="px-2 py-1.5">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    class="w-full"
+                                    @click="resetTypeFilters"
+                                >
+                                    Reset Filters
+                                </Button>
+                            </div>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             </div>
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
-    </ScrollArea>
-  </div>
+        </div>
+
+        <!-- Tree Structure (Scrollable) -->
+        <ScrollArea class="flex-1.5 mb-15">
+            <SidebarGroup>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                        <PointerTreeItem
+                            v-for="[pointerId, value] in filteredPointers"
+                            :key="pointerId"
+                            :node-id="pointerId"
+                            :label="formatPointerId(pointerId)"
+                            :value="value"
+                            :expanded-nodes="expandedPointers"
+                            :visited-objects="visitedObjects"
+                            :show-full-ids="preferences.show_full_pointer_ids"
+                            :show-data-types="preferences.show_type_hints"
+                            :show-indices="preferences.show_array_indicies"
+                            :hide-type-hints-for-primitives="
+                                preferences.hide_type_hints_for_primitives
+                            "
+                            :hide-map-key-type-hints-for-primitives="
+                                preferences.hide_map_key_type_hints_for_primitives
+                            "
+                            :selected-pointer-id="selectedPointerId"
+                            @node-click="handlePointerClick"
+                            @node-toggle="togglePointer"
+                            @id-click="handleIdClick"
+                            @pointer-ref-click="jumpToPointer"
+                            @value-update="handleValueUpdate"
+                        />
+
+                        <!-- Empty state -->
+                        <div
+                            v-if="filteredPointers.size === 0"
+                            class="text-muted-foreground p-4 text-center text-sm"
+                        >
+                            {{
+                                props.pointers.size === 0
+                                    ? 'No pointers available'
+                                    : 'No pointers match selected filters'
+                            }}
+                        </div>
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+        </ScrollArea>
+    </div>
 </template>

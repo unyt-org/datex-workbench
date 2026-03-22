@@ -72,7 +72,7 @@ function renderParsedValue(value: ParsedValue): string {
 <template>
     <div
         v-if="field"
-        class="*:bg-card overflow-y-auto pl-3 text-foreground"
+        class="*:bg-card text-foreground overflow-y-auto pl-3"
         :style="{ backgroundColor: getColor(fieldDef) }"
     >
         <div class="flex items-center justify-start border-b px-4 font-medium">

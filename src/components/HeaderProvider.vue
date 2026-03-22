@@ -3,24 +3,24 @@ import ThemeSwitch from '@/components/ThemeSwitch.vue';
 import IconLogo from '@/components/icons/IconLogo.vue';
 import {
     Menubar,
-    MenubarContent,
-    MenubarItem,
-    MenubarMenu,
-    MenubarSub,
-    MenubarSubContent,
-    MenubarSubTrigger,
-    MenubarTrigger,
+    // MenubarContent,
+    // MenubarItem,
+    // MenubarMenu,
+    // MenubarSub,
+    // MenubarSubContent,
+    // MenubarSubTrigger,
+    // MenubarTrigger,
 } from '@/components/ui/menubar';
 export default {
     name: 'HeaderComponent',
     components: {
-        MenubarSubContent,
-        MenubarSubTrigger,
-        MenubarSub,
-        MenubarItem,
-        MenubarContent,
-        MenubarTrigger,
-        MenubarMenu,
+        // MenubarSubContent,
+        // MenubarSubTrigger,
+        // MenubarSub,
+        // MenubarItem,
+        // MenubarContent,
+        // MenubarTrigger,
+        // MenubarMenu,
         Menubar,
         IconLogo,
         ThemeSwitch,
@@ -29,15 +29,12 @@ export default {
 </script>
 
 <template>
-    <Menubar class="flex items-center w-full bg-background px-4 py-3 wco-header">
-        <RouterLink
-            to="/"
-            class="flex items-center space-x-2 group mr-4 transition-all"
-        >
-            <IconLogo class="w-6 h-6" />
+    <Menubar class="bg-background wco-header flex w-full items-center px-4 py-3">
+        <RouterLink to="/" class="group mr-4 flex items-center space-x-2 transition-all">
+            <IconLogo class="h-6 w-6" />
             <div class="flex items-baseline space-x-1">
-                <span class="text-lg font-bold text-primary">DATEX Workbench</span>
-                <sup class="text-xs unyt-blue font-semibold">beta</sup>
+                <span class="text-primary text-lg font-bold">DATEX Workbench</span>
+                <sup class="unyt-blue text-xs font-semibold">beta</sup>
             </div>
         </RouterLink>
 
@@ -104,7 +101,7 @@ export default {
 
     .wco-header :deep(button),
     .wco-header :deep(a),
-    .wco-header :deep([role="menuitem"]) {
+    .wco-header :deep([role='menuitem']) {
         -webkit-app-region: no-drag;
     }
 
@@ -113,5 +110,4 @@ export default {
         margin-right: 2px;
     }
 }
-
 </style>
