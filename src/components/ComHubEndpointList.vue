@@ -3,7 +3,7 @@
     <div
       v-for="[endpointId, sockets] in filteredEndpoints"
       :key="endpointId"
-      class="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 mb-3 bg-white dark:bg-neutral-900 shadow-sm text-neutral-900 dark:text-neutral-100"
+      class="card hover:bg-neutral-100 dark:hover:bg-neutral-700/50 transition cursor-pointer"
     >
       <!-- Endpoint Header -->
       <div class="flex justify-between items-center cursor-pointer" @click="toggle(endpointId)">
@@ -15,7 +15,7 @@
               class="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
             >direct</span>
           </div>
-          <div class="text-xs text-neutral-500">
+          <div class="text-xs text-dim">
             Connected via {{ sockets.length }} {{ sockets.length === 1 ? 'socket' : 'sockets' }}
             {{ getEndpointDirection(sockets) }}
           </div>
@@ -30,7 +30,7 @@
         <div
           v-for="(socket, idx) in sockets"
           :key="socket.uuid + idx"
-          class="text-sm p-3 rounded bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
+          class="card-inner"
         >
           <div class="flex items-start justify-between gap-2">
             <div class="flex flex-col gap-1 flex-1">
@@ -40,8 +40,8 @@
                   ({{ socket.interface.properties.name }})
                 </span>
               </h4>
-              <div class="text-xs text-neutral-400 font-mono mt-0.5">{{ socket.uuid }}</div>
-              <div class="text-xs text-neutral-500 mt-1 flex items-center gap-2">
+              <div class="text-xs text-faint font-mono mt-0.5">{{ socket.uuid }}</div>
+              <div class="text-xs dim mt-1 flex items-center gap-2">
                 <span>Known since {{ formatTime(socket.properties.known_since) }}</span>
                 <span>·</span>
                 <span>Distance: {{ socket.properties.distance }}</span>
@@ -54,7 +54,7 @@
             <button
               v-if="advancedMode"
               @click.stop="removeSocket(socket.uuid)"
-              class="shrink-0 text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition"
+              class="btn-danger w-24 text-center"
             >
               Disconnect
             </button>
@@ -63,7 +63,7 @@
       </div>
     </div>
 
-    <div v-if="filteredEndpoints.length === 0" class="text-sm text-neutral-500">
+    <div v-if="filteredEndpoints.length === 0" class="text-sm text-dim">
       No matching endpoints found.
     </div>
   </div>

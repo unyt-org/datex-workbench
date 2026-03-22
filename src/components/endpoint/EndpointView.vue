@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import EndpointDocs from '@/components/endpoint/EndpointDocs.vue'
 import EndpointFingerprint from '@/components/endpoint/EndpointFingerprint.vue'
@@ -43,8 +43,16 @@ interface Endpoint {
 
 const route = useRoute()
 
-const endpointId = computed(() => route.params.endpoint_id as string)
-
+const endpointId = computed(() => {
+  const raw = route.params.endpoint_id as string
+  try {
+    const url = new URL(raw)
+    const match = url.pathname.match(/\/u\/(.+)$/)
+    return match ? match[1] : raw
+  } catch {
+    return raw
+  }
+})
 /**
  * TODO: Replace with real implementation once DATEX runtime is available
  * Will call: await Datex.Runtime.execute("#public") on the endpoint
@@ -66,7 +74,10 @@ const endpointId = computed(() => route.params.endpoint_id as string)
 const endpoint = ref<Endpoint | null>(null)
 
 onMounted(async () => {
-  endpoint.value = await fetchEndpointInfo(endpointId.value)
+  endpoint.value = await fetchEndpointInfo(endpointId.value as string)
+})
+watch(endpointId, async (id) => {
+  endpoint.value = await fetchEndpointInfo(id as string)
 })
 
 type EndpointTag = 'me' | 'local' | 'anonymous' | 'named'
@@ -88,12 +99,12 @@ const tagStyles: Record<EndpointTag, string> = {
 </script>
 
 <template>
-  <div class="flex flex-col gap-6 p-4 overflow-y-auto h-full">
+  <div class="flex flex-col gap-6 p-5 overflow-y-auto h-full bg-page">
     <div v-if="endpoint" class="flex flex-col gap-4">
       <!-- Header -->
       <section class="flex flex-col gap-1">
         <div class="flex items-center gap-2">
-  <h1 class="text-xl font-semibold font-mono">{{ endpoint.name }}</h1>
+  <h1 class="text-xl font-semibold font-mono text-primary">{{ endpoint.name }}</h1>
   <span
     class="text-xs px-2 py-0.5 rounded"
     :class="tagStyles[getEndpointTag(endpoint.id, String(Datex.endpoint))]"
@@ -101,32 +112,32 @@ const tagStyles: Record<EndpointTag, string> = {
     {{ getEndpointTag(endpoint.id, String(Datex.endpoint)) }}
   </span>
 </div>
-        <p v-if="endpoint.description" class="text-sm text-neutral-500">
+        <p v-if="endpoint.description" class="text-sm text-dim">
           {{ endpoint.description }}
         </p>
-        <p v-if="endpoint.profile" class="text-xs text-neutral-400">
+        <p v-if="endpoint.profile" class="text-xs text-faint">
           Profile: {{ endpoint.profile }}
         </p>
       </section>
 
       <!-- Fingerprint -->
-      <section class="flex flex-col gap-2">
+      <section class="flex flex-col gap-2 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 bg-card">
             <EndpointFingerprint :fingerprint="endpoint.fingerprint" :endpoint-id="endpoint.id"/>
                 </section>
 
-      <section>
+      <section class="border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 bg-card">
         <EndpointPointers v-if="endpoint" :methods="endpoint.methods ?? []" />
       </section>
 
       <!-- Interfaces -->
-      <section class="flex flex-col gap-2">
-        <h2 class="text-sm font-medium">Public Interfaces</h2>
+      <section class="flex flex-col gap-2 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 bg-card">
+        <h2 class="text-sm font-medium text-primary">Public Interfaces</h2>
         <EndpointInterfaces :interfaces="endpoint?.interfaces ?? []" />
       </section>
 
       <!-- Documentation (markdown placeholder) -->
-      <section v-if="endpoint.documentation" class="flex flex-col gap-2">
-        <h2 class="text-sm font-medium">Documentation</h2>
+      <section v-if="endpoint.documentation" class="flex flex-col gap-2 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4 bg-white dark:bg-neutral-900">
+        <h2 class="text-sm font-medium text-neutral-900 dark:text-neutral-100">Documentation</h2>
         <EndpointDocs :markdown="endpoint.documentation" />
       </section>
 

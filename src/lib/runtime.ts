@@ -9,8 +9,8 @@ export type ComHubMetadata = {
     sockets: {
       uuid: string
       direction: string
-      endpoint: string | undefined
-      properties: Record<string, unknown> | undefined
+      endpoint: string
+      properties: Record<string, unknown>
     }[]
     is_waiting_for_socket_connections: boolean
   }[]
