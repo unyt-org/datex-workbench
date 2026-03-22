@@ -32,11 +32,11 @@ export default {
     <Menubar class="flex items-center w-full bg-background px-4 py-2 wco-header">
         <RouterLink
             to="/"
-            class="flex items-center space-x-2 group mr-4 border-primary transition-all hover:border-b-2 border-b-primary"
+            class="flex items-center space-x-2 group mr-4 transition-all"
         >
-            <IconLogo class="w-8 h-8" />
+            <IconLogo class="w-6 h-6" />
             <div class="flex items-baseline space-x-1">
-                <span class="text-lg font-bold text-foreground">DATEX Workbench</span>
+                <span class="text-lg font-bold text-primary">DATEX Workbench</span>
                 <span class="text-xs unyt-blue font-semibold">beta</span>
             </div>
         </RouterLink>

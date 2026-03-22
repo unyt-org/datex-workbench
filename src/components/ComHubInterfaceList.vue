@@ -3,25 +3,25 @@
     <div
       v-for="iface in filteredInterfaces"
       :key="iface.uuid"
-      class="border border-neutral-200 dark:border-neutral-700 rounded-lg p-3 mb-3 bg-white dark:bg-neutral-900 shadow-sm text-neutral-900 dark:text-neutral-100"
+      class="card hover:bg-neutral-100/80 dark:hover:bg-neutral-800/80 transition cursor-pointer"
     >
       <!-- Interface Header -->
-      <div class="flex justify-between items-center">
+      <div class="flex justify-between items-start gap-2">
         <div class="cursor-pointer flex-1" @click="toggle(iface.uuid)">
-          <h3 class="font-semibold">
-            {{ iface.properties.interface_type }}
-            <span v-if="iface.properties.name">({{ iface.properties.name }})</span>
+          <h3 class="font-semibold text-primary">
+            {{ iface.properties?.interface_type || 'Unknown interface' }}
+            <span v-if="iface.properties && iface.properties.name">({{ iface.properties.name }})</span>
           </h3>
-          <div class="text-xs text-neutral-500 mt-1">
-            Sockets: {{ iface.sockets.length }} • Channel: {{ iface.properties.channel }}
+          <div class="text-xs text-dim mt-1">
+            Sockets: {{ iface.sockets.length }} • Channel: {{ iface.properties?.channel ?? 'unknown' }}
           </div>
         </div>
         <div class="flex items-center gap-2">
-          <div class="text-xs text-neutral-400">RTT: {{ iface.properties.round_trip_time }} ms</div>
+          <div class="text-xs text-faint">RTT: {{ iface.properties?.round_trip_time ?? 'N/A' }} ms</div>
           <button
             v-if="advancedMode"
-            @click.stop="removeInterface(iface.uuid)"
-            class="text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition"
+            @click.stop="disconnectInterface(iface.uuid)"
+            class="btn-danger w-24 text-center mr-3"
           >
             Disconnect
           </button>
@@ -33,27 +33,27 @@
         <div
           v-for="socket in getSortedSockets(iface.sockets)"
           :key="socket.uuid + socket.endpoint"
-          class="text-sm p-3 rounded bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
+          class="card-inner"
         >
           <div class="flex items-start justify-between gap-2">
             <div class="flex flex-col gap-1 flex-1">
               <h4 class="font-semibold flex items-center gap-2">
                 <span class="font-mono text-blue-600 dark:text-blue-400">{{ socket.endpoint }}</span>
                 <span
-                  v-if="socket.properties.is_direct"
+                  v-if="socket.properties && socket.properties.is_direct"
                   class="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
                 >direct</span>
                 <span class="text-neutral-400">{{ getDirectionArrow(socket.direction) }}</span>
               </h4>
-              <div class="text-xs text-neutral-500 mt-1">
-                Distance: {{ socket.properties.distance }}
-                • Created: {{ formatTime(socket.properties.known_since) }}
+              <div class="text-xs text-dim mt-1">
+                Distance: {{ socket.properties?.distance ?? 'N/A' }}
+                • Created: {{ socket.properties?.known_since ? formatTime(socket.properties.known_since) : 'unknown' }}
               </div>
             </div>
             <button
               v-if="advancedMode"
-              @click.stop="removeSocket(socket.uuid)"
-              class="shrink-0 text-xs px-2 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800 transition"
+              @click.stop="disconnectSocket(iface.uuid, socket.uuid, socket.endpoint)"
+              class="btn-danger w-24 text-center"
             >
               Disconnect
             </button>
@@ -62,7 +62,7 @@
       </div>
     </div>
 
-    <div v-if="filteredInterfaces.length === 0" class="text-sm text-neutral-500">
+    <div v-if="filteredInterfaces.length === 0" class="text-sm text-dim">
       No matching endpoints found.
     </div>
   </div>
@@ -70,7 +70,7 @@
 
 <script setup lang="ts">
 import type { ComHubInterface, ComHubSocket } from '@/components/ComHubOverviewWrapper.vue';
-import { removeInterface, removeSocket } from '@/lib/runtime';
+import { Datex } from '@/lib/runtime';
 import { computed, reactive, watch } from 'vue';
 
 const props = defineProps<{
@@ -87,13 +87,17 @@ const filteredInterfaces = computed(() => {
   return props.interfaces
     .map((iface) => {
       const matchingSockets = iface.sockets.filter((socket) =>
-        socket.endpoint.toLowerCase().includes(query)
-      )
+      socket.endpoint.toLowerCase().includes(query))
       if (matchingSockets.length === 0) return null
-      expanded[iface.uuid] = true
       return { ...iface, sockets: matchingSockets }
     })
     .filter((iface): iface is ComHubInterface => iface !== null)
+})
+watch(filteredInterfaces, (ifaces) => {
+  if (!props.searchQuery.trim()) return
+  for (const iface of ifaces) {
+    expanded[iface.uuid] = true
+  }
 })
 
 watch(() => props.searchQuery, (val) => {
@@ -101,6 +105,15 @@ watch(() => props.searchQuery, (val) => {
     Object.keys(expanded).forEach((key) => { expanded[key] = false })
   }
 })
+
+async function disconnectSocket(interfaceUuid: string, socketUuid: string, endpoint: string) {
+  await Datex.comHub.removeSocket(socketUuid as `socket::${string}`)
+  console.warn('[ComHub] disconnectSocket called', { interfaceUuid, socketUuid, endpoint })
+}
+
+async function disconnectInterface(interfaceUuid: string) {
+  await Datex.comHub.removeInterface(interfaceUuid as `com_interface::${string}`)
+}
 
 function toggle(uuid: string) {
   expanded[uuid] = !expanded[uuid]
