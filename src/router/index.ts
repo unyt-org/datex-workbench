@@ -2,15 +2,15 @@ import PointerView from '@/components/PointerView.vue';
 import { getPointers } from '@/lib/runtime';
 import WindowGeneralView from '@/views/WindowGeneralView.vue';
 import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from '../views/HomeView.vue';
+import WelcomeView from '../views/WelcomeView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/home',
-      name: 'home',
-      component: HomeView,
+      path: '/',
+      name: 'welcome',
+      component: WelcomeView,
     },
     {
       path: '/blocks',
@@ -27,7 +27,7 @@ const router = createRouter({
       component: () => import('@/views/Editor/EditorViewWrapper.vue'),
     },
     {
-      path: '',
+      path: '/windows',
       name: 'Editor',
       component: WindowGeneralView,
     },
