@@ -18,19 +18,19 @@ const searchTerms = props.params.searchTerms || [];
 
 <template>
     <div v-if="blockType" class="flex items-center gap-2">
-        <HighlightedText 
+        <HighlightedText
             :text="blockType"
             :searchTerms="searchTerms"
             class="font-medium uppercase"
         />
         <TooltipWrapper v-if="!isEncrypted" tooltip="Not encrypted">
             <div class="inline-block cursor-default">
-                <LockOpen class="h-4 w-4 text-muted-foreground line-through" />
+                <LockOpen class="text-muted-foreground h-4 w-4 line-through" />
             </div>
         </TooltipWrapper>
         <TooltipWrapper v-if="!isSigned" tooltip="Not signed">
             <div class="inline-block cursor-default">
-                <FileX class="h-4 w-4 text-muted-foreground" />
+                <FileX class="text-muted-foreground h-4 w-4" />
             </div>
         </TooltipWrapper>
     </div>

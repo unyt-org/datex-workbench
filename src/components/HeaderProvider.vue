@@ -3,24 +3,24 @@ import ThemeSwitch from '@/components/ThemeSwitch.vue';
 import IconLogo from '@/components/icons/IconLogo.vue';
 import {
     Menubar,
-    MenubarContent,
-    MenubarItem,
-    MenubarMenu,
-    MenubarSub,
-    MenubarSubContent,
-    MenubarSubTrigger,
-    MenubarTrigger,
+    // MenubarContent,
+    // MenubarItem,
+    // MenubarMenu,
+    // MenubarSub,
+    // MenubarSubContent,
+    // MenubarSubTrigger,
+    // MenubarTrigger,
 } from '@/components/ui/menubar';
 export default {
     name: 'HeaderComponent',
     components: {
-        MenubarSubContent,
-        MenubarSubTrigger,
-        MenubarSub,
-        MenubarItem,
-        MenubarContent,
-        MenubarTrigger,
-        MenubarMenu,
+        // MenubarSubContent,
+        // MenubarSubTrigger,
+        // MenubarSub,
+        // MenubarItem,
+        // MenubarContent,
+        // MenubarTrigger,
+        // MenubarMenu,
         Menubar,
         IconLogo,
         ThemeSwitch,
@@ -29,19 +29,16 @@ export default {
 </script>
 
 <template>
-    <Menubar class="flex items-center w-full bg-background px-4 py-2 wco-header">
-        <RouterLink
-            to="/"
-            class="flex items-center space-x-2 group mr-4 transition-all"
-        >
-            <IconLogo class="w-6 h-6" />
+    <Menubar class="bg-background wco-header flex w-full items-center px-4 py-3">
+        <RouterLink to="/" class="group mr-4 flex items-center space-x-2 transition-all">
+            <IconLogo class="h-6 w-6" />
             <div class="flex items-baseline space-x-1">
-                <span class="text-lg font-bold text-primary">DATEX Workbench</span>
-                <span class="text-xs unyt-blue font-semibold">beta</span>
+                <span class="text-primary text-lg font-bold">DATEX Workbench</span>
+                <sup class="unyt-blue text-xs font-semibold">beta</sup>
             </div>
         </RouterLink>
 
-        <MenubarMenu class="flex items-center ml-8 space-x-4">
+        <!--<MenubarMenu class="flex items-center ml-8 space-x-4">
             <MenubarTrigger>File</MenubarTrigger>
             <MenubarContent>
                 <MenubarItem>New tab</MenubarItem>
@@ -78,7 +75,7 @@ export default {
                 <MenubarItem>Toggle Fullscreen</MenubarItem>
                 <MenubarItem>Hide / Expand Sidebar</MenubarItem>
             </MenubarContent>
-        </MenubarMenu>
+        </MenubarMenu>-->
         <div class="ml-auto">
             <ThemeSwitch />
         </div>
@@ -90,20 +87,27 @@ export default {
     color: rgb(42, 170, 215);
 }
 
-.wco-header {
-  position: fixed;
-  top: env(titlebar-area-y, 0);
-  left: env(titlebar-area-x, 0);
-  width: env(titlebar-area-width, 100%);
-  height: env(titlebar-area-height, 48px);
-  -webkit-app-region: drag;
-  z-index: 1000;
-}
+@media (display-mode: window-controls-overlay) {
+    .wco-header {
+        position: fixed;
+        top: env(titlebar-area-y, 0);
+        left: env(titlebar-area-x, 0);
+        width: env(titlebar-area-width, 100%);
+        height: env(titlebar-area-height, 48px);
+        -webkit-app-region: drag;
+        z-index: 1000;
+        padding-left: 0;
+    }
 
-.wco-header :deep(button),
-.wco-header :deep(a),
-.wco-header :deep([role="menuitem"]) {
-  -webkit-app-region: no-drag;
-}
+    .wco-header :deep(button),
+    .wco-header :deep(a),
+    .wco-header :deep([role='menuitem']) {
+        -webkit-app-region: no-drag;
+    }
 
+    .wco-header :deep(img) {
+        height: 20px;
+        margin-right: 2px;
+    }
+}
 </style>

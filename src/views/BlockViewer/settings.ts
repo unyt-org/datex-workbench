@@ -1,9 +1,9 @@
 import type { FieldDefinition, StructureDefinition } from '@unyt/speck';
 
 export const dxbDefinition: StructureDefinition = await (
-  await fetch(
-    'https://raw.githubusercontent.com/unyt-org/datex-specification/refs/heads/main/assets/structures/dxb.json',
-  )
+    await fetch(
+        'https://raw.githubusercontent.com/unyt-org/datex-specification/refs/heads/main/assets/structures/dxb.json',
+    )
 ).json();
 
 /*
@@ -14,15 +14,15 @@ export const dxbDefinition: StructureDefinition = await (
   CATEGORIES = ['purple', 'red', 'yellow', 'green', 'blue', 'dark_blue'];
 */
 const CATEGORIES = dxbDefinition.sections
-  .map((section) => section.fields.map((field) => field.category))
-  .flat()
-  .filter((category, index, self) => self.indexOf(category) === index);
+    .map((section) => section.fields.map((field) => field.category))
+    .flat()
+    .filter((category, index, self) => self.indexOf(category) === index);
 
 export function getColor(fieldDef: FieldDefinition | undefined): string {
-  if (!fieldDef) return 'var(--chart-1)';
+    if (!fieldDef) return 'var(--chart-1)';
 
-  const index = CATEGORIES.indexOf(fieldDef.category);
-  return index !== -1 ? `var(--chart-${index + 1})` : 'var(--chart-1)';
+    const index = CATEGORIES.indexOf(fieldDef.category);
+    return index !== -1 ? `var(--chart-${index + 1})` : 'var(--chart-1)';
 }
 
 /*

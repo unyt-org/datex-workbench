@@ -3,5 +3,5 @@ import EditorView from './EditorView.vue';
 </script>
 
 <template>
-  <EditorView />
+    <EditorView />
 </template>

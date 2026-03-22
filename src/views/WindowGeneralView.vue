@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full h-full bg-primary-foreground text-primary p-1">
+    <div class="bg-primary-foreground text-primary h-full w-full p-1">
         <Window :node="useLayoutTree().layoutTree" />
     </div>
 </template>

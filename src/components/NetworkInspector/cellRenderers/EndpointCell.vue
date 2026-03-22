@@ -18,7 +18,5 @@ const searchTerms = props.params.searchTerms || [];
             <HighlightedText :text="text" :searchTerms="searchTerms" />
         </div>
     </TooltipWrapper>
-    <div v-else class="text-muted-foreground italic">
-        null
-    </div>
+    <div v-else class="text-muted-foreground italic">null</div>
 </template>

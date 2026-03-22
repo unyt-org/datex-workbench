@@ -13,8 +13,12 @@ function getBlockType(parsedBlock: ParsedSection[]): string {
     );
     if (!flagsAndTimestamp || !('subFields' in flagsAndTimestamp)) return 'Unknown';
 
-    const blockType = flagsAndTimestamp.subFields.find((field: { name: string }) => field.name === 'Block Type');
-    return (blockType && 'parsedValue' in blockType) ? blockType.parsedValue?.toString() || 'Unknown' : 'Unknown';
+    const blockType = flagsAndTimestamp.subFields.find(
+        (field: { name: string }) => field.name === 'Block Type',
+    );
+    return blockType && 'parsedValue' in blockType
+        ? blockType.parsedValue?.toString() || 'Unknown'
+        : 'Unknown';
 }
 
 function getSender(parsedBlock: ParsedSection[]): string {
@@ -22,7 +26,9 @@ function getSender(parsedBlock: ParsedSection[]): string {
     if (!routingHeader) return 'Unknown';
 
     const sender = routingHeader.fields.find((field) => field.name === 'Sender');
-    return (sender && 'parsedValue' in sender) ? sender.parsedValue?.toString() || 'Unknown' : 'Unknown';
+    return sender && 'parsedValue' in sender
+        ? sender.parsedValue?.toString() || 'Unknown'
+        : 'Unknown';
 }
 
 function getReceivers(parsedBlock: ParsedSection[]): string[] {
@@ -30,7 +36,9 @@ function getReceivers(parsedBlock: ParsedSection[]): string[] {
     if (!routingHeader) return [];
 
     const receivers = routingHeader.fields.filter((field) => field.name === 'Receivers');
-    return receivers.map((field) => ('parsedValue' in field) ? field.parsedValue?.toString() || '' : '');
+    return receivers.map((field) =>
+        'parsedValue' in field ? field.parsedValue?.toString() || '' : '',
+    );
 }
 
 function getTimestamp(parsedBlock: ParsedSection[]): number {
@@ -45,7 +53,7 @@ function getTimestamp(parsedBlock: ParsedSection[]): number {
     const timestamp = flagsAndTimestamp.subFields.find(
         (field) => field.name === 'Creation Timestamp',
     );
-    return (timestamp && 'parsedValue' in timestamp) ? Number(timestamp.parsedValue) || 0 : 0;
+    return timestamp && 'parsedValue' in timestamp ? Number(timestamp.parsedValue) || 0 : 0;
 }
 
 function getBlockSize(parsedBlock: ParsedSection[]): number {
@@ -53,7 +61,7 @@ function getBlockSize(parsedBlock: ParsedSection[]): number {
     if (!routingHeader) return 0;
 
     const blockSize = routingHeader.fields.find((field) => field.name === 'Block Size');
-    return (blockSize && 'parsedValue' in blockSize) ? Number(blockSize.parsedValue) || 0 : 0;
+    return blockSize && 'parsedValue' in blockSize ? Number(blockSize.parsedValue) || 0 : 0;
 }
 
 function getEncryptionType(parsedBlock: ParsedSection[]): string {
@@ -63,8 +71,12 @@ function getEncryptionType(parsedBlock: ParsedSection[]): string {
     const flags = routingHeader.fields.find((field) => field.name === 'Flags');
     if (!flags || !('subFields' in flags)) return 'Unknown';
 
-    const encryptionType = flags.subFields.find((field: { name: string }) => field.name === 'Encryption Type');
-    return (encryptionType && 'parsedValue' in encryptionType) ? encryptionType.parsedValue?.toString() || 'Unknown' : 'Unknown';
+    const encryptionType = flags.subFields.find(
+        (field: { name: string }) => field.name === 'Encryption Type',
+    );
+    return encryptionType && 'parsedValue' in encryptionType
+        ? encryptionType.parsedValue?.toString() || 'Unknown'
+        : 'Unknown';
 }
 
 function getSignatureType(parsedBlock: ParsedSection[]): string {
@@ -74,8 +86,12 @@ function getSignatureType(parsedBlock: ParsedSection[]): string {
     const flags = routingHeader.fields.find((field) => field.name === 'Flags');
     if (!flags || !('subFields' in flags)) return 'Unknown';
 
-    const signatureType = flags.subFields.find((field: { name: string }) => field.name === 'Signature Type');
-    return (signatureType && 'parsedValue' in signatureType) ? signatureType.parsedValue?.toString() || 'Unknown' : 'Unknown';
+    const signatureType = flags.subFields.find(
+        (field: { name: string }) => field.name === 'Signature Type',
+    );
+    return signatureType && 'parsedValue' in signatureType
+        ? signatureType.parsedValue?.toString() || 'Unknown'
+        : 'Unknown';
 }
 
 // Extract all metadata once from parsed block
@@ -129,7 +145,7 @@ function base64ToArrayBuffer(base64: string): Uint8Array {
 // Save blocks to localStorage
 function saveBlocksToStorage(blocks: RawBlockEntry[]): void {
     try {
-        const storedBlocks: StoredBlockEntry[] = blocks.map(block => ({
+        const storedBlocks: StoredBlockEntry[] = blocks.map((block) => ({
             blockBase64: arrayBufferToBase64(block.originalBinary),
             direction: block.direction,
             socketUuid: block.socketUuid,
@@ -147,9 +163,9 @@ function loadBlocksFromStorage(definition: StructureDefinition): RawBlockEntry[]
     try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (!stored) return [];
-        
+
         const storedBlocks: StoredBlockEntry[] = JSON.parse(stored);
-        return storedBlocks.map(stored => {
+        return storedBlocks.map((stored) => {
             const originalBinary = base64ToArrayBuffer(stored.blockBase64);
             const parsedBlock = parseStructure(definition, originalBinary);
             const metadata = extractBlockMetadata(parsedBlock);
@@ -200,34 +216,33 @@ function resetLoadedCount() {
     loadedBlocksCount.value = Math.min(INITIAL_DISPLAYED_BLOCKS, blocks.value.length);
 }
 
-
 function sendTestBlock() {
-    return Datex.execute("@@local :: 1 + 41")
+    return Datex.execute('@@local :: 1 + 41');
 }
 
 Datex.comHub.registerIncomingBlockInterceptor((block: Uint8Array, socket_uuid: string) => {
     const parsedBlock = parseStructure(definition, block);
     console.log(parsedBlock, socket_uuid);
-    
+
     // Extract metadata once at capture time
     const metadata = extractBlockMetadata(parsedBlock);
-    
+
     // Add new block at the beginning (top of list)
     blocks.value.unshift({
         direction: 'in',
         parsedBlock,
         originalBinary: block,
         socketUuid: socket_uuid,
-        interfaceName: "local",
+        interfaceName: 'local',
         capturedAt: Date.now(),
         ...metadata,
     });
-    
+
     // Keep only the most recent 200 blocks (FIFO rotation)
     if (blocks.value.length > MAX_STORED_BLOCKS) {
         blocks.value = blocks.value.slice(0, MAX_STORED_BLOCKS);
     }
-    
+
     // Reset loaded count to show new block while maintaining scroll position logic
     // Only reset if we're at the top (showing initial blocks)
     if (loadedBlocksCount.value <= INITIAL_DISPLAYED_BLOCKS) {
@@ -236,7 +251,7 @@ Datex.comHub.registerIncomingBlockInterceptor((block: Uint8Array, socket_uuid: s
         // User has scrolled down, increment to include new block
         loadedBlocksCount.value = Math.min(loadedBlocksCount.value + 1, blocks.value.length);
     }
-    
+
     // Persist to localStorage
     saveBlocksToStorage(blocks.value);
 });
