@@ -3,11 +3,10 @@ import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
-import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [vue(), vueDevTools(), tailwindcss(), VitePWA({
+  plugins: [vue(), tailwindcss(), VitePWA({
     registerType: 'autoUpdate',
     devOptions: {
       enabled: true,
@@ -20,11 +19,11 @@ export default defineConfig({
       scope: '/',
       display: 'standalone',
       display_override: ['window-controls-overlay'],
-      theme_color: '#0f172a',
-      background_color: '#0f172a',
+      theme_color: 'oklch(0.145 0 0)',
+      background_color: 'oklch(0.145 0 0))',
       icons: [
-        { src: '/favicon.png', sizes: '192x192', type: 'image/png' },
-        { src: '/favicon.png', sizes: '512x512', type: 'image/png' },
+        { src: '/icon.png', sizes: '192x192', type: 'image/png' },
+        { src: '/icon.png', sizes: '512x512', type: 'image/png' },
       ],
     },
     workbox: {

@@ -218,12 +218,12 @@ watch(() => props.filterValue, (newValue) => {
 <style>
 /* AG Grid custom theme matching current dark theme */
 .ag-theme-custom {
-    --ag-background-color: hsl(var(--background));
+    --ag-background-color: var(--card);
     --ag-foreground-color: hsl(var(--foreground));
-    --ag-header-background-color: hsl(217 33% 17% / 1);
+    --ag-header-background-color: hsl(var(--background));
     --ag-header-foreground-color: hsl(var(--foreground));
     --ag-odd-row-background-color: hsl(var(--background));
-    --ag-row-hover-color: hsl(215 30% 20% / 0.6);
+    --ag-row-hover-color: var(--card-hover);
     --ag-border-color: hsl(var(--border));
     --ag-header-column-resize-handle-color: hsl(var(--border));
     --ag-font-size: 0.875rem;

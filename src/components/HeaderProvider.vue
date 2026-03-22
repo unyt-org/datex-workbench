@@ -29,7 +29,7 @@ export default {
 </script>
 
 <template>
-    <Menubar class="flex items-center w-full bg-background px-4 py-2 wco-header">
+    <Menubar class="flex items-center w-full bg-background px-4 py-3 wco-header">
         <RouterLink
             to="/"
             class="flex items-center space-x-2 group mr-4 transition-all"
@@ -37,11 +37,11 @@ export default {
             <IconLogo class="w-6 h-6" />
             <div class="flex items-baseline space-x-1">
                 <span class="text-lg font-bold text-primary">DATEX Workbench</span>
-                <span class="text-xs unyt-blue font-semibold">beta</span>
+                <sup class="text-xs unyt-blue font-semibold">beta</sup>
             </div>
         </RouterLink>
 
-        <MenubarMenu class="flex items-center ml-8 space-x-4">
+        <!--<MenubarMenu class="flex items-center ml-8 space-x-4">
             <MenubarTrigger>File</MenubarTrigger>
             <MenubarContent>
                 <MenubarItem>New tab</MenubarItem>
@@ -78,7 +78,7 @@ export default {
                 <MenubarItem>Toggle Fullscreen</MenubarItem>
                 <MenubarItem>Hide / Expand Sidebar</MenubarItem>
             </MenubarContent>
-        </MenubarMenu>
+        </MenubarMenu>-->
         <div class="ml-auto">
             <ThemeSwitch />
         </div>
@@ -90,20 +90,28 @@ export default {
     color: rgb(42, 170, 215);
 }
 
-.wco-header {
-  position: fixed;
-  top: env(titlebar-area-y, 0);
-  left: env(titlebar-area-x, 0);
-  width: env(titlebar-area-width, 100%);
-  height: env(titlebar-area-height, 48px);
-  -webkit-app-region: drag;
-  z-index: 1000;
-}
+@media (display-mode: window-controls-overlay) {
+    .wco-header {
+        position: fixed;
+        top: env(titlebar-area-y, 0);
+        left: env(titlebar-area-x, 0);
+        width: env(titlebar-area-width, 100%);
+        height: env(titlebar-area-height, 48px);
+        -webkit-app-region: drag;
+        z-index: 1000;
+        padding-left: 0;
+    }
 
-.wco-header :deep(button),
-.wco-header :deep(a),
-.wco-header :deep([role="menuitem"]) {
-  -webkit-app-region: no-drag;
+    .wco-header :deep(button),
+    .wco-header :deep(a),
+    .wco-header :deep([role="menuitem"]) {
+        -webkit-app-region: no-drag;
+    }
+
+    .wco-header :deep(img) {
+        height: 20px;
+        margin-right: 2px;
+    }
 }
 
 </style>

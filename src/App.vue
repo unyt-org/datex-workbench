@@ -33,7 +33,7 @@ import { RouterView } from 'vue-router';
         <!--      </SidebarProvider>-->
 
         <!-- Main content area -->
-        <div class="flex-1 overflow-hidden bg-gray-900 text-white" style="margin-top: env(titlebar-area-height, 48px)">
+        <div class="main flex-1 overflow-hidden text-white">
             <Suspense>
                 <RouterView />
             </Suspense>
@@ -59,4 +59,11 @@ import { RouterView } from 'vue-router';
 :deep(.sidebar-content) {
     /* overflow-y: auto; */
 }
+
+@media (display-mode: window-controls-overlay) {
+    .main {
+        margin-top: env(titlebar-area-height, 48px);
+    }
+}
+
 </style>

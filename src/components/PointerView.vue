@@ -212,7 +212,7 @@ function resetTypeFilters() {
           <!-- Settings Popover -->
           <Popover>
             <PopoverTrigger as-child>
-              <Button variant="outline" size="icon" title="Display Preferences">
+              <Button variant="outline" size="icon" title="Display Preferences" class="btn-icon">
                 <Settings class="h-4 w-4" />
               </Button>
             </PopoverTrigger>
