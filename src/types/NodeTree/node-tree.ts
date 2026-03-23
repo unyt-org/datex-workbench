@@ -16,6 +16,14 @@ export interface NodeField<NodeMetaData = unknown> {
     in: boolean;
     out: boolean;
     data?: NodeMetaData;
+    connectors?: ConnectorDefinition[];
+}
+
+export interface ConnectorDefinition {
+  id: string;
+  side: 'left' | 'right' | 'top' | 'bottom';
+  allowedTypes?: EdgeType[];
+  label?: string;
 }
 
 export interface Position {

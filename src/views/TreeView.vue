@@ -15,6 +15,16 @@ const canvasRef = ref<HTMLElement | null>(null)
 // Reactive edge coordinates - recalculated when nodes move
 const edgeCoords = ref<Map<string, { x1: number; y1: number; x2: number; y2: number }>>(new Map())
 
+// Canvas panning
+const isPanning = ref(false)
+const panOffset = ref<Position>({ x: 0, y: 0 })
+const panStart = ref<Position>({ x: 0, y: 0 })
+
+const NODE_WIDTH = 224  // w-56
+
+const scale = ref(1)
+
+
 async function recalculateEdges() {
   await nextTick()
   const map = new Map<string, { x1: number; y1: number; x2: number; y2: number }>()
@@ -48,8 +58,6 @@ watch(() => tree.value.edges.length, recalculateEdges)
 onMounted(() => {
   recalculateEdges()
 })
-
-const scale = ref(1)
 
 function onWheel(event: WheelEvent) {
   event.preventDefault()
@@ -138,10 +146,53 @@ const isDraggingNode = ref(false)
 const currentNodeId = ref<string | null>(null)
 const startPos = ref<Position>({ x: 0, y: 0 })
 
-// Canvas panning
-const isPanning = ref(false)
-const panOffset = ref<Position>({ x: 0, y: 0 })
-const panStart = ref<Position>({ x: 0, y: 0 })
+
+  function getNodeHeight(node: { fields: { length: number } }): number {
+  const headerHeight = 52
+  const rowHeight = 24
+  return headerHeight + (node.fields.length * rowHeight) + 16
+}
+
+function resolveCollisions() {
+  const padding = 20
+  const len = tree.value.nodes.length
+
+  for (let i = 0; i < len; i++) {
+    for (let j = i + 1; j < len; j++) {
+      const nodeA = tree.value.nodes[i]
+      const nodeB = tree.value.nodes[j]
+      if (!nodeA || !nodeB) continue
+
+      const aHeight = getNodeHeight(nodeA)
+      const bHeight = getNodeHeight(nodeB)
+
+      const overlapX = NODE_WIDTH + padding - Math.abs(nodeA.position.x - nodeB.position.x)
+      const overlapY = (aHeight + bHeight) / 2 + padding - Math.abs(nodeA.position.y - nodeB.position.y)
+
+      if (overlapX > 0 && overlapY > 0) {
+        if (overlapX < overlapY) {
+          const push = overlapX / 2
+          if (nodeA.position.x < nodeB.position.x) {
+            nodeA.position.x -= push
+            nodeB.position.x += push
+          } else {
+            nodeA.position.x += push
+            nodeB.position.x -= push
+          }
+        } else {
+          const push = overlapY / 2
+          if (nodeA.position.y < nodeB.position.y) {
+            nodeA.position.y -= push
+            nodeB.position.y += push
+          } else {
+            nodeA.position.y += push
+            nodeB.position.y -= push
+          }
+        }
+      }
+    }
+  }
+}
 
 
 function mouseDownNode(event: MouseEvent, nodeId: string) {
@@ -184,6 +235,9 @@ function mouseMove(event: MouseEvent) {
 }
 
 function mouseUp() {
+  if (isDraggingNode.value) {
+    resolveCollisions()
+  }
   isDraggingNode.value = false
   currentNodeId.value = null
   isPanning.value = false
@@ -251,8 +305,9 @@ function handleFieldClick(fieldId: string, nodeId: string, isOut: boolean) {
   v-for="node in tree.nodes"
   :key="node.id"
   :node="node"
-  @mousedown.left.stop="(e: MouseEvent) => mouseDownNode(e, node.id)"
+  :is-dragging="currentNodeId === node.id"
   @field-click="handleFieldClick"
+  @start-drag="(e: MouseEvent) => mouseDownNode(e, node.id)"
 />
     </div>
   </div>

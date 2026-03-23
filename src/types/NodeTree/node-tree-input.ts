@@ -1,4 +1,4 @@
-import type { EdgeDirection, EdgeStyle } from './node-tree'
+import type { EdgeDirection, EdgeStyle, ConnectorDefinition } from './node-tree'
 
 export interface NodeTreeInput<NodeMetaData = unknown, EdgeMetaData = unknown> {
     nodes?: Array<NodeInput<NodeMetaData>>;
@@ -18,6 +18,7 @@ export interface NodeFieldInput<NodeMetaData = unknown> {
     in?: boolean;
     out?: boolean;
     data?: NodeMetaData;
+    connectors?: ConnectorDefinition[];
 }
 
 export interface Position {
