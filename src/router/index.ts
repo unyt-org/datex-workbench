@@ -47,6 +47,11 @@ const router = createRouter({
             component: () => PointerView,
             props: { pointers: getPointers() },
         },
+        {
+            path: '/repl',
+            name: 'repl',
+            component: () => import('@/views/Repl/DatexRepl.vue'),
+        },
     ],
 });
 
