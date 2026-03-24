@@ -24,6 +24,7 @@ export interface ConnectorDefinition {
   side: 'left' | 'right' | 'top' | 'bottom';
   allowedTypes?: EdgeType[];
   label?: string;
+  maxConnections?: number;
 }
 
 export interface Position {

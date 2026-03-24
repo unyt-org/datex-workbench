@@ -8,7 +8,14 @@
                 "y": 100
             },
             "fields": [
-                { "name": "sdhu", "id": "1.1", "in": true, "out": false },
+                { "name": "sdhu", "id": "1.1", "in": true, "out": true, "connectors": [
+    {
+      "id": "c1",
+      "side": "top",
+      "allowedTypes": ["websocket"],
+      "maxConnections": 2
+    }
+  ] },
                 { "name": "jsadoas", "id": "1.2", "in": false, "out": true },
                 { "name": "aslslqpqüc", "id": "1.3", "in": true, "out": true },
                 { "name": "hsodod", "id": "1.4", "in": false, "out": false }

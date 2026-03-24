@@ -31,8 +31,19 @@ async function recalculateEdges() {
 
   for (const edge of tree.value.edges) {
     if (edge.source.kind === 'field' && edge.target.kind === 'field') {
-      const srcEl = canvasRef.value?.querySelector(`[data-field-id="${edge.source.fieldId}-out"]`)
-      const tgtEl = canvasRef.value?.querySelector(`[data-field-id="${edge.target.fieldId}-in"]`)
+     // All possible sides for source
+     const srcEl =
+        canvasRef.value?.querySelector(`[data-field-id="${edge.source.fieldId}-out"]`) ??
+        canvasRef.value?.querySelector(`[data-field-id="${edge.source.fieldId}-top"]`) ??
+        canvasRef.value?.querySelector(`[data-field-id="${edge.source.fieldId}-bottom"]`) ??
+        canvasRef.value?.querySelector(`[data-field-id="${edge.source.fieldId}-in"]`)
+
+      // All possible sides for target
+      const tgtEl =
+        canvasRef.value?.querySelector(`[data-field-id="${edge.target.fieldId}-in"]`) ??
+        canvasRef.value?.querySelector(`[data-field-id="${edge.target.fieldId}-top"]`) ??
+        canvasRef.value?.querySelector(`[data-field-id="${edge.target.fieldId}-bottom"]`) ??
+        canvasRef.value?.querySelector(`[data-field-id="${edge.target.fieldId}-out"]`)
 
       if (srcEl && tgtEl && canvasRef.value) {
         const canvasRect = canvasRef.value.getBoundingClientRect()
@@ -117,11 +128,47 @@ function completeEdge(targetFieldId: string, targetNodeId: string) {
     pendingEdge.value = null
     return
   }
+
+  // Check maxConnections on source field
+  if (sourceField.connectors?.length) {
+    const maxConnections = sourceField.connectors[0]?.maxConnections
+    if (maxConnections !== undefined) {
+      const existingCount = tree.value.edges.filter(e =>
+        e.source.kind === 'field' && e.source.fieldId === pendingEdge.value!.sourceFieldId
+      ).length
+      if (existingCount >= maxConnections) {
+        console.warn('[NodeTree] Max connections reached for source field')
+        pendingEdge.value = null
+        return
+      }
+    }
+  }
+
+  // Check maxConnections on target field
+  if (targetField.connectors?.length) {
+    const maxConnections = targetField.connectors[0]?.maxConnections
+    if (maxConnections !== undefined) {
+      const existingCount = tree.value.edges.filter(e =>
+        e.target.kind === 'field' && e.target.fieldId === targetFieldId
+      ).length
+      if (existingCount >= maxConnections) {
+        console.warn('[NodeTree] Max connections reached for target field')
+        pendingEdge.value = null
+        return
+      }
+    }
+  }
+
    // Source must be 'out' and target must be 'in'
-   if (!sourceField.out || !targetField.in) {
-    console.warn('[NodeTree] Invalid connection: source must be out, target must be in')
-    pendingEdge.value = null
-    return
+  const sourceHasCustomConnectors = sourceField.connectors && sourceField.connectors.length > 0
+  const targetHasCustomConnectors = targetField.connectors && targetField.connectors.length > 0
+
+  if (!sourceHasCustomConnectors && !targetHasCustomConnectors) {
+    if (!sourceField.out || !targetField.in) {
+      console.warn('[NodeTree] Invalid connection: source must be out, target must be in')
+      pendingEdge.value = null
+      return
+    }
   }
 
   const newEdge: Edge = {
