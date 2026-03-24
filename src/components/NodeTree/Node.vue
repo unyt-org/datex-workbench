@@ -16,9 +16,10 @@ const emit = defineEmits<{
 
 <template>
   <Card
-    class="absolute w-56 select-none transition-shadow"
+    class="absolute w-56 select-none transition-shadow node-card"
     :class="isDragging ? 'z-50 shadow-2xl' : 'z-10 shadow-sm'"
     :style="{ left: `${node.position.x}px`, top: `${node.position.y}px` }"
+    @mousedown.left.stop="$emit('start-drag', $event)"
   >
   <template v-for="field in node.fields" :key="'top-' + field.id">
     <template v-if="field.connectors?.length">
@@ -49,8 +50,7 @@ const emit = defineEmits<{
     </template>
   </template>
   <!-- Drag handle - only this area is draggable -->
-    <CardHeader class="pb-2 pt-3 px-3 cursor-grab active:cursor-grabbing"
-    @mousedown.left.stop="$emit('start-drag', $event)">
+    <CardHeader class="pb-2 pt-3 px-3 cursor-grab active:cursor-grabbing">
       <CardTitle class="text-sm font-semibold">{{ props.node.name ?? props.node.id }}</CardTitle>
     </CardHeader>
 
@@ -102,7 +102,7 @@ const emit = defineEmits<{
   </template>
 </template>
 
-  <span class="flex-1 text-center text-muted-foreground cursor-text">
+  <span class="flex-1 text-center text-muted-foreground cursor-text select-text node-field-text">
     {{ field.name ?? field.id }}
   </span>
 

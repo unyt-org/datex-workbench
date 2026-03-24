@@ -243,6 +243,10 @@ function resolveCollisions() {
 
 
 function mouseDownNode(event: MouseEvent, nodeId: string) {
+  // Don't drag if clicking on text content
+  const target = event.target as HTMLElement
+  if (target.classList.contains('node-field-text')) return
+
   isDraggingNode.value = true
   currentNodeId.value = nodeId
   const node = tree.value.nodes.find((n) => n.id === nodeId)
@@ -252,11 +256,12 @@ function mouseDownNode(event: MouseEvent, nodeId: string) {
     y: event.clientY - node.position.y,
   }
   event.preventDefault()
-  event.stopPropagation()
 }
 
 function mouseDownCanvas(event: MouseEvent) {
   if (isDraggingNode.value) return
+  const target = event.target as HTMLElement
+  if (target.closest('.node-card')) return
   isPanning.value = true
   panStart.value = {
     x: event.clientX - panOffset.value.x,
