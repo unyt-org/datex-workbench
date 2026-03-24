@@ -1,304 +1,175 @@
 <script setup lang="ts" generic="TData, TValue">
-import type { ColDef, GridApi, GridReadyEvent, Column, ColumnState } from 'ag-grid-community';
-import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
-import { AgGridVue } from 'ag-grid-vue3';
-import { Button } from '@/components/ui/button';
+import { ref, computed, watch } from 'vue'
 import {
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { ChevronDown } from 'lucide-vue-next';
-import { ref, watch, nextTick } from 'vue';
-
-ModuleRegistry.registerModules([AllCommunityModule]);
-
-const COLUMN_STATE_KEY = 'network-inspector-column-state';
+  useVueTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  FlexRender,
+  type ColumnDef,
+  type SortingState,
+  type VisibilityState,
+} from '@tanstack/vue-table'
+import { useVirtualizer } from '@tanstack/vue-virtual'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { ChevronDown, ArrowUp, ArrowDown } from 'lucide-vue-next'
 
 interface DataTableProps {
-    columns: ColDef<TData>[];
-    data: TData[];
-    filterValue?: string;
-    filterPlaceholder?: string;
-    hasMoreData?: boolean;
+  columns: ColumnDef<TData, TValue>[]
+  data: TData[]
+  filterValue?: string
+  hasMoreData?: boolean
 }
 
 const props = withDefaults(defineProps<DataTableProps>(), {
-    filterPlaceholder: 'Filter...',
-    hasMoreData: false,
-});
+  hasMoreData: false,
+})
 
 const emit = defineEmits<{
-    'load-more': [];
-}>();
+  'load-more': []
+}>()
 
-const gridApi = ref<GridApi<TData>>();
-const visibleColumns = ref<Record<string, boolean>>({});
-const isLoadingMore = ref(false);
-const suppressColumnMoveAnimation = ref(true);
+const sorting = ref<SortingState>([])
+const columnVisibility = ref<VisibilityState>({})
 
-const defaultColDef: ColDef = {
-    resizable: true,
-    sortable: true,
-    filter: false,
-    suppressMovable: false,
-};
+const table = useVueTable({
+  get data() { return props.data },
+  get columns() { return props.columns },
+  getCoreRowModel: getCoreRowModel(),
+  getSortedRowModel: getSortedRowModel(),
+  getFilteredRowModel: getFilteredRowModel(),
+  onSortingChange: (updater) => {
+    sorting.value = typeof updater === 'function' ? updater(sorting.value) : updater
+  },
+  onColumnVisibilityChange: (updater) => {
+    columnVisibility.value = typeof updater === 'function' ? updater(columnVisibility.value) : updater
+  },
+  state: {
+    get sorting() { return sorting.value },
+    get columnVisibility() { return columnVisibility.value },
+    get globalFilter() { return props.filterValue },
+  },
+})
 
-const onGridReady = (params: GridReadyEvent<TData>) => {
-    gridApi.value = params.api;
+const rows = computed(() => table.getRowModel().rows)
 
-    // Restore column state from localStorage
-    const savedState = localStorage.getItem(COLUMN_STATE_KEY);
-    if (savedState) {
-        try {
-            const columnState: ColumnState[] = JSON.parse(savedState);
-            params.api.applyColumnState({ state: columnState, applyOrder: true });
+// Virtual scrolling
+const parentRef = ref<HTMLElement | null>(null)
 
-            // Resize columns to fit grid width after restoring state
-            params.api.sizeColumnsToFit();
+const virtualizer = useVirtualizer({
+  get count() { return rows.value.length },
+  getScrollElement: () => parentRef.value,
+  estimateSize: () => 48,
+  overscan: 10,
+})
 
-            // Enable animations after initial state is applied
-            nextTick(() => {
-                if (gridApi.value) {
-                    gridApi.value.setGridOption('suppressColumnMoveAnimation', false);
-                    suppressColumnMoveAnimation.value = false;
-                }
-            });
-        } catch (e) {
-            console.error('Failed to restore column state:', e);
-        }
-    }
+const virtualRows = computed(() => virtualizer.value.getVirtualItems())
+const totalSize = computed(() => virtualizer.value.getTotalSize())
 
-    // Initialize column visibility state
-    const columnState: Record<string, boolean> = {};
-    params.api.getAllGridColumns().forEach((col: Column) => {
-        const colDef = col.getColDef();
-        if (colDef.field) {
-            columnState[colDef.field] = col.isVisible();
-        }
-    });
-    visibleColumns.value = columnState;
-};
+// Load more when scrolling near bottom
+function onScroll(e: Event) {
+  if (!props.hasMoreData) return
+  const target = e.target as HTMLElement
+  const bottom = target.scrollHeight - target.scrollTop - target.clientHeight
+  if (bottom < 300) {
+    emit('load-more')
+  }
+}
 
-// Detect scroll near bottom and load more data
-let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
-const onBodyScroll = () => {
-    if (!gridApi.value || !props.hasMoreData || isLoadingMore.value) return;
-
-    // Debounce scroll events
-    if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-    }
-
-    scrollTimeout = setTimeout(() => {
-        if (!gridApi.value || isLoadingMore.value) return;
-
-        const gridElement = document.querySelector('.ag-body-viewport') as HTMLElement;
-        if (!gridElement) return;
-
-        const scrollTop = gridElement.scrollTop;
-        const scrollHeight = gridElement.scrollHeight;
-        const clientHeight = gridElement.clientHeight;
-
-        // Load more when scrolled within 300px of bottom
-        const threshold = 300;
-        if (scrollHeight - scrollTop - clientHeight < threshold) {
-            isLoadingMore.value = true;
-
-            // Save scroll position before loading
-            const savedScrollTop = scrollTop;
-
-            // Emit load-more event
-            emit('load-more');
-
-            // Use nextTick to wait for DOM update, then restore scroll
-            nextTick(() => {
-                // Give AG Grid time to render new rows
-                requestAnimationFrame(() => {
-                    if (gridElement) {
-                        gridElement.scrollTop = savedScrollTop;
-                    }
-                    isLoadingMore.value = false;
-                });
-            });
-        }
-    }, 50);
-};
-
-const saveColumnState = () => {
-    if (gridApi.value) {
-        const columnState = gridApi.value.getColumnState();
-        localStorage.setItem(COLUMN_STATE_KEY, JSON.stringify(columnState));
-
-        // Update visibleColumns state to reflect current column visibility
-        const updatedVisibility: Record<string, boolean> = {};
-        gridApi.value.getAllGridColumns().forEach((col: Column) => {
-            const colDef = col.getColDef();
-            if (colDef.field) {
-                updatedVisibility[colDef.field] = col.isVisible();
-            }
-        });
-        visibleColumns.value = updatedVisibility;
-    }
-};
-
-const toggleColumnVisibility = (field: string, visible: boolean) => {
-    if (gridApi.value) {
-        gridApi.value.setColumnsVisible([field], visible);
-        visibleColumns.value[field] = visible;
-        saveColumnState();
-    }
-};
-
-// Watch for filter changes
-watch(
-    () => props.filterValue,
-    (newValue) => {
-        if (gridApi.value && newValue !== undefined) {
-            gridApi.value.setGridOption('quickFilterText', newValue);
-        }
-    },
-);
+// Watch filter changes
+watch(() => props.filterValue, (val) => {
+  table.setGlobalFilter(val ?? '')
+})
 </script>
 
 <template>
-    <div class="flex h-full w-full flex-col overflow-hidden">
-        <!-- Fixed header section: Search and Column filters -->
-        <div class="flex shrink-0 items-center justify-between gap-4 px-1 py-4">
-            <div class="max-w-sm flex-1">
-                <slot name="filter">
-                    <!-- Default filter slot if not provided -->
-                </slot>
-            </div>
-            <DropdownMenu>
-                <DropdownMenuTrigger as-child>
-                    <Button variant="outline" class="text-foreground border-border ml-auto">
-                        Columns <ChevronDown class="ml-2 h-4 w-4" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuCheckboxItem
-                        v-for="(visible, field) in visibleColumns"
-                        :key="field"
-                        class="capitalize"
-                        :model-value="visible"
-                        @update:model-value="
-                            (value: boolean) => toggleColumnVisibility(field, value)
-                        "
-                    >
-                        {{ field }}
-                    </DropdownMenuCheckboxItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
-
-        <!-- AG Grid container -->
-        <div class="ag-theme-custom flex-1 overflow-hidden rounded-md border">
-            <AgGridVue
-                style="width: 100%; height: 100%"
-                :columnDefs="columns"
-                :rowData="data"
-                :defaultColDef="defaultColDef"
-                :autoSizeStrategy="{ type: 'fitGridWidth' }"
-                colResizeDefault="shift"
-                @grid-ready="onGridReady"
-                @drag-stopped="saveColumnState"
-                @column-visible="saveColumnState"
-                @body-scroll="onBodyScroll"
-                :rowHeight="48"
-                :headerHeight="48"
-                :suppressCellFocus="true"
-                :suppressRowClickSelection="true"
-                :enableCellTextSelection="true"
-                :reactiveCustomComponents="true"
-                :suppressDragLeaveHidesColumns="true"
-                :suppressColumnVirtualisation="true"
-                :suppressColumnMoveAnimation="suppressColumnMoveAnimation"
-            />
-        </div>
+  <div class="flex h-full w-full flex-col overflow-hidden">
+    <!-- Header: filter + column visibility -->
+    <div class="flex shrink-0 items-center justify-between gap-4 px-1 py-4">
+      <div class="max-w-sm flex-1">
+        <slot name="filter" />
+      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger as-child>
+          <Button variant="outline" class="text-foreground border-border ml-auto">
+            Columns <ChevronDown class="ml-2 h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuCheckboxItem
+            v-for="column in table.getAllColumns().filter(c => c.getCanHide())"
+            :key="column.id"
+            class="capitalize"
+            :model-value="column.getIsVisible()"
+            @update:model-value="column.toggleVisibility"
+          >
+            {{ column.id }}
+          </DropdownMenuCheckboxItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
+
+    <!-- Table -->
+    <div class="flex-1 overflow-hidden rounded-md border border-border">
+      <!-- Table header -->
+      <div class="bg-background border-b border-border">
+        <div
+          v-for="headerGroup in table.getHeaderGroups()"
+          :key="headerGroup.id"
+          class="flex"
+        >
+          <div
+            v-for="header in headerGroup.headers"
+            :key="header.id"
+            class="flex items-center gap-1 px-3 py-3 text-sm font-medium border-r border-border last:border-r-0 cursor-pointer select-none"
+            :style="{ width: header.getSize() + 'px', flex: header.getSize() ? 'none' : '1' }"
+            @click="header.column.getCanSort() ? header.column.toggleSorting() : null"
+          >
+          <FlexRender
+  v-if="!header.isPlaceholder"
+  :render="header.column.columnDef.header"
+  :props="header.getContext()"
+/>
+            <ArrowUp v-if="header.column.getIsSorted() === 'asc'" class="h-3 w-3" />
+            <ArrowDown v-if="header.column.getIsSorted() === 'desc'" class="h-3 w-3" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Virtual rows -->
+      <div
+        ref="parentRef"
+        class="overflow-auto"
+        style="height: calc(100% - 48px)"
+        @scroll="onScroll"
+      >
+        <div :style="{ height: totalSize + 'px', position: 'relative' }">
+          <div
+            v-for="virtualRow in virtualRows"
+            :key="virtualRow.index"
+            class="flex absolute w-full border-b border-border hover:bg-accent"
+            :style="{ transform: `translateY(${virtualRow.start}px)`, height: virtualRow.size + 'px' }"
+          >
+            <div
+              v-for="cell in rows[virtualRow.index]?.getVisibleCells()"
+              :key="cell.id"
+              class="flex items-center px-3 overflow-hidden text-sm border-r border-border last:border-r-0"
+              :style="{ width: cell.column.getSize() + 'px', flex: cell.column.getSize() ? 'none' : '1' }"
+            >
+            <FlexRender
+  :render="cell.column.columnDef.cell"
+  :props="cell.getContext()"
+/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
-
-<style>
-/* AG Grid custom theme matching current dark theme */
-.ag-theme-custom {
-    --ag-background-color: var(--card);
-    --ag-foreground-color: hsl(var(--foreground));
-    --ag-header-background-color: hsl(var(--background));
-    --ag-header-foreground-color: hsl(var(--foreground));
-    --ag-odd-row-background-color: hsl(var(--background));
-    --ag-row-hover-color: var(--card-hover);
-    --ag-border-color: hsl(var(--border));
-    --ag-header-column-resize-handle-color: hsl(var(--border));
-    --ag-font-size: 0.875rem;
-    --ag-font-family: inherit;
-}
-
-/* Light mode overrides */
-html:not(.dark) .ag-theme-custom {
-    --ag-background-color: #ffffff;
-    --ag-foreground-color: #1a1a1a;
-    --ag-header-background-color: #f5f5f5;
-    --ag-header-foreground-color: #1a1a1a;
-    --ag-odd-row-background-color: #ffffff;
-    --ag-row-hover-color: #f0f0f0;
-    --ag-border-color: #e0e0e0;
-}
-
-.ag-theme-custom .ag-root-wrapper {
-    border: none;
-}
-
-.ag-theme-custom .ag-header {
-    border-bottom: 1px solid hsl(var(--border));
-}
-
-.ag-theme-custom .ag-header-cell {
-    border-right: 1px solid hsl(215 20% 25% / 0.5);
-}
-
-/* Light mode: lighter borders for header cells */
-html:not(.dark) .ag-theme-custom .ag-header-cell {
-    border-right: 1px solid #e5e5e5;
-}
-
-.ag-theme-custom .ag-cell {
-    border-right: 1px solid hsl(215 20% 25% / 0.3);
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* Light mode: lighter borders for cells */
-html:not(.dark) .ag-theme-custom .ag-cell {
-    border-right: 1px solid #e8e8e8;
-}
-
-.ag-theme-custom .ag-cell-value {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    width: 100%;
-}
-
-.ag-theme-custom .ag-header-cell-text {
-    font-weight: 500;
-}
-
-.ag-theme-custom .ag-row {
-    border-bottom: 1px solid hsl(var(--border));
-}
-
-/* Column drag indicators */
-.ag-theme-custom .ag-header-cell-moving {
-    background-color: hsl(var(--accent));
-}
-
-/* Resize handle styling */
-.ag-theme-custom .ag-header-cell-resize::after {
-    width: 2px;
-}
-</style>
