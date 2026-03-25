@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import NodeView from '@/components/NodeTree/Node.vue'
 import EdgeView from '@/components/NodeTree/Edge.vue'
-import { ref, type Ref, watch, nextTick, onMounted } from 'vue'
+import { ref, type Ref, watch, nextTick, onMounted, computed } from 'vue'
 import type { NodeTree, Position, Edge } from '@/types/NodeTree/node-tree'
 import type { NodeTreeInput } from '@/types/NodeTree/node-tree-input'
 import { parseNodeTree } from '@/composable/NodeTree/parseNodeTree'
@@ -189,6 +189,22 @@ function completeEdge(targetFieldId: string, targetNodeId: string) {
 function removeEdge(edgeId: string) {
   tree.value.edges = tree.value.edges.filter(e => e.id !== edgeId)
 }
+
+// Dragged node edges on top
+const draggedNodeEdges = computed(() => {
+  if (!currentNodeId.value) return []
+  return tree.value.edges.filter(e =>
+    (e.source.kind === 'field' && e.source.nodeId === currentNodeId.value) ||
+    (e.target.kind === 'field' && e.target.nodeId === currentNodeId.value) ||
+    (e.source.kind === 'node' && e.source.nodeId === currentNodeId.value) ||
+    (e.target.kind === 'node' && e.target.nodeId === currentNodeId.value)
+  )
+})
+
+const otherEdges = computed(() => {
+  if (!currentNodeId.value) return tree.value.edges
+  return tree.value.edges.filter(e => !draggedNodeEdges.value.includes(e))
+})
 
 // Node dragging
 const isDraggingNode = ref(false)
@@ -486,16 +502,18 @@ function importTree(event: Event) {
 
   <!-- Center button -->
   <button
-    class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
-    title="Center all nodes"
-    @click.stop="centerNodes"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2"/>
-      <line x1="12" y1="3" x2="12" y2="21"/>
-      <line x1="3" y1="12" x2="21" y2="12"/>
-    </svg>
-  </button>
+  class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
+  title="Center all nodes"
+  @click.stop="centerNodes"
+>
+  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3"/>
+    <line x1="12" y1="2" x2="12" y2="6"/>
+    <line x1="12" y1="18" x2="12" y2="22"/>
+    <line x1="2" y1="12" x2="6" y2="12"/>
+    <line x1="18" y1="12" x2="22" y2="12"/>
+  </svg>
+</button>
 </div>
     <!-- Inner canvas -->
     <div
@@ -506,28 +524,24 @@ function importTree(event: Event) {
     transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${scale})`
   }"
 >
-      <!-- SVG layer for edges -->
-      <svg class="absolute inset-0 w-full h-full pointer-events-none">
-  <template v-for="edge in tree.edges" :key="edge.id">
+
+<!-- SVG layer for edges -->
+<svg
+  class="absolute pointer-events-none"
+  style="width: 3000px; height: 3000px; overflow: visible"
+>
+  <!-- Other edges -->
+  <template v-for="edge in otherEdges" :key="edge.id">
     <g
       v-if="edgeCoords.get(edge.id)"
-      class="pointer-events-auto cursor-pointer group"
+      class="pointer-events-auto cursor-pointer"
       @click="removeEdge(edge.id)"
     >
-      <!-- Invisible thick path for easier clicking -->
-      <path
-        :d="getPath(edgeCoords.get(edge.id)!)"
-        fill="none"
-        stroke="transparent"
-        stroke-width="12"
-      />
-      <EdgeView
-        :edge="edge"
-        v-bind="edgeCoords.get(edge.id)!"
-      />
+      <path :d="getPath(edgeCoords.get(edge.id)!)" fill="none" stroke="transparent" stroke-width="12"/>
+      <EdgeView :edge="edge" v-bind="edgeCoords.get(edge.id)!"/>
     </g>
   </template>
-</svg>
+  </svg>
 
       <!-- Nodes -->
       <NodeView
@@ -539,5 +553,25 @@ function importTree(event: Event) {
   @start-drag="(e: MouseEvent) => mouseDownNode(e, node.id)"
 />
     </div>
+
+    <!-- Top SVG layer for dragged node edges (above nodes) -->
+    <svg
+      class="absolute inset-0 pointer-events-none"
+      style="width: 100%; height: 100%; overflow: visible; z-index: 100"
+    >
+      <g :transform="`translate(${panOffset.x}, ${panOffset.y}) scale(${scale})`">
+        <template v-for="edge in draggedNodeEdges" :key="edge.id + '-top'">
+          <g
+            v-if="edgeCoords.get(edge.id)"
+            class="pointer-events-auto cursor-pointer"
+            @click="removeEdge(edge.id)"
+          >
+            <path :d="getPath(edgeCoords.get(edge.id)!)" fill="none" stroke="transparent" stroke-width="12"/>
+            <EdgeView :edge="edge" v-bind="edgeCoords.get(edge.id)!"/>
+          </g>
+        </template>
+      </g>
+      </svg>
+
   </div>
 </template>
