@@ -6,6 +6,8 @@ import type { NodeTree, Position, Edge } from '@/types/NodeTree/node-tree'
 import type { NodeTreeInput } from '@/types/NodeTree/node-tree-input'
 import { parseNodeTree } from '@/composable/NodeTree/parseNodeTree'
 import exampleJson from '@/../test/composable/NodeTree/fixtures/validExampleShort.json'
+import dagre from 'dagre'
+
 
 const example = exampleJson as NodeTreeInput
 const tree: Ref<NodeTree<unknown, unknown>> = ref(parseNodeTree(example))
@@ -335,6 +337,51 @@ function centerNodes() {
   }
 }
 
+function autoLayout() {
+  const g = new dagre.graphlib.Graph()
+
+  g.setGraph({
+    rankdir: 'LR', // left to right
+    nodesep: 40,   // gap between nodes
+    ranksep: 80,   // gap between ranks
+    marginx: 20,
+    marginy: 20,
+  })
+
+  g.setDefaultEdgeLabel(() => ({}))
+
+  // Add nodes
+  for (const node of tree.value.nodes) {
+    g.setNode(node.id, {
+      width: NODE_WIDTH,
+      height: getNodeHeight(node),
+    })
+  }
+
+  // Add edges
+  for (const edge of tree.value.edges) {
+    if (edge.source.kind === 'field' && edge.target.kind === 'field') {
+      g.setEdge(edge.source.nodeId, edge.target.nodeId)
+    } else if (edge.source.kind === 'node' && edge.target.kind === 'node') {
+      g.setEdge(edge.source.nodeId, edge.target.nodeId)
+    }
+  }
+
+  dagre.layout(g)
+
+  // Apply positions back to nodes
+  for (const node of tree.value.nodes) {
+    const pos = g.node(node.id)
+    if (pos) {
+      node.position.x = pos.x - NODE_WIDTH / 2
+      node.position.y = pos.y - getNodeHeight(node) / 2
+    }
+  }
+
+  // Center after layout
+  centerNodes()
+}
+
 </script>
 
 <template>
@@ -348,18 +395,39 @@ function centerNodes() {
     @wheel.prevent="onWheel"
   >
 
+  <!-- Buttons top right -->
+<div class="absolute top-3 right-3 z-50 flex gap-2">
+  <!-- Auto layout button -->
   <button
-      class="absolute top-3 right-3 z-50 p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
-      title="Center all nodes"
-      @click.stop="centerNodes"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="18" height="18" rx="2"/>
-        <line x1="12" y1="3" x2="12" y2="21"/>
-        <line x1="3" y1="12" x2="21" y2="12"/>
-      </svg>
-    </button>
+    class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
+    title="Auto layout nodes"
+    @click.stop="autoLayout"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="5" height="5" rx="1"/>
+      <rect x="16" y="3" width="5" height="5" rx="1"/>
+      <rect x="3" y="16" width="5" height="5" rx="1"/>
+      <rect x="16" y="16" width="5" height="5" rx="1"/>
+      <line x1="8" y1="5.5" x2="16" y2="5.5"/>
+      <line x1="8" y1="18.5" x2="16" y2="18.5"/>
+      <line x1="5.5" y1="8" x2="5.5" y2="16"/>
+      <line x1="18.5" y1="8" x2="18.5" y2="16"/>
+    </svg>
+  </button>
 
+  <!-- Center button -->
+  <button
+    class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
+    title="Center all nodes"
+    @click.stop="centerNodes"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2"/>
+      <line x1="12" y1="3" x2="12" y2="21"/>
+      <line x1="3" y1="12" x2="21" y2="12"/>
+    </svg>
+  </button>
+</div>
     <!-- Inner canvas -->
     <div
     ref="canvasRef"
