@@ -308,11 +308,38 @@ function handleFieldClick(fieldId: string, nodeId: string, isOut: boolean) {
     startEdge(fieldId, nodeId, isOut)
   }
 }
+
+function centerNodes() {
+  if (tree.value.nodes.length === 0) return
+
+  // Find bounding box of all nodes
+  const minX = Math.min(...tree.value.nodes.map(n => n.position.x))
+  const minY = Math.min(...tree.value.nodes.map(n => n.position.y))
+  const maxX = Math.max(...tree.value.nodes.map(n => n.position.x + NODE_WIDTH))
+  const maxY = Math.max(...tree.value.nodes.map(n => n.position.y + getNodeHeight(n)))
+
+  // Center of all nodes
+  const contentWidth = maxX - minX
+  const contentHeight = maxY - minY
+
+  // Get viewport size
+  const viewport = document.querySelector('.node-canvas') as HTMLElement
+  if (!viewport) return
+  const viewportWidth = viewport.clientWidth
+  const viewportHeight = viewport.clientHeight
+
+  // Calculate pan offset to center content
+  panOffset.value = {
+    x: (viewportWidth - contentWidth * scale.value) / 2 - minX * scale.value,
+    y: (viewportHeight - contentHeight * scale.value) / 2 - minY * scale.value,
+  }
+}
+
 </script>
 
 <template>
   <div
-    class="relative h-full w-full overflow-hidden bg-neutral-50 dark:bg-neutral-950"
+    class="relative h-full w-full overflow-hidden bg-neutral-50 dark:bg-neutral-950 node-canvas"
     :class="isPanning ? 'cursor-grabbing' : 'cursor-grab'"
     @mousemove="mouseMove"
     @mouseup="mouseUp"
@@ -320,6 +347,19 @@ function handleFieldClick(fieldId: string, nodeId: string, isOut: boolean) {
     @mousedown="mouseDownCanvas"
     @wheel.prevent="onWheel"
   >
+
+  <button
+      class="absolute top-3 right-3 z-50 p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
+      title="Center all nodes"
+      @click.stop="centerNodes"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <line x1="12" y1="3" x2="12" y2="21"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+      </svg>
+    </button>
+
     <!-- Inner canvas -->
     <div
     ref="canvasRef"
