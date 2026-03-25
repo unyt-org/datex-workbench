@@ -382,6 +382,39 @@ function autoLayout() {
   centerNodes()
 }
 
+function exportTree() {
+  const json = JSON.stringify(tree.value, null, 2)
+  const blob = new Blob([json], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'node-tree.json'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+const fileInputRef = ref<HTMLInputElement | null>(null)
+
+function triggerImport() {
+  fileInputRef.value?.click()
+}
+
+function importTree(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    try {
+      const json = JSON.parse(e.target?.result as string)
+      tree.value = parseNodeTree(json)
+    } catch (err) {
+      console.error('[NodeTree] Invalid JSON file', err)
+    }
+  }
+  reader.readAsText(file)
+}
+
 </script>
 
 <template>
@@ -395,8 +428,44 @@ function autoLayout() {
     @wheel.prevent="onWheel"
   >
 
+  <!-- Hidden file input -->
+<input
+  ref="fileInputRef"
+  type="file"
+  accept=".json"
+  class="hidden"
+  @change="importTree"
+/>
+
   <!-- Buttons top right -->
 <div class="absolute top-3 right-3 z-50 flex gap-2">
+
+  <!-- Import button -->
+  <button
+    class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
+    title="Import from JSON"
+    @click.stop="triggerImport"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="17 8 12 3 7 8"/>
+      <line x1="12" y1="3" x2="12" y2="15"/>
+    </svg>
+  </button>
+
+  <!-- Export button -->
+  <button
+    class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
+    title="Export to JSON"
+    @click.stop="exportTree"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
+  </button>
+
   <!-- Auto layout button -->
   <button
     class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
