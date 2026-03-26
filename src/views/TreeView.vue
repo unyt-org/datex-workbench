@@ -563,10 +563,8 @@ function importTree(event: Event) {
         <template v-for="edge in draggedNodeEdges" :key="edge.id + '-top'">
           <g
             v-if="edgeCoords.get(edge.id)"
-            class="pointer-events-auto cursor-pointer"
-            @click="removeEdge(edge.id)"
+            class="pointer-events-none"
           >
-            <path :d="getPath(edgeCoords.get(edge.id)!)" fill="none" stroke="transparent" stroke-width="12"/>
             <EdgeView :edge="edge" v-bind="edgeCoords.get(edge.id)!"/>
           </g>
         </template>
