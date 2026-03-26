@@ -5,6 +5,7 @@ import type { Node } from '@/types/NodeTree/node-tree'
 const props = defineProps<{
   node: Node
   isDragging?: boolean
+  isActive?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -16,11 +17,14 @@ const emit = defineEmits<{
 
 <template>
   <Card
-    class="absolute w-56 select-none transition-shadow node-card"
-    :class="isDragging ? 'z-50 shadow-2xl' : 'z-10 shadow-sm'"
-    :style="{ left: `${node.position.x}px`, top: `${node.position.y}px` }"
-    @mousedown.left.stop="$emit('start-drag', $event)"
-  >
+  class="absolute w-56 select-none transition-shadow node-card cursor-grab active:cursor-grabbing"
+  :class="[
+    isDragging ? 'z-50 shadow-2xl' : 'z-10 shadow-sm',
+    isActive ? 'border-2 border-blue-500 dark:border-blue-400' : ''
+  ]"
+  :style="{ left: `${node.position.x}px`, top: `${node.position.y}px` }"
+  @mousedown.left.stop="$emit('start-drag', $event)"
+>
   <template v-for="field in node.fields" :key="'top-' + field.id">
     <template v-if="field.connectors?.length">
       <span

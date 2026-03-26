@@ -329,6 +329,24 @@ function handleFieldClick(fieldId: string, nodeId: string, isOut: boolean) {
   }
 }
 
+const activeNodeIds = ref<Set<string>>(new Set())
+
+function handleNodeClick(nodeId: string, event: MouseEvent) {
+  if (event.shiftKey) {
+    // Shift click — toggle node in selection
+    const newSet = new Set(activeNodeIds.value)
+    if (newSet.has(nodeId)) {
+      newSet.delete(nodeId)
+    } else {
+      newSet.add(nodeId)
+    }
+    activeNodeIds.value = newSet
+  } else {
+    // Single click — select only this node
+    activeNodeIds.value = new Set([nodeId])
+  }
+}
+
 function centerNodes() {
   if (tree.value.nodes.length === 0) return
 
@@ -568,8 +586,10 @@ function importTree(event: Event) {
   :key="node.id"
   :node="node"
   :is-dragging="currentNodeId === node.id"
+  :is-active="activeNodeIds.has(node.id)"
   @field-click="handleFieldClick"
   @start-drag="(e: MouseEvent) => mouseDownNode(e, node.id)"
+  @click.stop="(e: MouseEvent) => handleNodeClick(node.id, e)"
 />
     </div>
 
