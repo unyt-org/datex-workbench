@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import NodeView from '@/components/NodeTree/Node.vue'
 import EdgeView from '@/components/NodeTree/Edge.vue'
-import { ref, type Ref, watch, nextTick, onMounted, computed } from 'vue'
+import { ref, type Ref, watch, nextTick, onMounted, onUnmounted, computed } from 'vue'
 import type { NodeTree, Position, Edge } from '@/types/NodeTree/node-tree'
 import type { NodeTreeInput } from '@/types/NodeTree/node-tree-input'
 import { parseNodeTree } from '@/composable/NodeTree/parseNodeTree'
@@ -288,7 +288,16 @@ function mouseDownCanvas(event: MouseEvent) {
   }
 }
 
-function mouseMove(event: MouseEvent) {
+const mousePos = ref<Position>({ x: 0, y: 0 })
+
+function onMouseMove(event: MouseEvent) {
+  // Track mouse position for paste
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+  mousePos.value = {
+    x: (event.clientX - rect.left - panOffset.value.x) / scale.value,
+    y: (event.clientY - rect.top - panOffset.value.y) / scale.value,
+  }
+
   if (isDraggingNode.value && currentNodeId.value) {
     const node = tree.value.nodes.find((n) => n.id === currentNodeId.value)
     if (node) {
@@ -451,13 +460,87 @@ function importTree(event: Event) {
   reader.readAsText(file)
 }
 
+const copiedNodes = ref<NodeTree['nodes']>([])
+
+function handleKeydown(event: KeyboardEvent) {
+  const isMac = navigator.platform.toUpperCase().includes('MAC')
+  const cmdOrCtrl = isMac ? event.metaKey : event.ctrlKey
+
+  // CMD+A - select all nodes
+  if (cmdOrCtrl && event.key === 'a') {
+    event.preventDefault()
+    activeNodeIds.value = new Set(tree.value.nodes.map(n => n.id))
+    return
+  }
+
+  // Del/Backspace - delete active nodes
+  if ((event.key === 'Delete' || event.key === 'Backspace') && activeNodeIds.value.size > 0) {
+    if (isReadOnly.value) return
+    event.preventDefault()
+    // Remove edges connected to deleted nodes
+    tree.value.edges = tree.value.edges.filter(e => {
+      const srcNodeId = e.source.kind === 'field' ? e.source.nodeId : e.source.nodeId
+      const tgtNodeId = e.target.kind === 'field' ? e.target.nodeId : e.target.nodeId
+      return !activeNodeIds.value.has(srcNodeId) && !activeNodeIds.value.has(tgtNodeId)
+    })
+    tree.value.nodes = tree.value.nodes.filter(n => !activeNodeIds.value.has(n.id))
+    activeNodeIds.value = new Set()
+    return
+  }
+
+  // CMD+C - copy active nodes
+  if (cmdOrCtrl && event.key === 'c' && activeNodeIds.value.size > 0) {
+    event.preventDefault()
+    copiedNodes.value = tree.value.nodes
+      .filter(n => activeNodeIds.value.has(n.id))
+      .map(n => ({ ...n, fields: [...n.fields] }))
+    return
+  }
+
+  // CMD+V - paste copied nodes
+  if (cmdOrCtrl && event.key === 'v' && copiedNodes.value.length > 0) {
+    if (isReadOnly.value) return
+    event.preventDefault()
+
+    const offset = 20
+    const newIds = new Set<string>()
+
+    const newNodes = copiedNodes.value.map((node, i) => {
+      const newId = generateId()
+      newIds.add(newId)
+      return {
+        ...node,
+        id: newId,
+        position: {
+          x: mousePos.value.x + (i * offset),
+          y: mousePos.value.y + (i * offset),
+        },
+        fields: node.fields.map(f => ({ ...f, id: generateId() }))
+      }
+    })
+
+    tree.value.nodes.push(...newNodes)
+    activeNodeIds.value = newIds
+    return
+  }
+}
+
+onMounted(() => {
+  recalculateEdges()
+  window.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown)
+})
+
 </script>
 
 <template>
   <div
     class="relative h-full w-full overflow-hidden bg-neutral-50 dark:bg-neutral-950 node-canvas"
     :class="isPanning ? 'cursor-grabbing' : 'cursor-grab'"
-    @mousemove="mouseMove"
+    @mousemove="onMouseMove"
     @mouseup="mouseUp"
     @mouseleave="mouseUp"
     @mousedown="mouseDownCanvas"
