@@ -12,6 +12,7 @@ import dagre from 'dagre'
 const example = exampleJson as NodeTreeInput
 const tree: Ref<NodeTree<unknown, unknown>> = ref(parseNodeTree(example))
 
+const isReadOnly = ref(false)
 const canvasRef = ref<HTMLElement | null>(null)
 
 // Reactive edge coordinates - recalculated when nodes move
@@ -314,6 +315,7 @@ function mouseUp() {
 }
 
 function handleFieldClick(fieldId: string, nodeId: string, isOut: boolean) {
+  if (isReadOnly.value) return
   if (pendingEdge.value) {
     // Only complete if source was out and target is in
     if (pendingEdge.value.isOut && !isOut) {
@@ -453,6 +455,23 @@ function importTree(event: Event) {
   @change="importTree"
 />
 
+<!-- Top left - read only toggle -->
+<button
+  class="absolute top-3 left-3 z-50 flex items-center gap-2 px-3 py-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300 text-xs font-medium"
+  @click.stop="isReadOnly = !isReadOnly"
+  :title="isReadOnly ? 'Switch to Edit Mode' : 'Switch to Read-Only Mode'"
+>
+  <svg v-if="isReadOnly" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+  </svg>
+  <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+    <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+  </svg>
+  {{ isReadOnly ? 'Read Only' : 'Edit' }}
+</button>
+
   <!-- Buttons top right -->
 <div class="absolute top-3 right-3 z-50 flex gap-2">
 
@@ -534,8 +553,8 @@ function importTree(event: Event) {
   <template v-for="edge in otherEdges" :key="edge.id">
     <g
       v-if="edgeCoords.get(edge.id)"
-      class="pointer-events-auto cursor-pointer"
-      @click="removeEdge(edge.id)"
+      :class="isReadOnly ? 'pointer-events-none' : 'pointer-events-auto cursor-pointer'"
+      @click="!isReadOnly && removeEdge(edge.id)"
     >
       <path :d="getPath(edgeCoords.get(edge.id)!)" fill="none" stroke="transparent" stroke-width="12"/>
       <EdgeView :edge="edge" v-bind="edgeCoords.get(edge.id)!"/>
