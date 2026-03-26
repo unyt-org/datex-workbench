@@ -27,6 +27,7 @@ const NODE_WIDTH = 224  // w-56
 
 const scale = ref(1)
 
+const copiedSubtree = ref<{ nodes: NodeTree['nodes'], edges: NodeTree['edges'] }>({ nodes: [], edges: [] })
 
 async function recalculateEdges() {
   await nextTick()
@@ -281,6 +282,10 @@ function mouseDownCanvas(event: MouseEvent) {
   if (isDraggingNode.value) return
   const target = event.target as HTMLElement
   if (target.closest('.node-card')) return
+
+   // Deselect all active nodes when clicking background
+   activeNodeIds.value = new Set()
+
   isPanning.value = true
   panStart.value = {
     x: event.clientX - panOffset.value.x,
@@ -460,8 +465,6 @@ function importTree(event: Event) {
   reader.readAsText(file)
 }
 
-const copiedNodes = ref<NodeTree['nodes']>([])
-
 function handleKeydown(event: KeyboardEvent) {
   const isMac = navigator.platform.toUpperCase().includes('MAC')
   const cmdOrCtrl = isMac ? event.metaKey : event.ctrlKey
@@ -469,9 +472,16 @@ function handleKeydown(event: KeyboardEvent) {
   // CMD+A - select all nodes
   if (cmdOrCtrl && event.key === 'a') {
     event.preventDefault()
+    if (activeNodeIds.value.size === tree.value.nodes.length) {
+    // All selected — deselect all
+    activeNodeIds.value = new Set()
+  } else {
+    // Select all
     activeNodeIds.value = new Set(tree.value.nodes.map(n => n.id))
-    return
   }
+      return
+  }
+
 
   // Del/Backspace - delete active nodes
   if ((event.key === 'Delete' || event.key === 'Backspace') && activeNodeIds.value.size > 0) {
@@ -490,39 +500,80 @@ function handleKeydown(event: KeyboardEvent) {
 
   // CMD+C - copy active nodes
   if (cmdOrCtrl && event.key === 'c' && activeNodeIds.value.size > 0) {
-    event.preventDefault()
-    copiedNodes.value = tree.value.nodes
-      .filter(n => activeNodeIds.value.has(n.id))
-      .map(n => ({ ...n, fields: [...n.fields] }))
-    return
-  }
+  event.preventDefault()
+  const copiedNodes = tree.value.nodes
+    .filter(n => activeNodeIds.value.has(n.id))
+    .map(n => ({ ...n, fields: n.fields.map(f => ({ ...f })) }))
+
+  // Copy edges between copied nodes only
+  const copiedNodeIds = new Set(copiedNodes.map(n => n.id))
+  const copiedEdges = tree.value.edges.filter(e => {
+    const srcNodeId = e.source.kind === 'field' ? e.source.nodeId : e.source.nodeId
+    const tgtNodeId = e.target.kind === 'field' ? e.target.nodeId : e.target.nodeId
+    return copiedNodeIds.has(srcNodeId) && copiedNodeIds.has(tgtNodeId)
+  })
+
+  copiedSubtree.value = { nodes: copiedNodes, edges: copiedEdges }
+  return
+}
 
   // CMD+V - paste copied nodes
-  if (cmdOrCtrl && event.key === 'v' && copiedNodes.value.length > 0) {
-    if (isReadOnly.value) return
-    event.preventDefault()
+  if (cmdOrCtrl && event.key === 'v' && copiedSubtree.value.nodes.length > 0) {
+  if (isReadOnly.value) return
+  event.preventDefault()
 
-    const offset = 20
-    const newIds = new Set<string>()
+  // Find bounding box of copied nodes
+  const minX = Math.min(...copiedSubtree.value.nodes.map(n => n.position.x))
+  const minY = Math.min(...copiedSubtree.value.nodes.map(n => n.position.y))
 
-    const newNodes = copiedNodes.value.map((node, i) => {
-      const newId = generateId()
-      newIds.add(newId)
-      return {
-        ...node,
-        id: newId,
-        position: {
-          x: mousePos.value.x + (i * offset),
-          y: mousePos.value.y + (i * offset),
-        },
-        fields: node.fields.map(f => ({ ...f, id: generateId() }))
-      }
+  // Map old IDs to new IDs
+  const nodeIdMap = new Map<string, string>()
+  const fieldIdMap = new Map<string, string>()
+
+  const newNodes = copiedSubtree.value.nodes.map(node => {
+    const newId = generateId()
+    nodeIdMap.set(node.id, newId)
+
+    const newFields = node.fields.map(f => {
+      const newFieldId = generateId()
+      fieldIdMap.set(f.id, newFieldId)
+      return { ...f, id: newFieldId }
     })
 
-    tree.value.nodes.push(...newNodes)
-    activeNodeIds.value = newIds
-    return
-  }
+    return {
+      ...node,
+      id: newId,
+      fields: newFields,
+      position: {
+        x: mousePos.value.x + (node.position.x - minX),
+        y: mousePos.value.y + (node.position.y - minY),
+      }
+    }
+  })
+
+  // Remap edge IDs
+  const newEdges = copiedSubtree.value.edges.map(edge => {
+    const newSource = edge.source.kind === 'field'
+      ? { kind: 'field' as const, nodeId: nodeIdMap.get(edge.source.nodeId) ?? edge.source.nodeId, fieldId: fieldIdMap.get(edge.source.fieldId) ?? edge.source.fieldId }
+      : { kind: 'node' as const, nodeId: nodeIdMap.get(edge.source.nodeId) ?? edge.source.nodeId }
+
+    const newTarget = edge.target.kind === 'field'
+      ? { kind: 'field' as const, nodeId: nodeIdMap.get(edge.target.nodeId) ?? edge.target.nodeId, fieldId: fieldIdMap.get(edge.target.fieldId) ?? edge.target.fieldId }
+      : { kind: 'node' as const, nodeId: nodeIdMap.get(edge.target.nodeId) ?? edge.target.nodeId }
+
+    return {
+      ...edge,
+      id: generateId(),
+      source: newSource,
+      target: newTarget,
+    }
+  })
+
+  tree.value.nodes.push(...newNodes)
+  tree.value.edges.push(...newEdges)
+  activeNodeIds.value = new Set(newNodes.map(n => n.id))
+  return
+}
 }
 
 onMounted(() => {
