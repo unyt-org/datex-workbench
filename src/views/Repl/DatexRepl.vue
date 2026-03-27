@@ -1,192 +1,177 @@
 <script setup lang="ts">
-import { ref, nextTick, watch, computed } from 'vue';
-import { Datex } from '@/lib/runtime';
-import { useDatexRepl } from '@/components/useDatexRepl';
+import { ref, nextTick, watch, computed, onMounted } from 'vue';
+import { useDatexRepl } from '@/composable/useDatexRepl';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Settings, ChevronRight, ChevronLeft, Trash2 } from 'lucide-vue-next';
 
 const { entries, history, executeCommand, clear, suggestions, updateSuggestions } = useDatexRepl();
 
 const currentInput = ref('');
 const historyIdx = ref(-1);
-const scrollContainer = ref<HTMLElement | null>(null);
 const textareaRef = ref<HTMLTextAreaElement | null>(null);
-const selectedSuggestion = ref(0);
-const isNavigatingSuggestions = ref(false);
+const scrollContainer = ref<HTMLElement | null>(null);
+const selectedIdx = ref(0);
 
-async function handleEnter(e: KeyboardEvent) {
-    if (e.shiftKey) return; // multiline with Shift+Enter (Requirement #82)
-    e.preventDefault();
+const ghostText = computed(() => {
+    if (!currentInput.value || !suggestions.value.length) return '';
+    const suggestion = suggestions.value[selectedIdx.value];
 
-    const code = currentInput.value.trim();
-    if (!code) return;
+    const lastToken = currentInput.value.match(/([\w.]+)$/)?.[0] || '';
 
-    await executeCommand(code);
-    currentInput.value = '';
-    historyIdx.value = -1;
+    if (suggestion.startsWith(lastToken)) {
+        return suggestion.slice(lastToken.length);
+    }
+    return '';
+});
 
+const autoResize = () => {
+    if (!textareaRef.value) return;
+
+    textareaRef.value.style.height = 'auto';
+
+    const newHeight = Math.min(textareaRef.value.scrollHeight, 300);
+    textareaRef.value.style.height = `${newHeight}px`;
+
+    textareaRef.value.style.overflowY = textareaRef.value.scrollHeight > 300 ? 'auto' : 'hidden';
+};
+
+const resizeTextarea = async () => {
     await nextTick();
-    if (scrollContainer.value) {
-        scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight;
-    }
-}
+    autoResize();
+};
 
-function setInputValueAndMoveCursor(value: string) {
-    currentInput.value = value;
+function handleKeydown(e: KeyboardEvent) {
+    const el = textareaRef.value;
+    if (!el) return;
 
-    nextTick(() => {
-        requestAnimationFrame(() => {
-            const el = textareaRef.value;
-            if (!el) return;
-
-            el.focus();
-            const end = el.value.length;
-            el.setSelectionRange(end, end);
-        });
-    });
-}
-
-function handleUp() {
-    if (suggestions.value.length && isNavigatingSuggestions.value) {
-        selectedSuggestion.value =
-            (selectedSuggestion.value - 1 + suggestions.value.length) % suggestions.value.length;
-        return;
-    }
-
-    if (suggestions.value.length) {
-        isNavigatingSuggestions.value = true;
-        selectedSuggestion.value = suggestions.value.length - 1;
-        return;
-    }
-
-    if (history.value.length > 0 && historyIdx.value < history.value.length - 1) {
-        historyIdx.value++;
-        setInputValueAndMoveCursor(history.value[historyIdx.value]);
-    }
-}
-
-function handleDown() {
-    if (suggestions.value.length && isNavigatingSuggestions.value) {
-        selectedSuggestion.value = (selectedSuggestion.value + 1) % suggestions.value.length;
-        return;
-    }
-
-    if (suggestions.value.length) {
-        isNavigatingSuggestions.value = true;
-        selectedSuggestion.value = 0;
-        return;
-    }
-
-    if (historyIdx.value > 0) {
-        historyIdx.value--;
-        setInputValueAndMoveCursor(history.value[historyIdx.value]);
-    } else {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        const code = currentInput.value;
+        currentInput.value = '';
+        executeCommand(code);
         historyIdx.value = -1;
-        setInputValueAndMoveCursor('');
+        nextTick(() =>
+            scrollContainer.value?.scrollTo({
+                top: scrollContainer.value.scrollHeight,
+                behavior: 'smooth',
+            }),
+        );
+    }
+
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        if (suggestions.value.length > 0) {
+            selectedIdx.value = (selectedIdx.value + 1) % suggestions.value.length;
+        }
+    }
+
+    if (e.key === 'ArrowRight' && el.selectionStart === currentInput.value.length) {
+        if (ghostText.value) {
+            e.preventDefault();
+            currentInput.value += ghostText.value;
+        }
+    }
+
+    if (e.key === 'ArrowUp' && historyIdx.value < history.value.length - 1) {
+        e.preventDefault();
+        historyIdx.value++;
+        currentInput.value = history.value[historyIdx.value];
+    } else if (e.key === 'ArrowDown' && historyIdx.value >= 0) {
+        e.preventDefault();
+        historyIdx.value--;
+        currentInput.value = historyIdx.value === -1 ? '' : history.value[historyIdx.value];
     }
 }
-
-function handleTab(e: KeyboardEvent) {
-    if (!suggestions.value.length) return;
-    e.preventDefault();
-
-    setInputValueAndMoveCursor(suggestions.value[selectedSuggestion.value]);
-
-    isNavigatingSuggestions.value = false;
-}
-
-function handleEscape() {
-    isNavigatingSuggestions.value = false;
-}
-
-// const ghostText = computed(() => {
-//     const s = suggestions.value[0];
-//     if (!s || !currentInput.value) return '';
-//     if (!s.startsWith(currentInput.value)) return '';
-//     return s.slice(currentInput.value.length);
-// });
 
 watch(currentInput, (val) => {
+    resizeTextarea();
     updateSuggestions(val);
-    selectedSuggestion.value = 0;
-    isNavigatingSuggestions.value = false;
+    selectedIdx.value = 0;
+});
+onMounted(() => {
+    resizeTextarea();
 });
 </script>
 
 <template>
-    <div
-        class="flex h-full flex-col overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950 font-mono text-sm text-zinc-200"
-    >
+    <div class="bg-page text-primary relative flex h-full flex-col font-mono text-sm">
+        <div class="absolute top-3 right-3 z-20">
+            <Popover>
+                <PopoverTrigger as-child>
+                    <button class="btn-icon border-card bg-card">
+                        <Settings class="h-4 w-4" />
+                    </button>
+                </PopoverTrigger>
+                <PopoverContent align="end" class="card w-64">
+                    <PointerPreferences />
+                </PopoverContent>
+            </Popover>
+        </div>
         <div ref="scrollContainer" class="flex-1 space-y-2 overflow-y-auto p-4">
-            <div v-for="(entry, i) in entries" :key="i" class="whitespace-pre-wrap">
-                <div v-if="entry.type === 'input'" class="flex gap-2 text-blue-400">
-                    <span class="shrink-0 opacity-50">❯</span>
-                    <span>{{ entry.content }}</span>
+            <div
+                v-for="(entry, i) in entries"
+                :key="i"
+                class="text-sm break-all whitespace-pre-wrap"
+            >
+                <div v-if="entry.type === 'input'" class="text-muted-foreground flex gap-2">
+                    <ChevronRight size="14" class="mt-1 opacity-50" />
+                    <span class="text-primary">{{ entry.content }}</span>
+                </div>
+                <div v-else-if="entry.type === 'output'" class="text-primary flex gap-2">
+                    <ChevronLeft size="14" class="text-dim mt-1" />
+                    <span v-html="entry.content" class="text-primary"></span>
                 </div>
 
                 <div
-                    v-else-if="entry.type === 'output'"
-                    class="flex items-start gap-2 text-emerald-400"
+                    v-else
+                    class="card border-destructive/30 bg-destructive/10 text-destructive border"
                 >
-                    <span class="mt-1 shrink-0 opacity-50">◀</span>
-                    <span v-if="entry.content" v-html="entry.content"></span>
-                    <span v-else class="italic opacity-50">no result</span>
-                </div>
-                <div
-                    v-else-if="entry.type === 'error'"
-                    class="flex gap-2 rounded border border-red-500/20 bg-red-500/10 p-2 text-red-400"
-                >
-                    <span class="shrink-0">✕</span>
-                    <span>{{ entry.content }}</span>
+                    {{ entry.content }}
                 </div>
             </div>
         </div>
+        <div class="border-card bg-card border-t p-3">
+            <div class="flex items-center gap-2">
+                <span class="text-dim">
+                    <ChevronRight size="18" />
+                </span>
 
-        <div class="relative flex items-end gap-2 border-t border-zinc-800 bg-zinc-900 p-2">
-            <button
-                @click="clear"
-                class="rounded p-2 text-zinc-500 transition-colors hover:bg-zinc-800"
-                title="Clear Console"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                >
-                    <path d="M3 6h18" />
-                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                </svg>
-            </button>
+                <div class="relative flex-1">
+                    <div
+                        class="text-faint pointer-events-none absolute inset-0 px-0 py-2 whitespace-pre"
+                        aria-hidden="true"
+                    >
+                        <span class="opacity-0">{{ currentInput }}</span>
+                        {{ ghostText }}
+                    </div>
+                    <textarea
+                        ref="textareaRef"
+                        v-model="currentInput"
+                        @keydown="handleKeydown"
+                        @input="autoResize"
+                        rows="1"
+                        spellcheck="false"
+                        class="text-primary placeholder:text-faint relative block w-full resize-none border-none bg-transparent py-2 outline-none"
+                        placeholder="Type DATEX commands..."
+                        :style="{ maxHeight: '300px', overflowY: 'auto' }"
+                    ></textarea>
+                </div>
 
-            <textarea
-                ref="textareaRef"
-                v-model="currentInput"
-                @keydown.enter.exact="handleEnter"
-                @keydown.up.exact="handleUp"
-                @keydown.down.exact="handleDown"
-                @keydown.tab.prevent="handleTab"
-                @keydown.esc="handleEscape"
-                rows="1"
-                class="flex-1 resize-none border-none bg-transparent py-2 text-zinc-100 outline-none placeholder:text-zinc-600"
-                placeholder="Type DATEX command and press Enter..."
-            ></textarea>
+                <button @click="clear" class="btn-icon">
+                    <Trash2 size="16" />
+                </button>
+            </div>
             <div
-                v-if="suggestions.length"
-                class="absolute bottom-full left-2 mb-1 w-64 rounded-md border border-zinc-700 bg-zinc-800 text-xs shadow-lg"
+                v-if="suggestions.length > 1"
+                class="card border-card absolute bottom-full left-10 mb-2 flex gap-2 p-1 shadow-xl"
             >
                 <div
                     v-for="(s, i) in suggestions"
-                    :key="i"
+                    :key="s"
                     :class="[
-                        'cursor-pointer px-3 py-1.5',
-                        i === selectedSuggestion ? 'bg-zinc-700' : 'hover:bg-zinc-700',
+                        'rounded px-2 py-0.5 text-[10px]',
+                        i === selectedIdx ? 'bg-primary text-primary-foreground' : 'text-dim',
                     ]"
-                    @click="setInputValueAndMoveCursor(s)"
                 >
                     {{ s }}
                 </div>

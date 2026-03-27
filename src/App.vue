@@ -33,7 +33,7 @@ import { RouterView } from 'vue-router';
         <!--      </SidebarProvider>-->
 
         <!-- Main content area -->
-        <div class="main flex-1 overflow-hidden text-white">
+        <div class="main flex-1 overflow-hidden pt-[50px] text-white">
             <Suspense>
                 <RouterView />
             </Suspense>
