@@ -40,7 +40,8 @@ function init() {
     containerRef.value.appendChild(renderer.domElement);
 
     const pointsCount = 500;
-    const pointsG = new THREE.BufferGeometry();
+    const pointsG =
+        new THREE.BufferGeometry() as THREE.BufferGeometry<THREE.NormalBufferAttributes>;
     const pointsV = new Float32Array(pointsCount * 3);
     const initialPositions = new Float32Array(pointsCount * 3);
 
@@ -95,29 +96,30 @@ function init() {
     function animate() {
         time += 0.005;
         connectionDistSq = Math.min(Math.sin(time) * 256 + 0.5, 256);
-        const positions = pointsG.attributes.position.array;
+        const positions = (pointsG.attributes.position as THREE.BufferAttribute)
+            .array as Float32Array;
 
         for (let i = 0; i < pointsCount * 3; i += 3) {
-            positions[i] = initialPositions[i] + Math.sin(time + i * 0.01) * speed * 10;
-            positions[i + 1] = initialPositions[i + 1] + Math.cos(time + i * 0.02) * speed * 5;
+            positions[i] = initialPositions[i]! + Math.sin(time + i * 0.01) * speed * 10;
+            positions[i + 1] = initialPositions[i + 1]! + Math.cos(time + i * 0.02) * speed * 5;
             positions[i + 2] =
-                initialPositions[i + 2] + Math.sin(time * 0.5 + i * 0.03) * speed * 3;
+                initialPositions[i + 2]! + Math.sin(time * 0.5 + i * 0.03) * speed * 3;
         }
 
-        pointsG.attributes.position.needsUpdate = true;
+        (pointsG.attributes.position as THREE.BufferAttribute).needsUpdate = true;
 
         let lineIdx = 0;
         let colorIdx = 0;
 
         for (let i = 0; i < pointsCount; i++) {
-            const ix = positions[i * 3];
-            const iy = positions[i * 3 + 1];
-            const iz = positions[i * 3 + 2];
+            const ix = positions[i * 3]!;
+            const iy = positions[i * 3 + 1]!;
+            const iz = positions[i * 3 + 2]!;
 
             for (let j = i + 1; j < pointsCount; j++) {
-                const jx = positions[j * 3];
-                const jy = positions[j * 3 + 1];
-                const jz = positions[j * 3 + 2];
+                const jx = positions[j * 3]!;
+                const jy = positions[j * 3 + 1]!;
+                const jz = positions[j * 3 + 2]!;
 
                 const dx = ix - jx;
                 const dy = iy - jy;
@@ -142,8 +144,8 @@ function init() {
         }
 
         lineGeometry.setDrawRange(0, lineIdx / 3);
-        lineGeometry.attributes.position.needsUpdate = true;
-        lineGeometry.attributes.color.needsUpdate = true;
+        (lineGeometry.attributes.position as THREE.BufferAttribute).needsUpdate = true;
+        (lineGeometry.attributes.color as THREE.BufferAttribute).needsUpdate = true;
 
         renderer.render(scene, camera);
 
@@ -163,13 +165,17 @@ watch(mode, (newMode) => {
     updateBackgroundColor();
 
     // Update points material color
-    const pointsMesh = scene.children.find((child) => child instanceof THREE.Points);
+    const pointsMesh = scene.children.find(
+        (child: THREE.Object3D) => child instanceof THREE.Points,
+    );
     if (pointsMesh && pointsMesh.material instanceof THREE.PointsMaterial) {
         pointsMesh.material.color.setHex(newMode === 'dark' ? 0xffffff : 0x333333);
     }
 
     // Update line material opacity or color if needed
-    const lineMesh = scene.children.find((child) => child instanceof THREE.LineSegments);
+    const lineMesh = scene.children.find(
+        (child: THREE.Object3D) => child instanceof THREE.LineSegments,
+    );
     if (lineMesh && lineMesh.material instanceof THREE.LineBasicMaterial) {
         // Optional: Adjust line opacity based on theme
         lineMesh.material.opacity = newMode === 'dark' ? 0.4 : 0.2;

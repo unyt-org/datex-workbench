@@ -13,15 +13,15 @@ const scrollContainer = ref<HTMLElement | null>(null);
 const selectedIdx = ref(0);
 
 const ghostText = computed(() => {
-    if (!currentInput.value || !suggestions.value.length) return '';
-    const suggestion = suggestions.value[selectedIdx.value];
+    const list = suggestions.value;
+    if (!currentInput.value || list.length === 0) return '';
 
-    const lastToken = currentInput.value.match(/([\w.]+)$/)?.[0] || '';
+    const suggestion = list[selectedIdx.value];
+    if (!suggestion) return '';
 
-    if (suggestion.startsWith(lastToken)) {
-        return suggestion.slice(lastToken.length);
-    }
-    return '';
+    const lastToken = currentInput.value.match(/([\w.]+)$/)?.[0] ?? '';
+
+    return suggestion.startsWith(lastToken) ? suggestion.slice(lastToken.length) : '';
 });
 
 const autoResize = () => {
@@ -73,20 +73,22 @@ function handleKeydown(e: KeyboardEvent) {
     }
 
     if (e.key === 'ArrowUp' && historyIdx.value < history.value.length - 1) {
-        e.preventDefault();
-        historyIdx.value++;
-        currentInput.value = history.value[historyIdx.value];
+        if (currentInput.value) {
+            e.preventDefault();
+            historyIdx.value++;
+            currentInput.value = history.value[historyIdx.value] ?? '';
+        }
     } else if (e.key === 'ArrowDown' && historyIdx.value >= 0) {
         e.preventDefault();
         historyIdx.value--;
-        currentInput.value = historyIdx.value === -1 ? '' : history.value[historyIdx.value];
+        currentInput.value = historyIdx.value === -1 ? '' : (history.value[historyIdx.value] ?? '');
     }
 }
 
 watch(currentInput, (val) => {
     resizeTextarea();
     updateSuggestions(val);
-    selectedIdx.value = 0;
+    selectedIdx.value = suggestions.value.length ? 0 : -1;
 });
 onMounted(() => {
     resizeTextarea();
@@ -114,11 +116,11 @@ onMounted(() => {
                 class="text-sm break-all whitespace-pre-wrap"
             >
                 <div v-if="entry.type === 'input'" class="text-muted-foreground flex gap-2">
-                    <ChevronRight size="14" class="mt-1 opacity-50" />
+                    <ChevronRight :size="14" class="mt-1 opacity-50" />
                     <span class="text-primary">{{ entry.content }}</span>
                 </div>
                 <div v-else-if="entry.type === 'output'" class="text-primary flex gap-2">
-                    <ChevronLeft size="14" class="text-dim mt-1" />
+                    <ChevronLeft :size="14" class="text-dim mt-1" />
                     <span v-html="entry.content" class="text-primary"></span>
                 </div>
 
@@ -133,7 +135,7 @@ onMounted(() => {
         <div class="border-card bg-card relative border-t p-3">
             <div class="flex items-center gap-2">
                 <span class="text-dim">
-                    <ChevronRight size="18" />
+                    <ChevronRight :size="18" />
                 </span>
 
                 <div class="relative flex-1">
@@ -158,7 +160,7 @@ onMounted(() => {
                 </div>
 
                 <button @click="reset" class="btn-icon">
-                    <Trash2 size="16" />
+                    <Trash2 :size="16" />
                 </button>
             </div>
             <div
