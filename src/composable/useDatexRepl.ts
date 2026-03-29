@@ -96,10 +96,12 @@ export function useDatexRepl() {
                 type: 'output',
                 content: formatOutput(Datex.valueToString(result)),
             });
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
+
             entries.value.push({
                 type: 'error',
-                content: err?.message || String(err),
+                content: message,
             });
         }
     }
@@ -110,7 +112,7 @@ export function useDatexRepl() {
         suggestions.value = [];
     }
 
-    function formatOutput(val: any): string {
+    function formatOutput(val: unknown): string {
         if (val === 'null' || val === undefined) {
             return '<span class="opacity-40 italic">void</span>';
         }

@@ -91,7 +91,7 @@ function init() {
 
     let time = 0;
     const speed = 0.05;
-    var connectionDistSq = 256;
+    let connectionDistSq = 256;
 
     function animate() {
         time += 0.005;
