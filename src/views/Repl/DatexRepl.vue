@@ -4,7 +4,7 @@ import { useDatexRepl } from '@/composable/useDatexRepl';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Settings, ChevronRight, ChevronLeft, Trash2 } from 'lucide-vue-next';
 
-const { entries, history, executeCommand, clear, suggestions, updateSuggestions } = useDatexRepl();
+const { entries, history, executeCommand, reset, suggestions, updateSuggestions } = useDatexRepl();
 
 const currentInput = ref('');
 const historyIdx = ref(-1);
@@ -130,7 +130,7 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-        <div class="border-card bg-card border-t p-3">
+        <div class="border-card bg-card relative border-t p-3">
             <div class="flex items-center gap-2">
                 <span class="text-dim">
                     <ChevronRight size="18" />
@@ -138,11 +138,12 @@ onMounted(() => {
 
                 <div class="relative flex-1">
                     <div
-                        class="text-faint pointer-events-none absolute inset-0 px-0 py-2 whitespace-pre"
+                        class="text-faint pointer-events-none absolute inset-0 font-mono whitespace-pre"
                         aria-hidden="true"
+                        style="padding: 0.5rem 0"
                     >
-                        <span class="opacity-0">{{ currentInput }}</span>
-                        {{ ghostText }}
+                        <span class="opacity-0">{{ currentInput }}</span
+                        >{{ ghostText }}
                     </div>
                     <textarea
                         ref="textareaRef"
@@ -151,26 +152,27 @@ onMounted(() => {
                         @input="autoResize"
                         rows="1"
                         spellcheck="false"
-                        class="text-primary placeholder:text-faint relative block w-full resize-none border-none bg-transparent py-2 outline-none"
+                        class="text-primary placeholder:text-faint relative block w-full resize-none border-none bg-transparent py-2 font-mono leading-[1.5] outline-none"
                         placeholder="Type DATEX commands..."
-                        :style="{ maxHeight: '300px', overflowY: 'auto' }"
                     ></textarea>
                 </div>
 
-                <button @click="clear" class="btn-icon">
+                <button @click="reset" class="btn-icon">
                     <Trash2 size="16" />
                 </button>
             </div>
             <div
-                v-if="suggestions.length > 1"
-                class="card border-card absolute bottom-full left-10 mb-2 flex gap-2 p-1 shadow-xl"
+                v-if="suggestions.length > 0"
+                class="card border-card absolute bottom-full left-8 mb-2 flex max-h-40 w-48 flex-col overflow-y-auto p-1 shadow-xl"
             >
                 <div
                     v-for="(s, i) in suggestions"
                     :key="s"
                     :class="[
-                        'rounded px-2 py-0.5 text-[10px]',
-                        i === selectedIdx ? 'bg-primary text-primary-foreground' : 'text-dim',
+                        'cursor-pointer rounded px-2 py-1 text-xs transition-colors',
+                        i === selectedIdx
+                            ? 'bg-primary text-primary-foreground'
+                            : 'text-dim hover:bg-muted',
                     ]"
                 >
                     {{ s }}
