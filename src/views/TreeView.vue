@@ -525,6 +525,40 @@ async function handleKeydown(event: KeyboardEvent) {
   return
 }
 
+// CMD+X - cut active nodes
+if (cmdOrCtrl && event.key === 'x' && activeNodeIds.value.size > 0) {
+  if (isReadOnly.value) return
+  event.preventDefault()
+
+  const cutNodes = tree.value.nodes
+    .filter(n => activeNodeIds.value.has(n.id))
+    .map(n => ({ ...n, fields: n.fields.map(f => ({ ...f })) }))
+
+  const cutNodeIds = new Set(cutNodes.map(n => n.id))
+  const cutEdges = tree.value.edges.filter(e => {
+    const srcNodeId = e.source.kind === 'field' ? e.source.nodeId : e.source.nodeId
+    const tgtNodeId = e.target.kind === 'field' ? e.target.nodeId : e.target.nodeId
+    return cutNodeIds.has(srcNodeId) && cutNodeIds.has(tgtNodeId)
+  })
+
+  // Write to system clipboard
+  try {
+    await navigator.clipboard.writeText(JSON.stringify({ nodes: cutNodes, edges: cutEdges }))
+  } catch (err) {
+    console.error('[NodeTree] Failed to write to clipboard', err)
+  }
+
+  // Remove cut nodes and their edges
+  tree.value.edges = tree.value.edges.filter(e => {
+    const srcNodeId = e.source.kind === 'field' ? e.source.nodeId : e.source.nodeId
+    const tgtNodeId = e.target.kind === 'field' ? e.target.nodeId : e.target.nodeId
+    return !cutNodeIds.has(srcNodeId) && !cutNodeIds.has(tgtNodeId)
+  })
+  tree.value.nodes = tree.value.nodes.filter(n => !activeNodeIds.value.has(n.id))
+  activeNodeIds.value = new Set()
+  return
+}
+
   // CMD+V - paste copied nodes
   if (cmdOrCtrl && event.key === 'v') {
   if (isReadOnly.value) return
