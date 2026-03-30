@@ -15,6 +15,9 @@ const tree: Ref<NodeTree<unknown, unknown>> = ref(parseNodeTree(example))
 const isReadOnly = ref(false)
 const canvasRef = ref<HTMLElement | null>(null)
 
+type BackgroundPattern = 'none' | 'grid' | 'checkerboard'
+const backgroundPattern = ref<BackgroundPattern>('grid')
+
 // Reactive edge coordinates - recalculated when nodes move
 const edgeCoords = ref<Map<string, { x1: number; y1: number; x2: number; y2: number }>>(new Map())
 
@@ -614,6 +617,53 @@ onUnmounted(() => {
     @wheel.prevent="onWheel"
   >
 
+  <!-- Background pattern -->
+<svg
+  class="absolute inset-0 w-full h-full pointer-events-none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <defs>
+    <!-- Grid pattern -->
+    <pattern
+      v-if="backgroundPattern === 'grid'"
+      id="grid-pattern"
+      :width="20 * scale"
+      :height="20 * scale"
+      patternUnits="userSpaceOnUse"
+      :x="panOffset.x % (20 * scale)"
+      :y="panOffset.y % (20 * scale)"
+    >
+      <path
+        :d="`M ${20 * scale} 0 L 0 0 0 ${20 * scale}`"
+        fill="none"
+        class="stroke-neutral-200 dark:stroke-neutral-800"
+        stroke-width="0.5"
+      />
+    </pattern>
+
+    <!-- Checkerboard pattern -->
+    <pattern
+      v-if="backgroundPattern === 'checkerboard'"
+      id="checker-pattern"
+      :width="20 * scale"
+      :height="20 * scale"
+      patternUnits="userSpaceOnUse"
+      :x="panOffset.x % (20 * scale)"
+      :y="panOffset.y % (20 * scale)"
+    >
+      <rect :width="10 * scale" :height="10 * scale" fill="currentColor" class="text-neutral-200 dark:text-neutral-800"/>
+      <rect :x="10 * scale" :y="10 * scale" :width="10 * scale" :height="10 * scale" fill="currentColor" class="text-neutral-200 dark:text-neutral-800"/>
+    </pattern>
+  </defs>
+
+  <rect
+    v-if="backgroundPattern !== 'none'"
+    width="100%"
+    height="100%"
+    :fill="`url(#${backgroundPattern === 'grid' ? 'grid-pattern' : 'checker-pattern'})`"
+  />
+</svg>
+
   <!-- Hidden file input -->
 <input
   ref="fileInputRef"
@@ -642,6 +692,29 @@ onUnmounted(() => {
 
   <!-- Buttons top right -->
 <div class="absolute top-3 right-3 z-50 flex gap-2">
+
+  <!-- Background pattern toggle -->
+<button
+  class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
+  :title="`Background: ${backgroundPattern}`"
+  @click.stop="backgroundPattern = backgroundPattern === 'none' ? 'grid' : backgroundPattern === 'grid' ? 'checkerboard' : 'none'"
+>
+  <svg v-if="backgroundPattern === 'grid'" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+    <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+  </svg>
+  <svg v-else-if="backgroundPattern === 'checkerboard'" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+    <rect x="2" y="2" width="5" height="5"/><rect x="12" y="2" width="5" height="5"/>
+    <rect x="7" y="7" width="5" height="5"/><rect x="17" y="7" width="5" height="5"/>
+    <rect x="2" y="12" width="5" height="5"/><rect x="12" y="12" width="5" height="5"/>
+    <rect x="7" y="17" width="5" height="5"/><rect x="17" y="17" width="5" height="5"/>
+  </svg>
+  <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="3" y="3" width="18" height="18" rx="2"/>
+    <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
+    <line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/>
+  </svg>
+</button>
 
   <!-- Import button -->
   <button
