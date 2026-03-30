@@ -272,9 +272,11 @@ function mouseDownNode(event: MouseEvent, nodeId: string) {
   currentNodeId.value = nodeId
   const node = tree.value.nodes.find((n) => n.id === nodeId)
   if (!node) return
+
+  const rect = (document.querySelector('.node-canvas') as HTMLElement).getBoundingClientRect()
   startPos.value = {
-    x: event.clientX - node.position.x,
-    y: event.clientY - node.position.y,
+    x: (event.clientX - rect.left - panOffset.value.x) / scale.value - node.position.x,
+    y: (event.clientY - rect.top - panOffset.value.y) / scale.value - node.position.y,
   }
   event.preventDefault()
 }
@@ -307,10 +309,11 @@ function onMouseMove(event: MouseEvent) {
   if (isDraggingNode.value && currentNodeId.value) {
     const node = tree.value.nodes.find((n) => n.id === currentNodeId.value)
     if (node) {
-      node.position = {
-        x: event.clientX - startPos.value.x,
-        y: event.clientY - startPos.value.y,
-      }
+      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+    node.position = {
+      x: (event.clientX - rect.left - panOffset.value.x) / scale.value - startPos.value.x,
+      y: (event.clientY - rect.top - panOffset.value.y) / scale.value - startPos.value.y,
+    }
     }
   } else if (isPanning.value) {
     panOffset.value = {
