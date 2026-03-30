@@ -110,10 +110,9 @@ if (!['bezier', 'straight', 'step'].includes(edge.style)) {
             pos.x = Math.floor(Math.random() * maxXPosition);
         if (pos.y === undefined || typeof pos.y !== 'number')
             pos.y = Math.floor(Math.random() * maxYPosition);
-        if (pos.x < 0) pos.x = 0;
-        if (pos.y < 0) pos.y = 0;
-        if (pos.x > maxXPosition) pos.x = maxXPosition;
-        if (pos.y > maxYPosition) pos.y = maxYPosition;
+        if (pos.x < 0) pos.x = 0
+        if (pos.y < 0) pos.y = 0
+
         return pos;
     }
 

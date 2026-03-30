@@ -433,6 +433,8 @@ function autoLayout() {
 }
 
 function exportTree() {
+  console.log('exporting tree:', JSON.stringify(tree.value, null, 2))
+
   const json = JSON.stringify(tree.value, null, 2)
   const blob = new Blob([json], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
