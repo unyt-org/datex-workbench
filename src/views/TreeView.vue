@@ -27,8 +27,6 @@ const NODE_WIDTH = 224  // w-56
 
 const scale = ref(1)
 
-const copiedSubtree = ref<{ nodes: NodeTree['nodes'], edges: NodeTree['edges'] }>({ nodes: [], edges: [] })
-
 async function recalculateEdges() {
   await nextTick()
   const map = new Map<string, { x1: number; y1: number; x2: number; y2: number }>()
@@ -467,7 +465,7 @@ function importTree(event: Event) {
   reader.readAsText(file)
 }
 
-function handleKeydown(event: KeyboardEvent) {
+async function handleKeydown(event: KeyboardEvent) {
   const isMac = navigator.platform.toUpperCase().includes('MAC')
   const cmdOrCtrl = isMac ? event.metaKey : event.ctrlKey
 
@@ -515,24 +513,36 @@ function handleKeydown(event: KeyboardEvent) {
     return copiedNodeIds.has(srcNodeId) && copiedNodeIds.has(tgtNodeId)
   })
 
-  copiedSubtree.value = { nodes: copiedNodes, edges: copiedEdges }
+  const subtree = { nodes: copiedNodes, edges: copiedEdges }
+  try {
+    await navigator.clipboard.writeText(JSON.stringify(subtree))
+  } catch (err) {
+    console.error('[NodeTree] Failed to write to clipboard', err)
+  }
   return
 }
 
   // CMD+V - paste copied nodes
-  if (cmdOrCtrl && event.key === 'v' && copiedSubtree.value.nodes.length > 0) {
+  if (cmdOrCtrl && event.key === 'v') {
   if (isReadOnly.value) return
   event.preventDefault()
 
+  try {
+    const text = await navigator.clipboard.readText()
+    const subtree = JSON.parse(text) as { nodes: NodeTree['nodes'], edges: NodeTree['edges'] }
+
+    // Validate it's a node subtree
+    if (!subtree.nodes || !Array.isArray(subtree.nodes)) return
+
   // Find bounding box of copied nodes
-  const minX = Math.min(...copiedSubtree.value.nodes.map(n => n.position.x))
-  const minY = Math.min(...copiedSubtree.value.nodes.map(n => n.position.y))
+  const minX = Math.min(...subtree.nodes.map(n => n.position.x))
+  const minY = Math.min(...subtree.nodes.map(n => n.position.y))
 
   // Map old IDs to new IDs
   const nodeIdMap = new Map<string, string>()
   const fieldIdMap = new Map<string, string>()
 
-  const newNodes = copiedSubtree.value.nodes.map(node => {
+  const newNodes = subtree.nodes.map(node => {
     const newId = generateId()
     nodeIdMap.set(node.id, newId)
 
@@ -553,8 +563,9 @@ function handleKeydown(event: KeyboardEvent) {
     }
   })
 
+
   // Remap edge IDs
-  const newEdges = copiedSubtree.value.edges.map(edge => {
+  const newEdges = subtree.edges.map(edge => {
     const newSource = edge.source.kind === 'field'
       ? { kind: 'field' as const, nodeId: nodeIdMap.get(edge.source.nodeId) ?? edge.source.nodeId, fieldId: fieldIdMap.get(edge.source.fieldId) ?? edge.source.fieldId }
       : { kind: 'node' as const, nodeId: nodeIdMap.get(edge.source.nodeId) ?? edge.source.nodeId }
@@ -574,6 +585,9 @@ function handleKeydown(event: KeyboardEvent) {
   tree.value.nodes.push(...newNodes)
   tree.value.edges.push(...newEdges)
   activeNodeIds.value = new Set(newNodes.map(n => n.id))
+} catch (err){
+  console.warn('[NodeTree] Nothing valid to paste from clipboard', err)
+}
   return
 }
 }
