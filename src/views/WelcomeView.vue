@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import IconLogo from '@/components/icons/IconLogo.vue'
 
 const router = useRouter()
 
@@ -44,8 +45,8 @@ function navigate(route: string | null) {
     <!-- Header -->
     <div class="flex flex-col items-center gap-2 text-center">
       <div class="flex items-center gap-3">
-        <img src="@/assets/logos/datex-logo-rounded-light.svg" alt="DATEX" class="h-10 w-10 dark:hidden" />
-        <img src="@/assets/logos/datex-logo-rounded-dark.svg" alt="DATEX" class="h-10 w-10 hidden dark:block" />        <h1 class="text-3xl font-semibold tracking-tight text-foreground">
+        <IconLogo class="h-12 w-12" />
+       <h1 class="text-3xl font-semibold tracking-tight text-foreground">
           DATEX Workbench
         </h1>
       </div>
