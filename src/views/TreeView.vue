@@ -77,7 +77,7 @@ onMounted(() => {
 
 function onWheel(event: WheelEvent) {
   event.preventDefault()
-  const delta = event.deltaY > 0 ? -0.1 : 0.1
+  const delta = event.deltaY > 0 ? -0.03 : 0.03
   const newScale = Math.min(Math.max(scale.value + delta, 0.2), 3)
 
   // Get cursor position relative to outer container
