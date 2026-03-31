@@ -23,6 +23,7 @@ const emit = defineEmits<{
     isActive ? 'border-2 border-blue-500 dark:border-blue-400' : ''
   ]"
   :style="{ left: `${node.position.x}px`, top: `${node.position.y}px` }"
+  :data-node-id="node.id"
   @mousedown.left.stop="$emit('start-drag', $event)"
 >
   <template v-for="field in node.fields" :key="'top-' + field.id">

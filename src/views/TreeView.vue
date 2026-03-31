@@ -268,6 +268,19 @@ function mouseDownNode(event: MouseEvent, nodeId: string) {
   const target = event.target as HTMLElement
   if (target.classList.contains('node-field-text')) return
 
+ // Select node on mousedown
+ if (event.shiftKey) {
+    const newSet = new Set(activeNodeIds.value)
+    if (newSet.has(nodeId)) {
+      newSet.delete(nodeId)
+    } else {
+      newSet.add(nodeId)
+    }
+    activeNodeIds.value = newSet
+  } else {
+    activeNodeIds.value = new Set([nodeId])
+  }
+
   isDraggingNode.value = true
   currentNodeId.value = nodeId
   const node = tree.value.nodes.find((n) => n.id === nodeId)
@@ -332,6 +345,102 @@ function mouseUp() {
   isPanning.value = false
 }
 
+// Touch state
+const lastPinchDistance = ref<number | null>(null)
+
+function onTouchStart(event: TouchEvent) {
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+
+  if (event.touches.length === 1) {
+  const touch = event.touches.item(0)!
+  const target = touch.target as HTMLElement
+  const nodeCard = target.closest('[data-node-id]') as HTMLElement | null
+  const nodeId = nodeCard?.dataset.nodeId ?? null
+
+  if (nodeId) {
+    activeNodeIds.value = new Set([nodeId])
+    isDraggingNode.value = true
+    currentNodeId.value = nodeId
+    const node = tree.value.nodes.find(n => n.id === nodeId)
+    if (node) {
+      startPos.value = {
+        x: (touch.clientX - rect.left - panOffset.value.x) / scale.value - node.position.x,
+        y: (touch.clientY - rect.top - panOffset.value.y) / scale.value - node.position.y,
+      }
+    }
+  } else {
+    // Pan canvas
+    activeNodeIds.value = new Set()
+    isPanning.value = true
+    panStart.value = {
+      x: touch.clientX - panOffset.value.x,
+      y: touch.clientY - panOffset.value.y,
+    }
+  }
+  } else if (event.touches.length === 2) {
+    // Pinch to zoom — stop panning/dragging
+    isDraggingNode.value = false
+    isPanning.value = false
+    const touch0 = event.touches.item(0)!
+  const touch1 = event.touches.item(1)!
+  const dx = touch0.clientX - touch1.clientX
+  const dy = touch0.clientY - touch1.clientY
+    lastPinchDistance.value = Math.sqrt(dx * dx + dy * dy)
+  }
+}
+
+function onTouchMove(event: TouchEvent) {
+  event.preventDefault()
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+
+  if (event.touches.length === 1) {
+    const touch = event.touches.item(0)!
+
+    if (isDraggingNode.value && currentNodeId.value) {
+      const node = tree.value.nodes.find(n => n.id === currentNodeId.value)
+      if (node) {
+        node.position = {
+          x: (touch.clientX - rect.left - panOffset.value.x) / scale.value - startPos.value.x,
+          y: (touch.clientY - rect.top - panOffset.value.y) / scale.value - startPos.value.y,
+        }
+      }
+    } else if (isPanning.value) {
+      panOffset.value = {
+        x: touch.clientX - panStart.value.x,
+        y: touch.clientY - panStart.value.y,
+      }
+    }
+  } else if (event.touches.length === 2) {
+    const touch0 = event.touches.item(0)!
+    const touch1 = event.touches.item(1)!
+    const dx = touch0.clientX - touch1.clientX
+    const dy = touch0.clientY - touch1.clientY
+    const distance = Math.sqrt(dx * dx + dy * dy)
+
+    if (lastPinchDistance.value !== null) {
+      const pinchRatio = distance / lastPinchDistance.value
+      const newScale = Math.min(Math.max(scale.value * pinchRatio, 0.2), 3)
+      const midX = (touch0.clientX + touch1.clientX) / 2 - rect.left
+      const midY = (touch0.clientY + touch1.clientY) / 2 - rect.top
+      const scaleRatio = newScale / scale.value
+      panOffset.value = {
+        x: midX - scaleRatio * (midX - panOffset.value.x),
+        y: midY - scaleRatio * (midY - panOffset.value.y),
+      }
+      scale.value = newScale
+    }
+    lastPinchDistance.value = distance
+  }
+}
+
+function onTouchEnd() {
+  if (isDraggingNode.value) resolveCollisions()
+  isDraggingNode.value = false
+  currentNodeId.value = null
+  isPanning.value = false
+  lastPinchDistance.value = null
+}
+
 function handleFieldClick(fieldId: string, nodeId: string, isOut: boolean) {
   if (isReadOnly.value) return
   if (pendingEdge.value) {
@@ -348,22 +457,6 @@ function handleFieldClick(fieldId: string, nodeId: string, isOut: boolean) {
 }
 
 const activeNodeIds = ref<Set<string>>(new Set())
-
-function handleNodeClick(nodeId: string, event: MouseEvent) {
-  if (event.shiftKey) {
-    // Shift click — toggle node in selection
-    const newSet = new Set(activeNodeIds.value)
-    if (newSet.has(nodeId)) {
-      newSet.delete(nodeId)
-    } else {
-      newSet.add(nodeId)
-    }
-    activeNodeIds.value = newSet
-  } else {
-    // Single click — select only this node
-    activeNodeIds.value = new Set([nodeId])
-  }
-}
 
 function centerNodes() {
   if (tree.value.nodes.length === 0) return
@@ -652,6 +745,9 @@ onUnmounted(() => {
     @mouseleave="mouseUp"
     @mousedown="mouseDownCanvas"
     @wheel.prevent="onWheel"
+    @touchstart.passive="onTouchStart"
+   @touchmove.prevent="onTouchMove"
+   @touchend="onTouchEnd"
   >
 
   <!-- Background pattern -->
@@ -849,7 +945,6 @@ onUnmounted(() => {
   :is-active="activeNodeIds.has(node.id)"
   @field-click="handleFieldClick"
   @start-drag="(e: MouseEvent) => mouseDownNode(e, node.id)"
-  @click.stop="(e: MouseEvent) => handleNodeClick(node.id, e)"
 />
     </div>
 
