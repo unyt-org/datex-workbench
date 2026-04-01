@@ -74,11 +74,13 @@ async function autoTrace() {
       class="w-48"
     />
     <Input
-      v-model.number="timeout"
-      type="number"
-      placeholder="Timeout (ms)"
-      class="w-32"
-    />
+  v-model.number="timeout"
+  type="number"
+  placeholder="Timeout (ms)"
+  class="w-32 opacity-50 cursor-not-allowed"
+  disabled
+  title="Timeout not yet supported by the DATEX runtime"
+/>
     <Button @click="sendTrace" :disabled="isLoading">
       {{ isLoading ? 'Tracing...' : 'Trace' }}
     </Button>
