@@ -1,4 +1,5 @@
 <script lang="ts">
+import { useRoute } from 'vue-router'
 import ThemeSwitch from '@/components/ThemeSwitch.vue';
 import IconLogo from '@/components/icons/IconLogo.vue';
 import {
@@ -23,14 +24,19 @@ export default {
         // MenubarMenu,
         Menubar,
         IconLogo,
-        ThemeSwitch,
+        ThemeSwitch },
+        setup() {
+    const route = useRoute()
+    return { route }
     },
 };
 </script>
 
 <template>
     <Menubar class="bg-background wco-header flex w-full items-center px-4 py-3">
-        <RouterLink to="/" class="group mr-4 flex items-center space-x-2 transition-all">
+        <RouterLink to="/" class="group mr-4 flex items-center space-x-2 transition-all"
+        v-show="route.path !== '/'"
+        >
             <IconLogo class="h-6 w-6" />
             <div class="flex items-baseline space-x-1">
                 <span class="text-primary text-lg font-bold">DATEX Workbench</span>
