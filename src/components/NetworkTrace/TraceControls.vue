@@ -35,13 +35,26 @@ async function autoTrace() {
   isLoading.value = true
   try {
     const metadata = await Datex.comHub.getMetadata()
+
+    // Extract unique endpoints from all interface sockets
+    const endpoints = new Set<string>()
+    for (const iface of metadata.interfaces ?? []) {
+      for (const socket of iface.sockets ?? []) {
+        if (socket.endpoint && socket.endpoint !== '@@local') {
+          endpoints.add(socket.endpoint)
+        }
+      }
+    }
+
+    console.log('endpoints to trace:', [...endpoints])
+
     let currentTree = props.currentTree ?? undefined
-    for (const ep of metadata.endpoints ?? []) {
+    for (const ep of endpoints) {
       try {
-        const result = await Datex.comHub.getTrace(ep.endpoint)
+        const result = await Datex.comHub.getTrace(ep)
         currentTree = traceToNodeTree(result, currentTree)
-      } catch {
-        // skip failed traces
+      } catch (err) {
+        console.warn(`trace failed for ${ep}:`, err)
       }
     }
     if (currentTree) emit('trace-result', currentTree)
