@@ -1,0 +1,76 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { Datex } from '@/lib/runtime'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { traceToNodeTree } from '@/composable/NetworkTrace/traceToNodeTree'
+import type { NodeTree } from '@/types/NodeTree/node-tree.ts'
+
+const props = defineProps<{
+  currentTree: NodeTree | null
+}>()
+
+const emit = defineEmits<{
+  'trace-result': [tree: NodeTree]
+}>()
+
+const endpoint = ref('@example')
+const timeout = ref(5000)
+const isLoading = ref(false)
+
+async function sendTrace() {
+  isLoading.value = true
+  try {
+    const result = await Datex.comHub.getTrace(endpoint.value)
+    const tree = traceToNodeTree(result, props.currentTree ?? undefined)
+    emit('trace-result', tree)
+   } catch (err) {
+    console.error('trace error:', err)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function autoTrace() {
+  isLoading.value = true
+  try {
+    const metadata = await Datex.comHub.getMetadata()
+    let currentTree = props.currentTree ?? undefined
+    for (const ep of metadata.endpoints ?? []) {
+      try {
+        const result = await Datex.comHub.getTrace(ep.endpoint)
+        currentTree = traceToNodeTree(result, currentTree)
+      } catch {
+        // skip failed traces
+      }
+    }
+    if (currentTree) emit('trace-result', currentTree)
+  } catch (err) {
+    console.error('auto-trace error:', err)
+  } finally {
+    isLoading.value = false
+  }
+}
+</script>
+
+<template>
+  <div class="flex items-center gap-2 p-4 border-b border-border">
+    <Input
+      v-model="endpoint"
+      placeholder="@endpoint"
+      class="w-48"
+    />
+    <Input
+      v-model.number="timeout"
+      type="number"
+      placeholder="Timeout (ms)"
+      class="w-32"
+    />
+    <Button @click="sendTrace" :disabled="isLoading">
+      {{ isLoading ? 'Tracing...' : 'Trace' }}
+    </Button>
+    <Button @click="autoTrace" variant="outline" :disabled="isLoading">
+      Auto Trace
+    </Button>
+  </div>
+</template>

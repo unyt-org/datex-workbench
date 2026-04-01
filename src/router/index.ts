@@ -3,6 +3,11 @@ import { getPointers } from '@/lib/runtime';
 import WindowGeneralView from '@/views/WindowGeneralView.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import WelcomeView from '../views/WelcomeView.vue';
+import DatexRepl from '@/views/Repl/DatexRepl.vue';
+import AboutView from '@/views/AboutView.vue';
+import NetworkTraceView from '@/views/NetworkTrace/NetworkTraceView.vue';
+import ComHubOverviewWrapper from '@/components/ComHubOverviewWrapper.vue';
+import EndpointView from '@/components/endpoint/EndpointView.vue';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -40,29 +45,34 @@ const router = createRouter({
         {
             path: '/comhub',
             name: 'comhub-overview',
-            component: () => import('@/components/ComHubOverviewWrapper.vue'),
+            component: ComHubOverviewWrapper,
         },
         {
             path: '/u/:endpoint_id',
             name: 'endpoint',
-            component: () => import('@/components/endpoint/EndpointView.vue'),
+            component: EndpointView,
         },
         {
             path: '/pointers',
-            component: () => PointerView,
+            component: PointerView,
             props: { pointers: getPointers() },
         },
         {
             path: '/repl',
             name: 'repl',
-            component: () => import('@/views/Repl/DatexRepl.vue'),
+            component: DatexRepl,
         },
         {
-          path: '/about',
-          name: 'about',
-          component: () => import('@/views/AboutView.vue'),
-      },
-    ],
+            path: '/about',
+            name: 'about',
+            component: AboutView,
+        },
+        {
+            path: '/network-tree',
+            name: 'network-tree',
+            component: NetworkTraceView,
+        },
+  ],
 });
 
 export default router;
