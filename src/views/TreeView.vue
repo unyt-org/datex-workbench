@@ -8,9 +8,20 @@ import { parseNodeTree } from '@/composable/NodeTree/parseNodeTree'
 import exampleJson from '@/../test/composable/NodeTree/fixtures/validExampleShort.json'
 import dagre from 'dagre'
 
+const props = defineProps<{
+  initialTree?: NodeTree<unknown, unknown>
+}>()
 
 const example = exampleJson as NodeTreeInput
-const tree: Ref<NodeTree<unknown, unknown>> = ref(parseNodeTree(example))
+
+const tree: Ref<NodeTree<unknown, unknown>> = ref(
+  props.initialTree ?? parseNodeTree(example)
+)
+
+// Watch for external tree updates
+watch(() => props.initialTree, (newTree) => {
+  if (newTree) tree.value = newTree
+}, { deep: true })
 
 const isReadOnly = ref(false)
 const canvasRef = ref<HTMLElement | null>(null)
