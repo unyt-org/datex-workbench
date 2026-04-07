@@ -40,7 +40,7 @@ export function traceToNodeTree(
   for (const node of nodes) {
     endpointNodeMap.set(node.name ?? node.id, node.id)
     for (const field of node.fields) {
-      socketFieldMap.set(field.name ?? field.id, field.id)
+      socketFieldMap.set(field.id, field.id)
     }
   }
 
@@ -69,11 +69,11 @@ export function traceToNodeTree(
 
     const socketKey = hop.socket.socket_uuid
     if (!socketFieldMap.has(socketKey)) {
-      const fieldId = generateId()
-      socketFieldMap.set(socketKey, fieldId)
+
+      socketFieldMap.set(socketKey, socketKey)
 
       node.fields.push({
-        id: fieldId,
+        id: socketKey,
         name: hop.socket.interface_name,
         in: hop.direction === 'Incoming',
         out: hop.direction === 'Outgoing',
