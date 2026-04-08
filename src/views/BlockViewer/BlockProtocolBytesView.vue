@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import DisassemblerView from '@/components/Disassembler/DisassemblerView.vue'
 import {
     Accordion,
     AccordionContent,
@@ -8,6 +9,8 @@ import {
 import type { ParsedSection, ParsedStructure, StructureDefinition } from '@unyt/speck';
 import BlockSection from '@/components/BlockViewer/BlockSection.vue';
 import type { FieldIdentifier } from '@/types/BlockViewer/FieldIdentifier';
+
+const emptyDxb = new Uint8Array()
 
 const props = defineProps<{
     structure: ParsedStructure;
@@ -47,6 +50,10 @@ function findSectionDef(section: ParsedSection) {
                 {{ section.name }}
             </AccordionTrigger>
             <AccordionContent>
+              <DisassemblerView
+        v-if="section.name === 'Body'"
+        :dxb="emptyDxb"
+    />
                 <BlockSection
                     v-if="section.fields.length > 0"
                     :section="section"
