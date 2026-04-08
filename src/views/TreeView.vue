@@ -576,6 +576,10 @@ function importTree(event: Event) {
 }
 
 async function handleKeydown(event: KeyboardEvent) {
+  const target = event.target as HTMLElement
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+    return
+  }
   const isMac = navigator.platform.toUpperCase().includes('MAC')
   const cmdOrCtrl = isMac ? event.metaKey : event.ctrlKey
 
