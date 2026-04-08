@@ -11,7 +11,7 @@ export type Instruction = string | [string, string]
 export type TreeInstruction = Instruction | [string, string, InstructionTree]
 
 /** Flat instruction: may carry an inner Instruction[] as 3rd element */
-export type FlatInstruction = Instruction | [string, string, Instruction[]]
+export type FlatInstruction = Instruction | [string, string, FlatInstruction[]]
 
 /** Recursive tree node returned by `disassembleDXBTree` */
 export interface InstructionTree {
@@ -28,7 +28,7 @@ export type FlatResult = [FlatInstruction[], string | null]
 export interface InstructionParts {
   name: string
   meta: string | null
-  inner: InstructionTree | Instruction[] | null
+  inner: InstructionTree | FlatInstruction[] | null
 }
 
 /**

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, shallowRef } from 'vue'
 import type { InstructionTree, FlatInstruction } from '@/types/disassembler'
 import InstructionTreeNode from './InstructionTreeNode.vue'
 import InstructionFlatItem from './InstructionFlatItem.vue'
@@ -21,7 +21,7 @@ const showNested = ref(true)
 
 const treeData = ref<InstructionTree | null>(null)
 const treeError = ref<string | null>(null)
-const flatData = ref<FlatInstruction[] | null>(null)
+const flatData = shallowRef<FlatInstruction[] | null>(null)
 const flatError = ref<string | null>(null)
 
 // Mock data for development — remove when wiring up real runtime
