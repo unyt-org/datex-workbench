@@ -35,6 +35,3 @@ coverage
 # Vitest
 __screenshots__/
 dev-dist/
-
-AGENTS.md
- docs/codeReviewWithAi.sh
