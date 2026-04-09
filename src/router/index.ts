@@ -23,6 +23,11 @@ const router = createRouter({
             component: () => import('@/views/NetworkInspector/NetworkInspectorView.vue'),
         },
         {
+            path: '/node-view',
+            name: 'node view',
+            component: () => import('@/views/TreeView.vue'),
+        },
+        {
             path: '/editor',
             name: 'editor',
             component: () => import('@/views/Editor/EditorViewWrapper.vue'),
