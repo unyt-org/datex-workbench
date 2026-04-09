@@ -17,7 +17,7 @@ const emit = defineEmits<{
 
 <template>
   <Card
-    class="absolute w-56 select-none transition-shadow node-card cursor-grab active:cursor-grabbing py-1"
+    class="absolute w-56 select-none transition-shadow node-card cursor-grab active:cursor-grabbing py-1 gap-0"
     :class="[
       isDragging ? 'z-50 shadow-2xl' : 'z-10 shadow-sm',
       isActive ? 'border-2 border-blue-500 dark:border-blue-400' : ''
