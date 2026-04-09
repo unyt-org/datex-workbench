@@ -47,15 +47,20 @@ const innerNode = computed<InstructionTree | null>(() => {
   }
   return null
 })
+
+const hasExpandableContent = computed(() =>
+  children.value.length > 0 || innerNode.value !== null
+)
 </script>
 
 <template>
-  <!-- Current instruction line -->
-  <div class="whitespace-pre leading-7 text-sm font-mono">
-    <span class="text-gray-600">{{ prefix }}{{ connector }}</span>
-    <span v-if="isInnerScope" class="text-amber-400 mr-1">↳</span>
+  <!-- Node with children: collapsible -->
+  <details v-if="hasExpandableContent" open class="tree-node">
+    <summary class="tree-line">
+  <span class="tree-prefix">{{ prefix }}{{ connector }}</span>
+    <span v-if="isInnerScope" class="text-amber-400">↳</span>
     <InstructionLabel :name="parts.name" :meta="parts.meta" />
-  </div>
+  </summary>
 
   <!-- Inner instruction scope (e.g. REMOTE_EXECUTION body) -->
   <InstructionTreeNode
@@ -77,7 +82,50 @@ const innerNode = computed<InstructionTree | null>(() => {
     :is-last="i === children.length - 1"
     :prefix-parts="[...prefixParts, isLast]"
   />
+</details>
+
+<!-- Leaf node: no children, just a line -->
+<div v-else class="tree-line">
+    <span class="tree-prefix">{{ prefix }}{{ connector }}</span>
+    <span v-if="isInnerScope" class="text-amber-400">↳ </span>
+    <InstructionLabel :name="parts.name" :meta="parts.meta" />
+  </div>
+
 </template>
+
+<style scoped>
+.tree-node {
+  margin: 0;
+  padding: 0;
+}
+
+.tree-node > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.tree-node > summary::-webkit-details-marker {
+  display: none;
+}
+
+.tree-node > summary::marker {
+  display: none;
+  content: '';
+}
+
+.tree-line {
+  white-space: pre;
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  font-size: 0.875rem;
+  line-height: 1.3;
+  margin: 0;
+  padding: 0;
+}
+
+.tree-prefix {
+  color: #4b5563;
+}
+</style>
 
 <script lang="ts">
 export default { name: 'InstructionTreeNode' }
