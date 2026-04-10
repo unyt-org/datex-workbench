@@ -51,11 +51,3 @@ export function getInstructionParts(
 
   return { name: String(instruction), meta: null, inner: null }
 }
-
-/**
- * Returns true if `meta` looks like a bracketed metadata annotation
- * e.g. "[count: 3, terminated: false]" vs a plain value like "5" or "@example"
- */
-export function isMetaAnnotation(meta: string): boolean {
-  return meta.startsWith('[')
-}
