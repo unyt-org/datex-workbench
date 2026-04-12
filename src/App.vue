@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import HeaderProvider from '@/components/HeaderProvider.vue';
+import SideBar from '@/components/SideBar.vue';
 import { RouterView } from 'vue-router';
 </script>
 
@@ -15,9 +16,20 @@ import { RouterView } from 'vue-router';
 
 <template>
     <div class="flex h-screen flex-col">
-        <!-- Header -->
-        <HeaderProvider class="z-10 flex-none" />
+        <div class="flex grow overflow-hidden">
+            <!-- SideBar -->
+            <SideBar class="z-10 flex-none" />
 
+            <main class="main relative flex-1 overflow-hidden">
+                <!-- Header -->
+                <HeaderProvider class="z-10 flex-none" />
+
+                <!-- Main content area -->
+                <Suspense>
+                    <RouterView />
+                </Suspense>
+            </main>
+        </div>
         <!-- Main area: below header -->
         <!--    <div class="flex flex-1 overflow-hidden mt-40">-->
         <!--      &lt;!&ndash; Left sidebar &ndash;&gt;-->
@@ -32,13 +44,6 @@ import { RouterView } from 'vue-router';
         <!--        </Sidebar>-->
         <!--      </SidebarProvider>-->
 
-        <!-- Main content area -->
-        <div class="main flex-1 overflow-hidden text-white">
-            <Suspense>
-                <RouterView />
-            </Suspense>
-        </div>
-
         <!-- Right sidebar -->
         <!--      <SidebarProvider>-->
         <!--        <Sidebar side="right" class="flex-none w-72 border-l border-gray-800" variant="inset">-->
@@ -50,7 +55,7 @@ import { RouterView } from 'vue-router';
         <!--          </SidebarContent>-->
         <!--        </Sidebar>-->
         <!--      </SidebarProvider>-->
-        <!--    </div>-->
+        <!-- </div> -->
     </div>
 </template>
 
