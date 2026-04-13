@@ -16,10 +16,11 @@ const emit = defineEmits<{
 
 const endpoint = ref('@example')
 const timeout = ref(5000)
-const isLoading = ref(false)
+const isTracing = ref(false)
+const isAutoTracing = ref(false)
 
 async function sendTrace() {
-  isLoading.value = true
+  isTracing.value = true
   try {
     const result = await Datex.comHub.getTrace(endpoint.value)
     const tree = traceToNodeTree(result, props.currentTree ?? undefined)
@@ -27,12 +28,12 @@ async function sendTrace() {
    } catch (err) {
     console.error('trace error:', err)
   } finally {
-    isLoading.value = false
+    isTracing.value = false
   }
 }
 
 async function autoTrace() {
-  isLoading.value = true
+  isAutoTracing.value = true
   try {
     const metadata = await Datex.comHub.getMetadata()
 
@@ -61,7 +62,7 @@ async function autoTrace() {
   } catch (err) {
     console.error('auto-trace error:', err)
   } finally {
-    isLoading.value = false
+    isAutoTracing.value = false
   }
 }
 </script>
@@ -81,11 +82,11 @@ async function autoTrace() {
   disabled
   title="Timeout not yet supported by the DATEX runtime"
 />
-    <Button @click="sendTrace" :disabled="isLoading">
-      {{ isLoading ? 'Tracing...' : 'Trace' }}
+    <Button @click="sendTrace" :disabled="isTracing || isAutoTracing">
+      {{ isTracing ? 'Tracing...' : 'Trace' }}
     </Button>
-    <Button @click="autoTrace" variant="outline" :disabled="isLoading" class="text-foreground">
-      Auto Trace
+    <Button @click="autoTrace" variant="outline" :disabled="isAutoTracing || isTracing" class="text-foreground">
+      {{ isAutoTracing ? 'Auto-Tracing...' : 'Auto-Trace' }}
     </Button>
   </div>
 </template>
