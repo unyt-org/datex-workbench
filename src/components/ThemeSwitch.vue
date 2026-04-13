@@ -27,7 +27,7 @@ watch(mode, (newMode) => {
 </script>
 
 <template>
-    <DropdownMenu>
+    <DropdownMenu class="z-1000">
         <DropdownMenuTrigger as-child>
             <Button variant="ghost">
                 <Moon

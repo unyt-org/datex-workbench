@@ -26,17 +26,23 @@ The application is initialized with:
 
 The root component provides:
 
-- **HeaderProvider** - Top navigation bar
+- **SideBar** - Side bar with navigation and theme switch
 - **RouterView** - Main content area with `<Suspense>` wrapper
 
 ```vue
 <template>
     <div class="flex h-screen flex-col">
-        <HeaderProvider class="z-10 flex-none" />
-        <div class="main flex-1 overflow-hidden pt-[50px] text-white">
-            <Suspense>
-                <RouterView />
-            </Suspense>
+        <div class="flex grow overflow-hidden">
+            <!-- SideBar -->
+            <SideBar class="z-53 flex-none" />
+
+            <main class="main relative flex-1 overflow-hidden">
+
+                <!-- Main content area -->
+                <Suspense>
+                    <RouterView />
+                </Suspense>
+            </main>
         </div>
     </div>
 </template>
@@ -122,7 +128,7 @@ TypeScript type definitions:
 ┌─────────────────────────────────────────────────────────────┐
 │                     App.vue (Root)                          │
 │  ┌─────────────────┐    ┌─────────────────────────────────┐ │
-│  │ HeaderProvider  │    │        RouterView               │ │
+│  │ SideBar         │    │        RouterView               │ │
 │  └─────────────────┘    │  ┌────────────────────────────┐ │ │
 │                         │  │     View Components        │ │ │
 │                         │  │  ┌─────────────────────┐   │ │ │

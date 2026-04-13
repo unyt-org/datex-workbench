@@ -1,12 +1,13 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import ThemeSwitch from '@/components/ThemeSwitch.vue';
+import IconLogo from '@/components/icons/IconLogo.vue';
 import {
     Network,
     Terminal,
     ChevronLeft,
     ChevronRight,
-    Home,
     Box,
     GitGraph,
     Code2,
@@ -21,6 +22,7 @@ export default defineComponent({
         draggable,
         ChevronLeft,
         ChevronRight,
+        ThemeSwitch,
     },
     setup() {
         const router = useRouter();
@@ -28,7 +30,7 @@ export default defineComponent({
         const isCollapsed = ref(false);
 
         const sidebarItems = ref([
-            { icon: Home, name: 'Welcome', path: '/' },
+            { icon: IconLogo, name: 'Welcome', path: '/' },
             { icon: Terminal, name: 'REPL', path: '/repl' },
             { icon: Box, name: 'Blocks', path: '/blocks' },
             { icon: Network, name: 'Network', path: '/network' },
@@ -57,7 +59,7 @@ export default defineComponent({
 
 <template>
     <aside
-        class="bg-sidebar border-sidebar-border relative flex h-full flex-col border-r transition-all duration-300 ease-in-out select-none"
+        class="border-sidebar-border bg-transparent relative flex h-full flex-col border-r transition-all duration-300 ease-in-out select-none"
         :class="[isCollapsed ? 'w-0' : 'w-16']"
     >
         <button
@@ -70,7 +72,7 @@ export default defineComponent({
         </button>
 
         <div
-            class="flex flex-col items-center py-4 transition-opacity duration-200"
+            class="flex flex-col items-center py-4 transition-opacity duration-200 h-full"
             :class="[isCollapsed ? 'pointer-events-none opacity-0' : 'opacity-100']"
         >
             <draggable
@@ -113,6 +115,9 @@ export default defineComponent({
                     </div>
                 </template>
             </draggable>
+            <div class="mt-auto">
+                <ThemeSwitch />
+            </div>
         </div>
     </aside>
 </template>

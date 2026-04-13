@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import HeaderProvider from '@/components/HeaderProvider.vue';
+// import HeaderProvider from '@/components/HeaderProvider.vue'; // header is commented, bc everything is moved from header to SideBar
 import SideBar from '@/components/SideBar.vue';
 import { RouterView } from 'vue-router';
 </script>
@@ -18,11 +18,12 @@ import { RouterView } from 'vue-router';
     <div class="flex h-screen flex-col">
         <div class="flex grow overflow-hidden">
             <!-- SideBar -->
-            <SideBar class="z-10 flex-none" />
+            <SideBar class="z-53 flex-none" />
+            <!-- z must be 50+, bc 50 is the highest z index on website-->
 
             <main class="main relative flex-1 overflow-hidden">
                 <!-- Header -->
-                <HeaderProvider class="z-10 flex-none" />
+                <!-- <HeaderProvider class="z-10 flex-none" /> -->
 
                 <!-- Main content area -->
                 <Suspense>
