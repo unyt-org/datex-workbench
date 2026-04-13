@@ -9,7 +9,8 @@ import exampleJson from '@/../test/composable/NodeTree/fixtures/validExampleShor
 import dagre from 'dagre'
 
 const props = defineProps<{
-  initialTree?: NodeTree<unknown, unknown>
+  initialTree?: NodeTree<unknown, unknown>,
+  forceReadOnly?: boolean
 }>()
 
 const example = exampleJson as NodeTreeInput
@@ -23,7 +24,7 @@ watch(() => props.initialTree, (newTree) => {
   if (newTree) tree.value = newTree
 }, { deep: true })
 
-const isReadOnly = ref(false)
+const isReadOnly = ref(props.forceReadOnly ?? false)
 const canvasRef = ref<HTMLElement | null>(null)
 
 type BackgroundPattern = 'none' | 'grid' | 'checkerboard'
