@@ -540,6 +540,10 @@ function autoLayout() {
   // Center after layout
   centerNodes()
 }
+watch(() => props.initialTree, async () => {
+  await nextTick()
+  centerNodes()
+}, {immediate: true})
 
 function exportTree() {
   console.log('exporting tree:', JSON.stringify(tree.value, null, 2))
