@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { toast } from 'vue-sonner'
 import { Datex } from '@/lib/runtime'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,6 +24,10 @@ async function sendTrace() {
   isTracing.value = true
   try {
     const result = await Datex.comHub.getTrace(endpoint.value)
+    if(result === undefined){
+      toast.error('Endpoint not reachable!')
+      return
+    }
     const tree = traceToNodeTree(result, props.currentTree ?? undefined)
     emit('trace-result', tree)
    } catch (err) {
@@ -36,7 +41,10 @@ async function autoTrace() {
   isAutoTracing.value = true
   try {
     const metadata = await Datex.comHub.getMetadata()
-
+    if(metadata === undefined){
+      toast.error('Endpoint not reachable!')
+      return
+    }
     // Extract unique endpoints from all interface sockets
     const endpoints = new Set<string>()
     for (const iface of metadata.interfaces ?? []) {
@@ -47,20 +55,23 @@ async function autoTrace() {
       }
     }
 
-    console.log('endpoints to trace:', [...endpoints])
-
     let currentTree = props.currentTree ?? undefined
     for (const ep of endpoints) {
       try {
         const result = await Datex.comHub.getTrace(ep)
+        if (result === undefined) {
+  toast.error(`Endpoint ${ep} not reachable`)
+  continue
+}
         currentTree = traceToNodeTree(result, currentTree)
-      } catch (err) {
-        console.warn(`trace failed for ${ep}:`, err)
-      }
+
+      } catch {
+        toast.error(`Trace failed for ${ep}`,)
+            }
     }
     if (currentTree) emit('trace-result', currentTree)
-  } catch (err) {
-    console.error('auto-trace error:', err)
+  } catch {
+    toast.error('Auto-trace Failed:')
   } finally {
     isAutoTracing.value = false
   }
