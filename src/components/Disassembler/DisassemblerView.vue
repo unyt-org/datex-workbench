@@ -41,7 +41,7 @@ const error = computed(() =>
   <div class="flex flex-col">
     <!-- Controls bar -->
     <div class="flex items-center justify-between px-4 py-2.5 border-b border-gray-800/60">
-      <span class="text-xs font-mono font-semibold tracking-wide text-teal-300">
+      <span class="text-xs font-mono font-semibold tracking-wide text-foreground">
         DISASSEMBLY
       </span>
 
@@ -50,7 +50,7 @@ const error = computed(() =>
         <button
           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono cursor-pointer transition-all duration-150"
           :class="viewMode === 'tree'
-            ? 'text-teal-300 border-teal-400/30 bg-teal-400/5'
+            ? 'text-foreground border-foreground/30 bg-foreground/5'
             : 'text-gray-500 border-gray-700/50 bg-transparent hover:text-gray-300 hover:border-gray-600'"
           @click="viewMode = 'tree'"
         >
@@ -60,7 +60,7 @@ const error = computed(() =>
         <button
           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono cursor-pointer transition-all duration-150"
           :class="viewMode === 'flat'
-            ? 'text-teal-300 border-teal-400/30 bg-teal-400/5'
+            ? 'text-foreground border-foreground/30 bg-foreground/5'
             : 'text-gray-500 border-gray-700/50 bg-transparent hover:text-gray-300 hover:border-gray-600'"
           @click="viewMode = 'flat'"
         >
@@ -75,7 +75,7 @@ const error = computed(() =>
         <button
           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono cursor-pointer transition-all duration-150"
           :class="showNested
-            ? 'text-teal-300 border-teal-400/30 bg-teal-400/5'
+            ? 'text-foreground border-foreground/30 bg-foreground/5'
             : 'text-gray-500 border-gray-700/50 bg-transparent hover:text-gray-300 hover:border-gray-600'"
           @click="showNested = !showNested"
         >
@@ -87,7 +87,7 @@ const error = computed(() =>
     </div>
 
     <!-- Instruction view -->
-    <div class="p-4">
+    <div class="p-4 overflow-y-auto max-h-96">
       <!-- Tree mode -->
       <template v-if="viewMode === 'tree' && treeData">
         <InstructionTreeNode

@@ -16,12 +16,14 @@ const props = withDefaults(
     prefixParts?: boolean[]
     /** When true, renders with ↳ marker instead of tree connector */
     isInnerScope?: boolean
+    nestingLevel?: number
   }>(),
   {
     depth: 0,
     isLast: true,
     prefixParts: () => [],
     isInnerScope: false,
+    nestingLevel: 0
   }
 )
 
@@ -51,14 +53,18 @@ const innerNode = computed<InstructionTree | null>(() => {
 const hasExpandableContent = computed(() =>
   children.value.length > 0 || innerNode.value !== null
 )
+const bgStyle = computed(() => {
+  if (props.nestingLevel === 0) return {}
+  return { backgroundColor: `rgba(128, 128, 128, ${props.nestingLevel * 0.08})` }
+})
 </script>
 
 <template>
   <!-- Node with children: collapsible -->
-  <details v-if="hasExpandableContent" open class="tree-node">
+  <details v-if="hasExpandableContent" open class="tree-node" :style="bgStyle">
     <summary class="tree-line">
-  <span class="tree-prefix">{{ prefix }}{{ connector }}</span>
-    <span v-if="isInnerScope" class="text-amber-400">↳</span>
+      <span class="expand-icon">▶</span>
+      <span class="tree-prefix">{{ prefix }}{{ connector }}</span>
     <InstructionLabel :name="parts.name" :meta="parts.meta" />
   </summary>
 
@@ -70,6 +76,7 @@ const hasExpandableContent = computed(() =>
     :depth="depth"
     :prefix-parts="[...prefixParts, isLast]"
     :is-inner-scope="true"
+    :nesting-level="nestingLevel + 1"
   />
 
   <!-- Regular children -->
@@ -81,13 +88,13 @@ const hasExpandableContent = computed(() =>
     :depth="(isInnerScope ? depth + 2 : depth + 1)"
     :is-last="i === children.length - 1"
     :prefix-parts="[...prefixParts, isLast]"
+    :nesting-level="nestingLevel"
   />
 </details>
 
 <!-- Leaf node: no children, just a line -->
-<div v-else class="tree-line">
+<div v-else class="tree-line" :style="bgStyle">
     <span class="tree-prefix">{{ prefix }}{{ connector }}</span>
-    <span v-if="isInnerScope" class="text-amber-400">↳ </span>
     <InstructionLabel :name="parts.name" :meta="parts.meta" />
   </div>
 
@@ -124,6 +131,18 @@ const hasExpandableContent = computed(() =>
 
 .tree-prefix {
   color: #4b5563;
+}
+
+.expand-icon {
+  display: inline-block;
+  font-size: 0.6rem;
+  margin-right: 2px;
+  transition: transform 0.15s;
+  color: #6b7280;
+}
+
+details[open] > summary .expand-icon {
+  transform: rotate(90deg);
 }
 </style>
 
