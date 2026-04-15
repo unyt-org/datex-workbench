@@ -54,7 +54,7 @@ const hasExpandableContent = computed(() =>
   children.value.length > 0 || innerNode.value !== null
 )
 const bgStyle = computed(() => {
-  if (props.nestingLevel === 0) return {}
+  if (!props.isInnerScope) return {}
   return { backgroundColor: `rgba(128, 128, 128, ${props.nestingLevel * 0.08})` }
 })
 </script>
@@ -94,6 +94,7 @@ const bgStyle = computed(() => {
 
 <!-- Leaf node: no children, just a line -->
 <div v-else class="tree-line" :style="bgStyle">
+  <span class="expand-icon" style="visibility: hidden">▶</span>
     <span class="tree-prefix">{{ prefix }}{{ connector }}</span>
     <InstructionLabel :name="parts.name" :meta="parts.meta" />
   </div>
