@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import {
   type InstructionTree,
   type InstructionParts,
@@ -57,14 +57,21 @@ const bgStyle = computed(() => {
   if (!props.isInnerScope) return {}
   return { backgroundColor: `rgba(128, 128, 128, ${props.nestingLevel * 0.08})` }
 })
+
+const isOpen = ref(true)
+
+function handleToggle(event: Event) {
+  isOpen.value = (event.target as HTMLDetailsElement).open
+}
 </script>
 
 <template>
   <!-- Node with children: collapsible -->
-  <details v-if="hasExpandableContent" open class="tree-node" :style="bgStyle">
+  <details v-if="hasExpandableContent" open class="tree-node" :style="bgStyle" @toggle="handleToggle">
     <summary class="tree-line">
-      <span class="expand-icon">▶</span>
-      <span class="tree-prefix">{{ prefix }}{{ connector }}</span>
+      <span class="tree-prefix">{{ prefix }}</span>
+      <span class="expand-icon">{{ isOpen ? '[-]' : '[+]' }}</span>
+      <span class="tree-prefix">- </span>
     <InstructionLabel :name="parts.name" :meta="parts.meta" />
   </summary>
 
@@ -94,8 +101,7 @@ const bgStyle = computed(() => {
 
 <!-- Leaf node: no children, just a line -->
 <div v-else class="tree-line" :style="bgStyle">
-  <span class="expand-icon" style="visibility: hidden">▶</span>
-    <span class="tree-prefix">{{ prefix }}{{ connector }}</span>
+  <span class="tree-prefix">{{ prefix }}{{ connector }}</span>
     <InstructionLabel :name="parts.name" :meta="parts.meta" />
   </div>
 
@@ -136,15 +142,12 @@ const bgStyle = computed(() => {
 
 .expand-icon {
   display: inline-block;
-  font-size: 0.6rem;
-  margin-right: 2px;
-  transition: transform 0.15s;
+  font-size: 0.75rem;
   color: #6b7280;
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  margin: 0 1px;
 }
 
-details[open] > summary .expand-icon {
-  transform: rotate(90deg);
-}
 </style>
 
 <script lang="ts">
