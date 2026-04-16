@@ -51,7 +51,7 @@ const error = computed(() =>
           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono cursor-pointer transition-all duration-150"
           :class="viewMode === 'tree'
             ? 'text-foreground border-foreground/30 bg-foreground/5'
-            : 'text-gray-500 border-gray-700/50 bg-transparent hover:text-gray-300 hover:border-gray-600'"
+            : 'text-gray-500 border-gray-700/50 bg-transparent hover:text-gray-700 hover:border-gray-600'"
           @click="viewMode = 'tree'"
         >
           <GitFork class="size-3.5" />
@@ -61,7 +61,7 @@ const error = computed(() =>
           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono cursor-pointer transition-all duration-150"
           :class="viewMode === 'flat'
             ? 'text-foreground border-foreground/30 bg-foreground/5'
-            : 'text-gray-500 border-gray-700/50 bg-transparent hover:text-gray-300 hover:border-gray-600'"
+            : 'text-gray-500 border-gray-700/50 bg-transparent hover:text-gray-700 hover:border-gray-600'"
           @click="viewMode = 'flat'"
         >
           <List class="size-3.5" />
@@ -76,7 +76,7 @@ const error = computed(() =>
           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono cursor-pointer transition-all duration-150"
           :class="showNested
             ? 'text-foreground border-foreground/30 bg-foreground/5'
-            : 'text-gray-500 border-gray-700/50 bg-transparent hover:text-gray-300 hover:border-gray-600'"
+            : 'text-gray-500 border-gray-700/50 bg-transparent hover:text-gray-700 hover:border-gray-600'"
           @click="showNested = !showNested"
         >
         <UnfoldVertical v-if="showNested" class="size-3.5" />

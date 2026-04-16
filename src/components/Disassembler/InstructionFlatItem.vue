@@ -30,11 +30,16 @@ const innerInstructions = computed<FlatInstruction[]>(() => {
 })
 
 const hasExpandableContent = computed(() => innerInstructions.value.length > 0)
+
+const bgStyle = computed(() => {
+  if (props.indentLevel === 0) return {}
+  return { backgroundColor: `rgba(128, 128, 128, ${props.indentLevel * 0.08})` }
+})
 </script>
 
 <template>
 <!-- Node with inner instructions: collapsible -->
-<details v-if="hasExpandableContent" open class="flat-node">
+<details v-if="hasExpandableContent" open class="flat-node" :style="bgStyle">
     <summary class="flat-line">
     <span class="flat-prefix">{{ indent }}</span>
     <InstructionLabel :name="parts.name" :meta="parts.meta" />
@@ -50,7 +55,7 @@ const hasExpandableContent = computed(() => innerInstructions.value.length > 0)
 </details>
 
  <!-- Leaf instruction: just a line -->
- <div v-else class="flat-line">
+ <div v-else class="flat-line" :style="bgStyle">
    <span class="flat-prefix">{{ indent }}</span>
    <InstructionLabel :name="parts.name" :meta="parts.meta" />
  </div>
