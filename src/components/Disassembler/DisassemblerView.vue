@@ -4,6 +4,9 @@ import type { InstructionTree, FlatInstruction } from '@/types/disassembler'
 import InstructionTreeNode from './InstructionTreeNode.vue'
 import InstructionFlatItem from './InstructionFlatItem.vue'
 import { GitFork, List, UnfoldVertical, FoldVertical } from 'lucide-vue-next'
+import DecompilerView from '@/components/Decompiler/DecompilerView.vue'
+
+const viewType = ref<'disassembler' | 'decompiler'>('disassembler')
 
 type ViewMode = 'tree' | 'flat'
 
@@ -41,11 +44,24 @@ const error = computed(() =>
   <div class="flex flex-col">
     <!-- Controls bar -->
     <div class="flex items-center justify-between px-4 py-2.5 border-b border-gray-800/60">
-      <span class="text-xs font-mono font-semibold tracking-wide text-foreground">
-        DISASSEMBLY
-      </span>
+      <div class="flex items-center gap-3">
+  <button
+    class="text-xs font-mono font-semibold tracking-wide cursor-pointer"
+    :class="viewType === 'disassembler' ? 'text-foreground' : 'text-gray-500 hover:text-gray-400'"
+    @click="viewType = 'disassembler'"
+  >
+    DISASSEMBLER
+  </button>
+  <button
+    class="text-xs font-mono font-semibold tracking-wide cursor-pointer"
+    :class="viewType === 'decompiler' ? 'text-foreground' : 'text-gray-500 hover:text-gray-400'"
+    @click="viewType = 'decompiler'"
+  >
+    DECOMPILER
+  </button>
+</div>
 
-      <div class="flex items-center gap-1.5">
+      <div v-if="viewType === 'disassembler'" class="flex items-center gap-1.5">
         <!-- Tree / Flat toggle -->
         <button
           class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono cursor-pointer transition-all duration-150"
@@ -86,6 +102,8 @@ const error = computed(() =>
       </div>
     </div>
 
+    <!-- Disassembler view -->
+<div v-if="viewType === 'disassembler'" class="p-4">
     <!-- Instruction view -->
     <div class="p-4 overflow-y-auto max-h-96">
       <!-- Tree mode -->
@@ -111,6 +129,10 @@ const error = computed(() =>
         No instructions to display
       </div>
     </div>
+</div>
+
+<!-- Decompiler view -->
+<DecompilerView v-else />
 
     <!-- Error banner -->
     <div
