@@ -14,7 +14,6 @@ const props = withDefaults(
     depth?: number
     isLast?: boolean
     prefixParts?: boolean[]
-    /** When true, renders with ↳ marker instead of tree connector */
     isInnerScope?: boolean
     nestingLevel?: number
   }>(),
@@ -28,16 +27,6 @@ const props = withDefaults(
 )
 
 const parts = computed<InstructionParts>(() => getInstructionParts(props.node.instruction))
-
-const prefix = computed(() =>
-  props.prefixParts.map((isParentLast) => (isParentLast ? '   ' : '│  ')).join('')
-)
-
-const connector = computed(() => {
-  if (props.isInnerScope) return ''
-  if (props.depth === 0) return ''
-  return props.isLast ? '└─ ' : '├─ '
-})
 
 const children = computed(() => props.node.children ?? [])
 
@@ -54,99 +43,205 @@ const hasExpandableContent = computed(() =>
   children.value.length > 0 || innerNode.value !== null
 )
 const bgStyle = computed(() => {
-  if (!props.isInnerScope) return {}
+  if (props.nestingLevel === 0) return {}
   return { backgroundColor: `rgba(128, 128, 128, ${props.nestingLevel * 0.08})` }
 })
 
 const isOpen = ref(true)
 
-function handleToggle(event: Event) {
-  isOpen.value = (event.target as HTMLDetailsElement).open
+function toggle() {
+  isOpen.value = !isOpen.value
 }
 </script>
 
 <template>
-  <!-- Node with children: collapsible -->
-  <details v-if="hasExpandableContent" open class="tree-node" :style="bgStyle" @toggle="handleToggle">
-    <summary class="tree-line">
-      <span class="tree-prefix">{{ prefix }}</span>
-      <span class="expand-icon">{{ isOpen ? '[-]' : '[+]' }}</span>
-      <span class="tree-prefix">- </span>
-    <InstructionLabel :name="parts.name" :meta="parts.meta" />
-  </summary>
+  <!-- ── Expandable node ── -->
+  <div v-if="hasExpandableContent">
+    <div class="tree-row" :style="bgStyle">
+      <!-- Ancestor vertical lines -->
+      <span
+        v-for="(isParentLast, idx) in prefixParts"
+        :key="idx"
+        class="tree-indent"
+        :class="{ 'has-line': !isParentLast }"
+      />
 
-  <!-- Inner instruction scope (e.g. REMOTE_EXECUTION body) -->
-  <InstructionTreeNode
-    v-if="innerNode"
-    :node="innerNode"
-    :show-nested="showNested"
-    :depth="depth"
-    :prefix-parts="[...prefixParts, isLast]"
-    :is-inner-scope="true"
-    :nesting-level="nestingLevel + 1"
-  />
+      <!-- Junction with expand icon -->
+      <span
+        v-if="depth > 0"
+        class="tree-junction"
+        :class="{ 'is-last': isLast }"
+      >
+        <span class="expand-box" @click="toggle">{{ isOpen ? '\u2212' : '+' }}</span>
+      </span>
 
-  <!-- Regular children -->
-  <InstructionTreeNode
-    v-for="(child, i) in children"
-    :key="i"
-    :node="child"
-    :show-nested="showNested"
-    :depth="(isInnerScope ? depth + 2 : depth + 1)"
-    :is-last="i === children.length - 1"
-    :prefix-parts="[...prefixParts, isLast]"
-    :nesting-level="nestingLevel"
-  />
-</details>
+      <!-- Root level expand (no junction) -->
+      <span v-else class="tree-root-toggle">
+        <span class="expand-box" @click="toggle">{{ isOpen ? '\u2212' : '+' }}</span>
+      </span>
 
-<!-- Leaf node: no children, just a line -->
-<div v-else class="tree-line" :style="bgStyle">
-  <span class="tree-prefix">{{ prefix }}{{ connector }}</span>
+      <!-- Horizontal connector -->
+      <span v-if="depth > 0" class="tree-hline" />
+
+      <InstructionLabel :name="parts.name" :meta="parts.meta" />
+    </div>
+
+    <!-- Children (collapsible) -->
+    <div v-show="isOpen">
+      <InstructionTreeNode
+        v-if="innerNode"
+        :node="innerNode"
+        :show-nested="showNested"
+        :depth="depth"
+        :prefix-parts="[...prefixParts, isLast]"
+        :is-inner-scope="true"
+        :nesting-level="nestingLevel + 1"
+      />
+      <InstructionTreeNode
+        v-for="(child, i) in children"
+        :key="i"
+        :node="child"
+        :show-nested="showNested"
+        :depth="isInnerScope ? depth + 2 : depth + 1"
+        :is-last="i === children.length - 1"
+        :prefix-parts="[...prefixParts, isLast]"
+        :nesting-level="nestingLevel"
+      />
+    </div>
+  </div>
+
+  <!-- ── Leaf node ── -->
+  <div v-else class="tree-row" :style="bgStyle">
+    <span
+      v-for="(isParentLast, idx) in prefixParts"
+      :key="idx"
+      class="tree-indent"
+      :class="{ 'has-line': !isParentLast }"
+    />
+    <span
+      v-if="depth > 0"
+      class="tree-junction leaf"
+      :class="{ 'is-last': isLast }"
+    />
+    <span v-if="depth > 0" class="tree-hline" />
     <InstructionLabel :name="parts.name" :meta="parts.meta" />
   </div>
 
 </template>
 
 <style scoped>
-.tree-node {
-  margin: 0;
-  padding: 0;
-}
-
-.tree-node > summary {
-  list-style: none;
-  cursor: pointer;
-}
-
-.tree-node > summary::-webkit-details-marker {
-  display: none;
-}
-
-.tree-node > summary::marker {
-  display: none;
-  content: '';
-}
-
-.tree-line {
-  white-space: pre;
+/* ── Row layout ── */
+.tree-row {
+  display: flex;
+  align-items: center;
+  min-height: 24px;
   font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
   font-size: 0.875rem;
-  line-height: 1.3;
-  margin: 0;
-  padding: 0;
 }
 
-.tree-prefix {
-  color: #4b5563;
+/* ── Indent column (ancestor vertical lines) ── */
+.tree-indent {
+  width: 20px;
+  min-height: 24px;
+  position: relative;
+  flex-shrink: 0;
 }
 
-.expand-icon {
-  display: inline-block;
-  font-size: 0.75rem;
-  color: #6b7280;
-  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
-  margin: 0 1px;
+.tree-indent.has-line::before {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #4b5563;
 }
+
+/* ── Junction column (vertical line + optional expand box) ── */
+.tree-junction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  min-height: 24px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Vertical line through the junction */
+.tree-junction::before {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #4b5563;
+}
+
+/* Last child: line goes from top to center only */
+.tree-junction.is-last::before {
+  bottom: 50%;
+}
+
+/* Leaf junction — no expand box, just line */
+.tree-junction.leaf {
+  pointer-events: none;
+}
+
+.tree-junction.leaf::after {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  right: 0;
+  height: 1px;
+  background: #4b5563;
+}
+
+/* ── Root toggle (no junction line) ── */
+.tree-root-toggle {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+/* ── Horizontal connector ── */
+.tree-hline {
+  width: 8px;
+  height: 1px;
+  background: #4b5563;
+  flex-shrink: 0;
+  margin-left: -1px;
+  margin-right: 4px;
+}
+
+/* ── Expand/Collapse box ── */
+.expand-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border: 1px solid #4b5563;
+  border-radius: 2px;
+  font-size: 11px;
+  line-height: 1;
+  color: #9ca3af;
+  background: var(--background, #0f1117);
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.expand-box:hover {
+  border-color: #9ca3af;
+  color: #d1d5db;
+}
+
 
 </style>
 

@@ -105,7 +105,7 @@ const error = computed(() =>
     <!-- Disassembler view -->
 <div v-if="viewType === 'disassembler'" class="p-4">
     <!-- Instruction view -->
-    <div class="p-4 overflow-y-auto max-h-96">
+    <div class="p-4">
       <!-- Tree mode -->
       <template v-if="viewMode === 'tree' && treeData">
         <InstructionTreeNode
