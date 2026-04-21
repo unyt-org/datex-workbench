@@ -13,10 +13,9 @@ const props = defineProps<{
 
 const structureExample = parseStructure(dxbDefinition, props.blockData);
 const emptyDxb = new Uint8Array()
-console.log('body section def:', JSON.stringify(dxbDefinition.sections.find(s => s.name === 'Body')))
 
 const bodySection = structureExample.find(s => s.name === 'Body')
-if (bodySection) {
+if (bodySection && !bodySection.fields.some(f => f.name === 'Body')) {
   bodySection.fields.push({
   name: 'Body',
   bytes: new Uint8Array([0, 0, 0])
@@ -24,7 +23,7 @@ if (bodySection) {
 }
 
 const bodySectionDef = dxbDefinition.sections.find(s => s.name === 'Body')
-if (bodySectionDef) {
+if (bodySectionDef && !bodySectionDef.fields.some(f => f.name === 'Body')) {
   bodySectionDef.fields.push({
     name: 'Body',
     byteSize: 3

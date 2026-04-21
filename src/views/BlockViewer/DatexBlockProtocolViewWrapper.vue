@@ -2,8 +2,6 @@
 import { ref } from 'vue'
 import DatexBlockProtocolView from './DatexBlockProtocolView.vue'
 import { Upload, Download, FileWarning } from 'lucide-vue-next'
-import { parseStructure } from '@unyt/speck'
-import { dxbDefinition } from '@/views/BlockViewer/settings'
 
 const blockData = ref<Uint8Array | null>(null)
 const parseError = ref<string | null>(null)
@@ -18,6 +16,12 @@ const fileName = ref<string | null>(null)
     const data = new Uint8Array(buffer)
     if (data.length === 0) {
       parseError.value = 'File is empty'
+      blockData.value = null
+      return
+    }
+    // Check magic number [1, 100]
+    if (data.length < 2 || data[0] !== 1 || data[1] !== 100) {
+      parseError.value = 'Invalid DXB block — magic number mismatch'
       blockData.value = null
       return
     }
@@ -53,7 +57,7 @@ function onFileSelect(event: Event) {
 
 function saveBlock() {
   if (!blockData.value) return
-  const blob = new Blob([blockData.value], { type: 'application/octet-stream' })
+  const blob = new Blob([blockData.value.buffer as ArrayBuffer], { type: 'application/octet-stream' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
@@ -70,15 +74,11 @@ async function loadExample() {
     const response = await fetch(
       'https://raw.githubusercontent.com/unyt-org/datex-core/main/crates/datex-core/tests/structs/receivers/block.bin',
     )
-    console.log('fetch status:', response.status, response.ok)
     const buffer = await response.arrayBuffer()
-    const data = new Uint8Array(buffer)
-    console.log('data:', data.slice(0, 10))
-    parseStructure(dxbDefinition, data)
-    blockData.value = data
-  } catch (err) {
-  parseError.value = err instanceof Error ? err.message : 'Failed to read file'
-}
+    blockData.value = new Uint8Array(buffer)
+  } catch {
+    parseError.value = 'Failed to load example block'
+  }
 }
 
 loadExample()
