@@ -1,16 +1,36 @@
 <script setup lang="ts">
 import { Datex } from '@/lib/runtime'
+
+const features = ['Network Inspector', 'Block Viewer', 'Node View']
+
 </script>
 
 <template>
-  <div class="p-6 font-mono text-sm text-foreground">
-    <h1 class="text-lg font-semibold mb-4">About</h1>
+  <div class="p-6 text-sm">
+    <h1 class="text-lg font-semibold mb-4 text-foreground">About</h1>
 
-    <div class="mb-2">DATEX Version: {{ Datex.version }}</div>
-    <div class="mb-2">JS Version: {{ Datex.js_version }}</div>
-    <div class="mb-4">Endpoint: {{ Datex.endpoint }}</div>
+    <div class="mb-2">
+      <span class="text-foreground">DATEX Version: </span>
+      <span class="text-muted-foreground">{{ Datex.version }}</span>
+    </div>
+    <div class="mb-2">
+      <span class="text-foreground">JS Version: </span>
+      <span class="text-muted-foreground">{{ Datex.js_version }}</span>
+    </div>
+    <div class="mb-4">
+      <span class="text-foreground">Endpoint: </span>
+      <span class="text-muted-foreground">{{ Datex.endpoint }}</span>
+    </div>
 
-    <h2 class="text-md font-semibold mb-2">Active Features</h2>
-    <div class="text-muted-foreground italic">No features enabled</div>
-  </div>
+    <h2 class="text-md font-semibold mb-3 text-foreground">Active Features</h2>
+    <div class="flex flex-wrap gap-2">
+      <span
+        v-for="feature in features"
+        :key="feature"
+        class="rounded-full border border-border px-3 py-1 text-sm text-foreground shadow-sm"
+      >
+        {{ feature }}
+      </span>
+    </div>
+    </div>
 </template>
