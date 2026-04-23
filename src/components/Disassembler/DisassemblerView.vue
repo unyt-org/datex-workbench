@@ -43,7 +43,7 @@ const error = computed(() =>
 <template>
   <div class="flex flex-col">
     <!-- Controls bar -->
-    <div class="flex items-center justify-between px-4 py-2.5 border-b border-gray-800/60">
+    <div class="flex items-center justify-between px-4 py-2.5 border-b border-gray-800/60 h-12">
       <div class="flex items-center gap-3">
   <button
     class="text-xs font-mono font-semibold tracking-wide cursor-pointer"
@@ -105,7 +105,7 @@ const error = computed(() =>
     <!-- Disassembler view -->
 <div v-if="viewType === 'disassembler'" class="p-4">
     <!-- Instruction view -->
-    <div class="p-4">
+    <div class="m-1 flex-1 rounded-lg border overflow-y-auto">
       <!-- Tree mode -->
       <template v-if="viewMode === 'tree' && treeData">
         <InstructionTreeNode

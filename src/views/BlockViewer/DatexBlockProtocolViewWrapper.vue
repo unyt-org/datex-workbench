@@ -81,7 +81,6 @@ async function loadExample() {
   }
 }
 
-loadExample()
 </script>
 
 <template>
@@ -121,7 +120,7 @@ loadExample()
     <div
       class="flex-1 relative"
       @drop.prevent="onDrop"
-      @dragover="onDragOver"
+      @dragover.prevent="onDragOver"
       @dragleave="onDragLeave"
     >
       <!-- Drag overlay -->

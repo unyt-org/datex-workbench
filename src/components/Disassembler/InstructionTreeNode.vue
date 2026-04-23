@@ -6,6 +6,7 @@ import {
   getInstructionParts,
 } from '@/types/disassembler'
 import InstructionLabel from './InstructionLabel.vue'
+import { Plus, Minus } from 'lucide-vue-next'
 
 const props = withDefaults(
   defineProps<{
@@ -56,35 +57,41 @@ function toggle() {
 
 <template>
   <!-- ── Expandable node ── -->
-  <div v-if="hasExpandableContent">
-    <div class="tree-row" :style="bgStyle">
-      <!-- Ancestor vertical lines -->
-      <span
-        v-for="(isParentLast, idx) in prefixParts"
-        :key="idx"
-        class="tree-indent"
-        :class="{ 'has-line': !isParentLast }"
-      />
+<div v-if="hasExpandableContent">
+  <div class="tree-row cursor-pointer" :style="bgStyle" @click="toggle">
+    <!-- Ancestor vertical lines -->
+    <span
+      v-for="(isParentLast, idx) in prefixParts"
+      :key="idx"
+      class="tree-indent"
+      :class="{ 'has-line': !isParentLast }"
+    />
 
-      <!-- Junction with expand icon -->
-      <span
-        v-if="depth > 0"
-        class="tree-junction"
-        :class="{ 'is-last': isLast }"
-      >
-        <span class="expand-box" @click="toggle">{{ isOpen ? '\u2212' : '+' }}</span>
+    <!-- Junction with expand icon -->
+    <span
+      v-if="depth > 0"
+      class="tree-junction"
+      :class="{ 'is-last': isLast }"
+    >
+      <span class="expand-box">
+        <Minus v-if="isOpen" class="size-3" />
+        <Plus v-else class="size-3" />
       </span>
+    </span>
 
-      <!-- Root level expand (no junction) -->
-      <span v-else class="tree-root-toggle">
-        <span class="expand-box" @click="toggle">{{ isOpen ? '\u2212' : '+' }}</span>
+    <!-- Root level expand (no junction) -->
+    <span v-else class="tree-root-toggle">
+      <span class="expand-box">
+        <Minus v-if="isOpen" class="size-2.5" />
+        <Plus v-else class="size-2.5" />
       </span>
+    </span>
 
-      <!-- Horizontal connector -->
-      <span v-if="depth > 0" class="tree-hline" />
+    <!-- Horizontal connector -->
+    <span v-if="depth > 0" class="tree-hline" />
 
-      <InstructionLabel :name="parts.name" :meta="parts.meta" />
-    </div>
+    <InstructionLabel :name="parts.name" :meta="parts.meta" />
+  </div>
 
     <!-- Children (collapsible) -->
     <div v-show="isOpen">
@@ -150,7 +157,7 @@ function toggle() {
 .tree-indent.has-line::before {
   content: '';
   position: absolute;
-  left: 9px;
+  left: 10px;
   top: 0;
   bottom: 0;
   width: 1px;
@@ -172,7 +179,7 @@ function toggle() {
 .tree-junction::before {
   content: '';
   position: absolute;
-  left: 9px;
+  left: 10px;
   top: 0;
   bottom: 0;
   width: 1px;
@@ -192,7 +199,7 @@ function toggle() {
 .tree-junction.leaf::after {
   content: '';
   position: absolute;
-  left: 9px;
+  left: 10px;
   top: 50%;
   right: 0;
   height: 1px;
@@ -222,12 +229,10 @@ function toggle() {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   border: 1px solid #4b5563;
   border-radius: 2px;
-  font-size: 11px;
-  line-height: 1;
   color: #9ca3af;
   background: var(--background, #0f1117);
   position: relative;

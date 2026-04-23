@@ -57,7 +57,8 @@ const isBodySelected = computed(() => {
 
         <DisassemblerView
             v-if="isBodySelected"
-            class="m-1 max-h-2/3 rounded-lg border overflow-y-auto"
+            class="m-1 rounded-lg border overflow-y-auto"
+            style="max-height: 400px"
             :dxb="emptyDxb"
 ></DisassemblerView>
         <BlockProtocolInfo
