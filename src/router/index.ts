@@ -62,6 +62,11 @@ const router = createRouter({
           name: 'about',
           component: () => import('@/views/AboutView.vue'),
       },
+        {
+          path: '/collection',
+          name: 'collection',
+          component: () => import('@/views/CollectionTable/CollectionTableView.vue'),
+        }
     ],
 });
 
