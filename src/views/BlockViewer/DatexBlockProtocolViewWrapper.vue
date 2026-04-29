@@ -8,7 +8,7 @@ const parseError = ref<string | null>(null)
 const isDragging = ref(false)
 const fileName = ref<string | null>(null)
 
-  async function loadFile(file: File) {
+async function loadFile(file: File) {
   parseError.value = null
   fileName.value = file.name
   try {
@@ -19,7 +19,6 @@ const fileName = ref<string | null>(null)
       blockData.value = null
       return
     }
-    // Check magic number [1, 100]
     if (data.length < 2 || data[0] !== 1 || data[1] !== 100) {
       parseError.value = 'Invalid DXB block — magic number mismatch'
       blockData.value = null
@@ -34,7 +33,6 @@ const fileName = ref<string | null>(null)
 
 function onDrop(event: DragEvent) {
   isDragging.value = false
-  console.log('drop event', event.dataTransfer?.files)
   const file = event.dataTransfer?.files[0]
   if (file) loadFile(file)
 }
@@ -61,15 +59,14 @@ function saveBlock() {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = fileName.value ?? 'block.bin'
+  a.download = fileName.value ?? 'block.dx'
   a.click()
   URL.revokeObjectURL(url)
 }
 
-// Load default example block
 async function loadExample() {
   parseError.value = null
-  fileName.value = 'block.bin (example)'
+  fileName.value = 'block.dx'
   try {
     const response = await fetch(
       'https://raw.githubusercontent.com/unyt-org/datex-core/main/crates/datex-core/tests/structs/receivers/block.bin',
@@ -80,14 +77,15 @@ async function loadExample() {
     parseError.value = 'Failed to load example block'
   }
 }
-
 </script>
 
 <template>
   <div class="flex h-full flex-col no-drag top-offset">
-    <!-- Top bar -->
-    <div class="flex items-center gap-2 border-b border-border px-4 py-2">
-      <!-- File select button -->
+    <!-- Top bar — only when a block is loaded -->
+    <div
+      v-if="blockData || parseError"
+      class="flex items-center gap-2 border-b border-border px-4 py-2"
+    >
       <label
         class="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-mono text-foreground hover:bg-muted transition"
       >
@@ -95,22 +93,21 @@ async function loadExample() {
         Open File
         <input
           type="file"
+          accept=".dx"
           class="hidden"
           @change="onFileSelect"
         />
       </label>
 
-      <!-- Save button -->
       <button
         :disabled="!blockData"
         class="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-mono text-foreground hover:bg-muted transition disabled:opacity-40 disabled:cursor-not-allowed"
         @click="saveBlock"
       >
         <Download class="size-3.5" />
-        Save .bin
+        Save .dx
       </button>
 
-      <!-- File name -->
       <span v-if="fileName" class="ml-2 text-xs text-muted-foreground font-mono truncate">
         {{ fileName }}
       </span>
@@ -130,7 +127,7 @@ async function loadExample() {
       >
         <div class="text-muted-foreground text-sm font-mono flex flex-col items-center gap-2">
           <Upload class="size-8" />
-          Drop .bin file here
+          Drop .dx file here
         </div>
       </div>
 
@@ -152,17 +149,32 @@ async function loadExample() {
       <!-- Block viewer -->
       <DatexBlockProtocolView
         v-else-if="blockData"
+        class="h-full"
         :blockData="blockData"
         :key="blockData.byteLength"
       />
 
-      <!-- Empty state -->
+      <!-- Empty state — centered drop area + button only -->
       <div
         v-else
-        class="flex flex-col items-center justify-center h-full gap-3 text-muted-foreground text-sm font-mono"
+        class="flex flex-col items-center justify-center h-full gap-4"
       >
-        <Upload class="size-8" />
-        <div>Drop a .bin file here or click "Open File"</div>
+        <Upload class="size-12 text-muted-foreground" />
+        <div class="text-muted-foreground text-sm font-mono">
+          Drop a .dx file here
+        </div>
+        <label
+          class="inline-flex cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-mono text-foreground hover:bg-muted transition"
+        >
+          <Upload class="size-4" />
+          Open File
+          <input
+            type="file"
+            accept=".dx"
+            class="hidden"
+            @change="onFileSelect"
+          />
+        </label>
       </div>
     </div>
   </div>

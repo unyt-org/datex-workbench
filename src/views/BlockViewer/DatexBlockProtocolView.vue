@@ -46,28 +46,29 @@ const isBodySelected = computed(() => {
 </script>
 
 <template>
-    <div class="h-[calc(100%-15px)]">
-        <BlockProtocolBytes
-            class="m-1 max-h-3/5 rounded-lg border"
-            :structure="structureExample"
-            :structureDef="dxbDefinition"
-            :selectedField="selectedField"
-            @bytes-section-field-clicked="handleBytesSectionFieldClick"
-        ></BlockProtocolBytes>
-
-        <DisassemblerView
-            v-if="isBodySelected"
-            class="m-1 rounded-lg border overflow-y-auto"
-            style="max-height: 400px"
-            :dxb="emptyDxb"
-></DisassemblerView>
-        <BlockProtocolInfo
-            v-else-if="selectedField"
-            class="m-1 max-h-2/5 rounded-lg border"
-            :structure="structureExample"
-            :structureDef="dxbDefinition"
-            :selectedField="selectedField"
-            @close-button-clicked="handleInfoCloseButtonClick"
-        ></BlockProtocolInfo>
-    </div>
+  <div class="flex flex-col h-full">
+      <!-- Block sections: auto-size, max 50% height, scrolls if needed -->
+      <BlockProtocolBytes
+          class="m-1 rounded-lg overflow-y-auto"
+          style="max-height: 50vh"
+          :structure="structureExample"
+          :structureDef="dxbDefinition"
+          :selectedField="selectedField"
+          @bytes-section-field-clicked="handleBytesSectionFieldClick"
+      />
+      <!-- Details view: fills remaining height -->
+      <DisassemblerView
+          v-if="isBodySelected"
+          class="m-1 flex-1 min-h-0 rounded-lg overflow-hidden"
+          :dxb="emptyDxb"
+      />
+      <BlockProtocolInfo
+          v-else-if="selectedField"
+          class="m-1 flex-1 min-h-0 rounded-lg overflow-y-auto"
+          :structure="structureExample"
+          :structureDef="dxbDefinition"
+          :selectedField="selectedField"
+          @close-button-clicked="handleInfoCloseButtonClick"
+      />
+  </div>
 </template>
