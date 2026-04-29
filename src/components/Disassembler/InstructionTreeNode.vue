@@ -130,7 +130,6 @@ function toggle() {
       class="tree-junction leaf"
       :class="{ 'is-last': isLast }"
     />
-    <span v-if="depth > 0" class="tree-hline" />
     <InstructionLabel :name="parts.name" :meta="parts.meta" />
   </div>
 
@@ -187,10 +186,9 @@ function toggle() {
 }
 
 /* Last child: line goes from top to center only */
-.tree-junction.is-last::before {
-  bottom: 50%;
+.tree-junction.is-last::before{
+bottom: 50%;
 }
-
 /* Leaf junction — no expand box, just line */
 .tree-junction.leaf {
   pointer-events: none;
