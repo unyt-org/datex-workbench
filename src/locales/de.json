@@ -1,0 +1,86 @@
+{
+    "welcome": {
+  "subtitle": "Entwicklungstools für die DATEX-Laufzeit",
+  "quickActions": "Schnellaktionen",
+  "networkDesc": "DATEX-Netzwerkblöcke in Echtzeit überwachen und untersuchen",
+  "nodeDesc": "Den DATEX-Knotengraphen visualisieren und bearbeiten",
+  "editorDesc": "DATEX-Dateien direkt in der Workbench bearbeiten",
+  "replDesc": "Interaktive DATEX-Laufzeitumgebung",
+  "soon": "Bald",
+  "fileEditor": "Datei-Editor",
+  "repl": "REPL"
+},
+    "common": {
+      "loading": "Lädt...",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "delete": "Löschen",
+      "close": "Schließen",
+      "open": "Öffnen",
+      "search": "Suchen",
+      "settings": "Einstellungen",
+      "language": "Sprache"
+    },
+    "nav": {
+      "block": "Block",
+      "network": "Netzwerk",
+      "nodeView": "Knotenansicht",
+      "networkTree": "Netzwerk-Baum",
+      "collection": "Sammlung",
+      "about": "Über"
+    },
+    "block": {
+      "openFile": "Datei öffnen",
+      "saveBin": ".bin speichern",
+      "dropHint": "Eine .bin-Datei hier ablegen oder „Datei öffnen“ klicken",
+      "dropOverlay": ".bin-Datei hier ablegen",
+      "loadExample": "Beispielblock laden",
+      "fileEmpty": "Datei ist leer",
+      "invalidBlock": "Ungültiger DXB-Block — Magic Number stimmt nicht überein"
+    },
+    "disassembler": {
+      "disassembler": "DISASSEMBLER",
+      "decompiler": "DEKOMPILIERER",
+      "tree": "Baum",
+      "flat": "Flach",
+      "nested": "Verschachtelt",
+      "noInstructions": "Keine Anweisungen zum Anzeigen"
+    },
+    "network": {
+      "title": "Netzwerk-Inspektor",
+      "blockViewer": "Block-Anzeige",
+      "deleteBlocks": "Blöcke löschen?",
+      "deleteConfirm": "Diese Aktion kann nicht rückgängig gemacht werden.",
+      "clearAll": "Alle angezeigten Blöcke löschen"
+    },
+    "trace": {
+      "endpoint": "@endpunkt",
+      "timeout": "Zeitüberschreitung (ms)",
+      "trace": "Verfolgen",
+      "tracing": "Verfolgt...",
+      "autoTrace": "Auto-Verfolgen",
+      "autoTracing": "Auto-Verfolgt...",
+      "endpointUnreachable": "Endpunkt nicht erreichbar",
+      "tracePlaceholder": "Sende eine Verfolgung, um den Netzwerkpfad zu visualisieren"
+    },
+    "collection": {
+      "title": "Sammlung",
+      "id": "ID",
+      "name": "Name",
+      "age": "Alter",
+      "admin": "Admin",
+      "registered": "Registriert",
+      "yes": "Ja",
+      "no": "Nein",
+      "showing": "Zeige {from}–{to} von {total} Einträgen",
+      "previous": "Zurück",
+      "next": "Weiter"
+    },
+    "about": {
+      "title": "Über",
+      "datexVersion": "DATEX-Version",
+      "jsVersion": "JS-Version",
+      "endpoint": "Endpunkt",
+      "activeFeatures": "Aktive Funktionen"
+    }
+  }

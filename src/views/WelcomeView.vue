@@ -1,39 +1,42 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import IconLogo from '@/components/icons/IconLogo.vue'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const router = useRouter()
 
-const quickActions = [
+const quickActions = computed(() => [
   {
-    label: 'Network Inspector',
-    description: 'Monitor and inspect DATEX network blocks in real time',
+    label: t('nav.network'),
+    description: t('welcome.networkDesc'),
     icon: 'network',
     route: '/network',
     available: true,
   },
   {
-    label: 'Node View',
-    description: 'Visualize and edit the DATEX node graph',
+    label: t('nav.nodeView'),
+    description: t('welcome.nodeDesc'),
     icon: 'node',
     route: '/node-view',
     available: true,
   },
   {
-    label: 'File Editor',
-    description: 'Edit DATEX files directly in the workbench',
+    label: t('welcome.fileEditor'),
+    description: t('welcome.editorDesc'),
     icon: 'editor',
     route: '/editor',
     available: true,
   },
   {
-    label: 'REPL',
-    description: 'Interactive DATEX runtime environment',
+    label: t('welcome.repl'),
+    description: t('welcome.replDesc'),
     icon: 'repl',
     route: null,
     available: false,
   },
-]
+])
 
 function navigate(route: string | null) {
   if (route) router.push(route)
@@ -51,7 +54,7 @@ function navigate(route: string | null) {
         </h1>
       </div>
       <p class="text-sm text-muted-foreground">
-        Developer tooling for the DATEX runtime
+        {{ t('welcome.subtitle') }}
       </p>
     </div>
 
