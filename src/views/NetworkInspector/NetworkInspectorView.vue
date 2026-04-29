@@ -21,8 +21,9 @@ import { useNetworkInspector } from '@/composable/useNetworkInspector';
 import DatexBlockProtocolView from '@/views/BlockViewer/DatexBlockProtocolView.vue';
 import type { NetworkBlockTableRow } from '@/types/NetworkInspector/TableRow';
 import { filterRowsBySearch, parseSearchQuery } from '@/utils/searchParser';
-import { Trash, X } from 'lucide-vue-next';
+import { Trash, X, Lock, Unlock } from 'lucide-vue-next';
 import { computed, nextTick, ref, watch } from 'vue';
+import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry'
 
 const {
     sendTestBlock,
@@ -37,19 +38,21 @@ const {
 // Search query state
 const searchQuery = ref('');
 
+const selectedBlockEntry = ref<RawBlockEntry | null>(null)
+
 // Selected block for right panel
-const selectedBlock = ref<Uint8Array | null>(null)
+const selectedBlock = computed(() => selectedBlockEntry.value?.originalBinary ?? null)
 
 function onRowClick(row: Record<string, unknown>) {
   const capturedAt = row.capturedAt as number
   const block = blocks.value.find(b => b.capturedAt === capturedAt)
   if (block) {
-    selectedBlock.value = block.originalBinary
+    selectedBlockEntry.value = block
   }
 }
 
 function closeBlockViewer() {
-    selectedBlock.value = null;
+    selectedBlockEntry.value = null;
 }
 
 // Alert dialog state
@@ -172,6 +175,13 @@ const dynamicColumns = computed(() => {
     return createColumns(parsedQuery);
 });
 
+const isBlockSecure = computed(() => {
+  const entry = selectedBlockEntry.value
+  if (!entry) return false
+  return (entry.encryptionType !== 'None' && entry.encryptionType !== 'Unknown')
+    || (entry.signatureType !== 'None' && entry.signatureType !== 'Unknown')
+})
+
 </script>
 
 <template>
@@ -263,8 +273,14 @@ const dynamicColumns = computed(() => {
       <!-- Right panel: block viewer -->
       <div v-if="selectedBlock" class="w-1/2 flex flex-col h-full overflow-y-auto">
           <div class="flex items-center justify-between px-4 py-2 border-b border-border">
-              <span class="text-sm font-semibold text-foreground">Block Viewer</span>
-              <button
+            <div class="flex items-center gap-2 text-sm font-mono">
+  <span class="text-muted-foreground">[{{ selectedBlockEntry?.blockType }}]</span>
+  <span class="text-foreground">{{ selectedBlockEntry?.sender }}</span>
+  <span class="text-muted-foreground">→</span>
+  <span class="text-foreground">{{ selectedBlockEntry?.receivers.join(', ') }}</span>
+  <Lock v-if="isBlockSecure" class="size-3.5 text-muted-foreground" />
+  <Unlock v-else class="size-3.5 text-muted-foreground" />
+</div>              <button
                   class="text-muted-foreground hover:text-foreground transition"
                   @click="closeBlockViewer"
               >
