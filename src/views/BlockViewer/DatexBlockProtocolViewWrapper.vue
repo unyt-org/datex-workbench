@@ -115,7 +115,7 @@ async function loadExample() {
 
     <!-- Drop zone / content area -->
     <div
-      class="flex-1 relative"
+      class="flex-1 relative min-h-0 overflow-hidden"
       @drop.prevent="onDrop"
       @dragover.prevent="onDragOver"
       @dragleave="onDragLeave"

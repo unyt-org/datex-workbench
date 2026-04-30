@@ -50,7 +50,7 @@ const isBodySelected = computed(() => {
       <!-- Block sections: auto-size, max 50% height, scrolls if needed -->
       <BlockProtocolBytes
           class="m-1 rounded-lg overflow-y-auto"
-          style="max-height: 50vh"
+          style="max-height: 40%; flex-shrink: 0"
           :structure="structureExample"
           :structureDef="dxbDefinition"
           :selectedField="selectedField"
@@ -59,7 +59,7 @@ const isBodySelected = computed(() => {
       <!-- Details view: fills remaining height -->
       <DisassemblerView
           v-if="isBodySelected"
-          class="m-1 flex-1 min-h-0 rounded-lg overflow-hidden"
+          class="m-1 flex-1 min-h-0 rounded-lg overflow-hidden bg-muted"
           :dxb="emptyDxb"
       />
       <BlockProtocolInfo
