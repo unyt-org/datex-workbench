@@ -1,86 +1,86 @@
 {
     "welcome": {
-  "subtitle": "DATEX रनटाइम के लिए डेवलपर टूलिंग",
-  "quickActions": "त्वरित क्रियाएं",
-  "networkDesc": "रीयल टाइम में DATEX नेटवर्क ब्लॉक की निगरानी करें",
-  "nodeDesc": "DATEX नोड ग्राफ़ देखें और संपादित करें",
-  "editorDesc": "वर्कबेंच में DATEX फ़ाइलें संपादित करें",
-  "replDesc": "इंटरैक्टिव DATEX रनटाइम वातावरण",
-  "soon": "जल्द ही",
-  "fileEditor": "फ़ाइल संपादक",
-  "repl": "REPL"
-},
+        "subtitle": "DATEX रनटाइम के लिए डेवलपर टूलिंग",
+        "quickActions": "त्वरित क्रियाएं",
+        "networkDesc": "रीयल टाइम में DATEX नेटवर्क ब्लॉक की निगरानी करें",
+        "nodeDesc": "DATEX नोड ग्राफ़ देखें और संपादित करें",
+        "editorDesc": "वर्कबेंच में DATEX फ़ाइलें संपादित करें",
+        "replDesc": "इंटरैक्टिव DATEX रनटाइम वातावरण",
+        "soon": "जल्द ही",
+        "fileEditor": "फ़ाइल संपादक",
+        "repl": "REPL"
+    },
     "common": {
-      "loading": "लोड हो रहा है...",
-      "save": "सहेजें",
-      "cancel": "रद्द करें",
-      "delete": "हटाएं",
-      "close": "बंद करें",
-      "open": "खोलें",
-      "search": "खोजें",
-      "settings": "सेटिंग्स",
-      "language": "भाषा"
+        "loading": "लोड हो रहा है...",
+        "save": "सहेजें",
+        "cancel": "रद्द करें",
+        "delete": "हटाएं",
+        "close": "बंद करें",
+        "open": "खोलें",
+        "search": "खोजें",
+        "settings": "सेटिंग्स",
+        "language": "भाषा"
     },
     "nav": {
-      "block": "ब्लॉक",
-      "network": "नेटवर्क",
-      "nodeView": "नोड दृश्य",
-      "networkTree": "नेटवर्क ट्री",
-      "collection": "संग्रह",
-      "about": "बारे में"
+        "block": "ब्लॉक",
+        "network": "नेटवर्क",
+        "nodeView": "नोड दृश्य",
+        "networkTree": "नेटवर्क ट्री",
+        "collection": "संग्रह",
+        "about": "बारे में"
     },
     "block": {
-      "openFile": "फ़ाइल खोलें",
-      "saveBin": ".bin सहेजें",
-      "dropHint": "एक .bin फ़ाइल यहाँ छोड़ें या \"फ़ाइल खोलें\" क्लिक करें",
-      "dropOverlay": ".bin फ़ाइल यहाँ छोड़ें",
-      "loadExample": "उदाहरण ब्लॉक लोड करें",
-      "fileEmpty": "फ़ाइल खाली है",
-      "invalidBlock": "अमान्य DXB ब्लॉक — मैजिक नंबर मेल नहीं खाता"
+        "openFile": "फ़ाइल खोलें",
+        "saveBin": ".bin सहेजें",
+        "dropHint": "एक .bin फ़ाइल यहाँ छोड़ें या \"फ़ाइल खोलें\" क्लिक करें",
+        "dropOverlay": ".bin फ़ाइल यहाँ छोड़ें",
+        "loadExample": "उदाहरण ब्लॉक लोड करें",
+        "fileEmpty": "फ़ाइल खाली है",
+        "invalidBlock": "अमान्य DXB ब्लॉक — मैजिक नंबर मेल नहीं खाता"
     },
     "disassembler": {
-      "disassembler": "डिसअसेंबलर",
-      "decompiler": "डीकंपाइलर",
-      "tree": "ट्री",
-      "flat": "सपाट",
-      "nested": "नेस्टेड",
-      "noInstructions": "दिखाने के लिए कोई निर्देश नहीं"
+        "disassembler": "डिसअसेंबलर",
+        "decompiler": "डीकंपाइलर",
+        "tree": "ट्री",
+        "flat": "सपाट",
+        "nested": "नेस्टेड",
+        "noInstructions": "दिखाने के लिए कोई निर्देश नहीं"
     },
     "network": {
-      "title": "नेटवर्क इंस्पेक्टर",
-      "blockViewer": "ब्लॉक व्यूअर",
-      "deleteBlocks": "ब्लॉक हटाएं?",
-      "deleteConfirm": "यह क्रिया पूर्ववत नहीं की जा सकती।",
-      "clearAll": "सभी प्रदर्शित ब्लॉक साफ़ करें"
+        "title": "नेटवर्क इंस्पेक्टर",
+        "blockViewer": "ब्लॉक व्यूअर",
+        "deleteBlocks": "ब्लॉक हटाएं?",
+        "deleteConfirm": "यह क्रिया पूर्ववत नहीं की जा सकती।",
+        "clearAll": "सभी प्रदर्शित ब्लॉक साफ़ करें"
     },
     "trace": {
-      "endpoint": "@एंडपॉइंट",
-      "timeout": "टाइमआउट (ms)",
-      "trace": "ट्रेस",
-      "tracing": "ट्रेस कर रहा है...",
-      "autoTrace": "ऑटो-ट्रेस",
-      "autoTracing": "ऑटो-ट्रेस कर रहा है...",
-      "endpointUnreachable": "एंडपॉइंट तक नहीं पहुँचा जा सकता",
-      "tracePlaceholder": "नेटवर्क पथ देखने के लिए एक ट्रेस भेजें"
+        "endpoint": "@एंडपॉइंट",
+        "timeout": "टाइमआउट (ms)",
+        "trace": "ट्रेस",
+        "tracing": "ट्रेस कर रहा है...",
+        "autoTrace": "ऑटो-ट्रेस",
+        "autoTracing": "ऑटो-ट्रेस कर रहा है...",
+        "endpointUnreachable": "एंडपॉइंट तक नहीं पहुँचा जा सकता",
+        "tracePlaceholder": "नेटवर्क पथ देखने के लिए एक ट्रेस भेजें"
     },
     "collection": {
-      "title": "संग्रह",
-      "id": "आईडी",
-      "name": "नाम",
-      "age": "आयु",
-      "admin": "एडमिन",
-      "registered": "पंजीकृत",
-      "yes": "हाँ",
-      "no": "नहीं",
-      "showing": "{total} में से {from}–{to} दिखा रहा है",
-      "previous": "पिछला",
-      "next": "अगला"
+        "title": "संग्रह",
+        "id": "आईडी",
+        "name": "नाम",
+        "age": "आयु",
+        "admin": "एडमिन",
+        "registered": "पंजीकृत",
+        "yes": "हाँ",
+        "no": "नहीं",
+        "showing": "{total} में से {from}–{to} दिखा रहा है",
+        "previous": "पिछला",
+        "next": "अगला"
     },
     "about": {
-      "title": "बारे में",
-      "datexVersion": "DATEX संस्करण",
-      "jsVersion": "JS संस्करण",
-      "endpoint": "एंडपॉइंट",
-      "activeFeatures": "सक्रिय सुविधाएँ"
+        "title": "बारे में",
+        "datexVersion": "DATEX संस्करण",
+        "jsVersion": "JS संस्करण",
+        "endpoint": "एंडपॉइंट",
+        "activeFeatures": "सक्रिय सुविधाएँ"
     }
-  }
+}
