@@ -57,6 +57,11 @@ const router = createRouter({
             name: 'repl',
             component: () => import('@/views/Repl/DatexRepl.vue'),
         },
+        {
+          path: '/about',
+          name: 'about',
+          component: () => import('@/views/AboutView.vue'),
+      },
     ],
 });
 
