@@ -1,0 +1,86 @@
+{
+    "welcome": {
+        "subtitle": "Developer tooling for the DATEX runtime",
+        "quickActions": "Quick Actions",
+        "networkDesc": "Monitor and inspect DATEX network blocks in real time",
+        "nodeDesc": "Visualize and edit the DATEX node graph",
+        "editorDesc": "Edit DATEX files directly in the workbench",
+        "replDesc": "Interactive DATEX runtime environment",
+        "soon": "Soon",
+        "fileEditor": "File Editor",
+        "repl": "REPL"
+    },
+    "common": {
+        "loading": "Loading...",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "close": "Close",
+        "open": "Open",
+        "search": "Search",
+        "settings": "Settings",
+        "language": "Language"
+    },
+    "nav": {
+        "block": "Block",
+        "network": "Network",
+        "nodeView": "Node View",
+        "networkTree": "Network Tree",
+        "collection": "Collection",
+        "about": "About"
+    },
+    "block": {
+        "openFile": "Open File",
+        "saveBin": "Save .bin",
+        "dropHint": "Drop a .bin file here or click \"Open File\"",
+        "dropOverlay": "Drop .bin file here",
+        "loadExample": "Load example block",
+        "fileEmpty": "File is empty",
+        "invalidBlock": "Invalid DXB block — magic number mismatch"
+    },
+    "disassembler": {
+        "disassembler": "DISASSEMBLER",
+        "decompiler": "DECOMPILER",
+        "tree": "Tree",
+        "flat": "Flat",
+        "nested": "Nested",
+        "noInstructions": "No instructions to display"
+    },
+    "network": {
+        "title": "Network Inspector",
+        "blockViewer": "Block Viewer",
+        "deleteBlocks": "Delete Blocks?",
+        "deleteConfirm": "This action cannot be undone.",
+        "clearAll": "Clear all displayed blocks"
+    },
+    "trace": {
+        "endpoint": "@endpoint",
+        "timeout": "Timeout (ms)",
+        "trace": "Trace",
+        "tracing": "Tracing...",
+        "autoTrace": "Auto-Trace",
+        "autoTracing": "Auto-Tracing...",
+        "endpointUnreachable": "Endpoint not reachable",
+        "tracePlaceholder": "Send a trace to visualize the network path"
+    },
+    "collection": {
+        "title": "Collection",
+        "id": "ID",
+        "name": "Name",
+        "age": "Age",
+        "admin": "Admin",
+        "registered": "Registered",
+        "yes": "Yes",
+        "no": "No",
+        "showing": "Showing {from}–{to} of {total} entries",
+        "previous": "Previous",
+        "next": "Next"
+    },
+    "about": {
+        "title": "About",
+        "datexVersion": "DATEX Version",
+        "jsVersion": "JS Version",
+        "endpoint": "Endpoint",
+        "activeFeatures": "Active Features"
+    }
+}

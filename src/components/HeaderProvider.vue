@@ -1,6 +1,7 @@
 <script lang="ts">
 import { useRoute } from 'vue-router'
 import ThemeSwitch from '@/components/ThemeSwitch.vue';
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 import IconLogo from '@/components/icons/IconLogo.vue';
 import {
     Menubar,
@@ -24,7 +25,7 @@ export default {
         // MenubarMenu,
         Menubar,
         IconLogo,
-        ThemeSwitch },
+        ThemeSwitch, LanguageSwitcher },
         setup() {
     const route = useRoute()
     return { route }
@@ -82,7 +83,8 @@ export default {
                 <MenubarItem>Hide / Expand Sidebar</MenubarItem>
             </MenubarContent>
         </MenubarMenu>-->
-        <div class="ml-auto">
+        <div class="ml-auto flex items-center gap-2">
+          <LanguageSwitcher />
             <ThemeSwitch />
         </div>
     </Menubar>
