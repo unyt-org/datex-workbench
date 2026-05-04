@@ -59,7 +59,7 @@ export default defineComponent({
 
 <template>
     <aside
-        class="border-sidebar-border bg-transparent relative flex h-full flex-col border-r transition-all duration-300 ease-in-out select-none"
+        class="bg-transparent relative flex h-full flex-col border-r transition-all duration-300 ease-in-out select-none"
         :class="[isCollapsed ? 'w-0' : 'w-16']"
     >
         <button
@@ -84,11 +84,11 @@ export default defineComponent({
             >
                 <template #item="{ element }">
                     <div
-                        class="group relative flex w-full cursor-pointer items-center justify-center py-1"
+                        class="group relative flex w-full cursor-pointer items-center justify-center py-2"
                         @click="navigate(element.path)"
                     >
                         <div
-                            class="absolute left-0 h-7 w-0.5 bg-sidebar-primary transition-all"
+                            class="absolute left-0 h-10 w-0.5 rounded-full bg-sidebar-border transition-all"
                             :class="activePath === element.path ? 'opacity-100' : 'opacity-0'"
                         ></div>
 
@@ -100,7 +100,7 @@ export default defineComponent({
                                     : 'text-dim hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                             "
                         >
-                            <component :is="element.icon" :size="24" :stroke-width="1.5" />
+                            <component :is="element.icon" :size="28" :stroke-width="1.5" />
                         </div>
 
                         <div
