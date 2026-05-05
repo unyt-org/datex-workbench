@@ -33,7 +33,8 @@ const data = ref<CollectionEntry[]>([...MOCK_COLLECTION])
 const sortKey = ref<SortKey>(null)
 const sortDir = ref<SortDir>(null)
 const currentPage = ref(1)
-const pageSize = ref(10)
+const pageSizeOptions = [10, 25, 50, 100]
+const pageSize = ref(50)
 
 // Which cell is being edited: { rowId, colKey }
 const editingCell = ref<{ rowId: string; colKey: keyof CollectionEntry } | null>(null)
@@ -172,7 +173,7 @@ function isEditing(rowId: string, colKey: keyof CollectionEntry): boolean {
     <!-- Table wrapper -->
     <div class="rounded-lg border border-border overflow-hidden flex-1">
       <div class="overflow-x-auto h-full">
-        <table class="w-full text-sm">
+        <table class="w-full text-sm table-fixed">
           <!-- Header -->
           <thead class="bg-muted/50 border-b border-border">
             <tr>
@@ -215,9 +216,7 @@ function isEditing(rowId: string, colKey: keyof CollectionEntry): boolean {
                   <select
                     v-if="col.type === 'boolean'"
                     v-model="editingValue"
-                    class="bg-background border border-border rounded px-2 py-0.5 text-sm text-foreground w-full"
-                    @change="commitEdit(row, col)"
-                    @keydown.enter="commitEdit(row, col)"
+                    class="bg-transparent text-sm text-foreground w-full outline-none border-none p-0 m-0 h-auto leading-normal"                    @keydown.enter="commitEdit(row, col)"
                     @keydown.escape="cancelEdit"
                     autofocus
                   >
@@ -230,7 +229,7 @@ function isEditing(rowId: string, colKey: keyof CollectionEntry): boolean {
                     v-else
                     v-model="editingValue"
                     :type="col.type === 'number' ? 'number' : 'text'"
-                    class="bg-background border border-border rounded px-2 py-0.5 text-sm text-foreground w-full"
+                    class="bg-transparent text-sm text-foreground w-full outline-none border-none p-0 m-0 h-auto leading-normal [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                     @keydown.enter="commitEdit(row, col)"
                     @keydown.escape="cancelEdit"
                     @keydown.up.prevent="col.type === 'number' && (editingValue = String(Number(editingValue) + 1))"
@@ -267,9 +266,21 @@ function isEditing(rowId: string, colKey: keyof CollectionEntry): boolean {
 
     <!-- Pagination bar -->
     <div class="flex items-center justify-between text-sm text-muted-foreground">
-      <span>
-        Showing {{ (currentPage - 1) * pageSize + 1 }}–{{ Math.min(currentPage * pageSize, data.length) }} of {{ data.length }} entries
-      </span>
+  <div class="flex items-center gap-3">
+    <span>
+      Showing {{ (currentPage - 1) * pageSize + 1 }}–{{ Math.min(currentPage * pageSize, data.length) }} of {{ data.length }} entries
+    </span>
+    <div class="flex items-center gap-2">
+      <span>Rows per page:</span>
+      <select
+        v-model.number="pageSize"
+        @change="currentPage = 1"
+        class="bg-background border border-border rounded px-2 py-0.5 text-foreground"
+      >
+        <option v-for="opt in pageSizeOptions" :key="opt" :value="opt">{{ opt }}</option>
+      </select>
+    </div>
+  </div>
       <div class="flex items-center gap-2">
         <button
           class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md border border-border hover:bg-muted transition disabled:opacity-40 disabled:cursor-not-allowed"
