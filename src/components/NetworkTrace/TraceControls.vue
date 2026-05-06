@@ -79,7 +79,7 @@ async function autoTrace() {
 </script>
 
 <template>
-  <div class="flex items-center gap-2 p-4 border-b border-border">
+  <div class="flex items-center gap-2 p-4 border-b border-border top-offset">
     <Input
       v-model="endpoint"
       placeholder="@endpoint"
