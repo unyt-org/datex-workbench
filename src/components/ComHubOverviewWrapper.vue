@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-page flex h-full flex-col overflow-hidden p-5">
+    <div class="bg-page flex h-full flex-col overflow-hidden p-5 top-offset">
         <!-- Title + search + settings -->
         <div class="mb-4 flex items-center gap-2">
             <h2 class="mr-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
@@ -70,7 +70,7 @@
         </div>
 
         <!-- List -->
-        <div class="flex-1 overflow-y-auto">
+        <div class="flex-1 overflow-y-auto no-drag">
             <ComHubEndpointList
                 v-if="groupByEndpoint"
                 :interfaces="interfaces"

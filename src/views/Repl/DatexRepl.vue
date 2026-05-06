@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, nextTick, watch, computed, onMounted } from 'vue';
 import { useDatexRepl } from '@/composable/useDatexRepl';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { Settings, ChevronRight, ChevronLeft, Trash2 } from 'lucide-vue-next';
+import { ChevronRight, ChevronLeft, Trash2 } from 'lucide-vue-next';
 
 const { entries, history, executeCommand, reset, suggestions, updateSuggestions } = useDatexRepl();
 
@@ -96,24 +95,12 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="bg-page text-primary relative flex h-full flex-col font-mono text-sm">
-        <div class="absolute top-3 right-3 z-20">
-            <Popover>
-                <PopoverTrigger as-child>
-                    <button class="btn-icon border-card bg-card">
-                        <Settings class="h-4 w-4" />
-                    </button>
-                </PopoverTrigger>
-                <PopoverContent align="end" class="card w-64">
-                    <PointerPreferences />
-                </PopoverContent>
-            </Popover>
-        </div>
+    <div class="top-offset bg-page text-primary relative flex h-full flex-col font-mono text-sm">
         <div ref="scrollContainer" class="flex-1 space-y-2 overflow-y-auto p-4">
             <div
                 v-for="(entry, i) in entries"
                 :key="i"
-                class="text-sm break-all whitespace-pre-wrap"
+                class="text-sm break-all whitespace-pre-wrap no-drag"
             >
                 <div v-if="entry.type === 'input'" class="text-muted-foreground flex gap-2">
                     <ChevronRight :size="14" class="mt-1 opacity-50" />

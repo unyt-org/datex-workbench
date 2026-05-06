@@ -13,5 +13,7 @@ const blockData: Uint8Array = new Uint8Array(
 </script>
 
 <template>
-    <DatexBlockProtocolView :blockData="blockData" />
+    <div class="no-drag top-offset">
+        <DatexBlockProtocolView :blockData="blockData" />
+    </div>
 </template>

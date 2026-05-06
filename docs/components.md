@@ -29,13 +29,12 @@ The application uses shadcn/ui components built on Reka UI.
 
 ## Feature Components
 
-### Header Components
+### Side bar Components
 
-**HeaderProvider.vue**
+**SideBar.vue**
 
-- Top navigation bar
+- Navigation bar with drag and drop
 - Theme switching
-- Navigation links
 
 **ThemeSwitch.vue**
 

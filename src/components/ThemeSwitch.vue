@@ -27,7 +27,7 @@ watch(mode, (newMode) => {
 </script>
 
 <template>
-    <DropdownMenu>
+    <DropdownMenu class="z-1000 no-drag">
         <DropdownMenuTrigger as-child>
             <Button variant="ghost">
                 <Moon
@@ -39,7 +39,7 @@ watch(mode, (newMode) => {
                 <span class="sr-only">Toggle theme</span>
             </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent class="no-drag ml-2">
             <DropdownMenuItem @click="mode = 'light'"> Light </DropdownMenuItem>
             <DropdownMenuItem @click="mode = 'dark'"> Dark </DropdownMenuItem>
             <DropdownMenuItem @click="mode = 'auto'"> System </DropdownMenuItem>

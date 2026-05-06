@@ -27,11 +27,11 @@ const router = createRouter({
             name: 'node view',
             component: () => import('@/views/TreeView.vue'),
         },
-        {
-            path: '/editor',
-            name: 'editor',
-            component: () => import('@/views/Editor/EditorViewWrapper.vue'),
-        },
+        // {
+        //     path: '/editor',
+        //     name: 'editor',
+        //     component: () => import('@/views/Editor/EditorViewWrapper.vue'),
+        // },
         {
             path: '/windows',
             name: 'Editor',
