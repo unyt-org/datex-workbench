@@ -33,8 +33,8 @@ const quickActions = computed(() => [
     label: t('welcome.repl'),
     description: t('welcome.replDesc'),
     icon: 'repl',
-    route: null,
-    available: false,
+    route: '/repl',
+    available: true,
   },
 ])
 
@@ -44,7 +44,7 @@ function navigate(route: string | null) {
 </script>
 
 <template>
-  <main class="flex h-full w-full flex-col items-center justify-center gap-12 bg-background p-8">
+  <main class="no-drag flex h-full w-full flex-col items-center justify-center gap-12 bg-background p-8">
     <!-- Header -->
     <div class="flex flex-col items-center gap-2 text-center">
       <div class="flex items-center gap-3">

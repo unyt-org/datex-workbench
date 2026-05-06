@@ -204,7 +204,7 @@ function resetTypeFilters() {
 
 <template>
     <!-- Full Screen PointerView -->
-    <div class="bg-background flex h-screen w-full flex-col" :class="props.class">
+    <div class="bg-background flex h-screen w-full flex-col top-offset" :class="props.class">
         <!-- Search Header (Fixed at top) -->
         <div class="shrink-0 border-b">
             <div class="p-4">
@@ -287,7 +287,7 @@ function resetTypeFilters() {
         </div>
 
         <!-- Tree Structure (Scrollable) -->
-        <ScrollArea class="flex-1.5 mb-15">
+        <ScrollArea class="flex-1.5 mb-15 no-drag">
             <SidebarGroup>
                 <SidebarGroupContent>
                     <SidebarMenu>

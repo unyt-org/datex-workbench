@@ -1,11 +1,11 @@
 {
     "welcome": {
-        "subtitle": "Entwicklungstools für die DATEX-Laufzeit",
+        "subtitle": "Entwicklungstools für DATEX",
         "quickActions": "Schnellaktionen",
         "networkDesc": "DATEX-Netzwerkblöcke in Echtzeit überwachen und untersuchen",
         "nodeDesc": "Den DATEX-Knotengraphen visualisieren und bearbeiten",
         "editorDesc": "DATEX-Dateien direkt in der Workbench bearbeiten",
-        "replDesc": "Interaktive DATEX-Laufzeitumgebung",
+        "replDesc": "Interaktive DATEX-Runtime-Umgebung",
         "soon": "Bald",
         "fileEditor": "Datei-Editor",
         "repl": "REPL"

@@ -1,60 +1,39 @@
-<script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+<script lang="ts" setup>
+import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import ThemeSwitch from '@/components/ThemeSwitch.vue';
 import IconLogo from '@/components/icons/IconLogo.vue';
 import {
     Network,
     Terminal,
-    ChevronLeft,
-    ChevronRight,
     Box,
     GitGraph,
-    Code2,
     Cpu,
-    MousePointer2,
-    AppWindow,
+    Info,
 } from 'lucide-vue-next';
 import draggable from 'vuedraggable';
 
-export default defineComponent({
-    components: {
-        draggable,
-        ChevronLeft,
-        ChevronRight,
-        ThemeSwitch,
-    },
-    setup() {
-        const router = useRouter();
-        const route = useRoute();
-        // const isCollapsed = ref(false);
+const router = useRouter();
+const route = useRoute();
 
-        const sidebarItems = ref([
-            { icon: IconLogo, name: 'Welcome', path: '/' },
-            { icon: Terminal, name: 'REPL', path: '/repl' },
-            { icon: Box, name: 'Blocks', path: '/blocks' },
-            { icon: Network, name: 'Network', path: '/network' },
-            { icon: GitGraph, name: 'Node View', path: '/node-view' },
-            { icon: Code2, name: 'Editor', path: '/editor' },
-            { icon: AppWindow, name: 'Windows', path: '/windows' },
-            { icon: Cpu, name: 'ComHub', path: '/comhub' },
-            { icon: MousePointer2, name: 'Pointers', path: '/pointers' },
-        ]);
+const sidebarItems = ref([
+    { icon: Terminal, name: 'REPL', path: '/repl' },
+    { icon: Cpu, name: 'ComHub', path: '/comhub' },
+    { icon: Box, name: 'Blocks', path: '/blocks' },
+    { icon: Network, name: 'Network', path: '/network' },
+    { icon: GitGraph, name: 'Node View', path: '/node-view' },
+    { icon: Info, name: 'About', path: '/about' },
+    // { icon: AppWindow, name: 'Windows', path: '/windows' },
+    // { icon: MousePointer2, name: 'Pointers', path: '/pointers' },
+]);
 
-        const activePath = computed(() => route.path);
+const activePath = computed(() => route.path);
 
-        const navigate = (path: string) => {
-            router.push(path);
-        };
+const navigate = (path: string) => {
+    router.push(path);
+};
 
-        return {
-            // isCollapsed,
-            activePath,
-            sidebarItems,
-            navigate,
-        };
-    },
-});
+
 </script>
 
 <template>
@@ -75,7 +54,39 @@ export default defineComponent({
 
         <!-- For Collapse -->
         <!-- :class="[isCollapsed ? 'pointer-events-none opacity-0' : 'opacity-100']" -->
-        <div class="flex flex-col items-center py-4 transition-opacity duration-200 h-full">
+        <div class="flex flex-col items-center wco-container transition-opacity duration-200 h-full">
+            
+            <div
+                class="group relative flex w-full cursor-pointer items-center justify-center py-2"
+                @click="navigate('/')"
+            >
+                <div
+                    class="absolute left-0 h-10 w-0.5 rounded-full bg-sidebar-border transition-all"
+                    :class="activePath === '/' ? 'opacity-100' : 'opacity-0'"
+                ></div>
+
+                <div
+                    class="rounded-md p-2 transition-colors"
+                    :class="
+                        activePath === '/' 
+                            ? 'text-sidebar-foreground'
+                            : 'text-dim hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                    "
+                >
+                    <IconLogo :size="28" :stroke-width="1.5" />
+                </div>
+
+                <div
+                    class="card invisible absolute left-14 z-50 m-0 ml-2 whitespace-nowrap px-3 py-1.5 text-xs font-mono shadow-xl group-hover:visible"
+                >
+                    Welcome
+
+                    <div
+                        class="bg-card border-l border-b border-neutral-200 dark:border-neutral-700 absolute -left-1 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45"
+                    ></div>
+                </div>
+            </div>
+
             <draggable
                 v-model="sidebarItems"
                 item-key="name"
@@ -116,7 +127,7 @@ export default defineComponent({
                     </div>
                 </template>
             </draggable>
-            <div class="mt-auto">
+            <div class="mt-auto pb-4">
                 <ThemeSwitch />
             </div>
         </div>
@@ -135,5 +146,17 @@ aside {
 .sortable-ghost {
     background: var(--sidebar-accent);
     border-radius: var(--radius-md);
+}
+
+
+@media (display-mode: window-controls-overlay) {
+    .wco-container {
+        padding-top: env(titlebar-area-height, 0);
+        -webkit-app-region: drag;
+    }
+
+    .wco-container > * {
+        -webkit-app-region: no-drag;
+    }
 }
 </style>

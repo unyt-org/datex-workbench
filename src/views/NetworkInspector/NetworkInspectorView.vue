@@ -158,7 +158,7 @@ const dynamicColumns = computed(() => {
 </script>
 
 <template>
-    <div class="bg-background text-foreground flex h-full flex-col p-4">
+    <div class="top-offset bg-background text-foreground flex h-full flex-col p-4">
         <div class="mb-4">
             <h1 class="mb-3 text-2xl font-bold">Network Inspector</h1>
 
@@ -189,7 +189,7 @@ const dynamicColumns = computed(() => {
             </div>
         </div>
 
-        <div ref="scrollContainerRef" class="max-h-[calc(100vh-200px)] flex-1 overflow-y-auto">
+        <div ref="scrollContainerRef" class="max-h-[calc(100vh-200px)] flex-1 overflow-y-auto no-drag">
             <DataTable
                 :columns="dynamicColumns"
                 :data="tableRows"
