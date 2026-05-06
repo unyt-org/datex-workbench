@@ -31,9 +31,9 @@
     },
     "block": {
         "openFile": "Open File",
-        "saveBin": "Save .bin",
-        "dropHint": "Drop a .bin file here or click \"Open File\"",
-        "dropOverlay": "Drop .bin file here",
+        "saveBin": "Save .dxb",
+        "dropHint": "Drop a .dxb file here or click \"Open File\"",
+        "dropOverlay": "Drop .dxb file here",
         "loadExample": "Load example block",
         "fileEmpty": "File is empty",
         "invalidBlock": "Invalid DXB block — magic number mismatch"
