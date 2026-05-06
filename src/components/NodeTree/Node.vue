@@ -17,7 +17,7 @@ const emit = defineEmits<{
 
 <template>
   <Card
-    class="absolute w-56 select-none transition-shadow node-card cursor-grab active:cursor-grabbing"
+    class="absolute w-56 select-none transition-shadow node-card cursor-grab active:cursor-grabbing py-1 gap-0"
     :class="[
       isDragging ? 'z-50 shadow-2xl' : 'z-10 shadow-sm',
       isActive ? 'border-2 border-blue-500 dark:border-blue-400' : ''
@@ -57,7 +57,7 @@ const emit = defineEmits<{
     </template>
 
     <!-- Header -->
-    <CardHeader class="py-2 px-3 cursor-grab active:cursor-grabbing">
+    <CardHeader class="py-1 px-3 cursor-grab active:cursor-grabbing">
       <CardTitle class="text-sm font-semibold break-all leading-tight">
         {{ props.node.name ?? props.node.id }}
       </CardTitle>

@@ -8,11 +8,23 @@ import { parseNodeTree } from '@/composable/NodeTree/parseNodeTree'
 import exampleJson from '@/../test/composable/NodeTree/fixtures/validExampleShort.json'
 import dagre from 'dagre'
 
+const props = defineProps<{
+  initialTree?: NodeTree<unknown, unknown>,
+  forceReadOnly?: boolean
+}>()
 
 const example = exampleJson as NodeTreeInput
-const tree: Ref<NodeTree<unknown, unknown>> = ref(parseNodeTree(example))
 
-const isReadOnly = ref(false)
+const tree: Ref<NodeTree<unknown, unknown>> = ref(
+  props.initialTree ?? parseNodeTree(example)
+)
+
+// Watch for external tree updates
+watch(() => props.initialTree, (newTree) => {
+  if (newTree) tree.value = newTree
+}, { deep: true })
+
+const isReadOnly = ref(props.forceReadOnly ?? false)
 const canvasRef = ref<HTMLElement | null>(null)
 
 type BackgroundPattern = 'none' | 'grid' | 'checkerboard'
@@ -528,6 +540,10 @@ function autoLayout() {
   // Center after layout
   centerNodes()
 }
+watch(() => props.initialTree, async () => {
+  await nextTick()
+  centerNodes()
+}, {immediate: true})
 
 function exportTree() {
   console.log('exporting tree:', JSON.stringify(tree.value, null, 2))
@@ -565,6 +581,10 @@ function importTree(event: Event) {
 }
 
 async function handleKeydown(event: KeyboardEvent) {
+  const target = event.target as HTMLElement
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+    return
+  }
   const isMac = navigator.platform.toUpperCase().includes('MAC')
   const cmdOrCtrl = isMac ? event.metaKey : event.ctrlKey
 
