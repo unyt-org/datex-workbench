@@ -23,7 +23,7 @@ watch(mode, (newMode) => {
             themeColorMeta.setAttribute('content', 'oklch(1 0 0)');
         }
     }
-});
+}, { immediate: true});
 </script>
 
 <template>
