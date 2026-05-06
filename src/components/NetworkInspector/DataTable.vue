@@ -33,6 +33,7 @@ const props = withDefaults(defineProps<DataTableProps>(), {
 
 const emit = defineEmits<{
   'load-more': []
+  'row-click': [row: Record<string, unknown>]
 }>()
 
 const sorting = ref<SortingState>([])
@@ -153,7 +154,8 @@ watch(() => props.filterValue, (val) => {
           <div
             v-for="virtualRow in virtualRows"
             :key="virtualRow.index"
-            class="flex absolute w-full border-b border-border hover:bg-accent"
+            class="flex absolute w-full border-b border-border hover:bg-accent cursor-pointer"
+            @click="emit('row-click', rows[virtualRow.index]?.original as Record<string, unknown>)"
             :style="{ transform: `translateY(${virtualRow.start}px)`, height: virtualRow.size + 'px' }"
           >
             <div
