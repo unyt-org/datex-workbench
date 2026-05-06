@@ -2,9 +2,9 @@
 import HighlightedText from '@/components/NetworkInspector/HighlightedText.vue';
 
 const props = defineProps<{
-  value: string
-  searchTerms?: string[]
-}>()
+    value: string;
+    searchTerms?: string[];
+}>();
 </script>
 
 <template>

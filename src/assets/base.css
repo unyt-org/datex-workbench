@@ -1,9 +1,12 @@
-button, input, select, textarea {
-	-webkit-app-region: no-drag;
+button,
+input,
+select,
+textarea {
+    -webkit-app-region: no-drag;
 }
 
 .no-drag {
-	-webkit-app-region: no-drag;
+    -webkit-app-region: no-drag;
 }
 
 .top-offset {

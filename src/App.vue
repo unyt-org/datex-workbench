@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import SideBar from '@/components/SideBar.vue';
-import { Toaster } from '@/components/ui/sonner'
+import { Toaster } from '@/components/ui/sonner';
 import { RouterView } from 'vue-router';
 </script>
 

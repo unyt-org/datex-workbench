@@ -3,40 +3,40 @@
     "name": "datex",
     "fileTypes": ["dx"],
     "patterns": [
-      { "include": "#comments" },
-      { "include": "#keywords" },
-      { "include": "#strings" },
-      { "include": "#numbers" },
-      { "include": "#endpoints" },
-      { "include": "#functions" }
+        { "include": "#comments" },
+        { "include": "#keywords" },
+        { "include": "#strings" },
+        { "include": "#numbers" },
+        { "include": "#endpoints" },
+        { "include": "#functions" }
     ],
     "repository": {
-      "comments": {
-        "match": "//.*$",
-        "name": "comment.line.double-slash.datex"
-      },
-      "keywords": {
-        "match": "\\b(const|let|shared|function|if|else|return|true|false|null|print)\\b",
-        "name": "keyword.control.datex"
-      },
-      "strings": {
-        "begin": "\"",
-        "end": "\"",
-        "name": "string.quoted.double.datex"
-      },
-      "numbers": {
-        "match": "\\b[0-9]+\\b",
-        "name": "constant.numeric.datex"
-      },
-      "endpoints": {
-        "match": "@[a-zA-Z_][a-zA-Z0-9_]*",
-        "name": "variable.other.constant.datex"
-      },
-      "functions": {
-        "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\(",
-        "captures": {
-          "1": { "name": "entity.name.function.datex" }
+        "comments": {
+            "match": "//.*$",
+            "name": "comment.line.double-slash.datex"
+        },
+        "keywords": {
+            "match": "\\b(const|let|shared|function|if|else|return|true|false|null|print)\\b",
+            "name": "keyword.control.datex"
+        },
+        "strings": {
+            "begin": "\"",
+            "end": "\"",
+            "name": "string.quoted.double.datex"
+        },
+        "numbers": {
+            "match": "\\b[0-9]+\\b",
+            "name": "constant.numeric.datex"
+        },
+        "endpoints": {
+            "match": "@[a-zA-Z_][a-zA-Z0-9_]*",
+            "name": "variable.other.constant.datex"
+        },
+        "functions": {
+            "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\(",
+            "captures": {
+                "1": { "name": "entity.name.function.datex" }
+            }
         }
-      }
     }
-  }
+}

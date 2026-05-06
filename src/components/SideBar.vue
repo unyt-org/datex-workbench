@@ -3,15 +3,7 @@ import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import ThemeSwitch from '@/components/ThemeSwitch.vue';
 import IconLogo from '@/components/icons/IconLogo.vue';
-import {
-    Network,
-    SendToBack,
-    Terminal,
-    Box,
-    GitGraph,
-    Cpu,
-    Info,
-} from 'lucide-vue-next';
+import { Network, SendToBack, Terminal, Box, GitGraph, Cpu, Info } from 'lucide-vue-next';
 import draggable from 'vuedraggable';
 
 const router = useRouter();
@@ -34,8 +26,6 @@ const activePath = computed(() => route.path);
 const navigate = (path: string) => {
     router.push(path);
 };
-
-
 </script>
 
 <template>
@@ -56,8 +46,9 @@ const navigate = (path: string) => {
 
         <!-- For Collapse -->
         <!-- :class="[isCollapsed ? 'pointer-events-none opacity-0' : 'opacity-100']" -->
-        <div class="flex flex-col items-center wco-container transition-opacity duration-200 h-full">
-            
+        <div
+            class="flex flex-col items-center wco-container transition-opacity duration-200 h-full"
+        >
             <div
                 class="group relative flex w-full cursor-pointer items-center justify-center py-2"
                 @click="navigate('/')"
@@ -70,7 +61,7 @@ const navigate = (path: string) => {
                 <div
                     class="rounded-md p-2 transition-colors"
                     :class="
-                        activePath === '/' 
+                        activePath === '/'
                             ? 'text-sidebar-foreground'
                             : 'text-dim hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                     "
@@ -149,7 +140,6 @@ aside {
     background: var(--sidebar-accent);
     border-radius: var(--radius-md);
 }
-
 
 @media (display-mode: window-controls-overlay) {
     .wco-container {

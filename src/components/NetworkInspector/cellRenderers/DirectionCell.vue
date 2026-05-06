@@ -2,8 +2,8 @@
 import { ArrowLeft, ArrowRight } from 'lucide-vue-next';
 
 const props = defineProps<{
-  value: string
-}>()
+    value: string;
+}>();
 </script>
 
 <template>
