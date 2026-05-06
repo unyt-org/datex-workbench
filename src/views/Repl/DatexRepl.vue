@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, nextTick, watch, computed, onMounted } from 'vue';
 import { useDatexRepl } from '@/composable/useDatexRepl';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { Settings, ChevronRight, ChevronLeft, Trash2 } from 'lucide-vue-next';
+import { ChevronRight, ChevronLeft, Trash2 } from 'lucide-vue-next';
 
 const { entries, history, executeCommand, reset, suggestions, updateSuggestions } = useDatexRepl();
 
