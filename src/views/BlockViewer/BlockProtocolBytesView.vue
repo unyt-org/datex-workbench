@@ -51,7 +51,7 @@ function findSectionDef(section: ParsedSection) {
             class="last:border-b-0"
         >
             <AccordionTrigger
-                class="text-foreground cursor-pointer py-3 text-lg hover:no-underline"
+                class="text-xs uppercase text-foreground cursor-pointer py-3 hover:no-underline"
             >
                 {{ section.name }}
             </AccordionTrigger>

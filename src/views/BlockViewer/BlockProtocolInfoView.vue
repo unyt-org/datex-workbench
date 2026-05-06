@@ -72,12 +72,14 @@ function renderParsedValue(value: ParsedValue): string {
 <template>
     <div
         v-if="field"
-        class="*:bg-card text-foreground overflow-y-auto flex flex-col border-l-4"
-        :style="{ backgroundColor: getColor(fieldDef) }"
+        class="*:bg-card text-foreground overflow-y-auto flex flex-col"
     >
         <div class="flex items-center justify-start border-b px-4 font-medium">
             <div class="grow py-5 has-[p]:pb-1">
-                <div class="text-lg">{{ field.name }}</div>
+                <div class="text-lg">
+                    {{ field.name }}
+                </div>
+                <div class="text-sm" :style="{ color: getColor(fieldDef) }">{{ fieldDef?.category }}</div>
                 <p v-if="'id' in field" class="text-xs">id: {{ field.id }}</p>
             </div>
             <X class="hover:text-muted-foreground size-4 cursor-pointer" @click="closeInfo" />

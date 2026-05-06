@@ -46,14 +46,14 @@ const error = computed(() =>
     <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 border-b border-gray-800/60 flex-none z-10 min-h-12">
          <div class="flex items-center gap-3">
   <button
-    class="text-xs font-mono font-semibold tracking-wide cursor-pointer"
+    class="text-xs font-semibold tracking-wide cursor-pointer"
     :class="viewType === 'disassembler' ? 'text-foreground' : 'text-gray-500 hover:text-gray-400'"
     @click="viewType = 'disassembler'"
   >
     DISASSEMBLER
   </button>
   <button
-    class="text-xs font-mono font-semibold tracking-wide cursor-pointer"
+    class="text-xs font-semibold tracking-wide cursor-pointer"
     :class="viewType === 'decompiler' ? 'text-foreground' : 'text-gray-500 hover:text-gray-400'"
     @click="viewType = 'decompiler'"
   >

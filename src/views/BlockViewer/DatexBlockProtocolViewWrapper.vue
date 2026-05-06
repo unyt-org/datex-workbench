@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import DatexBlockProtocolView from './DatexBlockProtocolView.vue'
 import { Upload, Download, FileWarning } from 'lucide-vue-next'
+import { parseStructure } from '@unyt/speck'
+import { dxbDefinition } from './settings'
 
 const blockData = ref<Uint8Array | null>(null)
 const parseError = ref<string | null>(null)
@@ -10,7 +12,6 @@ const fileName = ref<string | null>(null)
 
 async function loadFile(file: File) {
   parseError.value = null
-  fileName.value = file.name
   try {
     const buffer = await file.arrayBuffer()
     const data = new Uint8Array(buffer)
@@ -19,12 +20,9 @@ async function loadFile(file: File) {
       blockData.value = null
       return
     }
-    if (data.length < 2 || data[0] !== 1 || data[1] !== 100) {
-      parseError.value = 'Invalid DXB block — magic number mismatch'
-      blockData.value = null
-      return
-    }
-    blockData.value = data
+    parseStructure(dxbDefinition, data); // Try parsing to validate the file format
+    blockData.value = data  
+    fileName.value = file.name
   } catch (err) {
     parseError.value = err instanceof Error ? err.message : 'Failed to read file'
     blockData.value = null
@@ -59,14 +57,14 @@ function saveBlock() {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = fileName.value ?? 'block.dx'
+  a.download = fileName.value ?? 'block.dxb'
   a.click()
   URL.revokeObjectURL(url)
 }
 
 async function loadExample() {
   parseError.value = null
-  fileName.value = 'block.dx'
+  fileName.value = 'block.dxb'
   try {
     const response = await fetch(
       'https://raw.githubusercontent.com/unyt-org/datex-core/main/crates/datex-core/tests/structs/receivers/block.bin',
@@ -93,7 +91,7 @@ async function loadExample() {
         Open File
         <input
           type="file"
-          accept=".dx"
+          accept=".dxb,.bin"
           class="hidden"
           @change="onFileSelect"
         />
@@ -105,7 +103,7 @@ async function loadExample() {
         @click="saveBlock"
       >
         <Download class="size-3.5" />
-        Save .dx
+        Save .dxb
       </button>
 
       <span v-if="fileName" class="ml-2 text-xs text-muted-foreground font-mono truncate">
@@ -115,7 +113,7 @@ async function loadExample() {
 
     <!-- Drop zone / content area -->
     <div
-      class="flex-1 relative min-h-0 overflow-hidden"
+      class="flex-1 relative min-h-0"
       @drop.prevent="onDrop"
       @dragover.prevent="onDragOver"
       @dragleave="onDragLeave"
@@ -123,12 +121,9 @@ async function loadExample() {
       <!-- Drag overlay -->
       <div
         v-if="isDragging"
-        class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 border-2 border-dashed border-muted-foreground/40 rounded-lg m-2"
+        class="absolute pointer-events-none inset-0 z-50 flex items-center justify-center border-2 bg-blue-400/10 border-blue-500 border-dashed rounded-lg m-2"
       >
-        <div class="text-muted-foreground text-sm font-mono flex flex-col items-center gap-2">
-          <Upload class="size-8" />
-          Drop .dx file here
-        </div>
+
       </div>
 
       <!-- Error state -->
@@ -138,12 +133,6 @@ async function loadExample() {
       >
         <FileWarning class="size-10 text-red-400" />
         <div class="text-red-400 text-sm font-mono">{{ parseError }}</div>
-        <button
-          class="text-xs text-muted-foreground hover:text-foreground underline font-mono"
-          @click="loadExample"
-        >
-          Load example block
-        </button>
       </div>
 
       <!-- Block viewer -->
@@ -161,7 +150,7 @@ async function loadExample() {
       >
         <Upload class="size-12 text-muted-foreground" />
         <div class="text-muted-foreground text-sm font-mono">
-          Drop a .dx file here
+          Drop a .dxb file here
         </div>
         <label
           class="inline-flex cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-mono text-foreground hover:bg-muted transition"
@@ -170,11 +159,18 @@ async function loadExample() {
           Open File
           <input
             type="file"
-            accept=".dx"
+            accept=".dxb,.bin"
             class="hidden"
             @change="onFileSelect"
           />
         </label>
+
+        <button
+          class="text-xs text-muted-foreground hover:text-foreground underline font-mono"
+          @click="loadExample"
+        >
+          Load example block
+        </button>
       </div>
     </div>
   </div>
