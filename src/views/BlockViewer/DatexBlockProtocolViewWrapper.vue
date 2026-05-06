@@ -78,7 +78,7 @@ async function loadExample() {
 </script>
 
 <template>
-  <div class="flex h-full flex-col no-drag top-offset">
+  <div class="flex h-full flex-col top-offset">
     <!-- Top bar — only when a block is loaded -->
     <div
       v-if="blockData || parseError"
@@ -146,31 +146,33 @@ async function loadExample() {
       <!-- Empty state — centered drop area + button only -->
       <div
         v-else
-        class="flex flex-col items-center justify-center h-full gap-4"
+        class="flex flex-col items-center justify-center h-full"
       >
-        <Upload class="size-12 text-muted-foreground" />
-        <div class="text-muted-foreground text-sm font-mono">
-          Drop a .dxb file here
-        </div>
-        <label
-          class="inline-flex cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-mono text-foreground hover:bg-muted transition"
-        >
-          <Upload class="size-4" />
-          Open File
-          <input
-            type="file"
-            accept=".dxb,.bin"
-            class="hidden"
-            @change="onFileSelect"
-          />
-        </label>
+        <div class="flex flex-col items-center justify-center gap-4 no-drag">
+            <Upload class="size-12 text-muted-foreground" />
+            <div class="text-muted-foreground text-sm font-mono">
+            Drop a .dxb file here
+            </div>
+            <label
+            class="inline-flex cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-mono text-foreground hover:bg-muted transition"
+            >
+            <Upload class="size-4" />
+            Open File
+            <input
+                type="file"
+                accept=".dxb,.bin"
+                class="hidden"
+                @change="onFileSelect"
+            />
+            </label>
 
-        <button
-          class="text-xs text-muted-foreground hover:text-foreground underline font-mono"
-          @click="loadExample"
-        >
-          Load example block
-        </button>
+            <button
+            class="text-xs text-muted-foreground hover:text-foreground underline font-mono"
+            @click="loadExample"
+            >
+            Load example block
+            </button>
+        </div>
       </div>
     </div>
   </div>
