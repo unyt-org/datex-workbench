@@ -19,7 +19,7 @@ const route = useRoute();
 const sidebarItems = ref([
     { icon: Terminal, name: 'REPL', path: '/repl' },
     { icon: Cpu, name: 'ComHub', path: '/comhub' },
-    { icon: Box, name: 'Blocks', path: '/blocks' },
+    { icon: Box, name: 'Block Viewer', path: '/block' },
     { icon: Network, name: 'Network', path: '/network' },
     { icon: GitGraph, name: 'Node View', path: '/node-view' },
     { icon: Info, name: 'About', path: '/about' },

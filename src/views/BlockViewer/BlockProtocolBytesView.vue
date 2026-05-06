@@ -5,15 +5,22 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from '@/components/ui/accordion';
+import { computed } from 'vue';
+
 import type { ParsedSection, ParsedStructure, StructureDefinition } from '@unyt/speck';
 import BlockSection from '@/components/BlockViewer/BlockSection.vue';
 import type { FieldIdentifier } from '@/types/BlockViewer/FieldIdentifier';
+
 
 const props = defineProps<{
     structure: ParsedStructure;
     structureDef: StructureDefinition;
     selectedField: FieldIdentifier | null;
 }>();
+
+const defaultExpanded = computed(() =>
+  props.structure.map((_, i) => `item-${i}`)
+)
 
 const emit = defineEmits(['bytes-section-field-clicked']);
 function handleSectionFieldClick(data: FieldIdentifier | null) {
@@ -27,12 +34,14 @@ function findSectionDef(section: ParsedSection) {
     }
     return sect;
 }
+
 </script>
 
 <template>
     <Accordion
         type="multiple"
         :unmountOnHide="false"
+        :default-value="defaultExpanded"
         class="sections-wrapper bg-card overflow-y-auto px-4"
     >
         <AccordionItem
@@ -42,11 +51,12 @@ function findSectionDef(section: ParsedSection) {
             class="last:border-b-0"
         >
             <AccordionTrigger
-                class="text-foreground cursor-pointer py-3 text-lg hover:no-underline"
+                class="text-xs uppercase text-foreground cursor-pointer py-3 hover:no-underline"
             >
                 {{ section.name }}
             </AccordionTrigger>
             <AccordionContent>
+
                 <BlockSection
                     v-if="section.fields.length > 0"
                     :section="section"

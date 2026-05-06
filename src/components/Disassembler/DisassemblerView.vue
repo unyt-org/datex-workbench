@@ -1,0 +1,146 @@
+<script setup lang="ts">
+import { ref, computed, shallowRef } from 'vue'
+import type { InstructionTree, FlatInstruction } from '@/types/disassembler'
+import InstructionTreeNode from './InstructionTreeNode.vue'
+import InstructionFlatItem from './InstructionFlatItem.vue'
+import { GitFork, List, UnfoldVertical, FoldVertical } from 'lucide-vue-next'
+import DecompilerView from '@/components/Decompiler/DecompilerView.vue'
+
+const viewType = ref<'disassembler' | 'decompiler'>('disassembler')
+
+type ViewMode = 'tree' | 'flat'
+
+defineProps<{
+  /** Raw DXB body bytes to disassemble */
+  dxb: Uint8Array
+}>()
+
+const viewMode = ref<ViewMode>('tree')
+const showNested = ref(true)
+
+// ─── Disassembly ────────────────────────────────────────────
+// TODO: Replace mock data with actual runtime calls once available:
+//   const [treeData, treeError] = Datex.Runtime.disassembleDXBTree(props.dxb)
+//   const [flatData, flatError] = Datex.Runtime.disassembleDXBFlat(props.dxb)
+
+const treeData = ref<InstructionTree | null>(null)
+const treeError = ref<string | null>(null)
+const flatData = shallowRef<FlatInstruction[] | null>(null)
+const flatError = ref<string | null>(null)
+
+// Mock data for development — remove when wiring up real runtime
+import { MOCK_TREE, MOCK_FLAT } from '@/Mocks/disassemblerMocks'
+treeData.value = MOCK_TREE[0]
+treeError.value = MOCK_TREE[1]
+flatData.value = MOCK_FLAT[0]
+flatError.value = MOCK_FLAT[1]
+
+const error = computed(() =>
+  viewMode.value === 'tree' ? treeError.value : flatError.value
+)
+</script>
+
+<template>
+  <div class="flex flex-col h-full">
+    <!-- Controls bar -->
+    <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 border-b border-gray-800/60 flex-none z-10 min-h-12">
+         <div class="flex items-center gap-3">
+  <button
+    class="text-xs font-semibold tracking-wide cursor-pointer"
+    :class="viewType === 'disassembler' ? 'text-foreground' : 'text-gray-500 hover:text-gray-400'"
+    @click="viewType = 'disassembler'"
+  >
+    DISASSEMBLER
+  </button>
+  <button
+    class="text-xs font-semibold tracking-wide cursor-pointer"
+    :class="viewType === 'decompiler' ? 'text-foreground' : 'text-gray-500 hover:text-gray-400'"
+    @click="viewType = 'decompiler'"
+  >
+    DECOMPILER
+  </button>
+</div>
+
+      <div v-if="viewType === 'disassembler'" class="flex items-center gap-1.5">
+        <!-- Tree / Flat toggle -->
+        <button
+          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono cursor-pointer transition-all duration-150"
+          :class="viewMode === 'tree'
+            ? 'text-foreground border-foreground/30 bg-foreground/5'
+            : 'text-gray-500 border-gray-700/50 bg-transparent hover:text-gray-700 hover:border-gray-600'"
+          @click="viewMode = 'tree'"
+        >
+          <GitFork class="size-3.5" />
+          Tree
+        </button>
+        <button
+          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono cursor-pointer transition-all duration-150"
+          :class="viewMode === 'flat'
+            ? 'text-foreground border-foreground/30 bg-foreground/5'
+            : 'text-gray-500 border-gray-700/50 bg-transparent hover:text-gray-700 hover:border-gray-600'"
+          @click="viewMode = 'flat'"
+        >
+          <List class="size-3.5" />
+          Flat
+        </button>
+
+        <!-- Separator -->
+        <div class="w-px h-5 bg-gray-700/50 mx-1" />
+
+        <!-- Nested toggle -->
+        <button
+          class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono cursor-pointer transition-all duration-150"
+          :class="showNested
+            ? 'text-foreground border-foreground/30 bg-foreground/5'
+            : 'text-gray-500 border-gray-700/50 bg-transparent hover:text-gray-700 hover:border-gray-600'"
+          @click="showNested = !showNested"
+        >
+        <UnfoldVertical v-if="showNested" class="size-3.5" />
+        <FoldVertical v-else class="size-3.5" />
+          Nested
+        </button>
+      </div>
+    </div>
+
+    <!-- Disassembler view -->
+    <div v-if="viewType === 'disassembler'" class="flex-1 min-h-0 overflow-y-auto p-4">    <!-- Instruction view -->
+    <div>
+      <!-- Tree mode -->
+      <template v-if="viewMode === 'tree' && treeData">
+        <InstructionTreeNode
+          :node="treeData"
+          :show-nested="showNested"
+        />
+      </template>
+
+      <!-- Flat mode -->
+      <template v-else-if="viewMode === 'flat' && flatData">
+        <InstructionFlatItem
+          v-for="(inst, i) in flatData"
+          :key="i"
+          :instruction="inst"
+          :show-nested="showNested"
+        />
+      </template>
+
+      <!-- Empty state -->
+      <div v-else class="text-gray-500 italic text-sm font-mono">
+        No instructions to display
+      </div>
+    </div>
+</div>
+
+<!-- Decompiler view -->
+<div v-else class="flex-1 min-h-0 overflow-y-auto">
+  <DecompilerView />
+</div>
+
+    <!-- Error banner -->
+    <div
+      v-if="error"
+      class="mx-4 mb-3 px-3 py-2 rounded-md border text-sm font-mono bg-red-950/40 border-red-900/60 text-red-300"
+    >
+      ⚠ {{ error }}
+    </div>
+  </div>
+</template>

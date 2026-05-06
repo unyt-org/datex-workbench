@@ -72,7 +72,7 @@
         "registered": "Registered",
         "yes": "Yes",
         "no": "No",
-        "showing": "Showing {from}–{to} of {total} entries",
+        "showing": "Showing {from}-{to} of {total} entries",
         "previous": "Previous",
         "next": "Next"
     },

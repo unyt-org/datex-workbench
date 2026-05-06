@@ -72,7 +72,7 @@
         "registered": "पंजीकृत",
         "yes": "हाँ",
         "no": "नहीं",
-        "showing": "{total} में से {from}–{to} दिखा रहा है",
+        "showing": "{total} में से {from}-{to} दिखा रहा है",
         "previous": "पिछला",
         "next": "अगला"
     },
