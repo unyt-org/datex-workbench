@@ -1,0 +1,11 @@
+button, input, select, textarea {
+	-webkit-app-region: no-drag;
+}
+
+.no-drag {
+	-webkit-app-region: no-drag;
+}
+
+.top-offset {
+    padding-top: env(titlebar-area-height, 0);
+}

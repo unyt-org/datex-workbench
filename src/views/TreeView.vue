@@ -738,7 +738,7 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="relative h-full w-full overflow-hidden bg-neutral-50 dark:bg-neutral-950 node-canvas"
+    class="no-drag relative h-full w-full overflow-hidden bg-neutral-50 dark:bg-neutral-950 node-canvas"
     :class="isPanning ? 'cursor-grabbing' : 'cursor-grab'"
     @mousemove="onMouseMove"
     @mouseup="mouseUp"
@@ -806,108 +806,110 @@ onUnmounted(() => {
   @change="importTree"
 />
 
-<!-- Top left - read only toggle -->
-<button
-  class="absolute top-3 left-3 z-50 flex items-center gap-2 px-3 py-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300 text-xs font-medium"
-  @click.stop="isReadOnly = !isReadOnly"
-  :title="isReadOnly ? 'Switch to Edit Mode' : 'Switch to Read-Only Mode'"
->
-  <svg v-if="isReadOnly" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-  </svg>
-  <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-    <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
-  </svg>
-  {{ isReadOnly ? 'Read Only' : 'Edit' }}
-</button>
-
-  <!-- Buttons top right -->
-<div class="absolute top-3 right-3 z-50 flex gap-2">
-
-  <!-- Background pattern toggle -->
-<button
-  class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
-  :title="`Background: ${backgroundPattern}`"
-  @click.stop="backgroundPattern = backgroundPattern === 'none' ? 'grid' : backgroundPattern === 'grid' ? 'checkerboard' : 'none'"
->
-  <svg v-if="backgroundPattern === 'grid'" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-    <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
-  </svg>
-  <svg v-else-if="backgroundPattern === 'checkerboard'" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-    <rect x="2" y="2" width="5" height="5"/><rect x="12" y="2" width="5" height="5"/>
-    <rect x="7" y="7" width="5" height="5"/><rect x="17" y="7" width="5" height="5"/>
-    <rect x="2" y="12" width="5" height="5"/><rect x="12" y="12" width="5" height="5"/>
-    <rect x="7" y="17" width="5" height="5"/><rect x="17" y="17" width="5" height="5"/>
-  </svg>
-  <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <rect x="3" y="3" width="18" height="18" rx="2"/>
-    <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
-    <line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/>
-  </svg>
-</button>
-
-  <!-- Import button -->
+<div class="top-offset absolute top-0 left-0 w-full flex justify-between items-center p-2">
+  <!-- Top left - read only toggle -->
   <button
-    class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
-    title="Import from JSON"
-    @click.stop="triggerImport"
+    class="top-3 left-3 z-50 flex items-center gap-2 px-3 py-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300 text-xs font-medium"
+    @click.stop="isReadOnly = !isReadOnly"
+    :title="isReadOnly ? 'Switch to Edit Mode' : 'Switch to Read-Only Mode'"
   >
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-      <polyline points="17 8 12 3 7 8"/>
-      <line x1="12" y1="3" x2="12" y2="15"/>
+    <svg v-if="isReadOnly" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
     </svg>
+    <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+      <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+    </svg>
+    {{ isReadOnly ? 'Read Only' : 'Edit' }}
   </button>
 
-  <!-- Export button -->
-  <button
-    class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
-    title="Export to JSON"
-    @click.stop="exportTree"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-      <polyline points="7 10 12 15 17 10"/>
-      <line x1="12" y1="15" x2="12" y2="3"/>
-    </svg>
-  </button>
+    <!-- Buttons top right -->
+  <div class="top-3 right-3 z-50 flex gap-2">
+    <!-- Background pattern toggle -->
+    <button
+      class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
+      :title="`Background: ${backgroundPattern}`"
+      @click.stop="backgroundPattern = backgroundPattern === 'none' ? 'grid' : backgroundPattern === 'grid' ? 'checkerboard' : 'none'"
+    >
+      <svg v-if="backgroundPattern === 'grid'" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+      </svg>
+      <svg v-else-if="backgroundPattern === 'checkerboard'" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+        <rect x="2" y="2" width="5" height="5"/><rect x="12" y="2" width="5" height="5"/>
+        <rect x="7" y="7" width="5" height="5"/><rect x="17" y="7" width="5" height="5"/>
+        <rect x="2" y="12" width="5" height="5"/><rect x="12" y="12" width="5" height="5"/>
+        <rect x="7" y="17" width="5" height="5"/><rect x="17" y="17" width="5" height="5"/>
+      </svg>
+      <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
+        <line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/>
+      </svg>
+    </button>
 
-  <!-- Auto layout button -->
-  <button
-    class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
-    title="Auto layout nodes"
-    @click.stop="autoLayout"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="3" width="5" height="5" rx="1"/>
-      <rect x="16" y="3" width="5" height="5" rx="1"/>
-      <rect x="3" y="16" width="5" height="5" rx="1"/>
-      <rect x="16" y="16" width="5" height="5" rx="1"/>
-      <line x1="8" y1="5.5" x2="16" y2="5.5"/>
-      <line x1="8" y1="18.5" x2="16" y2="18.5"/>
-      <line x1="5.5" y1="8" x2="5.5" y2="16"/>
-      <line x1="18.5" y1="8" x2="18.5" y2="16"/>
-    </svg>
-  </button>
+      <!-- Import button -->
+      <button
+        class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
+        title="Import from JSON"
+        @click.stop="triggerImport"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+      </button>
 
-  <!-- Center button -->
-  <button
-  class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
-  title="Center all nodes"
-  @click.stop="centerNodes"
->
-  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="12" r="3"/>
-    <line x1="12" y1="2" x2="12" y2="6"/>
-    <line x1="12" y1="18" x2="12" y2="22"/>
-    <line x1="2" y1="12" x2="6" y2="12"/>
-    <line x1="18" y1="12" x2="22" y2="12"/>
-  </svg>
-</button>
+      <!-- Export button -->
+      <button
+        class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
+        title="Export to JSON"
+        @click.stop="exportTree"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      </button>
+
+      <!-- Auto layout button -->
+      <button
+        class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
+        title="Auto layout nodes"
+        @click.stop="autoLayout"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="5" height="5" rx="1"/>
+          <rect x="16" y="3" width="5" height="5" rx="1"/>
+          <rect x="3" y="16" width="5" height="5" rx="1"/>
+          <rect x="16" y="16" width="5" height="5" rx="1"/>
+          <line x1="8" y1="5.5" x2="16" y2="5.5"/>
+          <line x1="8" y1="18.5" x2="16" y2="18.5"/>
+          <line x1="5.5" y1="8" x2="5.5" y2="16"/>
+          <line x1="18.5" y1="8" x2="18.5" y2="16"/>
+        </svg>
+      </button>
+
+      <!-- Center button -->
+      <button
+      class="p-2 rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shadow-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition text-neutral-700 dark:text-neutral-300"
+      title="Center all nodes"
+      @click.stop="centerNodes"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <line x1="12" y1="2" x2="12" y2="6"/>
+        <line x1="12" y1="18" x2="12" y2="22"/>
+        <line x1="2" y1="12" x2="6" y2="12"/>
+        <line x1="18" y1="12" x2="22" y2="12"/>
+      </svg>
+    </button>
+    </div>
 </div>
+
     <!-- Inner canvas -->
     <div
     ref="canvasRef"

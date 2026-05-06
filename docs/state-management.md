@@ -236,11 +236,6 @@ export const Datex: Runtime = await Runtime.create({
     interfaces: [{ type: 'websocket-client', config: { url: 'wss://example.unyt.land' } }],
 });
 
-// src/components/HeaderProvider.vue
-import { Datex } from '@/lib/runtime';
-
-provide('datex', Datex);
-
 // src/views/SomeView.vue
 import { inject } from 'vue';
 

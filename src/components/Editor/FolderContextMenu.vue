@@ -193,7 +193,7 @@ function handleClickOutside(e: MouseEvent) {
 .context-menu-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: 51;
 }
 
 .context-menu {
@@ -204,7 +204,7 @@ function handleClickOutside(e: MouseEvent) {
     border-radius: 6px;
     padding: 4px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    z-index: 1001;
+    z-index: 52;
 }
 
 .context-menu-item {
