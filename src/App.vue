@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SideBar from '@/components/SideBar.vue';
+import { Toaster } from '@/components/ui/sonner'
 import { RouterView } from 'vue-router';
 </script>
 
@@ -20,6 +21,7 @@ import { RouterView } from 'vue-router';
                 </Suspense>
             </main>
         </div>
+        <Toaster :position="'top-center'" />
     </div>
 </template>
 

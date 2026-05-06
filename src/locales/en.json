@@ -61,7 +61,7 @@
         "autoTrace": "Auto-Trace",
         "autoTracing": "Auto-Tracing...",
         "endpointUnreachable": "Endpoint not reachable",
-        "tracePlaceholder": "Send a trace to visualize the network path"
+        "tracePlaceholder": "Send a trace to visualize the network tree"
     },
     "collection": {
         "title": "Collection",
