@@ -68,8 +68,8 @@ const router = createRouter({
             component: AboutView,
         },
         {
-            path: '/network-tree',
-            name: 'network-tree',
+            path: '/network-visualizer',
+            name: 'network-visualizer',
             component: NetworkTraceView,
         },
   ],

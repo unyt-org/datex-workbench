@@ -15,7 +15,7 @@ function onTraceResult(result: NodeTree) {
   <div class="flex h-full w-full flex-col">
     <TraceControls :current-tree="tree" @trace-result="onTraceResult" />
     <div v-if="!tree" class="flex-1 flex items-center justify-center text-muted-foreground text-sm">
-      Send a trace to visualize the network path
+      Send a trace to visualize the network tree
     </div>
     <TreeView v-else :initial-tree="tree" :force-read-only="true" class="flex-1" />
   </div>

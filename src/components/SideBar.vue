@@ -5,6 +5,7 @@ import ThemeSwitch from '@/components/ThemeSwitch.vue';
 import IconLogo from '@/components/icons/IconLogo.vue';
 import {
     Network,
+    SendToBack,
     Terminal,
     Box,
     GitGraph,
@@ -18,7 +19,8 @@ const route = useRoute();
 
 const sidebarItems = ref([
     { icon: Terminal, name: 'REPL', path: '/repl' },
-    { icon: Cpu, name: 'ComHub', path: '/comhub' },
+    { icon: Cpu, name: 'ComHub ', path: '/comhub' },
+    { icon: SendToBack, name: 'Network Visualizer ', path: '/network-visualizer' },
     { icon: Box, name: 'Block Viewer', path: '/block' },
     { icon: Network, name: 'Network', path: '/network' },
     { icon: GitGraph, name: 'Node View', path: '/node-view' },

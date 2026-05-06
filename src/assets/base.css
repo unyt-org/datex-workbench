@@ -7,5 +7,5 @@ button, input, select, textarea {
 }
 
 .top-offset {
-    padding-top: env(titlebar-area-height, 0);
+    padding-top: env(titlebar-area-height, 20px);
 }
