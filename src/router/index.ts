@@ -72,7 +72,7 @@ const router = createRouter({
             name: 'network-visualizer',
             component: NetworkTraceView,
         },
-  ],
+    ],
 });
 
 export default router;

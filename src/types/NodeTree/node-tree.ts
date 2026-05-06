@@ -20,11 +20,11 @@ export interface NodeField<NodeMetaData = unknown> {
 }
 
 export interface ConnectorDefinition {
-  id: string;
-  side: 'left' | 'right' | 'top' | 'bottom';
-  allowedTypes?: EdgeType[];
-  label?: string;
-  maxConnections?: number;
+    id: string;
+    side: 'left' | 'right' | 'top' | 'bottom';
+    allowedTypes?: EdgeType[];
+    label?: string;
+    maxConnections?: number;
 }
 
 export interface Position {
@@ -55,8 +55,8 @@ export interface FieldConnector {
     fieldId: string;
 }
 
-export type EdgeType = 'websocket' | 'http' | 'tcp' | 'webpush' | 'local' | (string & {})
+export type EdgeType = 'websocket' | 'http' | 'tcp' | 'webpush' | 'local' | (string & {});
 
-export type EdgeDirection = 'unidirectional' | 'bidirectional'
+export type EdgeDirection = 'unidirectional' | 'bidirectional';
 
-export type EdgeStyle = 'bezier' | 'straight' | 'step'
+export type EdgeStyle = 'bezier' | 'straight' | 'step';

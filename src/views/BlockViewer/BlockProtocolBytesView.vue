@@ -11,16 +11,13 @@ import type { ParsedSection, ParsedStructure, StructureDefinition } from '@unyt/
 import BlockSection from '@/components/BlockViewer/BlockSection.vue';
 import type { FieldIdentifier } from '@/types/BlockViewer/FieldIdentifier';
 
-
 const props = defineProps<{
     structure: ParsedStructure;
     structureDef: StructureDefinition;
     selectedField: FieldIdentifier | null;
 }>();
 
-const defaultExpanded = computed(() =>
-  props.structure.map((_, i) => `item-${i}`)
-)
+const defaultExpanded = computed(() => props.structure.map((_, i) => `item-${i}`));
 
 const emit = defineEmits(['bytes-section-field-clicked']);
 function handleSectionFieldClick(data: FieldIdentifier | null) {
@@ -34,7 +31,6 @@ function findSectionDef(section: ParsedSection) {
     }
     return sect;
 }
-
 </script>
 
 <template>
@@ -56,7 +52,6 @@ function findSectionDef(section: ParsedSection) {
                 {{ section.name }}
             </AccordionTrigger>
             <AccordionContent>
-
                 <BlockSection
                     v-if="section.fields.length > 0"
                     :section="section"

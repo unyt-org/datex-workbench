@@ -13,17 +13,21 @@ import { watch } from 'vue';
 const mode = useColorMode();
 
 // on color mode change, update the meta theme-color
-watch(mode, (newMode) => {
-    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-    console.log('Updating theme-color meta tag to match new color mode:', newMode);
-    if (themeColorMeta) {
-        if (newMode === 'dark') {
-            themeColorMeta.setAttribute('content', 'oklch(0.145 0 0)');
-        } else {
-            themeColorMeta.setAttribute('content', 'oklch(1 0 0)');
+watch(
+    mode,
+    (newMode) => {
+        const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+        console.log('Updating theme-color meta tag to match new color mode:', newMode);
+        if (themeColorMeta) {
+            if (newMode === 'dark') {
+                themeColorMeta.setAttribute('content', 'oklch(0.145 0 0)');
+            } else {
+                themeColorMeta.setAttribute('content', 'oklch(1 0 0)');
+            }
         }
-    }
-}, { immediate: true});
+    },
+    { immediate: true },
+);
 </script>
 
 <template>

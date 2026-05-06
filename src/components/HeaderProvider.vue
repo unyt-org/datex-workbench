@@ -1,5 +1,5 @@
 <script lang="ts">
-import { useRoute } from 'vue-router'
+import { useRoute } from 'vue-router';
 import ThemeSwitch from '@/components/ThemeSwitch.vue';
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 import IconLogo from '@/components/icons/IconLogo.vue';
@@ -25,18 +25,22 @@ export default {
         // MenubarMenu,
         Menubar,
         IconLogo,
-        ThemeSwitch, LanguageSwitcher },
-        setup() {
-    const route = useRoute()
-    return { route }
+        ThemeSwitch,
+        LanguageSwitcher,
+    },
+    setup() {
+        const route = useRoute();
+        return { route };
     },
 };
 </script>
 
 <template>
     <Menubar class="bg-background wco-header flex w-full items-center px-4 py-3">
-        <RouterLink to="/" class="group mr-4 flex items-center space-x-2 transition-all"
-        v-show="route.path !== '/'"
+        <RouterLink
+            to="/"
+            class="group mr-4 flex items-center space-x-2 transition-all"
+            v-show="route.path !== '/'"
         >
             <IconLogo class="h-6 w-6" />
             <div class="flex items-baseline space-x-1">
@@ -84,7 +88,7 @@ export default {
             </MenubarContent>
         </MenubarMenu>-->
         <div class="ml-auto flex items-center gap-2">
-          <LanguageSwitcher />
+            <LanguageSwitcher />
             <ThemeSwitch />
         </div>
     </Menubar>

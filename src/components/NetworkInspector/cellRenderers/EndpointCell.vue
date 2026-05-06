@@ -3,9 +3,9 @@ import HighlightedText from '@/components/NetworkInspector/HighlightedText.vue';
 import TooltipWrapper from '@/components/NetworkInspector/TooltipWrapper.vue';
 
 const props = defineProps<{
-  value: string
-  searchTerms?: string[]
-}>()
+    value: string;
+    searchTerms?: string[];
+}>();
 </script>
 
 <template>

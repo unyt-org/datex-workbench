@@ -4,11 +4,11 @@ import HighlightedText from '@/components/NetworkInspector/HighlightedText.vue';
 import TooltipWrapper from '@/components/NetworkInspector/TooltipWrapper.vue';
 
 const props = defineProps<{
-  value: string
-  isEncrypted?: boolean
-  isSigned?: boolean
-  searchTerms?: string[]
-}>()
+    value: string;
+    isEncrypted?: boolean;
+    isSigned?: boolean;
+    searchTerms?: string[];
+}>();
 </script>
 
 <template>
