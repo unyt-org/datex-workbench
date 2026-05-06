@@ -28,8 +28,8 @@ jobs:
 
       - name: Get version from package.json
         id: version
-        run: echo "VERSION=$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
-
+        run: echo "VERSION=$(node -p 'require("./package.json").version')" >> "$GITHUB_OUTPUT"
+  
       - name: Create or update draft release
         uses: softprops/action-gh-release@v2
         with:
