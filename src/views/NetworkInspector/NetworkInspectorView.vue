@@ -187,7 +187,7 @@ const isBlockSecure = computed(() => {
 <template>
   <div class="top-offset bg-background text-foreground flex h-full">
       <!-- Left panel: block list -->
-      <div class="flex flex-col p-4 pt-0" :class="selectedBlock ? 'w-1/2 border-r border-border' : 'w-full'">
+      <div class="flex flex-col p-4 h-full min-h-0" :class="selectedBlock ? 'w-1/2 border-r border-border' : 'w-full'">
           <div class="mb-4">
               <h1 class="mb-3 text-2xl font-bold">Network Inspector</h1>
 
@@ -218,7 +218,7 @@ const isBlockSecure = computed(() => {
               </div>
           </div>
 
-          <div ref="scrollContainerRef" class="flex-1 overflow-y-auto">
+          <div ref="scrollContainerRef" class="flex-1 min-h-0 overflow-y-auto">
               <DataTable
                   :columns="dynamicColumns"
                   :data="tableRows"
