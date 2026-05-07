@@ -189,7 +189,7 @@ const isBlockSecure = computed(() => {
     <div class="top-offset bg-background text-foreground flex h-full">
         <!-- Left panel: block list -->
         <div
-            class="flex flex-col p-4 h-full min-h-0 "
+            class="flex flex-col p-4 h-full min-h-0"
             :class="selectedBlock ? 'w-1/2 border-r border-border' : 'w-full'"
         >
             <div class="mb-4">
