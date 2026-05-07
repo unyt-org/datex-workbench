@@ -73,9 +73,9 @@ const router = createRouter({
             component: NetworkTraceView,
         },
         {
-          path: '/preferences',
-          name: 'preferences',
-          component: () => import('@/views/PreferencesView.vue'),
+            path: '/preferences',
+            name: 'preferences',
+            component: () => import('@/views/PreferencesView.vue'),
         },
     ],
 });

@@ -1,8 +1,8 @@
-import { reactive, watch } from 'vue'
-import { DEFAULT_PREFERENCES, STORAGE_KEY, type Preferences } from './schema'
+import { reactive, watch } from 'vue';
+import { DEFAULT_PREFERENCES, STORAGE_KEY, type Preferences } from './schema';
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 /**
@@ -10,59 +10,60 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
  * later, existing users with stored partial preferences get the new defaults
  * filled in automatically.
  */
-function mergeDeep<T extends object>(target: T, source: Partial<T>): T {  for (const key in source) {
-    const sourceVal = source[key]
-    const targetVal = target[key]
-    if (isPlainObject(sourceVal) && isPlainObject(targetVal)) {
-      target[key] = mergeDeep(
-        targetVal as object,
-        sourceVal as object,
-      ) as T[Extract<keyof T, string>]
-    } else if (sourceVal !== undefined) {
-      target[key] = sourceVal as T[Extract<keyof T, string>]
+function mergeDeep<T extends object>(target: T, source: Partial<T>): T {
+    for (const key in source) {
+        const sourceVal = source[key];
+        const targetVal = target[key];
+        if (isPlainObject(sourceVal) && isPlainObject(targetVal)) {
+            target[key] = mergeDeep(targetVal as object, sourceVal as object) as T[Extract<
+                keyof T,
+                string
+            >];
+        } else if (sourceVal !== undefined) {
+            target[key] = sourceVal as T[Extract<keyof T, string>];
+        }
     }
-  }
-  return target
+    return target;
 }
 
 function loadPreferences(): Preferences {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return structuredClone(DEFAULT_PREFERENCES)
-    const parsed = JSON.parse(raw) as Partial<Preferences>
-    return mergeDeep(structuredClone(DEFAULT_PREFERENCES), parsed)
-  } catch {
-    return structuredClone(DEFAULT_PREFERENCES)
-  }
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(DEFAULT_PREFERENCES);
+        const parsed = JSON.parse(raw) as Partial<Preferences>;
+        return mergeDeep(structuredClone(DEFAULT_PREFERENCES), parsed);
+    } catch {
+        return structuredClone(DEFAULT_PREFERENCES);
+    }
 }
 
-const preferences = reactive<Preferences>(loadPreferences())
+const preferences = reactive<Preferences>(loadPreferences());
 
 // Auto-persist on any change
 watch(
-  preferences,
-  (val) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(val))
-    } catch (err) {
-      console.error('[Preferences] Failed to save:', err)
-    }
-  },
-  { deep: true },
-)
+    preferences,
+    (val) => {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(val));
+        } catch (err) {
+            console.error('[Preferences] Failed to save:', err);
+        }
+    },
+    { deep: true },
+);
 
 function resetSection<K extends keyof Preferences>(section: K) {
-  preferences[section] = structuredClone(DEFAULT_PREFERENCES[section])
+    preferences[section] = structuredClone(DEFAULT_PREFERENCES[section]);
 }
 
 function resetAll() {
-  Object.assign(preferences, structuredClone(DEFAULT_PREFERENCES))
+    Object.assign(preferences, structuredClone(DEFAULT_PREFERENCES));
 }
 
 export function usePreferences() {
-  return {
-    preferences,
-    resetSection,
-    resetAll,
-  }
+    return {
+        preferences,
+        resetSection,
+        resetAll,
+    };
 }
