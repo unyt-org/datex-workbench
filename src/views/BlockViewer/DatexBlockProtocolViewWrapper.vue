@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { consumePendingLaunchedFile } from '@/lib/pwaLaunch';
 import DatexBlockProtocolView from './DatexBlockProtocolView.vue';
 import { Upload, Download, FileWarning } from 'lucide-vue-next';
 import { parseStructure } from '@unyt/speck';
@@ -28,6 +29,11 @@ async function loadFile(file: File) {
         blockData.value = null;
     }
 }
+
+onMounted(() => {
+    const launched = consumePendingLaunchedFile();
+    if (launched) loadFile(launched);
+});
 
 function onDrop(event: DragEvent) {
     isDragging.value = false;
