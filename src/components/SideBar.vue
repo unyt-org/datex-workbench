@@ -5,18 +5,20 @@ import ThemeSwitch from '@/components/ThemeSwitch.vue';
 import IconLogo from '@/components/icons/IconLogo.vue';
 import { Network, SendToBack, Terminal, Box, GitGraph, Cpu, Info } from 'lucide-vue-next';
 import draggable from 'vuedraggable';
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 
 const sidebarItems = ref([
-    { icon: Terminal, name: 'REPL', path: '/repl' },
-    { icon: Cpu, name: 'ComHub ', path: '/comhub' },
-    { icon: SendToBack, name: 'Network Visualizer ', path: '/network-visualizer' },
-    { icon: Box, name: 'Block Viewer', path: '/block' },
-    { icon: Network, name: 'Network', path: '/network' },
-    { icon: GitGraph, name: 'Node View', path: '/node-view' },
-    { icon: Info, name: 'About', path: '/about' },
+    { icon: Terminal, key: 'nav.repl', path: '/repl' },
+    { icon: Cpu, key: 'nav.comhub', path: '/comhub' },
+    { icon: SendToBack, key: 'nav.networkVisualizer', path: '/network-visualizer' },
+    { icon: Box, key: 'nav.block', path: '/block' },
+    { icon: Network, key: 'nav.network', path: '/network' },
+    { icon: GitGraph, key: 'nav.nodeView', path: '/node-view' },
+    { icon: Info, key: 'nav.about', path: '/about' },
     // { icon: AppWindow, name: 'Windows', path: '/windows' },
     // { icon: MousePointer2, name: 'Pointers', path: '/pointers' },
 ]);
@@ -72,8 +74,7 @@ const navigate = (path: string) => {
                 <div
                     class="card invisible absolute left-14 z-50 m-0 ml-2 whitespace-nowrap px-3 py-1.5 text-xs font-mono shadow-xl group-hover:visible"
                 >
-                    Welcome
-
+                    {{ t('nav.welcome') }}
                     <div
                         class="bg-card border-l border-b border-neutral-200 dark:border-neutral-700 absolute -left-1 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45"
                     ></div>
@@ -82,7 +83,7 @@ const navigate = (path: string) => {
 
             <draggable
                 v-model="sidebarItems"
-                item-key="name"
+                item-key="key"
                 class="flex w-full flex-col items-center gap-4"
                 ghost-class="opacity-20"
                 animation="250"
@@ -111,7 +112,7 @@ const navigate = (path: string) => {
                         <div
                             class="card invisible absolute left-14 z-50 m-0 ml-2 whitespace-nowrap px-3 py-1.5 text-xs font-mono shadow-xl group-hover:visible"
                         >
-                            {{ element.name }}
+                            {{ t(element.key) }}
 
                             <div
                                 class="bg-card border-l border-b border-neutral-200 dark:border-neutral-700 absolute -left-1 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45"

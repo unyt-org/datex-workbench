@@ -6,10 +6,12 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useI18n } from 'vue-i18n';
 import { useColorMode } from '@vueuse/core';
 import { Moon, Sun } from 'lucide-vue-next';
 import { watch } from 'vue';
 
+const { t } = useI18n();
 const mode = useColorMode();
 
 // on color mode change, update the meta theme-color
@@ -40,13 +42,13 @@ watch(
                 <Sun
                     class="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0"
                 />
-                <span class="sr-only">Toggle theme</span>
+                <span class="sr-only">{{ t('theme.toggle') }}</span>
             </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent class="no-drag ml-2">
-            <DropdownMenuItem @click="mode = 'light'"> Light </DropdownMenuItem>
-            <DropdownMenuItem @click="mode = 'dark'"> Dark </DropdownMenuItem>
-            <DropdownMenuItem @click="mode = 'auto'"> System </DropdownMenuItem>
+            <DropdownMenuItem @click="mode = 'light'"> {{ t('theme.light') }} </DropdownMenuItem>
+            <DropdownMenuItem @click="mode = 'dark'"> {{ t('theme.dark') }} </DropdownMenuItem>
+            <DropdownMenuItem @click="mode = 'auto'"> {{ t('theme.system') }} </DropdownMenuItem>
         </DropdownMenuContent>
     </DropdownMenu>
 </template>

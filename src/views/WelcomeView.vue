@@ -62,7 +62,7 @@ function navigate(route: string | null) {
             <!-- Quick actions -->
             <div class="w-full max-w-2xl">
                 <p class="mb-4 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                    Quick Actions
+                    {{ t('welcome.quickActions') }}
                 </p>
                 <div class="grid grid-cols-2 gap-3">
                     <button
@@ -146,7 +146,7 @@ function navigate(route: string | null) {
                                 v-if="!action.available"
                                 class="text-xs text-muted-foreground border border-border rounded px-1.5 py-0.5"
                             >
-                                Soon
+                                {{ t('welcome.soon') }}
                             </span>
                             <svg
                                 v-else

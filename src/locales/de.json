@@ -21,13 +21,23 @@
         "settings": "Einstellungen",
         "language": "Sprache"
     },
+    "theme": {
+        "toggle": "Design umschalten",
+        "light": "Hell",
+        "dark": "Dunkel",
+        "system": "System"
+    },
     "nav": {
+        "welcome": "Willkommen",
         "block": "Block",
         "network": "Netzwerk",
         "nodeView": "Knotenansicht",
         "networkTree": "Netzwerk-Baum",
         "collection": "Sammlung",
-        "about": "Über"
+        "about": "Über",
+        "repl": "REPL",
+        "comhub": "ComHub",
+        "networkVisualizer": "Netzwerk-Visualisierer"
     },
     "block": {
         "openFile": "Datei öffnen",
