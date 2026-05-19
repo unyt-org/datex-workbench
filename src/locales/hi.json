@@ -21,13 +21,23 @@
         "settings": "सेटिंग्स",
         "language": "भाषा"
     },
+    "theme": {
+        "toggle": "थीम बदलें",
+        "light": "लाइट",
+        "dark": "डार्क",
+        "system": "सिस्टम"
+    },
     "nav": {
+        "welcome": "स्वागत है",
         "block": "ब्लॉक",
         "network": "नेटवर्क",
         "nodeView": "नोड दृश्य",
         "networkTree": "नेटवर्क ट्री",
         "collection": "संग्रह",
-        "about": "बारे में"
+        "about": "बारे में",
+        "repl": "REPL",
+        "comhub": "ComHub",
+        "networkVisualizer": "नेटवर्क विज़ुअलाइज़र"
     },
     "block": {
         "openFile": "फ़ाइल खोलें",
