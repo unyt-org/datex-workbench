@@ -21,13 +21,23 @@
         "settings": "Settings",
         "language": "Language"
     },
+    "theme": {
+        "toggle": "Toggle theme",
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+    },
     "nav": {
+        "welcome": "Welcome",
         "block": "Block",
         "network": "Network",
         "nodeView": "Node View",
         "networkTree": "Network Tree",
         "collection": "Collection",
-        "about": "About"
+        "about": "About",
+        "repl": "REPL",
+        "comhub": "ComHub",
+        "networkVisualizer": "Network Visualizer"
     },
     "block": {
         "openFile": "Open File",
