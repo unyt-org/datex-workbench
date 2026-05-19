@@ -1,1 +1,0 @@
-class n{constructor(){Object.defineProperty(this,"type",{enumerable:!0,configurable:!0,writable:!0,value:"deno"})}readTextFile(e){return Deno.readTextFile(e)}readFile(e){return Deno.readFile(e)}instantiateWebAssembly(e,t){return WebAssembly.instantiateStreaming(fetch(e),t)}}export{n as default};
