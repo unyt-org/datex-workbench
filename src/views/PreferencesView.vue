@@ -14,8 +14,8 @@ function confirmResetAll() {
 </script>
 
 <template>
-    <div class="flex h-full w-full justify-center overflow-y-auto p-6">
-        <div class="w-full max-w-2xl space-y-6">
+    <div class="flex h-full w-full justify-center items-center overflow-y-auto p-6">
+        <div class="w-full max-w-2xl space-y-6 my-auto">
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <h1 class="text-2xl font-semibold text-foreground">Preferences</h1>

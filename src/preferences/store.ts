@@ -1,4 +1,6 @@
 import { reactive, watch } from 'vue';
+import { useColorMode } from '@vueuse/core';
+import { setLocale } from '@/i18n';
 import { DEFAULT_PREFERENCES, STORAGE_KEY, type Preferences } from './schema';
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -50,6 +52,29 @@ watch(
         }
     },
     { deep: true },
+);
+
+// --- Sync watchers ---
+
+// Theme: preferences.appearance.theme → vueuse useColorMode
+const mode = useColorMode();
+function applyTheme(theme: Preferences['appearance']['theme']) {
+    mode.value = theme === 'system' ? 'auto' : theme;
+}
+applyTheme(preferences.appearance.theme); // initial
+watch(
+    () => preferences.appearance.theme,
+    (next) => applyTheme(next),
+);
+
+// Locale: preferences.language.locale → i18n + document.documentElement.lang
+function applyLocale(locale: Preferences['language']['locale']) {
+    setLocale(locale); // already updates i18n + localStorage + html lang
+}
+applyLocale(preferences.language.locale); // initial
+watch(
+    () => preferences.language.locale,
+    (next) => applyLocale(next),
 );
 
 function resetSection<K extends keyof Preferences>(section: K) {

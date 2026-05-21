@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import ThemeSwitch from '@/components/ThemeSwitch.vue';
 import IconLogo from '@/components/icons/IconLogo.vue';
-import { Network, SendToBack, Terminal, Box, GitGraph, Cpu, Info } from 'lucide-vue-next';
+import { Network, SendToBack, Terminal, Box, GitGraph, Cpu, Info, Settings } from 'lucide-vue-next';
 import draggable from 'vuedraggable';
 import { useI18n } from 'vue-i18n';
 
@@ -49,7 +48,7 @@ const navigate = (path: string) => {
         <!-- For Collapse -->
         <!-- :class="[isCollapsed ? 'pointer-events-none opacity-0' : 'opacity-100']" -->
         <div
-            class="flex flex-col items-center wco-container transition-opacity duration-200 h-full"
+            class="flex flex-col items-center wco-container transition-opacity duration-200 h-full min-h-0 overflow-y-auto"
         >
             <div
                 class="group relative flex w-full cursor-pointer items-center justify-center py-2"
@@ -121,8 +120,38 @@ const navigate = (path: string) => {
                     </div>
                 </template>
             </draggable>
-            <div class="mt-auto pb-4">
-                <ThemeSwitch />
+
+            <div class="mt-auto pb-4 w-full">
+                <div
+                    class="group relative flex w-full cursor-pointer items-center justify-center py-2"
+                    @click="navigate('/preferences')"
+                >
+                    <div
+                        class="absolute left-0 h-10 w-0.5 rounded-full bg-sidebar-border transition-all"
+                        :class="activePath === '/preferences' ? 'opacity-100' : 'opacity-0'"
+                    ></div>
+
+                    <div
+                        class="rounded-md p-2 transition-colors"
+                        :class="
+                            activePath === '/preferences'
+                                ? 'text-sidebar-foreground'
+                                : 'text-dim hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                        "
+                    >
+                        <Settings :size="28" :stroke-width="1.5" />
+                    </div>
+
+                    <div
+                        class="card invisible absolute left-14 z-50 m-0 ml-2 whitespace-nowrap px-3 py-1.5 text-xs font-mono shadow-xl group-hover:visible"
+                    >
+                        Preferences
+
+                        <div
+                            class="bg-card border-l border-b border-neutral-200 dark:border-neutral-700 absolute -left-1 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45"
+                        ></div>
+                    </div>
+                </div>
             </div>
         </div>
     </aside>
