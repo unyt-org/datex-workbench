@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { consumePendingLaunchedFile } from '@/lib/pwaLaunch';
 import DatexBlockProtocolView from './DatexBlockProtocolView.vue';
 import { Upload, Download, FileWarning } from 'lucide-vue-next';
 import { parseStructure } from '@unyt/speck';
 import { dxbDefinition } from './settings';
+
+const { t } = useI18n();
 
 const blockData = ref<Uint8Array | null>(null);
 const parseError = ref<string | null>(null);
@@ -17,7 +20,7 @@ async function loadFile(file: File) {
         const buffer = await file.arrayBuffer();
         const data = new Uint8Array(buffer);
         if (data.length === 0) {
-            parseError.value = 'File is empty';
+            parseError.value = t('block.fileEmpty');
             blockData.value = null;
             return;
         }
@@ -25,7 +28,7 @@ async function loadFile(file: File) {
         blockData.value = data;
         fileName.value = file.name;
     } catch (err) {
-        parseError.value = err instanceof Error ? err.message : 'Failed to read file';
+        parseError.value = err instanceof Error ? err.message : t('block.failedToReadFile');
         blockData.value = null;
     }
 }
@@ -80,7 +83,7 @@ async function loadExample() {
         const buffer = await response.arrayBuffer();
         blockData.value = new Uint8Array(buffer);
     } catch {
-        parseError.value = 'Failed to load example block';
+        parseError.value = t('block.failedToLoadExample');
     }
 }
 </script>
@@ -96,7 +99,7 @@ async function loadExample() {
                 class="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-mono text-foreground hover:bg-muted transition"
             >
                 <Upload class="size-3.5" />
-                Open File
+                {{ t('block.openFile') }}
                 <input type="file" accept=".dxb,.bin" class="hidden" @change="onFileSelect" />
             </label>
 
@@ -106,7 +109,7 @@ async function loadExample() {
                 @click="saveBlock"
             >
                 <Download class="size-3.5" />
-                Save .dxb
+                {{ t('block.saveBin') }}
             </button>
 
             <span v-if="fileName" class="ml-2 text-xs text-muted-foreground font-mono truncate">
@@ -148,12 +151,14 @@ async function loadExample() {
             <div v-else class="flex flex-col items-center justify-center h-full">
                 <div class="flex flex-col items-center justify-center gap-4 no-drag">
                     <Upload class="size-12 text-muted-foreground" />
-                    <div class="text-muted-foreground text-sm font-mono">Drop a .dxb file here</div>
+                    <div class="text-muted-foreground text-sm font-mono">
+                        {{ t('block.dropOverlay') }}
+                    </div>
                     <label
                         class="inline-flex cursor-pointer items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-mono text-foreground hover:bg-muted transition"
                     >
                         <Upload class="size-4" />
-                        Open File
+                        {{ t('block.openFile') }}
                         <input
                             type="file"
                             accept=".dxb,.bin"
@@ -166,7 +171,7 @@ async function loadExample() {
                         class="text-xs text-muted-foreground hover:text-foreground underline font-mono"
                         @click="loadExample"
                     >
-                        Load example block
+                        {{ t('block.loadExample') }}
                     </button>
                 </div>
             </div>

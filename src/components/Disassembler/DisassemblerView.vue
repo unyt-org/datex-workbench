@@ -5,6 +5,9 @@ import InstructionTreeNode from './InstructionTreeNode.vue';
 import InstructionFlatItem from './InstructionFlatItem.vue';
 import { GitFork, List, UnfoldVertical, FoldVertical } from 'lucide-vue-next';
 import DecompilerView from '@/components/Decompiler/DecompilerView.vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const viewType = ref<'disassembler' | 'decompiler'>('disassembler');
 
@@ -54,7 +57,7 @@ const error = computed(() => (viewMode.value === 'tree' ? treeError.value : flat
                     "
                     @click="viewType = 'disassembler'"
                 >
-                    DISASSEMBLER
+                    {{ t('disassembler.disassembler') }}
                 </button>
                 <button
                     class="text-xs font-semibold tracking-wide cursor-pointer"
@@ -65,7 +68,7 @@ const error = computed(() => (viewMode.value === 'tree' ? treeError.value : flat
                     "
                     @click="viewType = 'decompiler'"
                 >
-                    DECOMPILER
+                    {{ t('disassembler.decompiler') }}
                 </button>
             </div>
 
@@ -81,7 +84,7 @@ const error = computed(() => (viewMode.value === 'tree' ? treeError.value : flat
                     @click="viewMode = 'tree'"
                 >
                     <GitFork class="size-3.5" />
-                    Tree
+                    {{ t('disassembler.tree') }}
                 </button>
                 <button
                     class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-mono cursor-pointer transition-all duration-150"
@@ -93,7 +96,7 @@ const error = computed(() => (viewMode.value === 'tree' ? treeError.value : flat
                     @click="viewMode = 'flat'"
                 >
                     <List class="size-3.5" />
-                    Flat
+                    {{ t('disassembler.flat') }}
                 </button>
 
                 <!-- Separator -->
@@ -111,7 +114,7 @@ const error = computed(() => (viewMode.value === 'tree' ? treeError.value : flat
                 >
                     <UnfoldVertical v-if="showNested" class="size-3.5" />
                     <FoldVertical v-else class="size-3.5" />
-                    Nested
+                    {{ t('disassembler.nested') }}
                 </button>
             </div>
         </div>
@@ -137,7 +140,7 @@ const error = computed(() => (viewMode.value === 'tree' ? treeError.value : flat
 
                 <!-- Empty state -->
                 <div v-else class="text-gray-500 italic text-sm font-mono">
-                    No instructions to display
+                    {{ t('disassembler.noInstructions') }}
                 </div>
             </div>
         </div>
