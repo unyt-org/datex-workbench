@@ -145,7 +145,7 @@ const navigate = (path: string) => {
                     <div
                         class="card invisible absolute left-14 z-50 m-0 ml-2 whitespace-nowrap px-3 py-1.5 text-xs font-mono shadow-xl group-hover:visible"
                     >
-                        Preferences
+                        {{t('nav.preferences')}}
 
                         <div
                             class="bg-card border-l border-b border-neutral-200 dark:border-neutral-700 absolute -left-1 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45"
