@@ -46,7 +46,8 @@
         "about": "बारे में",
         "repl": "REPL",
         "comhub": "ComHub",
-        "networkVisualizer": "नेटवर्क विज़ुअलाइज़र"
+        "networkVisualizer": "नेटवर्क विज़ुअलाइज़र",
+        "preferences": "प्राथमिकताएँ"
     },
     "block": {
         "openFile": "फ़ाइल खोलें",

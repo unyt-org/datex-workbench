@@ -46,7 +46,8 @@
         "about": "About",
         "repl": "REPL",
         "comhub": "ComHub",
-        "networkVisualizer": "Network Visualizer"
+        "networkVisualizer": "Network Visualizer",
+        "preferences": "Preferences"
     },
     "block": {
         "openFile": "Open File",
