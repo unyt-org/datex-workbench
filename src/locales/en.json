@@ -56,7 +56,9 @@
         "dropOverlay": "Drop .dxb file here",
         "loadExample": "Load example block",
         "fileEmpty": "File is empty",
-        "invalidBlock": "Invalid DXB block — magic number mismatch"
+        "invalidBlock": "Invalid DXB block — magic number mismatch",
+        "failedToReadFile": "Failed to read file",
+        "failedToLoadExample": "Failed to load example block"
     },
     "disassembler": {
         "disassembler": "DISASSEMBLER",
