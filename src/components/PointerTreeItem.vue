@@ -4,6 +4,7 @@ import { TYPE_CONFIGS, extractPointerId, getTypeName } from '@/lib/pointer-types
 import type { DIF } from '@unyt/datex';
 import { ChevronDown, ChevronRight } from 'lucide-vue-next';
 import { computed, nextTick, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import PointerRefInline from './PointerRefInline.vue';
 
 // Props
@@ -19,9 +20,9 @@ interface PointerTreeItemProps {
     hideTypeHintsForPrimitives?: boolean;
     hideMapKeyTypeHintsForPrimitives?: boolean;
     depth?: number;
-    parentIsMap?: boolean; // Track if parent is a map
-    keyContainer?: DIF.Definitions.DIFValueContainer; // The original DIF container for the key (for type hints)
-    selectedPointerId?: string | null; // For highlighting navigated pointer
+    parentIsMap?: boolean;
+    keyContainer?: DIF.Definitions.DIFValueContainer;
+    selectedPointerId?: string | null;
 }
 
 const props = withDefaults(defineProps<PointerTreeItemProps>(), {
@@ -36,7 +37,8 @@ const props = withDefaults(defineProps<PointerTreeItemProps>(), {
     selectedPointerId: null,
 });
 
-// Emits
+const { t } = useI18n();
+
 const emit = defineEmits<{
     'node-click': [nodeId: string, value: DIF.Definitions.DIFValueContainer];
     'node-toggle': [nodeId: string];
@@ -45,28 +47,22 @@ const emit = defineEmits<{
     'value-update': [nodeId: string, newValue: unknown];
 }>();
 
-// Editing state
 const isEditing = ref(false);
 const editValue = ref('');
 const editInputRef = ref<HTMLInputElement | null>(null);
 
-// Check if value is circular reference
 function isCircularReference(difValueContainer: DIF.Definitions.DIFValueContainer): boolean {
-    // Only objects can have circular references
     if (typeof difValueContainer !== 'object' || difValueContainer === null) {
         return false;
     }
-
     return props.visitedObjects?.has(difValueContainer) ?? false;
 }
 
-// Check if expandable
 function isExpandable(difValueContainer: DIF.Definitions.DIFValueContainer): boolean {
     const typeName = getTypeName(difValueContainer);
     return TYPE_CONFIGS[typeName]?.isExpandable ?? false;
 }
 
-// Extract the actual value from a DIF container, unwrapping nested value properties
 function extractValue(difValueContainer: DIF.Definitions.DIFValueContainer): unknown {
     if (
         difValueContainer &&
@@ -78,15 +74,12 @@ function extractValue(difValueContainer: DIF.Definitions.DIFValueContainer): unk
     return difValueContainer;
 }
 
-// Get value preview
 function getValuePreview(difValueContainer: DIF.Definitions.DIFValueContainer): string {
     const value = extractValue(difValueContainer);
     const typeName = getTypeName(difValueContainer);
 
-    // Build the preview string
     let preview = '';
 
-    // Determine if we should show type hint
     const shouldShowTypeHint =
         props.showDataTypes &&
         !(
@@ -97,12 +90,10 @@ function getValuePreview(difValueContainer: DIF.Definitions.DIFValueContainer): 
                 typeName === 'text')
         );
 
-    // Add data type if conditions are met
     if (shouldShowTypeHint) {
         preview = `${typeName} = `;
     }
 
-    // For non-expandable types, show the actual value
     if (!TYPE_CONFIGS[typeName]?.isExpandable) {
         if (typeName === 'text') preview += `"${value}"`;
         else if (typeName === 'boolean') preview += value ? 'true' : 'false';
@@ -116,21 +107,17 @@ function getValuePreview(difValueContainer: DIF.Definitions.DIFValueContainer): 
     return preview;
 }
 
-// Get children
 function getChildren(
     difValueContainer: DIF.Definitions.DIFValueContainer,
 ): Array<[string, DIF.Definitions.DIFValueContainer, DIF.Definitions.DIFValueContainer?]> {
-    // Only compute children if node is expanded (lazy evaluation)
     if (!expanded.value) {
         return [];
     }
 
-    // Check for circular reference before processing children
     if (isCircularReference(difValueContainer)) {
         return [];
     }
 
-    // Check if it's a DIF map type (type: '0c0000')
     if (
         typeof difValueContainer === 'object' &&
         difValueContainer !== null &&
@@ -139,10 +126,8 @@ function getChildren(
     ) {
         const value = extractValue(difValueContainer);
 
-        // DIF maps can be stored as an array of [key, value] tuples (DIFMap format)
         if (Array.isArray(value)) {
             return (value as DIF.Definitions.DIFMap).map(([keyContainer, valueContainer]) => {
-                // Extract the display value for the key
                 const keyValue = extractValue(keyContainer);
                 const keyDisplay =
                     typeof keyValue === 'string'
@@ -156,24 +141,16 @@ function getChildren(
             });
         }
 
-        // DIF maps can also be stored as an object with key-value pairs
         if (typeof value === 'object' && value !== null) {
             return Object.entries(value).map(([k, v]) => {
-                // Create a DIFValueContainer for the key
-                // Try to infer the actual type from the key string
                 let keyValue: string | number | boolean = k;
 
-                // Try to parse as number
                 if (!isNaN(Number(k)) && k.trim() !== '') {
                     keyValue = Number(k);
-                }
-                // Try to parse as boolean
-                else if (k === 'true' || k === 'false') {
+                } else if (k === 'true' || k === 'false') {
                     keyValue = k === 'true';
                 }
 
-                // Create container with the properly typed value
-                // getTypeName() will infer the correct type from the value
                 const keyContainer: DIF.Definitions.DIFValueContainer = { value: keyValue };
                 return [k, v as DIF.Definitions.DIFValueContainer, keyContainer];
             });
@@ -208,7 +185,6 @@ function getChildren(
         );
     }
 
-    // Handle plain JavaScript objects
     if (
         typeof difValueContainer === 'object' &&
         difValueContainer !== null &&
@@ -224,10 +200,8 @@ function getChildren(
     return [];
 }
 
-// Computed children list (cached and only recomputes when expanded or value changes)
 const children = computed(() => getChildren(props.value));
 
-// Create new visited set for children (includes current value)
 const childVisitedObjects = computed(() => {
     const newVisited = new WeakSet<object>();
     if (typeof props.value === 'object' && props.value !== null) {
@@ -236,12 +210,10 @@ const childVisitedObjects = computed(() => {
     return newVisited;
 });
 
-// Generate child ID
 function getChildId(parentId: string, childKey: string): string {
     return `${parentId}.${childKey}`;
 }
 
-// Get the type hint for a key (used for map keys)
 function getKeyTypeHint(keyContainer?: DIF.Definitions.DIFValueContainer): string {
     if (!keyContainer || !props.showDataTypes) {
         return '';
@@ -249,7 +221,6 @@ function getKeyTypeHint(keyContainer?: DIF.Definitions.DIFValueContainer): strin
 
     const typeName = getTypeName(keyContainer);
 
-    // Apply the same logic for hiding type hints for primitives, but using the map key preference
     const shouldShowTypeHint = !(
         props.hideMapKeyTypeHintsForPrimitives &&
         (typeName === 'integer' ||
@@ -261,39 +232,32 @@ function getKeyTypeHint(keyContainer?: DIF.Definitions.DIFValueContainer): strin
     return shouldShowTypeHint ? typeName : '';
 }
 
-// Get tooltip content for keys
 function getKeyTooltip(keyContainer?: DIF.Definitions.DIFValueContainer): string {
     if (!keyContainer) return '';
     const typeName = getTypeName(keyContainer);
-    return `Key Type: ${typeName}`;
+    return `${t('pointer.keyType')}: ${typeName}`;
 }
 
-// Get tooltip content for values
 function getValueTooltip(valueContainer: DIF.Definitions.DIFValueContainer): string {
     const typeName = getTypeName(valueContainer);
-    const parts: string[] = [`Type: ${typeName}`];
+    const parts: string[] = [`${t('common.type')}: ${typeName}`];
 
-    // Add pointer ID if it's a pointer address (string format like $0000000000000001)
     if (typeof valueContainer === 'string' && valueContainer.startsWith('$')) {
-        parts.push(`Pointer: ${valueContainer}`);
+        parts.push(`${t('pointer.pointer')}: ${valueContainer}`);
     }
 
     return parts.join('\n');
 }
 
-// Computed
 const expanded = computed(() => props.expandedNodes.has(props.nodeId));
 
-// Check if current value is circular
 const isCircular = computed(() => isCircularReference(props.value));
 
-// Check if current value is a map (so we can pass this info to children)
 const isMap = computed(() => {
     const typeName = getTypeName(props.value);
     return typeName === 'map';
 });
 
-// Methods
 function toggleExpanded(event?: Event) {
     if (event) {
         event.stopPropagation();
@@ -302,7 +266,6 @@ function toggleExpanded(event?: Event) {
 }
 
 function handleClick() {
-    // Click on the row toggles expansion if expandable
     if (isExpandable(props.value)) {
         toggleExpanded();
     } else {
@@ -310,9 +273,7 @@ function handleClick() {
     }
 }
 
-// Editing functions
 function startEditing() {
-    // Only allow editing for primitive values (not expandable)
     if (isExpandable(props.value) || extractPointerId(props.value) || isCircular.value) {
         return;
     }
@@ -320,7 +281,6 @@ function startEditing() {
     const value = extractValue(props.value);
     const typeName = getTypeName(props.value);
 
-    // Set initial edit value based on type
     if (typeName === 'text') {
         editValue.value = String(value);
     } else if (typeName === 'boolean') {
@@ -330,12 +290,11 @@ function startEditing() {
     } else if (typeName === 'null') {
         editValue.value = 'null';
     } else {
-        return; // Don't allow editing other types
+        return;
     }
 
     isEditing.value = true;
 
-    // Focus input after render
     nextTick(() => {
         if (editInputRef.value) {
             editInputRef.value.focus();
@@ -351,7 +310,6 @@ function saveEdit() {
     let newValue: unknown;
 
     try {
-        // Parse the new value based on type
         if (typeName === 'text') {
             newValue = editValue.value;
         } else if (typeName === 'boolean') {
@@ -378,7 +336,6 @@ function saveEdit() {
         emit('value-update', props.nodeId, newValue);
         isEditing.value = false;
     } catch {
-        // On error, cancel editing
         cancelEdit();
     }
 }
@@ -421,7 +378,6 @@ function handleEditKeydown(event: KeyboardEvent) {
             }"
             @click="handleClick"
         >
-            <!-- Expand/Collapse chevron -->
             <button
                 v-if="isExpandable(value)"
                 @click="toggleExpanded"
@@ -432,9 +388,7 @@ function handleEditKeydown(event: KeyboardEvent) {
             </button>
             <div v-else :class="depth === 0 ? 'w-5' : 'w-4'" class="shrink-0"></div>
 
-            <!-- Content -->
             <div class="flex min-w-0 flex-1 items-center gap-2">
-                <!-- For top-level pointers (depth 0): show pointer ID in blue -->
                 <TooltipProvider v-if="depth === 0" :delay-duration="300">
                     <Tooltip>
                         <TooltipTrigger as-child>
@@ -448,8 +402,6 @@ function handleEditKeydown(event: KeyboardEvent) {
                     </Tooltip>
                 </TooltipProvider>
 
-                <!-- For nested items (depth > 0): show key -->
-                <!-- Always show keys for map entries, only show for arrays/lists if showIndices is true -->
                 <TooltipProvider
                     v-if="depth > 0 && (parentIsMap || showIndices)"
                     :delay-duration="300"
@@ -457,7 +409,6 @@ function handleEditKeydown(event: KeyboardEvent) {
                     <Tooltip>
                         <TooltipTrigger as-child>
                             <span class="text-sm font-medium">
-                                <!-- Show key type hint if available -->
                                 <span
                                     v-if="
                                         keyContainer &&
@@ -477,23 +428,19 @@ function handleEditKeydown(event: KeyboardEvent) {
                     </Tooltip>
                 </TooltipProvider>
 
-                <!-- Show circular reference indicator -->
                 <span v-if="isCircular" class="text-sm text-amber-500 italic">
-                    [Circular Reference]
+                    {{ t('pointer.circularReference') }}
                 </span>
 
-                <!-- Show pointer reference as clickable chip -->
                 <PointerRefInline
                     v-else-if="extractPointerId(value)"
                     :pointer-id="extractPointerId(value)!"
                     @click="emit('pointer-ref-click', extractPointerId(value)!)"
                 />
 
-                <!-- Show type-based preview or opening bracket when expanded -->
                 <TooltipProvider v-else-if="!expanded || depth === 0" :delay-duration="300">
                     <Tooltip>
                         <TooltipTrigger as-child>
-                            <!-- Editable value -->
                             <div v-if="isEditing" @click.stop class="flex-1">
                                 <input
                                     ref="editInputRef"
@@ -503,7 +450,6 @@ function handleEditKeydown(event: KeyboardEvent) {
                                     class="bg-background border-primary focus:ring-primary w-full rounded border px-1 py-0.5 text-sm focus:ring-1 focus:outline-none"
                                 />
                             </div>
-                            <!-- Display value -->
                             <span
                                 v-else
                                 @dblclick.stop="startEditing"
@@ -514,7 +460,9 @@ function handleEditKeydown(event: KeyboardEvent) {
                         </TooltipTrigger>
                         <TooltipContent>
                             <p class="text-xs whitespace-pre-line">{{ getValueTooltip(value) }}</p>
-                            <p class="text-muted-foreground mt-1 text-xs">Double-click to edit</p>
+                            <p class="text-muted-foreground mt-1 text-xs">
+                                {{ t('pointer.doubleClickToEdit') }}
+                            </p>
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
@@ -524,7 +472,6 @@ function handleEditKeydown(event: KeyboardEvent) {
             </div>
         </div>
 
-        <!-- Children (RECURSIVE - this component calls itself!) -->
         <div
             v-if="expanded && isExpandable(value) && !isCircular"
             class="border-border ml-6 border-l pl-1"
@@ -552,7 +499,6 @@ function handleEditKeydown(event: KeyboardEvent) {
                 @value-update="emit('value-update', $event, $event)"
             />
 
-            <!-- Closing bracket -->
             <div class="text-foreground/70 px-1 py-2 text-sm">
                 {{ getTypeName(value) === 'list' ? ']' : '}' }}
             </div>

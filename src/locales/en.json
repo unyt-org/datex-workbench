@@ -113,5 +113,46 @@
         "jsVersion": "JS Version",
         "endpoint": "Endpoint",
         "activeFeatures": "Active Features"
+    },
+    "endpoint": {
+        "fingerprint": "Fingerprint",
+        "publicInterfaces": "Public Interfaces",
+        "noPublicInterfaces": "No public interfaces exposed by this endpoint.",
+        "channel": "Channel",
+        "direction": "Direction",
+        "maxBandwidth": "Max Bandwidth",
+        "waitingForSockets": "Waiting for socket connections…",
+        "profile": "Profile",
+        "documentation": "Documentation",
+        "pointerView": "Pointer View",
+        "noPointersLoaded": "No pointers currently loaded in the runtime."
+    },
+    "pointer": {
+        "displayPreferences": "Display Preferences",
+        "filterByType": "Filter by Type",
+        "resetFilters": "Reset Filters",
+        "noPointersAvailable": "No pointers available",
+        "noPointersMatchFilters": "No pointers match selected filters",
+        "clickToJump": "Click to jump to definition",
+        "customizeDisplay": "Customize how pointers are displayed",
+        "fullPointerIds": "Full Pointer IDs",
+        "fullPointerIdsDesc": "Show complete pointer identifiers instead of shortened versions",
+        "typeHints": "Type Hints",
+        "typeHintsDesc": "Display type annotations for values",
+        "arrayIndicesKeys": "Array Indices & Keys",
+        "arrayIndicesKeysDesc": "Show array indices and object keys",
+        "hidePrimitiveTypeHints": "Hide Primitive Type Hints",
+        "hidePrimitiveTypeHintsDesc": "Hide type hints for integers, booleans, and text (show for maps/arrays)",
+        "hideMapKeyPrimitiveTypeHints": "Hide Map Key Primitive Type Hints",
+        "hideMapKeyPrimitiveTypeHintsDesc": "Hide type hints for primitive map keys (text, integer, boolean)",
+        "circularReference": "[Circular Reference]",
+        "doubleClickToEdit": "Double-click to edit",
+        "keyType": "Key Type",
+        "pointer": "Pointer"
+    },
+    "comhub": {
+        "advancedMode": "Advanced Mode",
+        "groupByEndpoint": "Group by Endpoint",
+        "searchPlaceholder": "Search (e.g. @example)"
     }
 }

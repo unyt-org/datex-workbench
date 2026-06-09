@@ -4,6 +4,9 @@ import { usePointerPreferences } from '@/composable/usePointerPreferences';
 import { getTypeName } from '@/lib/pointer-types';
 import type { DIF } from '@unyt/datex';
 import { computed, inject } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 // Props
 interface PointerRefInlineProps {
@@ -89,9 +92,9 @@ function handleClick() {
             <TooltipContent>
                 <p class="font-mono text-xs">{{ pointerId }}</p>
                 <p v-if="valuePreview" class="text-muted-foreground text-xs">
-                    Value: {{ valuePreview }}
+                    {{ t('common.value') }}: {{ valuePreview }}
                 </p>
-                <p class="text-muted-foreground mt-1 text-xs">Click to jump to definition</p>
+                <p class="text-muted-foreground mt-1 text-xs">{{ t('pointer.clickToJump') }}</p>
             </TooltipContent>
         </Tooltip>
     </TooltipProvider>
