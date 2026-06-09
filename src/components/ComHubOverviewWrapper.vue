@@ -1,23 +1,25 @@
 <template>
     <div class="bg-page flex h-full flex-col overflow-hidden p-5 top-offset">
-        <!-- Title + search + settings -->
         <div class="mb-4 flex items-center gap-2">
             <h2 class="mr-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
                 ComHub
             </h2>
 
-            <!-- Settings gear -->
-            <!-- Settings Popover -->
             <Popover>
                 <PopoverTrigger as-child>
-                    <Button variant="outline" size="icon" title="Settings" class="btn-icon">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        :title="t('common.settings')"
+                        class="btn-icon"
+                    >
                         <Settings class="h-4 w-4" />
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent align="start" class="w-52">
                     <div class="flex flex-col gap-3 p-1">
                         <div class="flex items-center justify-between">
-                            <span class="text-dim text-sm">Advanced Mode</span>
+                            <span class="text-dim text-sm">{{ t('comhub.advancedMode') }}</span>
                             <button
                                 role="switch"
                                 :aria-checked="advancedMode"
@@ -36,7 +38,7 @@
                             </button>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-dim text-sm">Group by Endpoint</span>
+                            <span class="text-dim text-sm">{{ t('comhub.groupByEndpoint') }}</span>
                             <button
                                 role="switch"
                                 :aria-checked="groupByEndpoint"
@@ -58,18 +60,16 @@
                 </PopoverContent>
             </Popover>
 
-            <!-- Search bar -->
             <div class="max-w-[400px] flex-1">
                 <input
                     v-model="searchQuery"
                     type="text"
-                    placeholder="Search (e.g. @example)"
+                    :placeholder="t('comhub.searchPlaceholder')"
                     class="bg-card text-primary w-full rounded border border-neutral-300 px-3 py-2 text-sm placeholder-neutral-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-neutral-600 dark:placeholder-neutral-500"
                 />
             </div>
         </div>
 
-        <!-- List -->
         <div class="flex-1 overflow-y-auto no-drag">
             <ComHubEndpointList
                 v-if="groupByEndpoint"
@@ -89,12 +89,15 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { getComHubMetadata } from '@/lib/runtime';
 import ComHubInterfaceList from '@/components/ComHubInterfaceList.vue';
 import ComHubEndpointList from '@/components/ComHubEndpointList.vue';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Settings } from 'lucide-vue-next';
+
+const { t } = useI18n();
 
 interface InterfaceProperties {
     name?: string;
@@ -131,7 +134,6 @@ const advancedMode = ref(false);
 const groupByEndpoint = ref(false);
 const interfaces = ref<ComHubInterface[]>([]);
 
-// Don't treat bare '@' as a valid search
 const effectiveSearch = computed(() => {
     const q = searchQuery.value.trim();
     if (q === '@') return '';

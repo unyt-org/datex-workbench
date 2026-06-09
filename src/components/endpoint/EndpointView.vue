@@ -6,6 +6,9 @@ import EndpointFingerprint from '@/components/endpoint/EndpointFingerprint.vue';
 import EndpointPointers from '@/components/endpoint/EndpointPointers.vue';
 import EndpointInterfaces from '@/components/endpoint/EndpointInterfaces.vue';
 import { Datex } from '@/lib/runtime';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 interface InterfaceProperties {
     name?: string;
@@ -117,7 +120,7 @@ const tagStyles: Record<EndpointTag, string> = {
                     {{ endpoint.description }}
                 </p>
                 <p v-if="endpoint.profile" class="text-faint text-xs">
-                    Profile: {{ endpoint.profile }}
+                    {{ t('endpoint.profile') }}: {{ endpoint.profile }}
                 </p>
             </section>
 
@@ -141,7 +144,9 @@ const tagStyles: Record<EndpointTag, string> = {
             <section
                 class="bg-card flex flex-col gap-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700"
             >
-                <h2 class="text-primary text-sm font-medium">Public Interfaces</h2>
+                <h2 class="text-primary text-sm font-medium">
+                    {{ t('endpoint.publicInterfaces') }}
+                </h2>
                 <EndpointInterfaces :interfaces="endpoint?.interfaces ?? []" />
             </section>
 
@@ -151,7 +156,7 @@ const tagStyles: Record<EndpointTag, string> = {
                 class="flex flex-col gap-2 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900"
             >
                 <h2 class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                    Documentation
+                    {{ t('endpoint.documentation') }}
                 </h2>
                 <EndpointDocs :markdown="endpoint.documentation" />
             </section>

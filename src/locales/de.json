@@ -113,5 +113,46 @@
         "jsVersion": "JS-Version",
         "endpoint": "Endpunkt",
         "activeFeatures": "Aktive Funktionen"
+    },
+    "endpoint": {
+        "fingerprint": "Fingerabdruck",
+        "publicInterfaces": "Öffentliche Schnittstellen",
+        "noPublicInterfaces": "Dieser Endpunkt stellt keine öffentlichen Schnittstellen bereit.",
+        "channel": "Kanal",
+        "direction": "Richtung",
+        "maxBandwidth": "Max. Bandbreite",
+        "waitingForSockets": "Warte auf Socket-Verbindungen…",
+        "profile": "Profil",
+        "documentation": "Dokumentation",
+        "pointerView": "Pointer-Ansicht",
+        "noPointersLoaded": "Keine Pointer derzeit in der Runtime geladen."
+    },
+    "pointer": {
+        "displayPreferences": "Anzeigeeinstellungen",
+        "filterByType": "Nach Typ filtern",
+        "resetFilters": "Filter zurücksetzen",
+        "noPointersAvailable": "Keine Pointer verfügbar",
+        "noPointersMatchFilters": "Keine Pointer entsprechen den gewählten Filtern",
+        "clickToJump": "Klicken, um zur Definition zu springen",
+        "customizeDisplay": "Anpassen, wie Pointer angezeigt werden",
+        "fullPointerIds": "Vollständige Pointer-IDs",
+        "fullPointerIdsDesc": "Vollständige Pointer-Kennungen statt verkürzter Versionen anzeigen",
+        "typeHints": "Typhinweise",
+        "typeHintsDesc": "Typannotationen für Werte anzeigen",
+        "arrayIndicesKeys": "Array-Indizes & Schlüssel",
+        "arrayIndicesKeysDesc": "Array-Indizes und Objektschlüssel anzeigen",
+        "hidePrimitiveTypeHints": "Primitive Typhinweise ausblenden",
+        "hidePrimitiveTypeHintsDesc": "Typhinweise für Integer, Booleans und Text ausblenden (für Maps/Arrays anzeigen)",
+        "hideMapKeyPrimitiveTypeHints": "Primitive Map-Schlüssel-Typhinweise ausblenden",
+        "hideMapKeyPrimitiveTypeHintsDesc": "Typhinweise für primitive Map-Schlüssel ausblenden (Text, Integer, Boolean)",
+        "circularReference": "[Zirkuläre Referenz]",
+        "doubleClickToEdit": "Zum Bearbeiten doppelklicken",
+        "keyType": "Schlüsseltyp",
+        "pointer": "Pointer"
+    },
+    "comhub": {
+        "advancedMode": "Erweiterter Modus",
+        "groupByEndpoint": "Nach Endpunkt gruppieren",
+        "searchPlaceholder": "Suchen (z. B. @beispiel)"
     }
 }

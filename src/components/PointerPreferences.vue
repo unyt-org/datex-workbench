@@ -3,8 +3,10 @@ import { usePointerPreferences } from '@/composable/usePointerPreferences';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { PopoverContent } from '@/components/ui/popover';
+import { useI18n } from 'vue-i18n';
 
 const { preferences, resetPreferences } = usePointerPreferences();
+const { t } = useI18n();
 </script>
 
 <template>
@@ -13,9 +15,9 @@ const { preferences, resetPreferences } = usePointerPreferences();
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <div class="space-y-1">
-                    <h4 class="leading-none font-medium">Display Preferences</h4>
+                    <h4 class="leading-none font-medium">{{ t('pointer.displayPreferences') }}</h4>
                     <p class="text-muted-foreground text-sm">
-                        Customize how pointers are displayed
+                        {{ t('pointer.customizeDisplay') }}
                     </p>
                 </div>
                 <Button
@@ -24,55 +26,55 @@ const { preferences, resetPreferences } = usePointerPreferences();
                     @click="resetPreferences"
                     class="h-8 px-2 text-xs"
                 >
-                    Reset
+                    {{ t('common.reset') }}
                 </Button>
             </div>
 
             <!-- Preferences List -->
             <div class="space-y-4">
-                <!-- Show Full Pointer IDs -->
                 <div class="flex items-center justify-between space-x-2">
                     <div class="flex flex-1 flex-col space-y-1">
-                        <label class="cursor-pointer text-sm font-medium"> Full Pointer IDs </label>
+                        <label class="cursor-pointer text-sm font-medium">
+                            {{ t('pointer.fullPointerIds') }}
+                        </label>
                         <span class="text-muted-foreground text-xs">
-                            Show complete pointer identifiers instead of shortened versions
+                            {{ t('pointer.fullPointerIdsDesc') }}
                         </span>
                     </div>
                     <Switch v-model="preferences.show_full_pointer_ids" id="show-full-ids" />
                 </div>
 
-                <!-- Show Type Hints -->
                 <div class="flex items-center justify-between space-x-2">
                     <div class="flex flex-1 flex-col space-y-1">
-                        <label class="cursor-pointer text-sm font-medium"> Type Hints </label>
+                        <label class="cursor-pointer text-sm font-medium">
+                            {{ t('pointer.typeHints') }}
+                        </label>
                         <span class="text-muted-foreground text-xs">
-                            Display type annotations for values
+                            {{ t('pointer.typeHintsDesc') }}
                         </span>
                     </div>
                     <Switch v-model="preferences.show_type_hints" id="show-type-hints" />
                 </div>
 
-                <!-- Show Array Indices -->
                 <div class="flex items-center justify-between space-x-2">
                     <div class="flex flex-1 flex-col space-y-1">
                         <label class="cursor-pointer text-sm font-medium">
-                            Array Indices & Keys
+                            {{ t('pointer.arrayIndicesKeys') }}
                         </label>
                         <span class="text-muted-foreground text-xs">
-                            Show array indices and object keys
+                            {{ t('pointer.arrayIndicesKeysDesc') }}
                         </span>
                     </div>
                     <Switch v-model="preferences.show_array_indicies" id="show-array-indices" />
                 </div>
 
-                <!-- Hide Type Hints for Primitives -->
                 <div class="flex items-center justify-between space-x-2">
                     <div class="flex flex-1 flex-col space-y-1">
                         <label class="cursor-pointer text-sm font-medium">
-                            Hide Primitive Type Hints
+                            {{ t('pointer.hidePrimitiveTypeHints') }}
                         </label>
                         <span class="text-muted-foreground text-xs">
-                            Hide type hints for integers, booleans, and text (show for maps/arrays)
+                            {{ t('pointer.hidePrimitiveTypeHintsDesc') }}
                         </span>
                     </div>
                     <Switch
@@ -81,14 +83,13 @@ const { preferences, resetPreferences } = usePointerPreferences();
                     />
                 </div>
 
-                <!-- Hide Map Key Type Hints for Primitives -->
                 <div class="flex items-center justify-between space-x-2">
                     <div class="flex flex-1 flex-col space-y-1">
                         <label class="cursor-pointer text-sm font-medium">
-                            Hide Map Key Primitive Type Hints
+                            {{ t('pointer.hideMapKeyPrimitiveTypeHints') }}
                         </label>
                         <span class="text-muted-foreground text-xs">
-                            Hide type hints for primitive map keys (text, integer, boolean)
+                            {{ t('pointer.hideMapKeyPrimitiveTypeHintsDesc') }}
                         </span>
                     </div>
                     <Switch

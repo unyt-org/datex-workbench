@@ -113,5 +113,46 @@
         "jsVersion": "JS संस्करण",
         "endpoint": "एंडपॉइंट",
         "activeFeatures": "सक्रिय सुविधाएँ"
+    },
+    "endpoint": {
+        "fingerprint": "फिंगरप्रिंट",
+        "publicInterfaces": "सार्वजनिक इंटरफ़ेस",
+        "noPublicInterfaces": "इस एंडपॉइंट द्वारा कोई सार्वजनिक इंटरफ़ेस प्रकट नहीं किया गया।",
+        "channel": "चैनल",
+        "direction": "दिशा",
+        "maxBandwidth": "अधिकतम बैंडविड्थ",
+        "waitingForSockets": "सॉकेट कनेक्शन की प्रतीक्षा…",
+        "profile": "प्रोफ़ाइल",
+        "documentation": "दस्तावेज़ीकरण",
+        "pointerView": "पॉइंटर दृश्य",
+        "noPointersLoaded": "वर्तमान में रनटाइम में कोई पॉइंटर लोड नहीं है।"
+    },
+    "pointer": {
+        "displayPreferences": "प्रदर्शन प्राथमिकताएँ",
+        "filterByType": "प्रकार के अनुसार फ़िल्टर करें",
+        "resetFilters": "फ़िल्टर रीसेट करें",
+        "noPointersAvailable": "कोई पॉइंटर उपलब्ध नहीं",
+        "noPointersMatchFilters": "चयनित फ़िल्टर से मेल खाने वाले कोई पॉइंटर नहीं",
+        "clickToJump": "परिभाषा पर जाने के लिए क्लिक करें",
+        "customizeDisplay": "पॉइंटर कैसे प्रदर्शित होंगे, अनुकूलित करें",
+        "fullPointerIds": "पूर्ण पॉइंटर आईडी",
+        "fullPointerIdsDesc": "संक्षिप्त संस्करणों के बजाय पूर्ण पॉइंटर पहचानकर्ता दिखाएं",
+        "typeHints": "प्रकार संकेत",
+        "typeHintsDesc": "मानों के लिए प्रकार एनोटेशन प्रदर्शित करें",
+        "arrayIndicesKeys": "ऐरे इंडेक्स और कुंजियाँ",
+        "arrayIndicesKeysDesc": "ऐरे इंडेक्स और ऑब्जेक्ट कुंजियाँ दिखाएं",
+        "hidePrimitiveTypeHints": "आदिम प्रकार संकेत छिपाएं",
+        "hidePrimitiveTypeHintsDesc": "इंटीजर, बूलियन और टेक्स्ट के लिए प्रकार संकेत छिपाएं (मैप/ऐरे के लिए दिखाएं)",
+        "hideMapKeyPrimitiveTypeHints": "मैप कुंजी आदिम प्रकार संकेत छिपाएं",
+        "hideMapKeyPrimitiveTypeHintsDesc": "आदिम मैप कुंजियों के लिए प्रकार संकेत छिपाएं (टेक्स्ट, इंटीजर, बूलियन)",
+        "circularReference": "[चक्रीय संदर्भ]",
+        "doubleClickToEdit": "संपादित करने के लिए डबल-क्लिक करें",
+        "keyType": "कुंजी प्रकार",
+        "pointer": "पॉइंटर"
+    },
+    "comhub": {
+        "advancedMode": "उन्नत मोड",
+        "groupByEndpoint": "एंडपॉइंट के अनुसार समूहित करें",
+        "searchPlaceholder": "खोजें (जैसे @उदाहरण)"
     }
 }
