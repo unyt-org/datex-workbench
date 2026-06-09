@@ -18,6 +18,7 @@ import type { DIF } from '@unyt/datex';
 import { Filter, Search, Settings } from 'lucide-vue-next';
 import type { HTMLAttributes } from 'vue';
 import { computed, nextTick, provide, ref, watchEffect } from 'vue';
+import { useI18n } from 'vue-i18n';
 import PointerPreferences from './PointerPreferences.vue';
 import PointerTreeItem from './PointerTreeItem.vue';
 
@@ -30,10 +31,17 @@ interface PointerViewProps {
 
 // Define props with defaults
 const props = withDefaults(defineProps<PointerViewProps>(), {
-    searchPlaceholder: 'Search...',
+    searchPlaceholder: undefined,
     visitedObjects: new WeakSet(),
 });
 console.log(props);
+
+const { t } = useI18n();
+
+const effectivePlaceholder = computed(
+    () => props.searchPlaceholder ?? t('common.searchPlaceholder'),
+);
+
 // Emits to communicate with parent
 const emit = defineEmits<{
     'pointer-click': [pointerId: string, value: DIF.Definitions.DIFValueContainer];
@@ -181,8 +189,6 @@ function jumpToPointer(pointerId: string) {
 function handleValueUpdate(nodeId: string, newValue: unknown) {
     console.log('Value updated:', nodeId, newValue);
     // TODO: Update the actual pointer value in the runtime
-    // This would require integration with the DATEX runtime to persist changes
-    // For now, just log the update
 }
 
 // Toggle type filter
@@ -215,7 +221,7 @@ function resetTypeFilters() {
                             <Button
                                 variant="outline"
                                 size="icon"
-                                title="Display Preferences"
+                                :title="t('pointer.displayPreferences')"
                                 class="btn-icon"
                             >
                                 <Settings class="h-4 w-4" />
@@ -232,7 +238,7 @@ function resetTypeFilters() {
                         <Input
                             v-model="searchQuery"
                             type="text"
-                            :placeholder="props.searchPlaceholder"
+                            :placeholder="effectivePlaceholder"
                             class="pl-9"
                         />
                     </div>
@@ -246,7 +252,7 @@ function resetTypeFilters() {
                         </DropdownMenuTrigger>
 
                         <DropdownMenuContent align="end" class="w-56">
-                            <DropdownMenuLabel>Filter by Type</DropdownMenuLabel>
+                            <DropdownMenuLabel>{{ t('pointer.filterByType') }}</DropdownMenuLabel>
                             <DropdownMenuSeparator />
 
                             <DropdownMenuCheckboxItem
@@ -277,7 +283,7 @@ function resetTypeFilters() {
                                     class="w-full"
                                     @click="resetTypeFilters"
                                 >
-                                    Reset Filters
+                                    {{ t('pointer.resetFilters') }}
                                 </Button>
                             </div>
                         </DropdownMenuContent>
@@ -323,8 +329,8 @@ function resetTypeFilters() {
                         >
                             {{
                                 props.pointers.size === 0
-                                    ? 'No pointers available'
-                                    : 'No pointers match selected filters'
+                                    ? t('pointer.noPointersAvailable')
+                                    : t('pointer.noPointersMatchFilters')
                             }}
                         </div>
                     </SidebarMenu>

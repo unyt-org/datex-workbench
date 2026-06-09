@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 interface Props {
     fingerprint?: string;
@@ -8,8 +9,10 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const { t } = useI18n();
+
 const fingerprintText = computed(() => {
-    if (!props.fingerprint) return 'Unavailable';
+    if (!props.fingerprint) return t('common.unavailable');
 
     if (typeof props.fingerprint === 'string') {
         return props.fingerprint;
@@ -41,7 +44,7 @@ const downloadFingerprint = () => {
 
 <template>
     <section class="flex flex-col gap-2">
-        <h2 class="text-primary text-sm font-medium">Fingerprint</h2>
+        <h2 class="text-primary text-sm font-medium">{{ t('endpoint.fingerprint') }}</h2>
 
         <div class="bg-subtle flex items-start justify-between gap-3 rounded p-3">
             <pre class="text-primary text-xs break-all whitespace-pre-wrap"
@@ -54,7 +57,7 @@ const downloadFingerprint = () => {
                 :disabled="!props.fingerprint"
                 @click="downloadFingerprint"
             >
-                Download
+                {{ t('common.download') }}
             </button>
         </div>
     </section>
