@@ -19,7 +19,16 @@
         "open": "Open",
         "search": "Search",
         "settings": "Settings",
-        "language": "Language"
+        "language": "Language",
+        "type": "Type",
+        "name": "Name",
+        "id": "ID",
+        "value": "Value",
+        "download": "Download",
+        "unavailable": "Unavailable",
+        "unlimited": "Unlimited",
+        "reset": "Reset",
+        "searchPlaceholder": "{'Search: type:traceback sender:name'}"
     },
     "theme": {
         "toggle": "Toggle theme",
@@ -61,7 +70,18 @@
         "blockViewer": "Block Viewer",
         "deleteBlocks": "Delete Blocks?",
         "deleteConfirm": "This action cannot be undone.",
-        "clearAll": "Clear all displayed blocks"
+        "clearAll": "Clear all displayed blocks",
+        "searchPlaceholder": "Search: type:traceback sender:name",
+        "deleteMessage": "This will permanently delete {count} block. | This will permanently delete {count} blocks.",
+        "columnDir": "Dir",
+        "columnInterface": "Interface",
+        "columnSender": "Sender",
+        "columnReceiver": "Receiver",
+        "columnTime": "Time",
+        "columnSize": "Size",
+        "columns": "Columns",
+        "notEncrypted": "Not encrypted",
+        "notSigned": "Not signed"
     },
     "trace": {
         "endpoint": "@endpoint",
