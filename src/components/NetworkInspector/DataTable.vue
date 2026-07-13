@@ -1,4 +1,5 @@
 <script setup lang="ts" generic="TData, TValue">
+import { useI18n } from 'vue-i18n';
 import { ref, computed, watch } from 'vue';
 import {
     useVueTable,
@@ -19,6 +20,8 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown, ArrowUp, ArrowDown } from 'lucide-vue-next';
+
+const { t } = useI18n();
 
 interface DataTableProps {
     columns: ColumnDef<TData, TValue>[];
@@ -115,7 +118,7 @@ watch(
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>
                     <Button variant="outline" class="text-foreground border-border ml-auto">
-                        Columns <ChevronDown class="ml-2 h-4 w-4" />
+                        {{ t('network.columns') }} <ChevronDown class="ml-2 h-4 w-4" />
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">

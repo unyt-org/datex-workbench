@@ -19,7 +19,16 @@
         "open": "खोलें",
         "search": "खोजें",
         "settings": "सेटिंग्स",
-        "language": "भाषा"
+        "language": "भाषा",
+        "type": "प्रकार",
+        "name": "नाम",
+        "id": "आईडी",
+        "value": "मान",
+        "download": "डाउनलोड",
+        "unavailable": "अनुपलब्ध",
+        "unlimited": "असीमित",
+        "reset": "रीसेट",
+        "searchPlaceholder": "खोजें: type:traceback sender:name"
     },
     "theme": {
         "toggle": "थीम बदलें",
@@ -61,7 +70,18 @@
         "blockViewer": "ब्लॉक व्यूअर",
         "deleteBlocks": "ब्लॉक हटाएं?",
         "deleteConfirm": "यह क्रिया पूर्ववत नहीं की जा सकती।",
-        "clearAll": "सभी प्रदर्शित ब्लॉक साफ़ करें"
+        "clearAll": "सभी प्रदर्शित ब्लॉक साफ़ करें",
+        "searchPlaceholder": "खोजें: type:traceback sender:name",
+        "deleteMessage": "यह स्थायी रूप से {count} ब्लॉक हटा देगा। | यह स्थायी रूप से {count} ब्लॉक हटा देगा।",
+        "columnDir": "दिशा",
+        "columnInterface": "इंटरफ़ेस",
+        "columnSender": "प्रेषक",
+        "columnReceiver": "प्राप्तकर्ता",
+        "columnTime": "समय",
+        "columnSize": "आकार",
+        "columns": "कॉलम",
+        "notEncrypted": "अनएन्क्रिप्टेड",
+        "notSigned": "अहस्ताक्षरित"
     },
     "trace": {
         "endpoint": "@एंडपॉइंट",

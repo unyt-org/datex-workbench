@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import DataTable from '@/components/NetworkInspector/DataTable.vue';
 import NetworkFilter, {
     type SearchSuggestions,
@@ -24,6 +25,8 @@ import { filterRowsBySearch, parseSearchQuery } from '@/utils/searchParser';
 import { Trash, X, Lock, Unlock } from 'lucide-vue-next';
 import { computed, nextTick, ref, watch } from 'vue';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
+
+const { t } = useI18n();
 
 const {
     sendTestBlock,
@@ -60,7 +63,7 @@ const showDeleteDialog = ref(false);
 const deleteMessage = computed(() => {
     // When search is empty, delete all blocks; otherwise delete filtered blocks
     const count = searchQuery.value.trim() ? filteredTableRows.value.length : blocks.value.length;
-    return count > 0 ? `This will permanently delete ${count} block${count > 1 ? 's' : ''}.` : '';
+    return count > 0 ? t('network.deleteMessage', { count }, count) : '';
 });
 
 // Confirm and execute deletion
@@ -169,10 +172,10 @@ const searchSuggestions = computed<SearchSuggestions>(() => {
 
 // Dynamic columns with search highlighting
 const dynamicColumns = computed(() => {
-    if (!searchQuery.value.trim()) return createColumns();
+    if (!searchQuery.value.trim()) return createColumns(t);
 
     const parsedQuery = parseSearchQuery(searchQuery.value);
-    return createColumns(parsedQuery);
+    return createColumns(t, parsedQuery);
 });
 
 const isBlockSecure = computed(() => {
@@ -193,7 +196,7 @@ const isBlockSecure = computed(() => {
             :class="selectedBlock ? 'w-1/2 border-r border-border' : 'w-full'"
         >
             <div class="mb-4">
-                <h1 class="mb-3 text-2xl font-bold">Network Inspector</h1>
+                <h1 class="mb-3 text-2xl font-bold">{{ t('network.title') }}</h1>
 
                 <!-- Block simulation buttons -->
                 <div class="flex flex-wrap gap-2">
@@ -235,14 +238,14 @@ const isBlockSecure = computed(() => {
                             <NetworkFilter
                                 v-model:filter-value="searchQuery"
                                 :suggestions="searchSuggestions"
-                                placeholder="Search: type:traceback sender:@sender"
+                                :placeholder="t('network.searchPlaceholder')"
                             />
                             <AlertDialog v-model:open="showDeleteDialog">
                                 <AlertDialogTrigger as-child>
                                     <Button
                                         variant="outline"
                                         size="icon"
-                                        title="Clear all displayed blocks"
+                                        title="t('network.clearAll')"
                                         class="text-foreground border-border transition-colors hover:text-red-600"
                                         :disabled="blocks.length === 0"
                                     >
@@ -251,19 +254,23 @@ const isBlockSecure = computed(() => {
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                     <AlertDialogHeader>
-                                        <AlertDialogTitle>Delete Blocks?</AlertDialogTitle>
+                                        <AlertDialogTitle>{{
+                                            t('network.deleteBlocks')
+                                        }}</AlertDialogTitle>
                                         <AlertDialogDescription>
                                             {{ deleteMessage }}
-                                            This action cannot be undone.
+                                            {{ t('network.deleteConfirm') }}
                                         </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogCancel>{{
+                                            t('common.cancel')
+                                        }}</AlertDialogCancel>
                                         <AlertDialogAction
                                             @click="confirmClearBlocks"
                                             class="bg-red-600 hover:bg-red-700"
                                         >
-                                            Delete
+                                            {{ t('common.delete') }}
                                         </AlertDialogAction>
                                     </AlertDialogFooter>
                                 </AlertDialogContent>
