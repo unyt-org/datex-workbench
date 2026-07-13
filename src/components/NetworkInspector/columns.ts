@@ -20,17 +20,22 @@ function formatBytes(bytes: number): string {
     return byteFormatter.format(bytes);
 }
 
-export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<NetworkBlockTableRow>[] {
+type TranslateFn = (key: string) => string;
+
+export function createColumns(
+    t: TranslateFn,
+    parsedQuery?: ParsedSearchQuery,
+): ColumnDef<NetworkBlockTableRow>[] {
     return [
         {
             accessorKey: 'direction',
-            header: 'Dir',
+            header: t('network.columnDir'),
             size: 70,
             cell: ({ row }) => h(DirectionCell, { value: row.getValue<string>('direction') }),
         },
         {
             accessorKey: 'interface',
-            header: 'Interface',
+            header: t('network.columnInterface'),
             cell: ({ row }) =>
                 h(InterfaceCell, {
                     value: row.getValue<string>('interface'),
@@ -41,7 +46,7 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
         },
         {
             accessorKey: 'blockType',
-            header: 'Type',
+            header: t('common.type'),
             cell: ({ row }) =>
                 h(TypeCell, {
                     value: row.getValue<string>('blockType'),
@@ -52,7 +57,7 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
         },
         {
             accessorKey: 'sender',
-            header: 'Sender',
+            header: t('network.columnSender'),
             cell: ({ row }) =>
                 h(EndpointCell, {
                     value: row.getValue<string>('sender'),
@@ -61,7 +66,7 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
         },
         {
             accessorKey: 'receiver',
-            header: 'Receiver',
+            header: t('network.columnReceiver'),
             cell: ({ row }) =>
                 h(EndpointCell, {
                     value: row.getValue<string>('receiver'),
@@ -70,12 +75,12 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
         },
         {
             accessorKey: 'timestamp',
-            header: 'Time',
+            header: t('network.columnTime'),
             size: 120,
         },
         {
             accessorKey: 'size',
-            header: 'Size',
+            header: t('network.columnSize'),
             size: 90,
             cell: ({ row }) => {
                 const size = row.getValue('size') as number;
@@ -85,6 +90,3 @@ export function createColumns(parsedQuery?: ParsedSearchQuery): ColumnDef<Networ
         },
     ];
 }
-
-// Default columns without search highlighting
-export const columns = createColumns();

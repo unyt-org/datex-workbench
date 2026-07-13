@@ -19,7 +19,16 @@
         "open": "Öffnen",
         "search": "Suchen",
         "settings": "Einstellungen",
-        "language": "Sprache"
+        "language": "Sprache",
+        "type": "Typ",
+        "name": "Name",
+        "id": "ID", 
+        "value": "Wert",
+        "download": "Herunterladen",
+        "unavailable": "Nicht verfügbar",
+        "unlimited": "Unbegrenzt",
+        "reset": "Zurücksetzen",
+        "searchPlaceholder": "Suchen: type:traceback sender:name"
     },
     "theme": {
         "toggle": "Design umschalten",
@@ -61,7 +70,18 @@
         "blockViewer": "Block-Anzeige",
         "deleteBlocks": "Blöcke löschen?",
         "deleteConfirm": "Diese Aktion kann nicht rückgängig gemacht werden.",
-        "clearAll": "Alle angezeigten Blöcke löschen"
+        "clearAll": "Alle angezeigten Blöcke löschen",
+        "searchPlaceholder": "Suchen: type:traceback sender:name",
+        "deleteMessage": "Dies löscht dauerhaft {count} Block. | Dies löscht dauerhaft {count} Blöcke.",
+        "columnDir": "Richt.",
+        "columnInterface": "Schnittstelle",
+        "columnSender": "Absender",
+        "columnReceiver": "Empfänger",
+        "columnTime": "Zeit",
+        "columnSize": "Größe",
+        "columns": "Spalten",
+        "notEncrypted": "Nicht verschlüsselt",
+        "notSigned": "Nicht signiert"
     },
     "trace": {
         "endpoint": "@endpunkt",

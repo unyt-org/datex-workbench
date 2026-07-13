@@ -20,7 +20,7 @@ interface NetworkFilterProps {
 }
 
 const props = withDefaults(defineProps<NetworkFilterProps>(), {
-    placeholder: 'Search: type:value sender:value receiver:value interface:value',
+    placeholder: '',
     debounce: 300,
     suggestions: () => ({ types: [], senders: [], receivers: [], interfaces: [] }),
 });
