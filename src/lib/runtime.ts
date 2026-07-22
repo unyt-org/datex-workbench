@@ -17,14 +17,14 @@ export type ComHubMetadata = {
 };
 
 const defaultConfig: RuntimeConfig = {
-    endpoint: Builtins.Endpoint.get("@workbench_" + Math.floor(Math.random() * 1000)),
+    endpoint: Builtins.Endpoint.get('@workbench_' + Math.floor(Math.random() * 1000)),
     interfaces: [
         {
             type: 'websocket-client',
             config: {
                 url: 'wss://example.unyt.land',
             },
-            priority: new Builtins.Tagged("Priority", 1),
+            priority: new Builtins.Tagged('Priority', 1),
         },
     ],
 };

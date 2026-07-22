@@ -10,14 +10,12 @@ const localPatch = localStorage.getItem('localDatexModuleUrl');
 
 let localPatchHost: string | null;
 try {
-  localPatchHost = localPatch ? new URL(localPatch).host : null;;
-}
-catch {
-  localPatchHost = localPatch;
+    localPatchHost = localPatch ? new URL(localPatch).host : null;
+} catch {
+    localPatchHost = localPatch;
 }
 const localDatexModuleUrlFailed = localStorage.getItem('localDatexModuleUrlFailed') === 'true';
 const version = Datex.js_version;
-
 </script>
 
 <template>
@@ -40,19 +38,33 @@ const version = Datex.js_version;
         <Toaster :position="'top-center'" />
 
         <div v-if="!localDatexModuleUrlFailed && localPatchHost">
-          <RouterLink :to="{ name: 'preferences' }" class="absolute top-5 right-5 bg-blue-400/80 px-2 py-1 rounded text-sm z-50 flex items-center">
-            <InfoIcon class="inline-block size-4 mr-1" />
-            <span>Using <b>datex-web {{ version }}</b> from {{ localPatchHost }}</span>
-          </RouterLink>
-          <div class="w-screen h-screen border-2 border-blue-400 absolute left-0 top-0 pointer-events-none"></div>
+            <RouterLink
+                :to="{ name: 'preferences' }"
+                class="absolute top-5 right-5 bg-blue-400/80 px-2 py-1 rounded text-sm z-50 flex items-center"
+            >
+                <InfoIcon class="inline-block size-4 mr-1" />
+                <span
+                    >Using <b>datex-web {{ version }}</b> from {{ localPatchHost }}</span
+                >
+            </RouterLink>
+            <div
+                class="w-screen h-screen border-2 border-blue-400 absolute left-0 top-0 pointer-events-none"
+            ></div>
         </div>
 
         <div v-if="localDatexModuleUrlFailed">
-          <RouterLink :to="{ name: 'preferences' }" class="absolute top-5 right-5 bg-rose-400/80 px-2 py-1 rounded text-sm z-50 flex items-center">
-            <TriangleAlert class="inline-block size-4 mr-1" />
-            <span>Failed to load <b>datex-web {{ version }}</b> from {{ localPatchHost }}</span>
-          </RouterLink>
-          <div class="w-screen h-screen border-2 border-rose-400 absolute left-0 top-0 pointer-events-none"></div>
+            <RouterLink
+                :to="{ name: 'preferences' }"
+                class="absolute top-5 right-5 bg-rose-400/80 px-2 py-1 rounded text-sm z-50 flex items-center"
+            >
+                <TriangleAlert class="inline-block size-4 mr-1" />
+                <span
+                    >Failed to load <b>datex-web {{ version }}</b> from {{ localPatchHost }}</span
+                >
+            </RouterLink>
+            <div
+                class="w-screen h-screen border-2 border-rose-400 absolute left-0 top-0 pointer-events-none"
+            ></div>
         </div>
     </div>
 </template>

@@ -9,5 +9,4 @@ if (url) {
 
 // redirect to home page
 window.location.href = '/';
-
 </script>
