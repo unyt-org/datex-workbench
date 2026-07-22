@@ -22,7 +22,7 @@
         "@tailwindcss/vite": "^4.1.16",
         "@tanstack/vue-table": "^8.21.3",
         "@tanstack/vue-virtual": "^3.13.23",
-        "@unyt/datex": "0.0.13",
+        "@unyt/datex": "0.0.15",
         "@unyt/speck": "0.0.12",
         "@vueuse/core": "^14.2.1",
         "ag-grid-community": "^35.0.0",

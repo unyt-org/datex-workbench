@@ -1,5 +1,5 @@
-import type { RuntimeConfig } from '@unyt/datex';
-import { DIF, Runtime } from '@unyt/datex';
+import type { Runtime as RuntimeT, RuntimeConfig, DIF } from '@unyt/datex';
+import { Builtins, Runtime } from './runtime-loader';
 
 export type ComHubMetadata = {
     endpoint: string;
@@ -17,23 +17,22 @@ export type ComHubMetadata = {
 };
 
 const defaultConfig: RuntimeConfig = {
+    endpoint: Builtins.Endpoint.get("@workbench_" + Math.floor(Math.random() * 1000)),
     interfaces: [
         {
             type: 'websocket-client',
             config: {
                 url: 'wss://example.unyt.land',
             },
-        },
-        {
-            type: 'websocket-client',
-            config: {
-                url: 'wss://example.unyt.land',
-            },
+            priority: new Builtins.Tagged("Priority", 1),
         },
     ],
 };
 
-export const Datex: Runtime = await Runtime.create(defaultConfig);
+export const Datex: RuntimeT = await Runtime.create(defaultConfig);
+
+// @ts-expect-error expose Datex globally for debugging purposes
+globalThis.Datex = Datex;
 
 export function getPointers(): Map<string, DIF.Definitions.DIFValueContainer> {
     const values = [
