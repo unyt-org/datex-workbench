@@ -1,0 +1,1 @@
+import{d as e}from"./index-Ce03TFS8.js";import"./preload-helper-BXl3LOEh.js";const r=e({__name:"EnableLocalPatchView",setup(a){const o=new URLSearchParams(window.location.search).get("url");return console.log("url",o),o&&localStorage.setItem("localDatexModuleUrl",o),window.location.href="/",()=>{}}});export{r as default};
