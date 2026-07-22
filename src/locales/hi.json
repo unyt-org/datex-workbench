@@ -85,7 +85,7 @@
         "notSigned": "अहस्ताक्षरित"
     },
     "trace": {
-        "endpoint": "@एंडपॉइंट",
+        "endpoint": "\\@एंडपॉइंट",
         "timeout": "टाइमआउट (ms)",
         "trace": "ट्रेस",
         "tracing": "ट्रेस कर रहा है...",
@@ -153,6 +153,6 @@
     "comhub": {
         "advancedMode": "उन्नत मोड",
         "groupByEndpoint": "एंडपॉइंट के अनुसार समूहित करें",
-        "searchPlaceholder": "खोजें (जैसे @उदाहरण)"
+        "searchPlaceholder": "खोजें (जैसे \\@उदाहरण)"
     }
 }

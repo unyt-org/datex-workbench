@@ -85,7 +85,7 @@
         "notSigned": "Nicht signiert"
     },
     "trace": {
-        "endpoint": "@endpunkt",
+        "endpoint": "\\@endpunkt",
         "timeout": "Zeitüberschreitung (ms)",
         "trace": "Verfolgen",
         "tracing": "Verfolgt...",
@@ -153,6 +153,6 @@
     "comhub": {
         "advancedMode": "Erweiterter Modus",
         "groupByEndpoint": "Nach Endpunkt gruppieren",
-        "searchPlaceholder": "Suchen (z. B. @beispiel)"
+        "searchPlaceholder": "Suchen (z. B. \\@beispiel)"
     }
 }
