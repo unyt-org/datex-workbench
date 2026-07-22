@@ -1,0 +1,1 @@
+class a{constructor(){Object.defineProperty(this,"type",{enumerable:!0,configurable:!0,writable:!0,value:"node"})}readTextFile(e){return(void 0)(e,{encoding:"utf-8"})}readFile(e){return(void 0)(e)}async instantiateWebAssembly(e,t){const n=await(void 0)(e);return await WebAssembly.instantiate(n,t)}}export{a as default};
