@@ -1,0 +1,1 @@
+import{createContext as t}from"../../../node_modules/reka-ui/dist/shared/createContext-BPYydoRU.js";const o="sidebar_state",r=3600*24*7,_="16rem",E="3rem",I="b",[s,A]=t("Sidebar");export{r as SIDEBAR_COOKIE_MAX_AGE,o as SIDEBAR_COOKIE_NAME,I as SIDEBAR_KEYBOARD_SHORTCUT,_ as SIDEBAR_WIDTH,E as SIDEBAR_WIDTH_ICON,A as provideSidebarContext,s as useSidebar};

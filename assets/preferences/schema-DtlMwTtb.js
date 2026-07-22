@@ -1,0 +1,1 @@
+const e={appearance:{theme:"system",highContrast:!1,reduceMotion:!1},language:{locale:"en"},editor:{fontSize:14,showLineNumbers:!0}},t="datex-workbench-preferences";export{e as DEFAULT_PREFERENCES,t as STORAGE_KEY};

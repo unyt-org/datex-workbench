@@ -1,0 +1,1 @@
+import{defineComponent as e}from"../../node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler-Blnnrc39.js";const t=e({__name:"EnableLocalPatchView",setup(a){const o=new URLSearchParams(window.location.search).get("url");return console.log("url",o),o&&localStorage.setItem("localDatexModuleUrl",o),window.location.href="/",()=>{}}});export{t as default};
