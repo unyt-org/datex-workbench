@@ -49,8 +49,8 @@ async function autoTrace() {
         const endpoints = new Set<string>();
         for (const iface of metadata.interfaces ?? []) {
             for (const socket of iface.sockets ?? []) {
-                if (socket.endpoint && socket.endpoint !== '@@local') {
-                    endpoints.add(socket.endpoint);
+                if (socket.endpoint && socket.endpoint.toString() !== '@@local') {
+                    endpoints.add(socket.endpoint.toString());
                 }
             }
         }

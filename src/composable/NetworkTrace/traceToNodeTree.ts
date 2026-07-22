@@ -1,24 +1,26 @@
 import type { NodeTree, Node, Edge } from '@/types/NodeTree/node-tree.ts';
+import type { Builtins } from '@unyt/datex';
+
 
 interface TraceHop {
-    endpoint: string;
+    endpoint: Builtins.Endpoint;
     distance: number;
     socket: {
         interface_type: string;
-        interface_name: string;
+        interface_name: string|null;
         channel: string;
         socket_uuid: string;
     };
-    direction: 'Incoming' | 'Outgoing';
+    direction: Builtins.Tagged<"Incoming"> | Builtins.Tagged<"Outgoing">;
     fork_nr: string;
     bounce_back: boolean;
 }
 
 interface TraceResult {
-    sender: string;
-    receiver: string;
+    sender: Builtins.Endpoint;
+    receiver: Builtins.Endpoint;
     hops: TraceHop[];
-    round_trip_time: number;
+    round_trip_time: unknown|number;
 }
 
 function generateId(): string {
@@ -44,13 +46,13 @@ export function traceToNodeTree(trace: TraceResult, existing?: NodeTree): NodeTr
     // Process each hop
     for (const hop of trace.hops) {
         // Get or create node for this endpoint
-        if (!endpointNodeMap.has(hop.endpoint)) {
+        if (!endpointNodeMap.has(hop.endpoint.toString())) {
             const nodeId = generateId();
-            endpointNodeMap.set(hop.endpoint, nodeId);
+            endpointNodeMap.set(hop.endpoint.toString(), nodeId);
 
             const newNode: Node = {
                 id: nodeId,
-                name: hop.endpoint,
+                name: hop.endpoint.toString(),
                 position: {
                     x: 100 + nodes.length * 300,
                     y: 100 + nodes.length * 100,
@@ -61,7 +63,7 @@ export function traceToNodeTree(trace: TraceResult, existing?: NodeTree): NodeTr
         }
 
         // Get or create field for this socket
-        const nodeId = endpointNodeMap.get(hop.endpoint)!;
+        const nodeId = endpointNodeMap.get(hop.endpoint.toString())!;
         const node = nodes.find((n) => n.id === nodeId)!;
 
         const socketKey = hop.socket.socket_uuid;
@@ -71,15 +73,15 @@ export function traceToNodeTree(trace: TraceResult, existing?: NodeTree): NodeTr
             node.fields.push({
                 id: socketKey,
                 name: hop.socket.interface_name,
-                in: hop.direction === 'Incoming',
-                out: hop.direction === 'Outgoing',
+                in: hop.direction.tag === 'Incoming',
+                out: hop.direction.tag === 'Outgoing',
             });
         }
     }
 
     // Create edges between outgoing and incoming hops with same socket
-    const outgoing = trace.hops.filter((h) => h.direction === 'Outgoing');
-    const incoming = trace.hops.filter((h) => h.direction === 'Incoming');
+    const outgoing = trace.hops.filter((h) => h.direction.tag === 'Outgoing');
+    const incoming = trace.hops.filter((h) => h.direction.tag === 'Incoming');
 
     for (const out of outgoing) {
         // Find matching incoming hop (different endpoint, same channel)
@@ -90,8 +92,8 @@ export function traceToNodeTree(trace: TraceResult, existing?: NodeTree): NodeTr
 
         const srcFieldId = socketFieldMap.get(out.socket.socket_uuid);
         const tgtFieldId = socketFieldMap.get(match.socket.socket_uuid);
-        const srcNodeId = endpointNodeMap.get(out.endpoint);
-        const tgtNodeId = endpointNodeMap.get(match.endpoint);
+        const srcNodeId = endpointNodeMap.get(out.endpoint.toString());
+        const tgtNodeId = endpointNodeMap.get(match.endpoint.toString());
 
         if (!srcFieldId || !tgtFieldId || !srcNodeId || !tgtNodeId) continue;
 

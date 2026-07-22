@@ -12,7 +12,7 @@ export interface Node<NodeMetaData = unknown> {
 
 export interface NodeField<NodeMetaData = unknown> {
     id: string;
-    name?: string;
+    name?: string | null;
     in: boolean;
     out: boolean;
     data?: NodeMetaData;
