@@ -1,17 +1,16 @@
 import type { NodeTree, Node, Edge } from '@/types/NodeTree/node-tree.ts';
 import type { Builtins } from '@unyt/datex';
 
-
 interface TraceHop {
     endpoint: Builtins.Endpoint;
     distance: number;
     socket: {
         interface_type: string;
-        interface_name: string|null;
+        interface_name: string | null;
         channel: string;
         socket_uuid: string;
     };
-    direction: Builtins.Tagged<"Incoming"> | Builtins.Tagged<"Outgoing">;
+    direction: Builtins.Tagged<'Incoming'> | Builtins.Tagged<'Outgoing'>;
     fork_nr: string;
     bounce_back: boolean;
 }
@@ -20,7 +19,7 @@ interface TraceResult {
     sender: Builtins.Endpoint;
     receiver: Builtins.Endpoint;
     hops: TraceHop[];
-    round_trip_time: unknown|number;
+    round_trip_time: unknown | number;
 }
 
 function generateId(): string {
