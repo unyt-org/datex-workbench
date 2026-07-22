@@ -10,9 +10,15 @@ import { useI18n } from 'vue-i18n';
 import { useColorMode } from '@vueuse/core';
 import { Moon, Sun } from 'lucide-vue-next';
 import { watch } from 'vue';
+import { usePreferences } from '@/preferences';
 
 const { t } = useI18n();
 const mode = useColorMode();
+const { preferences } = usePreferences();
+
+function setTheme(theme: 'system' | 'light' | 'dark') {
+    preferences.appearance.theme = theme;
+}
 
 // on color mode change, update the meta theme-color
 watch(
@@ -46,9 +52,9 @@ watch(
             </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent class="no-drag ml-2">
-            <DropdownMenuItem @click="mode = 'light'"> {{ t('theme.light') }} </DropdownMenuItem>
-            <DropdownMenuItem @click="mode = 'dark'"> {{ t('theme.dark') }} </DropdownMenuItem>
-            <DropdownMenuItem @click="mode = 'auto'"> {{ t('theme.system') }} </DropdownMenuItem>
+            <DropdownMenuItem @click="setTheme('light')"> {{ t('theme.light') }} </DropdownMenuItem>
+            <DropdownMenuItem @click="setTheme('dark')"> {{ t('theme.dark') }} </DropdownMenuItem>
+            <DropdownMenuItem @click="setTheme('system')"> {{ t('theme.system') }} </DropdownMenuItem>
         </DropdownMenuContent>
     </DropdownMenu>
 </template>

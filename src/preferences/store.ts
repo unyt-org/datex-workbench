@@ -67,6 +67,16 @@ watch(
     (next) => applyTheme(next),
 );
 
+watch(
+    () => mode.value,
+    (next) => {
+        const mapped = next === 'auto' ? 'system' : next;
+        if (preferences.appearance.theme !== mapped) {
+            preferences.appearance.theme = mapped;
+        }
+    },
+);
+
 // Locale: preferences.language.locale → i18n + document.documentElement.lang
 function applyLocale(locale: Preferences['language']['locale']) {
     setLocale(locale); // already updates i18n + localStorage + html lang
