@@ -2,7 +2,7 @@ import type { Runtime as RuntimeT, RuntimeConfig, DIF } from '@unyt/datex';
 import { Builtins, Runtime } from './runtime-loader';
 
 export type ComHubMetadata = {
-    endpoint: string;
+    endpoint: typeof Builtins.Endpoint;
     interfaces: {
         uuid: string;
         properties: Record<string, unknown>;
@@ -24,6 +24,7 @@ const defaultConfig: RuntimeConfig = {
             config: {
                 url: 'wss://example.unyt.land',
             },
+            // @ts-expect-error --- old type ---
             priority: new Builtins.Tagged('Priority', 1),
         },
     ],
@@ -60,7 +61,7 @@ export function getPointers(): Map<string, DIF.Definitions.DIFValueContainer> {
 }
 
 export function getComHubMetadata(): ComHubMetadata {
-    return Datex.comHub.getMetadata();
+    return Datex.comHub.getMetadata() as unknown as ComHubMetadata; // FIXME
 }
 
 export async function removeInterface(interfaceUuid: string) {

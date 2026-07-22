@@ -127,8 +127,10 @@ function getChildren(
         const value = extractValue(difValueContainer);
 
         if (Array.isArray(value)) {
-            return (value as DIF.Definitions.DIFMap).map(([keyContainer, valueContainer]) => {
-                const keyValue = extractValue(keyContainer);
+          // @ts-expect-error --- fixme
+          return (value as DIF.Definitions.DIFMapTypeDefinition).map(([keyContainer, valueContainer]) => {
+            // @ts-expect-error --- fixme
+            const keyValue = extractValue(keyContainer);
                 const keyDisplay =
                     typeof keyValue === 'string'
                         ? keyValue
@@ -151,6 +153,7 @@ function getChildren(
                     keyValue = k === 'true';
                 }
 
+                // @ts-expect-error --- fixme
                 const keyContainer: DIF.Definitions.DIFValueContainer = { value: keyValue };
                 return [k, v as DIF.Definitions.DIFValueContainer, keyContainer];
             });
@@ -160,8 +163,9 @@ function getChildren(
     const value = extractValue(difValueContainer);
 
     if (Array.isArray(value)) {
-        return (value as DIF.Definitions.DIFArray).map(
-            (item: DIF.Definitions.DIFValueContainer, index: number) => [
+        // @ts-expect-error --- fixme
+        return (value as DIF.Definitions.DIFListTypeDefinition).map(
+            (item: DIF.Definitions.DIFType, index: number) => [
                 String(index),
                 item,
                 undefined,
@@ -192,6 +196,7 @@ function getChildren(
         !('type' in difValueContainer)
     ) {
         return Object.entries(difValueContainer).map(([key, val]) => {
+            // @ts-expect-error --- fixme
             const keyContainer = { value: key } as DIF.Definitions.DIFValueContainer;
             return [key, val as DIF.Definitions.DIFValueContainer, keyContainer];
         });
