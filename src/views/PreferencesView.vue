@@ -151,18 +151,13 @@ function confirmResetAll() {
                             </div>
                         </div>
                         <div class="flex items-center">
-                          <input
-                            v-model="datexRuntimePatchUrl"
-                            type="text"
-                            placeholder="Enter URL to DATEX Runtime patch"
-                            :class="`bg-background border border-border rounded-md px-3 py-1.5 text-sm text-foreground w-70 ${localDatexModuleUrlFailed ? 'border-rose-500' : ''}`"
-                          />
-                          <Button
-                              class="ml-2"
-                              @click="saveDatexRuntimePatchUrl"
-                          >
-                              Save
-                          </Button>
+                            <input
+                                v-model="datexRuntimePatchUrl"
+                                type="text"
+                                placeholder="Enter URL to DATEX Runtime patch"
+                                :class="`bg-background border border-border rounded-md px-3 py-1.5 text-sm text-foreground w-70 ${localDatexModuleUrlFailed ? 'border-rose-500' : ''}`"
+                            />
+                            <Button class="ml-2" @click="saveDatexRuntimePatchUrl"> Save </Button>
                         </div>
                     </div>
                 </div>

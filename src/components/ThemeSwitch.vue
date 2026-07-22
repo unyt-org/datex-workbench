@@ -54,7 +54,9 @@ watch(
         <DropdownMenuContent class="no-drag ml-2">
             <DropdownMenuItem @click="setTheme('light')"> {{ t('theme.light') }} </DropdownMenuItem>
             <DropdownMenuItem @click="setTheme('dark')"> {{ t('theme.dark') }} </DropdownMenuItem>
-            <DropdownMenuItem @click="setTheme('system')"> {{ t('theme.system') }} </DropdownMenuItem>
+            <DropdownMenuItem @click="setTheme('system')">
+                {{ t('theme.system') }}
+            </DropdownMenuItem>
         </DropdownMenuContent>
     </DropdownMenu>
 </template>

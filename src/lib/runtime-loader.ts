@@ -1,20 +1,18 @@
-const localModuleUrl = localStorage.getItem("localDatexModuleUrl");
+const localModuleUrl = localStorage.getItem('localDatexModuleUrl');
 
-
-let mod: typeof import("@unyt/datex");
+let mod: typeof import('@unyt/datex');
 
 if (localModuleUrl) {
     try {
-      mod = await import(localModuleUrl) as typeof import("@unyt/datex");
-      localStorage.removeItem("localDatexModuleUrlFailed");
-    }
-    catch (error) {
-      console.error(`Failed to load local module from ${localModuleUrl}:`, error);
-      localStorage.setItem("localDatexModuleUrlFailed", "true");
-      mod = await import("@unyt/datex");
+        mod = (await import(localModuleUrl)) as typeof import('@unyt/datex');
+        localStorage.removeItem('localDatexModuleUrlFailed');
+    } catch (error) {
+        console.error(`Failed to load local module from ${localModuleUrl}:`, error);
+        localStorage.setItem('localDatexModuleUrlFailed', 'true');
+        mod = await import('@unyt/datex');
     }
 } else {
-    mod = await import("@unyt/datex");
+    mod = await import('@unyt/datex');
 }
 
 // re-export everything from the module

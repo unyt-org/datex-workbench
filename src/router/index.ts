@@ -78,10 +78,10 @@ const router = createRouter({
             component: () => import('@/views/PreferencesView.vue'),
         },
         {
-          path: '/enable-local-patch',
-          name: 'enable-local-patch',
-          component: () => import('@/views/Development/EnableLocalPatchView.vue'),
-        }
+            path: '/enable-local-patch',
+            name: 'enable-local-patch',
+            component: () => import('@/views/Development/EnableLocalPatchView.vue'),
+        },
     ],
 });
 
