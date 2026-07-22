@@ -1,6 +1,6 @@
 import PointerView from '@/components/PointerView.vue';
 import { getPointers } from '@/lib/runtime';
-import WindowGeneralView from '@/views/WindowGeneralView.vue';
+// import WindowGeneralView from '@/views/WindowGeneralView.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import WelcomeView from '../views/WelcomeView.vue';
 import DatexRepl from '@/views/Repl/DatexRepl.vue';
@@ -37,11 +37,11 @@ const router = createRouter({
         //     name: 'editor',
         //     component: () => import('@/views/Editor/EditorViewWrapper.vue'),
         // },
-        {
-            path: '/windows',
-            name: 'Editor',
-            component: WindowGeneralView,
-        },
+        // {
+        //     path: '/windows',
+        //     name: 'Editor',
+        //     component: WindowGeneralView,
+        // },
         {
             path: '/comhub',
             name: 'comhub-overview',

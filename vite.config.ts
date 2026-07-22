@@ -48,4 +48,15 @@ export default defineConfig({
             '@': fileURLToPath(new URL('./src', import.meta.url)),
         },
     },
+    // FIXME!: remove this. Currently we cannot bundle the @unyt/datex module with rollup due to some
+    // circular dependency issues. This is a temporary workaround!
+    build: {
+        rollupOptions: {
+            preserveEntrySignatures: 'strict',
+            output: {
+                preserveModules: true,
+                preserveModulesRoot: 'src',
+            },
+        },
+    },
 });
