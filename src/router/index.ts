@@ -77,6 +77,11 @@ const router = createRouter({
             name: 'preferences',
             component: () => import('@/views/PreferencesView.vue'),
         },
+        {
+          path: '/enable-local-patch',
+          name: 'enable-local-patch',
+          component: () => import('@/views/Development/EnableLocalPatchView.vue'),
+        }
     ],
 });
 

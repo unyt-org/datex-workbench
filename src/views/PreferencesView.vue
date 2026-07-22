@@ -2,14 +2,36 @@
 import { ref } from 'vue';
 import { usePreferences } from '@/preferences';
 import { RotateCcw, AlertTriangle } from 'lucide-vue-next';
+import Button from '@/components/ui/button/Button.vue';
 
 const { preferences, resetSection, resetAll } = usePreferences();
 
 const showResetAllConfirm = ref(false);
 
+const datexRuntimePatchUrl = ref(localStorage.getItem('localDatexModuleUrl') || '');
+const localDatexModuleUrlFailed = localStorage.getItem('localDatexModuleUrlFailed') === 'true';
+
+function saveDatexRuntimePatchUrl() {
+    if (datexRuntimePatchUrl.value) {
+        localStorage.setItem('localDatexModuleUrl', datexRuntimePatchUrl.value);
+    } else {
+        localStorage.removeItem('localDatexModuleUrl');
+    }
+    // reload the page to apply the new patch
+    window.location.reload();
+}
+
 function confirmResetAll() {
     resetAll();
     showResetAllConfirm.value = false;
+    // reset the datexRuntimePatchUrl to the current value in localStorage
+    const localPatchWasSet = !!datexRuntimePatchUrl.value;
+    localStorage.removeItem('localDatexModuleUrl');
+    localStorage.removeItem('localDatexModuleUrlFailed');
+    if (localPatchWasSet) {
+        // reload the page to apply the reset
+        window.location.reload();
+    }
 }
 </script>
 
@@ -114,47 +136,34 @@ function confirmResetAll() {
                 </div>
             </section>
 
-            <!-- Editor -->
+            <!-- Advanced -->
             <section class="rounded-xl border border-border bg-card p-6">
                 <header class="mb-4 flex items-center justify-between">
-                    <h2 class="text-lg font-medium text-foreground">Editor</h2>
-                    <button
-                        class="text-xs text-muted-foreground hover:text-foreground transition"
-                        @click="resetSection('editor')"
-                    >
-                        Reset
-                    </button>
+                    <h2 class="text-lg font-medium text-foreground">Advanced</h2>
                 </header>
 
                 <div class="space-y-4">
                     <div class="flex items-center justify-between">
                         <div>
-                            <div class="text-sm text-foreground">Font size</div>
+                            <div class="text-sm text-foreground">DATEX Runtime patch</div>
                             <div class="text-xs text-muted-foreground">
-                                Editor text size in pixels
+                                URL to a DATEX Runtime patch
                             </div>
                         </div>
-                        <input
-                            v-model.number="preferences.editor.fontSize"
-                            type="number"
-                            min="10"
-                            max="24"
-                            class="bg-background border border-border rounded-md px-3 py-1.5 text-sm text-foreground w-20"
-                        />
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <div class="text-sm text-foreground">Show line numbers</div>
-                            <div class="text-xs text-muted-foreground">
-                                Display line numbers in the editor
-                            </div>
+                        <div class="flex items-center">
+                          <input
+                            v-model="datexRuntimePatchUrl"
+                            type="text"
+                            placeholder="Enter URL to DATEX Runtime patch"
+                            :class="`bg-background border border-border rounded-md px-3 py-1.5 text-sm text-foreground w-70 ${localDatexModuleUrlFailed ? 'border-rose-500' : ''}`"
+                          />
+                          <Button
+                              class="ml-2"
+                              @click="saveDatexRuntimePatchUrl"
+                          >
+                              Save
+                          </Button>
                         </div>
-                        <input
-                            v-model="preferences.editor.showLineNumbers"
-                            type="checkbox"
-                            class="size-4 accent-primary cursor-pointer"
-                        />
                     </div>
                 </div>
             </section>
@@ -162,7 +171,7 @@ function confirmResetAll() {
             <!-- Reset all confirmation -->
             <div
                 v-if="showResetAllConfirm"
-                class="fixed inset-0 z-50 flex items-center justify-center bg-background/80"
+                class="absolute inset-0 z-50 flex items-center justify-center bg-background/80"
                 @click.self="showResetAllConfirm = false"
             >
                 <div class="rounded-xl border border-border bg-card p-6 max-w-sm shadow-lg">
@@ -186,7 +195,7 @@ function confirmResetAll() {
                             Cancel
                         </button>
                         <button
-                            class="rounded-md bg-red-600 hover:bg-red-700 px-3 py-1.5 text-xs text-white transition"
+                            class="rounded-md bg-rose-600 hover:bg-rose-700 px-3 py-1.5 text-xs text-white transition"
                             @click="confirmResetAll"
                         >
                             Reset all

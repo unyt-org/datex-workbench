@@ -22,7 +22,7 @@ const features = [{ key: 'network.title' }, { key: 'nav.block' }, { key: 'nav.no
             </div>
             <div class="mb-4">
                 <span class="text-foreground">{{ t('about.endpoint') }}: </span>
-                <span class="text-muted-foreground">{{ Datex.endpoint }}</span>
+                <span class="text-muted-foreground">{{ Datex.endpoint.toString() }}</span>
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
