@@ -33,7 +33,7 @@ const navigate = (path: string) => {
     <!-- For Collapse -->
     <!-- :class="[isCollapsed ? 'w-0' : 'w-16']" -->
     <aside
-        class="bg-transparent relative flex h-full flex-col border-r transition-all duration-300 ease-in-out select-none w-16"
+        class="bg-transparent relative z-30 flex h-full w-16 flex-col border-r transition-all duration-300 ease-in-out select-none"
     >
         <!-- Button for Collapsing SideBar -->
         <!-- <button
@@ -48,7 +48,7 @@ const navigate = (path: string) => {
         <!-- For Collapse -->
         <!-- :class="[isCollapsed ? 'pointer-events-none opacity-0' : 'opacity-100']" -->
         <div
-            class="flex flex-col items-center wco-container transition-opacity duration-200 h-full min-h-0 overflow-y-auto"
+            class="flex h-full min-h-0 flex-col items-center overflow-visible transition-opacity duration-200 wco-container"
         >
             <div
                 class="group relative flex w-full cursor-pointer items-center justify-center py-2"
@@ -71,7 +71,7 @@ const navigate = (path: string) => {
                 </div>
 
                 <div
-                    class="card invisible absolute left-14 z-50 m-0 ml-2 whitespace-nowrap px-3 py-1.5 text-xs font-mono shadow-xl group-hover:visible"
+                    class="card invisible absolute left-14 z-999 m-0 ml-2 whitespace-nowrap px-3 py-1.5 text-xs font-mono shadow-xl group-hover:visible"
                 >
                     {{ t('nav.welcome') }}
                     <div
@@ -109,7 +109,7 @@ const navigate = (path: string) => {
                         </div>
 
                         <div
-                            class="card invisible absolute left-14 z-50 m-0 ml-2 whitespace-nowrap px-3 py-1.5 text-xs font-mono shadow-xl group-hover:visible"
+                            class="card invisible absolute left-14 z-999 m-0 ml-2 whitespace-nowrap px-3 py-1.5 text-xs font-mono shadow-xl group-hover:visible"
                         >
                             {{ t(element.key) }}
 
@@ -143,7 +143,7 @@ const navigate = (path: string) => {
                     </div>
 
                     <div
-                        class="card invisible absolute left-14 z-50 m-0 ml-2 whitespace-nowrap px-3 py-1.5 text-xs font-mono shadow-xl group-hover:visible"
+                        class="card invisible absolute left-14 z-999 m-0 ml-2 whitespace-nowrap px-3 py-1.5 text-xs font-mono shadow-xl group-hover:visible"
                     >
                         {{ t('nav.preferences') }}
 
