@@ -85,13 +85,13 @@
         "notSigned": "Nicht signiert"
     },
     "trace": {
-        "endpoint": "\\@endpunkt",
+        "endpoint": "\\@endpoint",
         "timeout": "Zeitüberschreitung (ms)",
         "trace": "Verfolgen",
         "tracing": "Verfolgt...",
         "autoTrace": "Auto-Verfolgen",
         "autoTracing": "Auto-Verfolgt...",
-        "endpointUnreachable": "Endpunkt nicht erreichbar",
+        "endpointUnreachable": "Endpoint nicht erreichbar",
         "tracePlaceholder": "Sende eine Verfolgung, um den Netzwerkpfad zu visualisieren"
     },
     "collection": {
@@ -111,13 +111,13 @@
         "title": "Über",
         "datexVersion": "DATEX-Version",
         "jsVersion": "JS-Version",
-        "endpoint": "Endpunkt",
+        "endpoint": "Endpoint",
         "activeFeatures": "Aktive Funktionen"
     },
     "endpoint": {
         "fingerprint": "Fingerabdruck",
         "publicInterfaces": "Öffentliche Schnittstellen",
-        "noPublicInterfaces": "Dieser Endpunkt stellt keine öffentlichen Schnittstellen bereit.",
+        "noPublicInterfaces": "Dieser Endpoint stellt keine öffentlichen Schnittstellen bereit.",
         "channel": "Kanal",
         "direction": "Richtung",
         "maxBandwidth": "Max. Bandbreite",
@@ -152,7 +152,7 @@
     },
     "comhub": {
         "advancedMode": "Erweiterter Modus",
-        "groupByEndpoint": "Nach Endpunkt gruppieren",
+        "groupByEndpoint": "Nach Endpoint gruppieren",
         "searchPlaceholder": "Suchen (z. B. \\@beispiel)"
     }
 }
