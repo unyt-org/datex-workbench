@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { RouterLink } from 'vue-router';
 import { RouterView } from 'vue-router';
 import { Datex } from './lib/runtime';
-import { InfoIcon } from 'lucide-vue-next';
+import { InfoIcon, TriangleAlert } from 'lucide-vue-next';
 
 const localPatch = localStorage.getItem('localDatexModuleUrl');
 
@@ -49,7 +49,7 @@ const version = Datex.js_version;
 
         <div v-if="localDatexModuleUrlFailed">
           <RouterLink :to="{ name: 'preferences' }" class="absolute top-5 right-5 bg-rose-400/80 px-2 py-1 rounded text-sm z-50 flex items-center">
-            <InfoIcon class="inline-block size-4 mr-1" />
+            <TriangleAlert class="inline-block size-4 mr-1" />
             <span>Failed to load <b>datex-web {{ version }}</b> from {{ localPatchHost }}</span>
           </RouterLink>
           <div class="w-screen h-screen border-2 border-rose-400 absolute left-0 top-0 pointer-events-none"></div>
