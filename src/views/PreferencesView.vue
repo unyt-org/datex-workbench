@@ -16,6 +16,7 @@ function saveDatexRuntimePatchUrl() {
         localStorage.setItem('localDatexModuleUrl', datexRuntimePatchUrl.value);
     } else {
         localStorage.removeItem('localDatexModuleUrl');
+        localStorage.removeItem('localDatexModuleUrlFailed');
     }
     // reload the page to apply the new patch
     window.location.reload();
