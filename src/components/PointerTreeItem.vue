@@ -127,20 +127,22 @@ function getChildren(
         const value = extractValue(difValueContainer);
 
         if (Array.isArray(value)) {
-          // @ts-expect-error --- fixme
-          return (value as DIF.Definitions.DIFMapTypeDefinition).map(([keyContainer, valueContainer]) => {
             // @ts-expect-error --- fixme
-            const keyValue = extractValue(keyContainer);
-                const keyDisplay =
-                    typeof keyValue === 'string'
-                        ? keyValue
-                        : typeof keyValue === 'number'
-                          ? String(keyValue)
-                          : typeof keyValue === 'boolean'
-                            ? String(keyValue)
-                            : JSON.stringify(keyValue);
-                return [keyDisplay, valueContainer, keyContainer];
-            });
+            return (value as DIF.Definitions.DIFMapTypeDefinition).map(
+                ([keyContainer, valueContainer]) => {
+                    // @ts-expect-error --- fixme
+                    const keyValue = extractValue(keyContainer);
+                    const keyDisplay =
+                        typeof keyValue === 'string'
+                            ? keyValue
+                            : typeof keyValue === 'number'
+                              ? String(keyValue)
+                              : typeof keyValue === 'boolean'
+                                ? String(keyValue)
+                                : JSON.stringify(keyValue);
+                    return [keyDisplay, valueContainer, keyContainer];
+                },
+            );
         }
 
         if (typeof value === 'object' && value !== null) {
@@ -165,11 +167,7 @@ function getChildren(
     if (Array.isArray(value)) {
         // @ts-expect-error --- fixme
         return (value as DIF.Definitions.DIFListTypeDefinition).map(
-            (item: DIF.Definitions.DIFType, index: number) => [
-                String(index),
-                item,
-                undefined,
-            ],
+            (item: DIF.Definitions.DIFType, index: number) => [String(index), item, undefined],
         );
     }
 
