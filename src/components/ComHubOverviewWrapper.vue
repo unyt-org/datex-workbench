@@ -114,7 +114,7 @@ export interface ComHubSocket {
     direction: string;
     endpoint: string;
     properties: {
-        known_since: number;
+        known_since: bigint;
         distance: number;
         is_direct: boolean;
         channel_factor: number;

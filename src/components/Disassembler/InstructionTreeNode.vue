@@ -118,7 +118,7 @@ function toggle() {
             :key="idx"
             class="tree-indent"
             :class="{ 'has-line': !isParentLast }"
-        />
+        ></span>
         <span v-if="depth > 0" class="tree-junction leaf" :class="{ 'is-last': isLast }" />
         <InstructionLabel :name="parts.name" :meta="parts.meta" />
     </div>
@@ -180,6 +180,7 @@ function toggle() {
 }
 /* Leaf junction — no expand box, just line */
 .tree-junction.leaf {
+    width: 31px;
     pointer-events: none;
 }
 

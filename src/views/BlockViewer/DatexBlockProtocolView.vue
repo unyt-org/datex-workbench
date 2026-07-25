@@ -12,7 +12,6 @@ const props = defineProps<{
 }>();
 
 const structureExample = parseStructure(dxbDefinition, props.blockData);
-const emptyDxb = new Uint8Array();
 
 const bodySection = structureExample.find((s) => s.name === 'Body');
 if (bodySection && !bodySection.fields.some((f) => f.name === 'Body')) {
@@ -21,6 +20,8 @@ if (bodySection && !bodySection.fields.some((f) => f.name === 'Body')) {
         bytes: new Uint8Array([0, 0, 0]),
     });
 }
+const bodyDXB = bodySection?.fields[0]!.bytes;
+
 
 const bodySectionDef = dxbDefinition.sections.find((s) => s.name === 'Body');
 if (bodySectionDef && !bodySectionDef.fields.some((f) => f.name === 'Body')) {
@@ -57,9 +58,9 @@ const isBodySelected = computed(() => {
         />
         <!-- Details view: fills remaining height -->
         <DisassemblerView
-            v-if="isBodySelected"
+            v-if="isBodySelected && bodyDXB"
             class="m-1 flex-1 min-h-0 rounded-lg overflow-hidden bg-card"
-            :dxb="emptyDxb"
+            :dxb="bodyDXB"
         />
         <BlockProtocolInfo
             v-else-if="selectedField"

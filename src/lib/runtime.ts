@@ -16,13 +16,16 @@ export type ComHubMetadata = {
     }[];
 };
 
+
+const websocketServerEndpointURL = localStorage.getItem('websocketServerEndpoint') || 'wss://example.unyt.land';
+
 const defaultConfig: RuntimeConfig = {
     endpoint: Builtins.Endpoint.get('@workbench_' + Math.floor(Math.random() * 1000)),
     interfaces: [
         {
             type: 'websocket-client',
             config: {
-                url: 'wss://example.unyt.land',
+                url: websocketServerEndpointURL,
             },
             // @ts-expect-error --- old type ---
             priority: new Builtins.Tagged('Priority', 1),

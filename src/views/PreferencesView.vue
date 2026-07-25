@@ -11,6 +11,8 @@ const showResetAllConfirm = ref(false);
 const datexRuntimePatchUrl = ref(localStorage.getItem('localDatexModuleUrl') || '');
 const localDatexModuleUrlFailed = localStorage.getItem('localDatexModuleUrlFailed') === 'true';
 
+const websocketServerEndpoint = ref(localStorage.getItem('websocketServerEndpoint') || '');
+
 function saveDatexRuntimePatchUrl() {
     if (datexRuntimePatchUrl.value) {
         localStorage.setItem('localDatexModuleUrl', datexRuntimePatchUrl.value);
@@ -19,6 +21,16 @@ function saveDatexRuntimePatchUrl() {
         localStorage.removeItem('localDatexModuleUrlFailed');
     }
     // reload the page to apply the new patch
+    window.location.reload();
+}
+
+function saveWebsocketServerEndpoint() {
+    if (websocketServerEndpoint.value) {
+        localStorage.setItem('websocketServerEndpoint', websocketServerEndpoint.value);
+    } else {
+        localStorage.removeItem('websocketServerEndpoint');
+    }
+    // reload the page to apply the new endpoint
     window.location.reload();
 }
 
@@ -159,6 +171,26 @@ function confirmResetAll() {
                                 :class="`bg-background border border-border rounded-md px-3 py-1.5 text-sm text-foreground w-70 ${localDatexModuleUrlFailed ? 'border-rose-500' : ''}`"
                             />
                             <Button class="ml-2" @click="saveDatexRuntimePatchUrl"> Save </Button>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="space-y-4 mt-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm text-foreground">Websocket Server Endpoint</div>
+                            <div class="text-xs text-muted-foreground">
+                                WebSocket URL to connect to
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <input
+                                v-model="websocketServerEndpoint"
+                                type="text"
+                                placeholder="wss://example.unyt.land"
+                                :class="`bg-background border border-border rounded-md px-3 py-1.5 text-sm text-foreground w-70`"
+                            />
+                            <Button class="ml-2" @click="saveWebsocketServerEndpoint"> Save </Button>
                         </div>
                     </div>
                 </div>

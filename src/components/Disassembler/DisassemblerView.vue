@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, shallowRef } from 'vue';
-import type { InstructionTree, FlatInstruction } from '@/types/disassembler';
+import { ref, computed } from 'vue';
 import InstructionTreeNode from './InstructionTreeNode.vue';
 import InstructionFlatItem from './InstructionFlatItem.vue';
 import { GitFork, List, UnfoldVertical, FoldVertical } from 'lucide-vue-next';
 import DecompilerView from '@/components/Decompiler/DecompilerView.vue';
 import { useI18n } from 'vue-i18n';
+import { Datex } from '@/lib/runtime.ts';
 
 const { t } = useI18n();
 
@@ -13,7 +13,7 @@ const viewType = ref<'disassembler' | 'decompiler'>('disassembler');
 
 type ViewMode = 'tree' | 'flat';
 
-defineProps<{
+const props = defineProps<{
     /** Raw DXB body bytes to disassemble */
     dxb: Uint8Array;
 }>();
@@ -22,23 +22,12 @@ const viewMode = ref<ViewMode>('tree');
 const showNested = ref(true);
 
 // ─── Disassembly ────────────────────────────────────────────
-// TODO: Replace mock data with actual runtime calls once available:
-//   const [treeData, treeError] = Datex.Runtime.disassembleDXBTree(props.dxb)
-//   const [flatData, flatError] = Datex.Runtime.disassembleDXBFlat(props.dxb)
+const treeData = computed(() => Datex.disassembleDXBTree(props.dxb));
+const flatData= computed(() => Datex.disassembleDXBFlat(props.dxb));
 
-const treeData = ref<InstructionTree | null>(null);
-const treeError = ref<string | null>(null);
-const flatData = shallowRef<FlatInstruction[] | null>(null);
-const flatError = ref<string | null>(null);
+console.log("Flat data:", flatData.value, props.dxb);
 
-// Mock data for development — remove when wiring up real runtime
-import { MOCK_TREE, MOCK_FLAT } from '@/Mocks/disassemblerMocks';
-treeData.value = MOCK_TREE[0];
-treeError.value = MOCK_TREE[1];
-flatData.value = MOCK_FLAT[0];
-flatError.value = MOCK_FLAT[1];
-
-const error = computed(() => (viewMode.value === 'tree' ? treeError.value : flatError.value));
+const error = computed(() => (viewMode.value === 'tree' ? treeData.value[1] : flatData.value[1]));
 </script>
 
 <template>
@@ -124,14 +113,14 @@ const error = computed(() => (viewMode.value === 'tree' ? treeError.value : flat
             <!-- Instruction view -->
             <div>
                 <!-- Tree mode -->
-                <template v-if="viewMode === 'tree' && treeData">
-                    <InstructionTreeNode :node="treeData" :show-nested="showNested" />
+                <template v-if="viewMode === 'tree' && treeData[0]">
+                    <InstructionTreeNode :node="treeData[0]" :show-nested="showNested" />
                 </template>
 
                 <!-- Flat mode -->
-                <template v-else-if="viewMode === 'flat' && flatData">
+                <template v-else-if="viewMode === 'flat' && flatData[0]">
                     <InstructionFlatItem
-                        v-for="(inst, i) in flatData"
+                        v-for="(inst, i) in flatData[0]"
                         :key="i"
                         :instruction="inst"
                         :show-nested="showNested"
