@@ -6,6 +6,7 @@
         "nodeDesc": "DATEX नोड ग्राफ़ देखें और संपादित करें",
         "editorDesc": "वर्कबेंच में DATEX फ़ाइलें संपादित करें",
         "replDesc": "इंटरैक्टिव DATEX रनटाइम वातावरण",
+        "aboutDesc": "रनटाइम जानकारी देखें",
         "soon": "जल्द ही",
         "fileEditor": "फ़ाइल संपादक",
         "repl": "REPL"
@@ -39,7 +40,7 @@
     "nav": {
         "welcome": "स्वागत है",
         "block": "ब्लॉक",
-        "network": "नेटवर्क",
+        "networkInspector": "नेटवर्क",
         "nodeView": "नोड दृश्य",
         "networkTree": "नेटवर्क ट्री",
         "collection": "संग्रह",

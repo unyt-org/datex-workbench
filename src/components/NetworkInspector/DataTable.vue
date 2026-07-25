@@ -115,24 +115,29 @@ watch(
             <div class="max-w-sm flex-1">
                 <slot name="filter" />
             </div>
-            <DropdownMenu>
-                <DropdownMenuTrigger as-child>
-                    <Button variant="outline" class="text-foreground border-border ml-auto">
-                        {{ t('network.columns') }} <ChevronDown class="ml-2 h-4 w-4" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuCheckboxItem
-                        v-for="column in table.getAllColumns().filter((c) => c.getCanHide())"
-                        :key="column.id"
-                        class="capitalize"
-                        :model-value="column.getIsVisible()"
-                        @update:model-value="column.toggleVisibility"
-                    >
-                        {{ column.id }}
-                    </DropdownMenuCheckboxItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
+            <div class="flex items-center gap-2">
+              <div>
+                <slot name="actions" />
+              </div>
+              <DropdownMenu>
+                  <DropdownMenuTrigger as-child>
+                      <Button variant="outline" class="text-foreground border-border ml-auto">
+                          {{ t('network.columns') }} <ChevronDown class="ml-2 h-4 w-4" />
+                      </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                      <DropdownMenuCheckboxItem
+                          v-for="column in table.getAllColumns().filter((c) => c.getCanHide())"
+                          :key="column.id"
+                          class="capitalize"
+                          :model-value="column.getIsVisible()"
+                          @update:model-value="column.toggleVisibility"
+                      >
+                          {{ column.id }}
+                      </DropdownMenuCheckboxItem>
+                  </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
         </div>
 
         <!-- Table -->

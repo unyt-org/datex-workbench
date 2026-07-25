@@ -36,7 +36,6 @@ const selectedField = ref<FieldIdentifier | null>(
 );
 
 function handleBytesSectionFieldClick(data: FieldIdentifier | null) {
-  console.log("handleBytesSectionFieldClick", data)
     selectedField.value = data;
 }
 function handleInfoCloseButtonClick() {

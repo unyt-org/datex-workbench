@@ -217,18 +217,19 @@ const isBlockSecure = computed(() => {
                                 :suggestions="searchSuggestions"
                                 :placeholder="t('network.searchPlaceholder')"
                             />
-
-                             <Button
-                                  variant="outline"
-                                  size="icon"
-                                  title="t('network.clearAll')"
-                                  class="text-foreground border-border transition-colors hover:text-red-600"
-                                  :disabled="blocks.length === 0"
-                                  @click="clearBlocks()"
-                              >
-                                  <Trash class="h-4 w-4" />
-                              </Button>
                         </div>
+                    </template>
+                    <template #actions>
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            title="t('network.clearAll')"
+                            class="text-foreground border-border transition-colors hover:text-red-600"
+                            :disabled="blocks.length === 0"
+                            @click="clearBlocks()"
+                        >
+                            <Trash class="h-4 w-4" />
+                        </Button>
                     </template>
                 </DataTable>
             </div>

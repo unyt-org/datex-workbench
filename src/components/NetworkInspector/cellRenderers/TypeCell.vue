@@ -22,12 +22,12 @@ const { t } = useI18n();
             class="font-medium uppercase"
         />
         <TooltipWrapper v-if="!props.isEncrypted" :tooltip="t('network.notEncrypted')">
-            <div class="inline-block cursor-default">
+            <div class="cursor-default flex">
                 <LockOpen class="text-muted-foreground h-4 w-4 line-through" />
             </div>
         </TooltipWrapper>
         <TooltipWrapper v-if="!props.isSigned" :tooltip="t('network.notSigned')">
-            <div class="inline-block cursor-default">
+            <div class="cursor-default flex">
                 <FileX class="text-muted-foreground h-4 w-4" />
             </div>
         </TooltipWrapper>

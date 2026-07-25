@@ -5,6 +5,7 @@
         "networkDesc": "DATEX-Netzwerkblöcke in Echtzeit überwachen und untersuchen",
         "nodeDesc": "Den DATEX-Knotengraphen visualisieren und bearbeiten",
         "editorDesc": "DATEX-Dateien direkt in der Workbench bearbeiten",
+        "aboutDesc": "Runtime-Informationen anzeigen",
         "replDesc": "Interaktive DATEX-Runtime-Umgebung",
         "soon": "Bald",
         "fileEditor": "Datei-Editor",
@@ -38,8 +39,8 @@
     },
     "nav": {
         "welcome": "Willkommen",
-        "block": "Block",
-        "network": "Netzwerk",
+        "block": "Block Viewer",
+        "networkInspector": "Netzwerk-Inspektor",
         "nodeView": "Knotenansicht",
         "networkTree": "Netzwerk-Baum",
         "collection": "Sammlung",
