@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, type ComputedRef } from 'vue';
 import InstructionTreeNode from './InstructionTreeNode.vue';
 import InstructionFlatItem from './InstructionFlatItem.vue';
 import { GitFork, List, UnfoldVertical, FoldVertical } from 'lucide-vue-next';
@@ -25,9 +25,17 @@ const showNested = ref(true);
 const treeData = computed(() => Datex.disassembleDXBTree(props.dxb));
 const flatData= computed(() => Datex.disassembleDXBFlat(props.dxb));
 
-console.log("Flat data:", flatData.value, props.dxb);
-
 const error = computed(() => (viewMode.value === 'tree' ? treeData.value[1] : flatData.value[1]));
+
+let decompiledCode: ComputedRef<string> | string = '';
+try {
+  decompiledCode = computed(() => Datex.decompileDXBBody(props.dxb));
+}
+catch (err) {
+  console.error('Decompiler error:', err);
+  decompiledCode = '// Error during decompilation';
+}
+
 </script>
 
 <template>
@@ -136,7 +144,7 @@ const error = computed(() => (viewMode.value === 'tree' ? treeData.value[1] : fl
 
         <!-- Decompiler view -->
         <div v-else class="flex-1 min-h-0 overflow-y-auto">
-            <DecompilerView />
+            <DecompilerView :code="decompiledCode" />
         </div>
 
         <!-- Error banner -->

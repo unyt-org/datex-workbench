@@ -5,19 +5,7 @@ import NetworkFilter, {
     type SearchSuggestions,
 } from '@/components/NetworkInspector/NetworkFilter.vue';
 import { createColumns } from '@/components/NetworkInspector/columns';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { BLOCK_TYPES } from '@/composable/useBlockSimulator';
 import { useNetworkInspector } from '@/composable/useNetworkInspector';
 import DatexBlockProtocolView from '@/views/BlockViewer/DatexBlockProtocolView.vue';
 import type { NetworkBlockTableRow } from '@/types/NetworkInspector/TableRow';
@@ -29,7 +17,6 @@ import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
 const { t } = useI18n();
 
 const {
-    sendTestBlock,
     blocks,
     displayedBlocks,
     hasMoreBlocks,
@@ -58,16 +45,9 @@ function closeBlockViewer() {
     selectedBlockEntry.value = null;
 }
 
-// Alert dialog state
-const showDeleteDialog = ref(false);
-const deleteMessage = computed(() => {
-    // When search is empty, delete all blocks; otherwise delete filtered blocks
-    const count = searchQuery.value.trim() ? filteredTableRows.value.length : blocks.value.length;
-    return count > 0 ? t('network.deleteMessage', { count }, count) : '';
-});
 
 // Confirm and execute deletion
-function confirmClearBlocks() {
+function clearBlocks() {
     if (searchQuery.value.trim()) {
         // Delete only filtered blocks when searching
         const timestampsToDelete = new Set(filteredTableRows.value.map((row) => row.capturedAt));
@@ -80,8 +60,6 @@ function confirmClearBlocks() {
 
     // Persist changes to localStorage
     saveBlocksToStorage(blocks.value);
-
-    showDeleteDialog.value = false;
 }
 
 // Scroll container ref for maintaining scroll position
@@ -193,12 +171,12 @@ const isBlockSecure = computed(() => {
         <!-- Left panel: block list -->
         <div
             class="flex flex-col p-4 pt-0"
-            :class="selectedBlock ? 'w-1/2 border-r border-border' : 'w-full'"
+            :class="selectedBlock ? 'w-1/2' : 'w-full'"
         >
             <div class="mb-4">
                 <h1 class="mb-3 text-2xl font-bold">{{ t('network.title') }}</h1>
 
-                <!-- Block simulation buttons -->
+               <!--
                 <div class="flex flex-wrap gap-2">
                     <Button
                         v-for="blockType in BLOCK_TYPES"
@@ -212,7 +190,6 @@ const isBlockSecure = computed(() => {
                         {{ blockType.label }}
                     </Button>
 
-                    <!-- Legacy TraceBack button -->
                     <Button
                         @click="sendTestBlock"
                         variant="outline"
@@ -222,7 +199,7 @@ const isBlockSecure = computed(() => {
                     >
                         TraceBack (Legacy)
                     </Button>
-                </div>
+                </div>-->
             </div>
 
             <div ref="scrollContainerRef" class="flex-1 overflow-y-auto">
@@ -240,41 +217,17 @@ const isBlockSecure = computed(() => {
                                 :suggestions="searchSuggestions"
                                 :placeholder="t('network.searchPlaceholder')"
                             />
-                            <AlertDialog v-model:open="showDeleteDialog">
-                                <AlertDialogTrigger as-child>
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        title="t('network.clearAll')"
-                                        class="text-foreground border-border transition-colors hover:text-red-600"
-                                        :disabled="blocks.length === 0"
-                                    >
-                                        <Trash class="h-4 w-4" />
-                                    </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>{{
-                                            t('network.deleteBlocks')
-                                        }}</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            {{ deleteMessage }}
-                                            {{ t('network.deleteConfirm') }}
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>{{
-                                            t('common.cancel')
-                                        }}</AlertDialogCancel>
-                                        <AlertDialogAction
-                                            @click="confirmClearBlocks"
-                                            class="bg-red-600 hover:bg-red-700"
-                                        >
-                                            {{ t('common.delete') }}
-                                        </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
+
+                             <Button
+                                  variant="outline"
+                                  size="icon"
+                                  title="t('network.clearAll')"
+                                  class="text-foreground border-border transition-colors hover:text-red-600"
+                                  :disabled="blocks.length === 0"
+                                  @click="clearBlocks()"
+                              >
+                                  <Trash class="h-4 w-4" />
+                              </Button>
                         </div>
                     </template>
                 </DataTable>
@@ -283,7 +236,7 @@ const isBlockSecure = computed(() => {
 
         <!-- Right panel: block viewer -->
         <div v-if="selectedBlock" class="w-1/2 flex flex-col h-full overflow-y-auto">
-            <div class="flex items-center justify-between px-4 py-2 border-b border-border">
+            <div class="flex items-center justify-between px-4 py-2">
                 <div class="flex items-center gap-2 text-sm font-mono">
                     <span class="text-muted-foreground uppercase">{{
                         selectedBlockEntry?.blockType

@@ -61,8 +61,8 @@
         "failedToLoadExample": "Beispielblock konnte nicht geladen werden"
     },
     "disassembler": {
-        "disassembler": "DISASSEMBLER",
-        "decompiler": "DECOMPILER",
+        "disassembler": "INSTRUCTIONS",
+        "decompiler": "DECOMPILED CODE",
         "tree": "Baum",
         "flat": "Flach",
         "nested": "Verschachtelt",

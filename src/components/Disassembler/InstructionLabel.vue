@@ -7,9 +7,9 @@ defineProps<{
 }>();
 
 const typeColors: Record<string, string> = {
-    STRUCTURE: 'text-blue-400',
-    OPERATION: 'text-yellow-400',
-    VALUE: 'text-green-400',
+    STRUCTURE: 'text-green-400',
+    OPERATION: 'text-purple-400',
+    VALUE: 'text-blue-400',
 };
 
 function getColor(name: string): string {

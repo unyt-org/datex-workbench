@@ -11,13 +11,13 @@ const props = defineProps<{
     blockData: Uint8Array;
 }>();
 
-const structureExample = parseStructure(dxbDefinition, props.blockData);
+const parsedBlock = parseStructure(dxbDefinition, props.blockData);
 
-const bodySection = structureExample.find((s) => s.name === 'Body');
+const bodySection = parsedBlock.find((s) => s.name === 'Body');
 if (bodySection && !bodySection.fields.some((f) => f.name === 'Body')) {
     bodySection.fields.push({
         name: 'Body',
-        bytes: new Uint8Array([0, 0, 0]),
+        bytes: new Uint8Array([]),
     });
 }
 const bodyDXB = bodySection?.fields[0]!.bytes;
@@ -31,9 +31,12 @@ if (bodySectionDef && !bodySectionDef.fields.some((f) => f.name === 'Body')) {
     });
 }
 
-const selectedField = ref<FieldIdentifier | null>(null);
+const selectedField = ref<FieldIdentifier | null>(
+  {sectionIndex: 3, fieldIndex: 0} // Body
+);
 
 function handleBytesSectionFieldClick(data: FieldIdentifier | null) {
+  console.log("handleBytesSectionFieldClick", data)
     selectedField.value = data;
 }
 function handleInfoCloseButtonClick() {
@@ -41,7 +44,7 @@ function handleInfoCloseButtonClick() {
 }
 const isBodySelected = computed(() => {
     if (!selectedField.value) return false;
-    return structureExample[selectedField.value.sectionIndex]?.name === 'Body';
+    return parsedBlock[selectedField.value.sectionIndex]?.name === 'Body';
 });
 </script>
 
@@ -51,7 +54,7 @@ const isBodySelected = computed(() => {
         <BlockProtocolBytes
             class="m-1 rounded-lg overflow-y-auto"
             style="max-height: 40%; flex-shrink: 0"
-            :structure="structureExample"
+            :structure="parsedBlock"
             :structureDef="dxbDefinition"
             :selectedField="selectedField"
             @bytes-section-field-clicked="handleBytesSectionFieldClick"
@@ -65,7 +68,7 @@ const isBodySelected = computed(() => {
         <BlockProtocolInfo
             v-else-if="selectedField"
             class="m-1 flex-1 min-h-0 rounded-lg overflow-y-auto"
-            :structure="structureExample"
+            :structure="parsedBlock"
             :structureDef="dxbDefinition"
             :selectedField="selectedField"
             @close-button-clicked="handleInfoCloseButtonClick"

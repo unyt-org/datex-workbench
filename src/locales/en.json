@@ -61,8 +61,8 @@
         "failedToLoadExample": "Failed to load example block"
     },
     "disassembler": {
-        "disassembler": "DISASSEMBLER",
-        "decompiler": "DECOMPILER",
+        "disassembler": "INSTRUCTIONS",
+        "decompiler": "DECOMPILED CODE",
         "tree": "Tree",
         "flat": "Flat",
         "nested": "Nested",

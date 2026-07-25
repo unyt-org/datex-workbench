@@ -180,7 +180,7 @@ function toggle() {
 }
 /* Leaf junction — no expand box, just line */
 .tree-junction.leaf {
-    width: 31px;
+    width: 34px;
     pointer-events: none;
 }
 
@@ -198,7 +198,7 @@ function toggle() {
 .tree-root-toggle {
     display: inline-flex;
     align-items: center;
-    margin-right: 4px;
+    margin-right: 7px;
     flex-shrink: 0;
 }
 
@@ -209,7 +209,7 @@ function toggle() {
     background: #4b5563;
     flex-shrink: 0;
     margin-left: -1px;
-    margin-right: 4px;
+    margin-right: 7px;
 }
 
 /* ── Expand/Collapse box ── */

@@ -12,3 +12,7 @@ textarea {
 .top-offset {
     padding-top: env(titlebar-area-height, 20px);
 }
+
+::-webkit-scrollbar {
+  display: none;
+}
