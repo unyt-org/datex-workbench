@@ -109,6 +109,7 @@ const allTableRows = computed<NetworkBlockTableRow[]>(() => {
             isSigned: block.signatureType !== 'None' && block.signatureType !== 'Unknown',
             interface: block.interfaceName,
             capturedAt: block.capturedAt,
+            blockId: block.blockId,
         };
     });
 });
@@ -221,15 +222,15 @@ const isBlockSecure = computed(() => {
                     </template>
                     <template #actions>
                         <Button
-                            variant="outline"
-                            size="icon"
-                            title="t('network.clearAll')"
-                            class="text-foreground border-border transition-colors hover:text-red-600"
-                            :disabled="blocks.length === 0"
-                            @click="clearBlocks()"
-                        >
-                            <Trash class="h-4 w-4" />
-                        </Button>
+                              variant="outline"
+                              size="icon"
+                              title="t('network.clearAll')"
+                              class="text-foreground border-border transition-colors hover:text-red-600"
+                              :disabled="blocks.length === 0"
+                              @click="clearBlocks()"
+                          >
+                              <Trash class="h-4 w-4" />
+                          </Button>
                     </template>
                 </DataTable>
             </div>

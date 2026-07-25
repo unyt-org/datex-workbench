@@ -81,6 +81,7 @@
         "columnInterface": "Schnittstelle",
         "columnSender": "Absender",
         "columnReceiver": "Empfänger",
+        "blockId": "Block-ID",
         "columnTime": "Zeit",
         "columnSize": "Größe",
         "columns": "Spalten",

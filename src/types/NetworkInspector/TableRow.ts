@@ -1,3 +1,4 @@
+import type { BlockId } from '@/composable/useNetworkInspector';
 import type { BlockDirection } from './BlockEntry';
 
 export interface NetworkBlockTableRow {
@@ -11,4 +12,5 @@ export interface NetworkBlockTableRow {
     isSigned: boolean;
     interface: string;
     capturedAt: number;
+    blockId: BlockId;
 }

@@ -81,6 +81,7 @@
         "columnInterface": "इंटरफ़ेस",
         "columnSender": "प्रेषक",
         "columnReceiver": "प्राप्तकर्ता",
+        "blockId": "ब्लॉक आईडी",
         "columnTime": "समय",
         "columnSize": "आकार",
         "columns": "कॉलम",

@@ -34,6 +34,7 @@ const props = withDefaults(defineProps<DataTableProps>(), {
     hasMoreData: false,
 });
 
+
 const emit = defineEmits<{
     'load-more': [];
     'row-click': [row: Record<string, unknown>];
@@ -132,6 +133,7 @@ watch(
                           class="capitalize"
                           :model-value="column.getIsVisible()"
                           @update:model-value="column.toggleVisibility"
+                          @select.prevent
                       >
                           {{ column.id }}
                       </DropdownMenuCheckboxItem>

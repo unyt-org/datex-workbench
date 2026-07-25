@@ -81,6 +81,7 @@
         "columnInterface": "Interface",
         "columnSender": "Sender",
         "columnReceiver": "Receiver",
+        "blockId": "Block ID",
         "columnTime": "Time",
         "columnSize": "Size",
         "columns": "Columns",
