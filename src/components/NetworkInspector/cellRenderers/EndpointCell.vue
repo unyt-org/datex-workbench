@@ -10,14 +10,21 @@ const props = defineProps<{
     searchTerms?: string[];
 }>();
 
-const isLocal = computed(() => (props.value == Datex.endpoint || props.value?.toString() === '@@local'));
-
+const isLocal = computed(
+    () => props.value == Datex.endpoint || props.value?.toString() === '@@local',
+);
 </script>
 
 <template>
-    <TooltipWrapper v-if="props.value" :tooltip="props.value.toString() + (isLocal ? ' (local endpoint)' : '')">
+    <TooltipWrapper
+        v-if="props.value"
+        :tooltip="props.value.toString() + (isLocal ? ' (local endpoint)' : '')"
+    >
         <div class="max-w-64 cursor-default truncate" :class="isLocal ? '' : 'text-blue-400'">
-            <HighlightedText :text="props.value.toString()" :searchTerms="props.searchTerms ?? []" />
+            <HighlightedText
+                :text="props.value.toString()"
+                :searchTerms="props.searchTerms ?? []"
+            />
         </div>
     </TooltipWrapper>
     <div v-else class="text-muted-foreground italic">-</div>

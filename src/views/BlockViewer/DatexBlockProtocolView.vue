@@ -22,7 +22,6 @@ if (bodySection && !bodySection.fields.some((f) => f.name === 'Body')) {
 }
 const bodyDXB = bodySection?.fields[0]!.bytes;
 
-
 const bodySectionDef = dxbDefinition.sections.find((s) => s.name === 'Body');
 if (bodySectionDef && !bodySectionDef.fields.some((f) => f.name === 'Body')) {
     bodySectionDef.fields.push({
@@ -32,7 +31,7 @@ if (bodySectionDef && !bodySectionDef.fields.some((f) => f.name === 'Body')) {
 }
 
 const selectedField = ref<FieldIdentifier | null>(
-  {sectionIndex: 3, fieldIndex: 0} // Body
+    { sectionIndex: 3, fieldIndex: 0 }, // Body
 );
 
 function handleBytesSectionFieldClick(data: FieldIdentifier | null) {

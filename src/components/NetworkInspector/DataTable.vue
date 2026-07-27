@@ -34,7 +34,6 @@ const props = withDefaults(defineProps<DataTableProps>(), {
     hasMoreData: false,
 });
 
-
 const emit = defineEmits<{
     'load-more': [];
     'row-click': [row: Record<string, unknown>];
@@ -117,28 +116,28 @@ watch(
                 <slot name="filter" />
             </div>
             <div class="flex items-center gap-2">
-              <div>
-                <slot name="actions" />
-              </div>
-              <DropdownMenu>
-                  <DropdownMenuTrigger as-child>
-                      <Button variant="outline" class="text-foreground border-border ml-auto">
-                          {{ t('network.columns') }} <ChevronDown class="ml-2 h-4 w-4" />
-                      </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                      <DropdownMenuCheckboxItem
-                          v-for="column in table.getAllColumns().filter((c) => c.getCanHide())"
-                          :key="column.id"
-                          class="capitalize"
-                          :model-value="column.getIsVisible()"
-                          @update:model-value="column.toggleVisibility"
-                          @select.prevent
-                      >
-                          {{ column.id }}
-                      </DropdownMenuCheckboxItem>
-                  </DropdownMenuContent>
-              </DropdownMenu>
+                <div>
+                    <slot name="actions" />
+                </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger as-child>
+                        <Button variant="outline" class="text-foreground border-border ml-auto">
+                            {{ t('network.columns') }} <ChevronDown class="ml-2 h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuCheckboxItem
+                            v-for="column in table.getAllColumns().filter((c) => c.getCanHide())"
+                            :key="column.id"
+                            class="capitalize"
+                            :model-value="column.getIsVisible()"
+                            @update:model-value="column.toggleVisibility"
+                            @select.prevent
+                        >
+                            {{ column.id }}
+                        </DropdownMenuCheckboxItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         </div>
 

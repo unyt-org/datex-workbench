@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, type ComputedRef } from 'vue';
-import InstructionTreeNode from './InstructionTreeNode.vue';
-import InstructionFlatItem from './InstructionFlatItem.vue';
-import { GitFork, List, UnfoldVertical, FoldVertical } from 'lucide-vue-next';
 import DecompilerView from '@/components/Decompiler/DecompilerView.vue';
-import { useI18n } from 'vue-i18n';
 import { Datex } from '@/lib/runtime.ts';
+import { FoldVertical, GitFork, List, UnfoldVertical } from 'lucide-vue-next';
+import { computed, ref, type ComputedRef } from 'vue';
+import { useI18n } from 'vue-i18n';
+import InstructionFlatItem from './InstructionFlatItem.vue';
+import InstructionTreeNode from './InstructionTreeNode.vue';
 
 const { t } = useI18n();
 
@@ -23,19 +23,18 @@ const showNested = ref(true);
 
 // ─── Disassembly ────────────────────────────────────────────
 const treeData = computed(() => Datex.disassembleDXBTree(props.dxb));
-const flatData= computed(() => Datex.disassembleDXBFlat(props.dxb));
+const flatData = computed(() => Datex.disassembleDXBFlat(props.dxb));
 
 const error = computed(() => (viewMode.value === 'tree' ? treeData.value[1] : flatData.value[1]));
 
 let decompiledCode: ComputedRef<string> | string = '';
 try {
-  decompiledCode = computed(() => Datex.decompileDXBBody(props.dxb));
+    // @ts-expect-error xxxx
+    decompiledCode = computed(() => Datex.decompileDXBBody(props.dxb));
+} catch (err) {
+    console.error('Decompiler error:', err);
+    decompiledCode = '// Error during decompilation';
 }
-catch (err) {
-  console.error('Decompiler error:', err);
-  decompiledCode = '// Error during decompilation';
-}
-
 </script>
 
 <template>

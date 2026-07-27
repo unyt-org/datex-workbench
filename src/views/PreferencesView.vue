@@ -175,7 +175,7 @@ function confirmResetAll() {
                     </div>
                 </div>
 
-                 <div class="space-y-4 mt-4">
+                <div class="space-y-4 mt-4">
                     <div class="flex items-center justify-between">
                         <div>
                             <div class="text-sm text-foreground">Websocket Server Endpoint</div>
@@ -190,7 +190,9 @@ function confirmResetAll() {
                                 placeholder="wss://example.unyt.land"
                                 :class="`bg-background border border-border rounded-md px-3 py-1.5 text-sm text-foreground w-70`"
                             />
-                            <Button class="ml-2" @click="saveWebsocketServerEndpoint"> Save </Button>
+                            <Button class="ml-2" @click="saveWebsocketServerEndpoint">
+                                Save
+                            </Button>
                         </div>
                     </div>
                 </div>
