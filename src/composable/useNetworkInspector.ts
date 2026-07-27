@@ -94,21 +94,34 @@ function getSignatureType(parsedBlock: ParsedSection[]): string {
         : 'Unknown';
 }
 
-function getBlockId(parsedBlock: ParsedSection[]): { contextId: number; sectionIndex: number; blockNumber: number } {
+function getBlockId(parsedBlock: ParsedSection[]): {
+    contextId: number;
+    sectionIndex: number;
+    blockNumber: number;
+} {
     const blockHeader = parsedBlock.find((section) => section.name === 'Block Header');
     if (!blockHeader) return { contextId: 0, sectionIndex: 0, blockNumber: 0 };
 
     // get Context ID field
     const contextIdField = blockHeader.fields.find((field) => field.name === 'Context ID');
-    const contextId = contextIdField && 'parsedValue' in contextIdField ? Number(contextIdField.parsedValue) || 0 : 0;
+    const contextId =
+        contextIdField && 'parsedValue' in contextIdField
+            ? Number(contextIdField.parsedValue) || 0
+            : 0;
 
     // get Section Index field
     const sectionIndexField = blockHeader.fields.find((field) => field.name === 'Section Index');
-    const sectionIndex = sectionIndexField && 'parsedValue' in sectionIndexField ? Number(sectionIndexField.parsedValue) || 0 : 0;
+    const sectionIndex =
+        sectionIndexField && 'parsedValue' in sectionIndexField
+            ? Number(sectionIndexField.parsedValue) || 0
+            : 0;
 
     // get Block Number field
     const blockNumberField = blockHeader.fields.find((field) => field.name === 'Block Number');
-    const blockNumber = blockNumberField && 'parsedValue' in blockNumberField ? Number(blockNumberField.parsedValue) || 0 : 0;
+    const blockNumber =
+        blockNumberField && 'parsedValue' in blockNumberField
+            ? Number(blockNumberField.parsedValue) || 0
+            : 0;
 
     return { contextId, sectionIndex, blockNumber };
 }
@@ -248,11 +261,7 @@ function sendTestBlock() {
     return Datex.execute('@@local :: 1 + 41');
 }
 
-function handleBlock(
-  block: Uint8Array,
-  socket_uuid: string,
-  direction: 'in' | 'out'
-) {
+function handleBlock(block: Uint8Array, socket_uuid: string, direction: 'in' | 'out') {
     const parsedBlock = parseStructure(definition, block);
 
     // Extract metadata once at capture time
@@ -287,7 +296,6 @@ function handleBlock(
     // TODO: enable via preferences
     // saveBlocksToStorage(blocks.value);
 }
-
 
 Datex.comHub.registerIncomingBlockInterceptor((block: Uint8Array, socket_uuid: string) => {
     handleBlock(block, socket_uuid, 'in');

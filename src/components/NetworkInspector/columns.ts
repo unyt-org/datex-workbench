@@ -91,9 +91,9 @@ export function createColumns(
             header: t('network.columnTime'),
             size: 120,
             cell: ({ row }) =>
-              h(MetadataCell, {
-                  value: row.getValue<string>('timestamp'),
-              }),
+                h(MetadataCell, {
+                    value: row.getValue<string>('timestamp'),
+                }),
         },
         {
             accessorKey: 'size',
@@ -106,7 +106,7 @@ export function createColumns(
                 return h(MetadataCell, {
                     value: formattedSize,
                 });
-            }
+            },
         },
     ];
 }

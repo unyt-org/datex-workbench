@@ -7,6 +7,6 @@ const props = defineProps<{
 </script>
 
 <template>
-    <span>{{props.value.contextId}}:{{props.value.sectionIndex}}</span>
-    <span class="text-muted-foreground">#{{props.value.blockNumber}}</span>
+    <span>{{ props.value.contextId }}:{{ props.value.sectionIndex }}</span>
+    <span class="text-muted-foreground">#{{ props.value.blockNumber }}</span>
 </template>

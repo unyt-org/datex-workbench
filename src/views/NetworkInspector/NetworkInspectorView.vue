@@ -45,7 +45,6 @@ function closeBlockViewer() {
     selectedBlockEntry.value = null;
 }
 
-
 // Confirm and execute deletion
 function clearBlocks() {
     if (searchQuery.value.trim()) {
@@ -170,14 +169,11 @@ const isBlockSecure = computed(() => {
 <template>
     <div class="top-offset bg-background text-foreground flex h-full">
         <!-- Left panel: block list -->
-        <div
-            class="flex flex-col p-4 pt-0"
-            :class="selectedBlock ? 'w-1/2' : 'w-full'"
-        >
+        <div class="flex flex-col p-4 pt-0" :class="selectedBlock ? 'w-1/2' : 'w-full'">
             <div class="mb-4">
                 <h1 class="mb-3 text-2xl font-bold">{{ t('network.title') }}</h1>
 
-               <!--
+                <!--
                 <div class="flex flex-wrap gap-2">
                     <Button
                         v-for="blockType in BLOCK_TYPES"
@@ -222,15 +218,15 @@ const isBlockSecure = computed(() => {
                     </template>
                     <template #actions>
                         <Button
-                              variant="outline"
-                              size="icon"
-                              title="t('network.clearAll')"
-                              class="text-foreground border-border transition-colors hover:text-red-600"
-                              :disabled="blocks.length === 0"
-                              @click="clearBlocks()"
-                          >
-                              <Trash class="h-4 w-4" />
-                          </Button>
+                            variant="outline"
+                            size="icon"
+                            title="t('network.clearAll')"
+                            class="text-foreground border-border transition-colors hover:text-red-600"
+                            :disabled="blocks.length === 0"
+                            @click="clearBlocks()"
+                        >
+                            <Trash class="h-4 w-4" />
+                        </Button>
                     </template>
                 </DataTable>
             </div>

@@ -38,14 +38,11 @@ const router = useRouter();
 //     },
 // ]);
 
-const quickActionItems = [
-  'repl',
-  'networkInspector',
-  'nodeView',
-  'about',
-]
+const quickActionItems = ['repl', 'networkInspector', 'nodeView', 'about'];
 
-const quickActions = sidebarItems.filter(item => quickActionItems.includes(item.key)).sort((a, b) => quickActionItems.indexOf(a.key) - quickActionItems.indexOf(b.key));
+const quickActions = sidebarItems
+    .filter((item) => quickActionItems.includes(item.key))
+    .sort((a, b) => quickActionItems.indexOf(a.key) - quickActionItems.indexOf(b.key));
 
 function navigate(route: string | null) {
     if (route) router.push(route);
