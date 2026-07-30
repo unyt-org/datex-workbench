@@ -10,6 +10,7 @@ const typeColors: Record<string, string> = {
     STRUCTURE: 'text-green-400',
     OPERATION: 'text-purple-400',
     VALUE: 'text-blue-400',
+    SHARED: 'text-purple-400',
 };
 
 function getColor(name: string): string {
