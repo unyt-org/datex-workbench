@@ -19,13 +19,15 @@
     "UINT_32": "VALUE",
     "UINT_64": "VALUE",
     "UINT_128": "VALUE",
-    "FLOAT": "VALUE",
-    "FLOAT_32": "VALUE",
-    "FLOAT_64": "VALUE",
+    "DECIMAL": "VALUE",
+    "DECIMAL_F32": "VALUE",
+    "DECIMAL_F64": "VALUE",
     "ENDPOINT": "VALUE",
     "TEXT": "VALUE",
     "SHORT_TEXT": "VALUE",
     "TRUE": "VALUE",
     "FALSE": "VALUE",
-    "NULL": "VALUE"
+    "NULL": "VALUE",
+    "SHARED_REF": "SHARED",
+    "SHARED_REF_WITH_VALUE": "SHARED"
 }
