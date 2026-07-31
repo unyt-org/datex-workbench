@@ -7,11 +7,8 @@ type PointerData = {
   value: WeakRef<Shared.BaseSharedContainer<unknown, Shared.SharedContainerMutability>>;
 };
 
-export function getAllPointers(): Reactive<Map<string, PointerData>> {
-  const cachedPointers = reactive(new Map<string, PointerData>());
-
-  Datex.dif.registerCacheObserver(() => {
-    const currentPointers = Datex.dif._cache;
+function updateCachedPointers(cachedPointers: Reactive<Map<string, PointerData>>) {
+  const currentPointers = Datex.dif._cache;
     // add new pointers to the reactive map if they don't exist yet
     for (const [key, value] of currentPointers.entries()) {
       if (!cachedPointers.has(key)) {
@@ -24,7 +21,12 @@ export function getAllPointers(): Reactive<Map<string, PointerData>> {
         cachedPointers.delete(key);
       }
     }
-  })
+}
+export function getAllPointers(): Reactive<Map<string, PointerData>> {
+  const cachedPointers = reactive(new Map<string, PointerData>());
+
+  Datex.dif.registerCacheObserver(() => updateCachedPointers(cachedPointers));
+  updateCachedPointers(cachedPointers); // Initial update to populate the reactive map
 
   return cachedPointers;
 }
