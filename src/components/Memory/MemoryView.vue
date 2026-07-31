@@ -9,6 +9,7 @@
       <div v-for="[address, value] in pointers" :key="address" class="mb-2">
         <div class="flex items-center gap-2">
           <span class="font-mono text-sm text-muted-foreground">${{ address }}</span>
+          <ValueView :value="value.value.deref()" />
         </div>
       </div>
     </div>
@@ -17,11 +18,6 @@
 
 <script setup lang="ts">
   import { getAllPointers } from '@/lib/memory';
-  import { ref } from 'vue';
-  const pointers = ref([...getAllPointers().entries()]);
-
-  setInterval(() => {
-    pointers.value = [...getAllPointers().entries()];
-  }, 1000);
-
+  import ValueView from './ValueView.vue';
+  const pointers = getAllPointers();
 </script>
