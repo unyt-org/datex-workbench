@@ -9,7 +9,8 @@
         "replDesc": "Interaktive DATEX-Runtime-Umgebung",
         "soon": "Bald",
         "fileEditor": "Datei-Editor",
-        "repl": "REPL"
+        "repl": "REPL",
+        "memoryDesc": "Shared Values im Cache und Speicher anzeigen und untersuchen"
     },
     "common": {
         "loading": "Lädt...",
@@ -48,7 +49,8 @@
         "repl": "REPL",
         "comhub": "ComHub",
         "networkVisualizer": "Netzwerk-Visualisierer",
-        "preferences": "Einstellungen"
+        "preferences": "Einstellungen",
+        "memory": "Speicher"
     },
     "block": {
         "openFile": "Datei öffnen",
