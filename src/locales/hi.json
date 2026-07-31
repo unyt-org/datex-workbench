@@ -9,7 +9,8 @@
         "aboutDesc": "रनटाइम जानकारी देखें",
         "soon": "जल्द ही",
         "fileEditor": "फ़ाइल संपादक",
-        "repl": "REPL"
+        "repl": "REPL",
+        "memoryDesc": "कैश और मेमोरी में साझा मानों को देखें और जांचें"
     },
     "common": {
         "loading": "लोड हो रहा है...",
@@ -48,7 +49,8 @@
         "repl": "REPL",
         "comhub": "ComHub",
         "networkVisualizer": "नेटवर्क विज़ुअलाइज़र",
-        "preferences": "प्राथमिकताएँ"
+        "preferences": "प्राथमिकताएँ",
+        "memory": "स्मृति"
     },
     "block": {
         "openFile": "फ़ाइल खोलें",

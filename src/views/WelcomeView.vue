@@ -7,38 +7,8 @@ import { sidebarItems } from '@/lib/sidebar-items';
 const { t } = useI18n();
 const router = useRouter();
 
-// const quickActions = computed(() => [
-//     {
-//         label: t('nav.networkInspector'),
-//         description: t('welcome.networkDesc'),
-//         route: '/network',
-//         available: true,
-//         icon: ArrowLeftRight,
-//     },
-//     {
-//         label: t('welcome.repl'),
-//         description: t('welcome.replDesc'),
-//         route: '/repl',
-//         available: true,
-//         icon: Terminal,
-//     },
-//     {
-//         label: t('nav.nodeView'),
-//         description: t('welcome.nodeDesc'),
-//         route: '/node-view',
-//         available: true,
-//         icon: GitGraph,
-//     },
-//     {
-//         label: t('welcome.info'),
-//         description: t('welcome.infoDesc'),
-//         route: '/about',
-//         available: true,
-//         icon: Info,
-//     },
-// ]);
 
-const quickActionItems = ['repl', 'networkInspector', 'nodeView', 'about'];
+const quickActionItems = ['repl', 'networkInspector', 'memory', 'about'];
 
 const quickActions = sidebarItems
     .filter((item) => quickActionItems.includes(item.key))
