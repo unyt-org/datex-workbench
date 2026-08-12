@@ -19,8 +19,11 @@ export type ComHubMetadata = {
 const websocketServerEndpointURL =
     localStorage.getItem('websocketServerEndpoint') || 'wss://example.unyt.land';
 
+const endpointName = sessionStorage.getItem('datexRuntimeEndpointName') || '@workbench_' + Math.floor(Math.random() * 1000);
+sessionStorage.setItem('datexRuntimeEndpointName', endpointName);
+
 const defaultConfig: RuntimeConfig = {
-    endpoint: Builtins.Endpoint.get('@workbench_' + Math.floor(Math.random() * 1000)),
+    endpoint: Builtins.Endpoint.get(endpointName),
     interfaces: [
         {
             type: 'websocket-client',
@@ -33,7 +36,16 @@ const defaultConfig: RuntimeConfig = {
     ],
 };
 
-export const Datex: RuntimeT = await Runtime.create(defaultConfig);
+const logLevel = localStorage.getItem('datexRuntimeLogLevel') as
+    | 'error'
+    | 'warn'
+    | 'info'
+    | 'debug'
+    | 'trace'
+    | null
+    | undefined;
+
+export const Datex: RuntimeT = await Runtime.create(defaultConfig, {log_level: logLevel ?? undefined});
 
 // @ts-expect-error expose Datex globally for debugging purposes
 globalThis.Datex = Datex;
