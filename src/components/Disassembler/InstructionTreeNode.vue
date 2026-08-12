@@ -17,6 +17,7 @@ const props = withDefaults(
         prefixParts?: boolean[];
         isInnerScope?: boolean;
         nestingLevel?: number;
+        stripParentsBeforeIndex?: number;
     }>(),
     {
         depth: 0,
@@ -24,6 +25,7 @@ const props = withDefaults(
         prefixParts: () => [],
         isInnerScope: false,
         nestingLevel: 0,
+        stripParentsBeforeIndex: 0,
     },
 );
 
@@ -43,7 +45,7 @@ const innerNode = computed<InstructionTree | null>(() => {
 const hasExpandableContent = computed(() => children.value.length > 0 || innerNode.value !== null);
 const bgStyle = computed(() => {
     if (props.nestingLevel === 0) return {};
-    return { backgroundColor: `rgba(128, 128, 128, ${props.nestingLevel * 0.08})` };
+    return { backgroundColor: `rgba(128, 128, 128, 0.08)`, borderRadius: '4px', paddingTop: '4px', paddingBottom: '4px' };
 });
 
 const isOpen = ref(true);
@@ -51,22 +53,23 @@ const isOpen = ref(true);
 function toggle() {
     isOpen.value = !isOpen.value;
 }
+
 </script>
 
 <template>
     <!-- ── Expandable node ── -->
-    <div v-if="hasExpandableContent">
-        <div class="tree-row cursor-pointer" :style="bgStyle" @click="toggle">
+    <div v-if="hasExpandableContent" :style="isInnerScope && bgStyle">
+        <div class="tree-row cursor-pointer" @click="toggle">
             <!-- Ancestor vertical lines -->
             <span
                 v-for="(isParentLast, idx) in prefixParts"
                 :key="idx"
                 class="tree-indent"
-                :class="{ 'has-line': !isParentLast }"
+                :class="{ 'has-line': !isParentLast && idx >= stripParentsBeforeIndex }"
             />
 
             <!-- Junction with expand icon -->
-            <span v-if="true" class="tree-junction" :class="{ 'expanded': isOpen, 'is-last': isLast, 'is-root': depth === 0 }">
+            <span v-if="true" class="tree-junction" :class="{ 'expanded': isOpen, 'is-last': isLast, 'is-root': depth === 0 || isInnerScope }">
                 <span class="expand-box">
                     <Minus v-if="isOpen" class="size-3" />
                     <Plus v-else class="size-3" />
@@ -88,6 +91,7 @@ function toggle() {
                 :depth="depth"
                 :prefix-parts="[...prefixParts, isLast]"
                 :is-inner-scope="true"
+                :strip-parents-before-index="depth"
                 :nesting-level="nestingLevel + 1"
             />
             <InstructionTreeNode
@@ -96,6 +100,7 @@ function toggle() {
                 :node="child"
                 :show-nested="showNested"
                 :depth="isInnerScope ? depth + 2 : depth + 1"
+                :strip-parents-before-index="stripParentsBeforeIndex"
                 :is-last="i === children.length - 1"
                 :prefix-parts="[...prefixParts, isLast]"
                 :nesting-level="nestingLevel"
@@ -104,14 +109,14 @@ function toggle() {
     </div>
 
     <!-- ── Leaf node ── -->
-    <div v-else class="tree-row" :style="bgStyle">
+    <div v-else class="tree-row">
         <span
             v-for="(isParentLast, idx) in prefixParts"
             :key="idx"
             class="tree-indent"
-            :class="{ 'has-line': !isParentLast }"
+            :class="{ 'has-line': !isParentLast && idx >= stripParentsBeforeIndex }"
         ></span>
-        <span v-if="depth > 0" class="tree-junction leaf" :class="{ 'is-last': isLast }" />
+        <span v-if="depth > 0" class="tree-junction leaf" :class="{ 'is-last': isLast, 'is-root': depth === 0 || isInnerScope }" />
         <InstructionLabel :name="parts.name" :meta="parts.meta" />
     </div>
 </template>
@@ -119,6 +124,7 @@ function toggle() {
 <style scoped>
 /* ── Row layout ── */
 .tree-row {
+    overflow: hidden;
     position: relative;
     display: flex;
     align-items: flex-start;

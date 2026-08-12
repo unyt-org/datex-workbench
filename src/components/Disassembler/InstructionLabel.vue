@@ -20,7 +20,7 @@ function getColor(name: string): string {
 </script>
 
 <template>
-    <span class="font-mono flex ml-1">
+    <span class="font-mono flex ml-1" :class="{'italic': name.startsWith('TYPE.')}">
         <span :class="getColor(name)">{{ name }}</span>
         <span v-if="meta" class="ml-1.5 text-muted-foreground whitespace-break-spaces">
             {{ meta }}

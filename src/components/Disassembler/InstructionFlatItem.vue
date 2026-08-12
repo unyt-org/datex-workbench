@@ -14,7 +14,7 @@ const props = withDefaults(
         showNested: boolean;
         indentLevel?: number;
     }>(),
-    { indentLevel: 0 },
+    { indentLevel: 1 },
 );
 
 const parts = computed<InstructionParts>(() => getInstructionParts(props.instruction));
@@ -33,30 +33,30 @@ const hasExpandableContent = computed(() => innerInstructions.value.length > 0);
 
 const bgStyle = computed(() => {
     if (props.indentLevel === 0) return {};
-    return { backgroundColor: `rgba(128, 128, 128, ${props.indentLevel * 0.08})` };
+    return { backgroundColor: `rgba(128, 128, 128, 0.08)`, borderRadius: '4px', padding: '4px' };
 });
 </script>
 
 <template>
     <!-- Node with inner instructions: collapsible -->
-    <details v-if="hasExpandableContent" open class="flat-node" :style="bgStyle">
+    <details v-if="hasExpandableContent" open class="flat-node">
         <summary class="flat-line">
-            <span class="flat-prefix">{{ indent }}</span>
             <InstructionLabel :name="parts.name" :meta="parts.meta" />
         </summary>
 
-        <InstructionFlatItem
+        <div :style="bgStyle">
+          <InstructionFlatItem
             v-for="(nested, i) in innerInstructions"
             :key="i"
             :instruction="nested as FlatInstruction"
             :show-nested="showNested"
             :indent-level="indentLevel + 1"
         />
+        </div>
     </details>
 
     <!-- Leaf instruction: just a line -->
-    <div v-else class="flat-line" :style="bgStyle">
-        <span class="flat-prefix">{{ indent }}</span>
+    <div v-else class="flat-line">
         <InstructionLabel :name="parts.name" :meta="parts.meta" />
     </div>
 </template>
