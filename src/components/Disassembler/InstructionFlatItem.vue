@@ -88,6 +88,7 @@ const bgStyle = computed(() => {
     line-height: 1.5;
     margin: 0;
     padding: 0;
+    display: flex;
 }
 
 .flat-prefix {

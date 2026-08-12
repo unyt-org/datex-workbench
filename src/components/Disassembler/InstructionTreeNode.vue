@@ -66,23 +66,15 @@ function toggle() {
             />
 
             <!-- Junction with expand icon -->
-            <span v-if="depth > 0" class="tree-junction" :class="{ 'is-last': isLast }">
+            <span v-if="true" class="tree-junction" :class="{ 'expanded': isOpen, 'is-last': isLast, 'is-root': depth === 0 }">
                 <span class="expand-box">
                     <Minus v-if="isOpen" class="size-3" />
                     <Plus v-else class="size-3" />
                 </span>
             </span>
 
-            <!-- Root level expand (no junction) -->
-            <span v-else class="tree-root-toggle">
-                <span class="expand-box">
-                    <Minus v-if="isOpen" class="size-2.5" />
-                    <Plus v-else class="size-2.5" />
-                </span>
-            </span>
-
             <!-- Horizontal connector -->
-            <span v-if="depth > 0" class="tree-hline" />
+            <span v-if="true" class="tree-hline" :class="{ 'expanded': isOpen }" />
 
             <InstructionLabel :name="parts.name" :meta="parts.meta" />
         </div>
@@ -127,25 +119,28 @@ function toggle() {
 <style scoped>
 /* ── Row layout ── */
 .tree-row {
+    position: relative;
     display: flex;
-    align-items: center;
-    min-height: 24px;
+    align-items: flex-start;
     font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
     font-size: 0.875rem;
 }
 
 /* ── Indent column (ancestor vertical lines) ── */
 .tree-indent {
-    width: 20px;
-    min-height: 24px;
+    width: 18px;
     position: relative;
     flex-shrink: 0;
+}
+
+.tree-indent.has-line {
+    height: -webkit-fill-available;
 }
 
 .tree-indent.has-line::before {
     content: '';
     position: absolute;
-    left: 10px;
+    left: 9px;
     top: 0;
     bottom: 0;
     width: 1px;
@@ -154,30 +149,41 @@ function toggle() {
 
 /* ── Junction column (vertical line + optional expand box) ── */
 .tree-junction {
+    width: 18px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    min-height: 24px;
     position: relative;
     flex-shrink: 0;
 }
 
 /* Vertical line through the junction */
-.tree-junction::before {
+.tree-junction:not(.is-root)::after {
     content: '';
     position: absolute;
-    left: 10px;
+    left: 9px;
     top: 0;
     bottom: 0;
     width: 1px;
     background: #4b5563;
+    height: 10px;
 }
 
-/* Last child: line goes from top to center only */
-.tree-junction.is-last::before {
-    bottom: 50%;
+/* horizontal stub */
+.tree-junction::before {
+    content: '';
+    position: absolute;
+    left: 9px;
+    top: 10px;
+    right: 0;
+    height: 1px;
+    background: #4b5563;
 }
+
+.tree-junction:not(.is-root):not(.is-last)::after {
+    height: 25px;
+}
+
 /* Leaf junction — no expand box, just line */
 .tree-junction.leaf {
     width: 34px;
@@ -187,33 +193,57 @@ function toggle() {
 .tree-junction.leaf::after {
     content: '';
     position: absolute;
-    left: 10px;
-    top: 50%;
+    left: 9px;
+    bottom: 10px;
     right: 0;
-    height: 1px;
+    height: 10px;
     background: #4b5563;
-}
-
-/* ── Root toggle (no junction line) ── */
-.tree-root-toggle {
-    display: inline-flex;
-    align-items: center;
-    margin-right: 7px;
-    flex-shrink: 0;
 }
 
 /* ── Horizontal connector ── */
 .tree-hline {
-    width: 8px;
+    height: -webkit-fill-available;
+    width: 18px;
+    flex-shrink: 0;
+    position: relative;
+}
+
+/** down connector */
+.tree-hline.expanded::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 9px;
+    height: 100%;
+    width: 1px;
+    background: #4b5563;
+}
+/** down connector */
+.tree-hline:not(.expanded)::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 9px;
+    height: 5px;
+    width: 1px;
+    background: #4b5563;
+}
+
+/** horizontal line */
+.tree-hline::before {
+    content: '';
+    width: 100%;
     height: 1px;
     background: #4b5563;
-    flex-shrink: 0;
-    margin-left: -1px;
-    margin-right: 7px;
+    position: absolute;
+    top: 10px;
 }
+
+
 
 /* ── Expand/Collapse box ── */
 .expand-box {
+    margin-top: 2px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
