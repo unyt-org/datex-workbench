@@ -24,7 +24,6 @@ const showNested = ref(true);
 // ─── Disassembly ────────────────────────────────────────────
 const treeData = computed(() => Datex.disassembleDXBTree(props.dxb));
 const flatData = computed(() => Datex.disassembleDXBFlat(props.dxb));
-
 const error = computed(() => (viewMode.value === 'tree' ? treeData.value[1] : flatData.value[1]));
 
 let decompiledCode: ComputedRef<string> | string = '';
