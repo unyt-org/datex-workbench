@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import type { FieldIdentifier } from '@/types/BlockViewer/FieldIdentifier';
-import type { Span } from '@/lib/_temp_types.ts';
+import type { Span, FlatResult } from '@/lib/_temp_types.ts';
 import BlockProtocolBytes from '@/views/BlockViewer/BlockProtocolBytesView.vue';
 import BlockProtocolInfo from '@/views/BlockViewer/BlockProtocolInfoView.vue';
 import { parseStructure } from '@unyt/speck';
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { dxbDefinition } from '@/views/BlockViewer/settings';
 import DisassemblerView from '@/components/Disassembler/DisassemblerView.vue';
+import { Datex } from '@/lib/runtime';
 
 const props = defineProps<{
     blockData: Uint8Array;
@@ -15,19 +16,26 @@ const props = defineProps<{
 const parsedBlock = parseStructure(dxbDefinition, props.blockData);
 
 const bodySection = parsedBlock.find((s) => s.name === 'Body');
+const bodyDXB = bodySection?.fields[0]?.bytes;
+
+// augments parsed body with disassembler data to separate instructions into separate fields
+if (bodyDXB) {
+  const [instructions] = Datex.disassembleDXBFlat(bodyDXB) as FlatResult;
+  bodySection.fields = [];
+  for (const {instruction, span} of instructions) {
+      const bytes = bodyDXB.slice(span.start, span.end);
+      bodySection.fields.push({
+          name: "Body",
+          bytes,
+          parsedValue: typeof instruction == "object" ? instruction[0] : instruction,
+      });
+  }
+}
+
 if (bodySection && !bodySection.fields.some((f) => f.name === 'Body')) {
     bodySection.fields.push({
         name: 'Body',
         bytes: new Uint8Array([]),
-    });
-}
-const bodyDXB = bodySection?.fields[0]!.bytes;
-
-const bodySectionDef = dxbDefinition.sections.find((s) => s.name === 'Body');
-if (bodySectionDef && !bodySectionDef.fields.some((f) => f.name === 'Body')) {
-    bodySectionDef.fields.push({
-        name: 'Body',
-        byteSize: 3,
     });
 }
 

@@ -24,20 +24,46 @@ function findFieldDef(field: ParsedField) {
     }
     return fi;
 }
+
+function shouldGrayOutField(fieldIndex: number): boolean {
+    if (!props.highlightedSpan) return false;
+    return fieldIndex < props.highlightedSpan.start || fieldIndex >= props.highlightedSpan.end;
+}
+
+function fieldsWithByteOffset(fields: ParsedField[]): { field: ParsedField; byteOffset: number }[] {
+    const result: { field: ParsedField; byteOffset: number }[] = [];
+    let currentByteOffset = 0;
+
+    for (const field of fields) {
+        result.push({ field, byteOffset: currentByteOffset });
+        currentByteOffset += field.bytes.length;
+    }
+
+    return result;
+}
+
+function findField(fieldIdentifier: FieldIdentifier | null): ParsedField | null {
+    if (!fieldIdentifier) return null;
+    const section = props.section;
+    if (fieldIdentifier.sectionIndex !== props.sectionId) return null;
+    const field = section.fields[fieldIdentifier.fieldIndex];
+    return field || null;
+}
+
 </script>
 
 <template>
     <div class="text-foreground font-mono">
         <div class="grid" style="grid-template-columns: repeat(auto-fit, 3ch)">
             <div
-                v-for="(field, index) in section.fields"
+                v-for="({ field, byteOffset }, index) in fieldsWithByteOffset(section.fields)"
                 :key="index"
                 class="contents"
                 :class="{
                     'selected-field':
                         selectedField &&
                         sectionId === selectedField.sectionIndex &&
-                        index === selectedField.fieldIndex,
+                        (index === selectedField.fieldIndex || findField(selectedField)?.name === field.name),
                 }"
             >
                 <BlockFieldWrapper
@@ -47,6 +73,7 @@ function findFieldDef(field: ParsedField) {
                     :fieldId="index"
                     :selectedField="selectedField"
                     :highlightedSpan="highlightedSpan"
+                    :gray-out="shouldGrayOutField(byteOffset)"
                     @field-clicked="handleFieldClick"
                 />
             </div>

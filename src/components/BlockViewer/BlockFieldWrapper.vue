@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { FieldIdentifier } from '@/types/BlockViewer/FieldIdentifier';
 import type { FieldDefinition, ParsedField } from '@unyt/speck';
-import type { Span } from '@/lib/_temp_types.ts';
 import BlockField from './BlockField.vue';
 import { bytesCutoff } from '@/views/BlockViewer/settings';
 
@@ -11,8 +10,9 @@ const props = defineProps<{
     sectionId: number;
     fieldId: number;
     selectedField: FieldIdentifier | null;
-    highlightedSpan: Span | null;
+    grayOut: boolean;
 }>();
+
 
 const emit = defineEmits(['field-clicked']);
 function handleClick() {
@@ -53,12 +53,12 @@ const subfieldsMatchByteLength =
                 :field="cutFieldBytes(field)"
                 :shortenWithDots="field.bytes.length > bytesCutoff"
                 :fieldDef="fieldDef"
-                :highlightedSpan="highlightedSpan"
+                :grayOut="grayOut"
             >
             </BlockField>
         </div>
         <div v-else-if="!subfieldsMatchByteLength" class="contents">
-            <BlockField :field="field" :shortenWithDots="false" :fieldDef="fieldDef" :highlightedSpan="highlightedSpan"></BlockField>
+            <BlockField :field="field" :shortenWithDots="false" :fieldDef="fieldDef" :grayOut="grayOut"></BlockField>
         </div>
         <div v-else class="subfield-wrapper contents">
             <BlockField
@@ -67,7 +67,7 @@ const subfieldsMatchByteLength =
                 :field="subField"
                 :shortenWithDots="false"
                 :fieldDef="fieldDef"
-                :highlightedSpan="highlightedSpan"
+                :grayOut="grayOut"
             ></BlockField>
         </div>
     </div>
