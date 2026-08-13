@@ -3,6 +3,7 @@ import DecompilerView from '@/components/Decompiler/DecompilerView.vue';
 import { Datex } from '@/lib/runtime.ts';
 import { FoldVertical, GitFork, List, UnfoldVertical } from 'lucide-vue-next';
 import { computed, ref, type ComputedRef } from 'vue';
+import type { InstructionTree, FlatInstruction, Span } from '@/lib/_temp_types.ts';
 import { useI18n } from 'vue-i18n';
 import InstructionFlatItem from './InstructionFlatItem.vue';
 import InstructionTreeNode from './InstructionTreeNode.vue';
@@ -21,9 +22,11 @@ const props = defineProps<{
 const viewMode = ref<ViewMode>('tree');
 const showNested = ref(true);
 
+const selectedBodySpan = defineModel<null | Span>();
+
 // ─── Disassembly ────────────────────────────────────────────
-const treeData = computed(() => Datex.disassembleDXBTree(props.dxb));
-const flatData = computed(() => Datex.disassembleDXBFlat(props.dxb));
+const treeData = computed(() => Datex.disassembleDXBTree(props.dxb)) as ComputedRef<[InstructionTree, string | null]>;
+const flatData = computed(() => Datex.disassembleDXBFlat(props.dxb)) as ComputedRef<[FlatInstruction[], string | null]>;
 const error = computed(() => (viewMode.value === 'tree' ? treeData.value[1] : flatData.value[1]));
 
 let decompiledCode: ComputedRef<string> | string = '';
@@ -120,7 +123,7 @@ try {
             <div>
                 <!-- Tree mode -->
                 <template v-if="viewMode === 'tree' && treeData[0]">
-                    <InstructionTreeNode :node="treeData[0]" :show-nested="showNested" />
+                    <InstructionTreeNode :node="treeData[0]" :show-nested="showNested" v-model="selectedBodySpan" />
                 </template>
 
                 <!-- Flat mode -->
@@ -130,6 +133,7 @@ try {
                         :key="i"
                         :instruction="inst"
                         :show-nested="showNested"
+                        v-model="selectedBodySpan"
                     />
                 </template>
 

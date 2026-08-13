@@ -10,11 +10,13 @@ import { computed } from 'vue';
 import type { ParsedSection, ParsedStructure, StructureDefinition } from '@unyt/speck';
 import BlockSection from '@/components/BlockViewer/BlockSection.vue';
 import type { FieldIdentifier } from '@/types/BlockViewer/FieldIdentifier';
+import type { Span } from '@/lib/_temp_types';
 
 const props = defineProps<{
     structure: ParsedStructure;
     structureDef: StructureDefinition;
     selectedField: FieldIdentifier | null;
+    selectedBodySpan: Span | null;
 }>();
 
 const defaultExpanded = computed(() => props.structure.map((_, i) => `item-${i}`));
@@ -58,6 +60,7 @@ function findSectionDef(section: ParsedSection) {
                     :sectionDef="findSectionDef(section)"
                     :sectionId="index"
                     :selectedField="selectedField"
+                    :highlightedSpan="section.name == 'Body' ? selectedBodySpan : null"
                     @section-field-clicked="handleSectionFieldClick"
                     class="section text-base"
                 />

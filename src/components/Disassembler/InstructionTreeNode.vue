@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import {
-    type InstructionTree,
     type InstructionParts,
     getInstructionParts,
 } from '@/types/disassembler';
+import type { Span, InstructionTree } from '@/lib/_temp_types.ts';
 import InstructionLabel from './InstructionLabel.vue';
 import { Plus, Minus } from 'lucide-vue-next';
 
@@ -28,6 +28,8 @@ const props = withDefaults(
         stripParentsBeforeIndex: 0,
     },
 );
+
+const selectedBodySpan = defineModel<Span | null>();
 
 const parts = computed<InstructionParts>(() => getInstructionParts(props.node.instruction));
 
@@ -54,12 +56,16 @@ function toggle() {
     isOpen.value = !isOpen.value;
 }
 
+function focusSpan(span: Span|null) {
+  selectedBodySpan.value = span;
+}
+
 </script>
 
 <template>
     <!-- ── Expandable node ── -->
-    <div v-if="hasExpandableContent" :style="isInnerScope && bgStyle">
-        <div class="tree-row cursor-pointer" @click="toggle">
+    <div class="root" v-if="hasExpandableContent" :style="isInnerScope && bgStyle">
+        <div class="tree-row cursor-pointer" @click="toggle" @mouseenter="focusSpan(parts.span)" @mouseleave="focusSpan(null)">
             <!-- Ancestor vertical lines -->
             <span
                 v-for="(isParentLast, idx) in prefixParts"
@@ -78,7 +84,6 @@ function toggle() {
 
             <!-- Horizontal connector -->
             <span v-if="true" class="tree-hline" :class="{ 'expanded': isOpen }" />
-
             <InstructionLabel :name="parts.name" :meta="parts.meta" />
         </div>
 
@@ -93,6 +98,7 @@ function toggle() {
                 :is-inner-scope="true"
                 :strip-parents-before-index="depth"
                 :nesting-level="nestingLevel + 1"
+                v-model="selectedBodySpan"
             />
             <InstructionTreeNode
                 v-for="(child, i) in children"
@@ -104,12 +110,13 @@ function toggle() {
                 :is-last="i === children.length - 1"
                 :prefix-parts="[...prefixParts, isLast]"
                 :nesting-level="nestingLevel"
+                v-model="selectedBodySpan"
             />
         </div>
     </div>
 
     <!-- ── Leaf node ── -->
-    <div v-else class="tree-row">
+    <div v-else class="tree-row" @mouseenter="focusSpan(parts.span)" @mouseleave="focusSpan(null)">
         <span
             v-for="(isParentLast, idx) in prefixParts"
             :key="idx"
@@ -131,6 +138,11 @@ function toggle() {
     font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
     font-size: 0.875rem;
 }
+
+.tree-row:hover {
+    background-color: rgba(100, 100, 100, 0.2);
+}
+
 
 /* ── Indent column (ancestor vertical lines) ── */
 .tree-indent {

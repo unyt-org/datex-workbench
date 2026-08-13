@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { FieldIdentifier } from '@/types/BlockViewer/FieldIdentifier';
+import type { Span } from '@/lib/_temp_types.ts';
 import BlockProtocolBytes from '@/views/BlockViewer/BlockProtocolBytesView.vue';
 import BlockProtocolInfo from '@/views/BlockViewer/BlockProtocolInfoView.vue';
 import { parseStructure } from '@unyt/speck';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { dxbDefinition } from '@/views/BlockViewer/settings';
 import DisassemblerView from '@/components/Disassembler/DisassemblerView.vue';
 
@@ -44,6 +45,9 @@ const isBodySelected = computed(() => {
     if (!selectedField.value) return false;
     return parsedBlock[selectedField.value.sectionIndex]?.name === 'Body';
 });
+
+const selectedBodySpan = ref<null | Span>(null);
+
 </script>
 
 <template>
@@ -55,6 +59,7 @@ const isBodySelected = computed(() => {
             :structure="parsedBlock"
             :structureDef="dxbDefinition"
             :selectedField="selectedField"
+            :selectedBodySpan="selectedBodySpan"
             @bytes-section-field-clicked="handleBytesSectionFieldClick"
         />
         <!-- Details view: fills remaining height -->
@@ -62,6 +67,7 @@ const isBodySelected = computed(() => {
             v-if="isBodySelected && bodyDXB"
             class="m-1 flex-1 min-h-0 rounded-lg overflow-hidden bg-card"
             :dxb="bodyDXB"
+            v-model="selectedBodySpan"
         />
         <BlockProtocolInfo
             v-else-if="selectedField"

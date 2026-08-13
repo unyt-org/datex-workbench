@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import {
-    type FlatInstruction,
-    type Instruction,
     type InstructionParts,
     getInstructionParts,
 } from '@/types/disassembler';
+import type { FlatInstruction, Span } from '@/lib/_temp_types.ts';
 import InstructionLabel from './InstructionLabel.vue';
 
 const props = withDefaults(
@@ -17,15 +16,15 @@ const props = withDefaults(
     { indentLevel: 1 },
 );
 
-const parts = computed<InstructionParts>(() => getInstructionParts(props.instruction));
+const selectedBodySpan = defineModel<Span | null>();
 
-const indent = computed(() => '  '.repeat(props.indentLevel));
+const parts = computed<InstructionParts>(() => getInstructionParts(props.instruction));
 
 /** Inner instruction list (3rd element for FlatInstruction is Instruction[]) */
 const innerInstructions = computed<FlatInstruction[]>(() => {
     if (!props.showNested) return [];
     const inner = parts.value.inner;
-    if (Array.isArray(inner)) return inner as Instruction[];
+    if (Array.isArray(inner)) return inner as FlatInstruction[];
     return [];
 });
 
@@ -35,11 +34,15 @@ const bgStyle = computed(() => {
     if (props.indentLevel === 0) return {};
     return { backgroundColor: `rgba(128, 128, 128, 0.08)`, borderRadius: '4px', padding: '4px' };
 });
+
+function focusSpan(span: Span|null) {
+  selectedBodySpan.value = span;
+}
 </script>
 
 <template>
     <!-- Node with inner instructions: collapsible -->
-    <details v-if="hasExpandableContent" open class="flat-node">
+    <details v-if="hasExpandableContent" open class="flat-node" @mouseenter="focusSpan(parts.span)" @mouseleave="focusSpan(null)">
         <summary class="flat-line">
             <InstructionLabel :name="parts.name" :meta="parts.meta" />
         </summary>
@@ -56,7 +59,7 @@ const bgStyle = computed(() => {
     </details>
 
     <!-- Leaf instruction: just a line -->
-    <div v-else class="flat-line">
+    <div v-else class="flat-line" @mouseenter="focusSpan(parts.span)" @mouseleave="focusSpan(null)">
         <InstructionLabel :name="parts.name" :meta="parts.meta" />
     </div>
 </template>
@@ -89,6 +92,10 @@ const bgStyle = computed(() => {
     margin: 0;
     padding: 0;
     display: flex;
+}
+
+.flat-line:hover {
+    background-color: rgba(100, 100, 100, 0.2);
 }
 
 .flat-prefix {
