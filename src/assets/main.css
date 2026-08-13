@@ -72,6 +72,15 @@
     --chart-5: rgb(from var(--color-pink-400) r g b / 80%);
     --chart-6: rgb(from var(--color-teal-400) r g b / 80%);
     --chart-7: rgb(from var(--color-yellow-400) r g b / 80%);
+
+    --chart-1-light: var(--color-blue-400);
+    --chart-2-light: var(--color-green-400);
+    --chart-3-light: var(--color-orange-300);
+    --chart-4-light: var(--color-purple-400);
+    --chart-5-light: var(--color-pink-400);
+    --chart-6-light: var(--color-teal-400);
+    --chart-7-light: var(--color-yellow-400);
+
     --sidebar: oklch(0.205 0 0);
     --sidebar-foreground: oklch(0.985 0 0);
     --sidebar-primary: oklch(0.488 0.243 264.376);

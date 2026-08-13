@@ -1,32 +1,28 @@
 <script setup lang="ts">
-import type { FieldDefinition, ParsedField } from '@unyt/speck';
+import type { FieldDefinition, ParsedField, ParsedValue } from '@unyt/speck';
 import { getColor } from '@/views/BlockViewer/settings';
-import type { Span } from '@/lib/_temp_types';
+import { getInstructionColor } from '@/lib/instruction-types';
 // import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const props = defineProps<{
     field: ParsedField;
     shortenWithDots: boolean;
     fieldDef: FieldDefinition;
-    highlightedSpan: Span | null;
+    grayOut: boolean;
 }>();
 
 function byteToHexString(b: number): string {
     return b.toString(16).padStart(2, '0');
 }
 
-function isGreyedOut(byteIndex: number): boolean {
-    if (props.highlightedSpan) {
-        if (byteIndex >= props.highlightedSpan.start && byteIndex < props.highlightedSpan.end) {
-            return false;
-        }
-        else {
-            return true;
+function getByteColor(fieldDef: FieldDefinition, parsedValue: ParsedValue): string {
+    if (typeof parsedValue === 'string') {
+        const instructionColor = getInstructionColor(parsedValue);
+        if (instructionColor) {
+            return instructionColor;
         }
     }
-    else {
-        return false;
-    }
+    return getColor(fieldDef);
 }
 
 </script>
@@ -63,12 +59,12 @@ function isGreyedOut(byteIndex: number): boolean {
 
     <div class="field-styling contents">
         <div v-for="(byte, indexInner) in field.bytes" :key="indexInner">
-            <div class="byte-wrapper text-base" :style="{ backgroundColor: getColor(fieldDef) }" :class="{ 'greyed-out': isGreyedOut(indexInner) }">
+            <div class="byte-wrapper text-base" :style="{ backgroundColor: getByteColor(fieldDef, 'parsedValue' in field ? field.parsedValue : null) }" :class="{ 'greyed-out': props.grayOut }">
                 {{ byteToHexString(byte) }}
             </div>
         </div>
         <div v-if="shortenWithDots">
-            <div class="byte-wrapper text-base" :style="{ backgroundColor: getColor(fieldDef) }" :class="{ 'greyed-out': isGreyedOut(0) }">
+            <div class="byte-wrapper text-base" :style="{ backgroundColor: getByteColor(fieldDef, 'parsedValue' in field ? field.parsedValue : null) }" :class="{ 'greyed-out': props.grayOut }">
                 ..
             </div>
         </div>
