@@ -2,12 +2,14 @@
 import type { FieldIdentifier } from '@/types/BlockViewer/FieldIdentifier';
 import type { ParsedField, ParsedSection, SectionDefinition } from '@unyt/speck';
 import BlockFieldWrapper from './BlockFieldWrapper.vue';
+import type { Span } from '@/lib/_temp_types.ts';
 
 const props = defineProps<{
     section: ParsedSection;
     sectionDef: SectionDefinition;
     sectionId: number;
     selectedField: FieldIdentifier | null;
+    highlightedSpan: Span | null;
 }>();
 
 const emit = defineEmits(['section-field-clicked']);
@@ -44,6 +46,7 @@ function findFieldDef(field: ParsedField) {
                     :sectionId="sectionId"
                     :fieldId="index"
                     :selectedField="selectedField"
+                    :highlightedSpan="highlightedSpan"
                     @field-clicked="handleFieldClick"
                 />
             </div>
