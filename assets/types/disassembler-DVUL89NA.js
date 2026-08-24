@@ -1,0 +1,1 @@
+function u(r){const{span:t,instruction:n}=r;if(typeof n=="string")return{name:n,meta:null,inner:null,span:t};if(Array.isArray(n)){const e=n[0],i=typeof n[1]=="string"?n[1]:null,l=n.length===3?n[2]:null;return{name:e,meta:i,inner:l??null,span:t}}return{name:String(n),meta:null,inner:null,span:t}}export{u as getInstructionParts};

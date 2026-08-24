@@ -1,0 +1,1 @@
+import a from"./instructionTypes.json-m8BiFKIr.js";const r={STRUCTURE:"chart-2",OPERATION:"chart-3",VALUE:"chart-5",SHARED:"chart-4",DEFAULT:"chart-1"};function s(o,c=!1){const t=a[o],n=t&&t in r?t:"DEFAULT";return`var(--${r[n]}${c?"-light":""})`}export{s as getInstructionColor,r as typeColors};

@@ -1,0 +1,1 @@
+import o from"./SideBar.vue-DxaBgzLN.js";/* empty css                    */import e from"../_virtual/_plugin-vue_export-helper-Bs0mvUEv.js";const f=e(o,[["__scopeId","data-v-e5e9ef85"]]);export{f as default};
