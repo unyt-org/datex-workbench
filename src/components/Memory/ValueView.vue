@@ -12,6 +12,7 @@ console.log('value', props.value);
 
 const currentValue = ref(props.value.value);
 
+// @ts-expect-error fixme when types are updated
 props.value.observe((newValue) => {
     console.log('value changed', newValue);
     currentValue.value = null; // TODO: this is a workaround to force to re-render
