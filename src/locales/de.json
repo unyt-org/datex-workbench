@@ -163,7 +163,8 @@
     "comhub": {
         "advancedMode": "Erweiterter Modus",
         "groupByEndpoint": "Nach Endpoint gruppieren",
-        "searchPlaceholder": "Suchen (z. B. \\@beispiel)",
+        "searchPlaceholder": "Suchen (z. B. \\@beispiel)"
+    },
     "editor": {
         "files": "Dateien",
         "newFile": "Neue Datei",
@@ -176,5 +177,4 @@
         "dropToOpen": "Zum Öffnen der Datei ablegen",
         "noFileOpen": "Keine Datei geöffnet"
     }
-}
 }

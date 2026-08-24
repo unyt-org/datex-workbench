@@ -163,7 +163,8 @@
     "comhub": {
         "advancedMode": "उन्नत मोड",
         "groupByEndpoint": "एंडपॉइंट के अनुसार समूहित करें",
-        "searchPlaceholder": "खोजें (जैसे \\@उदाहरण)",
+        "searchPlaceholder": "खोजें (जैसे \\@उदाहरण)"
+    },
     "editor": {
         "files": "फ़ाइलें",
         "newFile": "नई फ़ाइल",
@@ -176,5 +177,4 @@
         "dropToOpen": "फ़ाइल खोलने के लिए छोड़ें",
         "noFileOpen": "कोई फ़ाइल खुली नहीं है"
     }
-}
 }
