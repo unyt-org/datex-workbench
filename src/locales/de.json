@@ -5,10 +5,12 @@
         "networkDesc": "DATEX-Netzwerkblöcke in Echtzeit überwachen und untersuchen",
         "nodeDesc": "Den DATEX-Knotengraphen visualisieren und bearbeiten",
         "editorDesc": "DATEX-Dateien direkt in der Workbench bearbeiten",
+        "aboutDesc": "Runtime-Informationen anzeigen",
         "replDesc": "Interaktive DATEX-Runtime-Umgebung",
         "soon": "Bald",
         "fileEditor": "Datei-Editor",
-        "repl": "REPL"
+        "repl": "REPL",
+        "memoryDesc": "Shared Values im Cache und Speicher anzeigen und untersuchen"
     },
     "common": {
         "loading": "Lädt...",
@@ -38,8 +40,8 @@
     },
     "nav": {
         "welcome": "Willkommen",
-        "block": "Block",
-        "network": "Netzwerk",
+        "block": "Block Viewer",
+        "networkInspector": "Netzwerk-Inspektor",
         "nodeView": "Knotenansicht",
         "networkTree": "Netzwerk-Baum",
         "collection": "Sammlung",
@@ -47,7 +49,8 @@
         "repl": "REPL",
         "comhub": "ComHub",
         "networkVisualizer": "Netzwerk-Visualisierer",
-        "preferences": "Einstellungen"
+        "preferences": "Einstellungen",
+        "memory": "Speicher"
     },
     "block": {
         "openFile": "Datei öffnen",
@@ -61,8 +64,8 @@
         "failedToLoadExample": "Beispielblock konnte nicht geladen werden"
     },
     "disassembler": {
-        "disassembler": "DISASSEMBLER",
-        "decompiler": "DECOMPILER",
+        "disassembler": "INSTRUCTIONS",
+        "decompiler": "DECOMPILED CODE",
         "tree": "Baum",
         "flat": "Flach",
         "nested": "Verschachtelt",
@@ -80,6 +83,7 @@
         "columnInterface": "Schnittstelle",
         "columnSender": "Absender",
         "columnReceiver": "Empfänger",
+        "blockId": "Block-ID",
         "columnTime": "Zeit",
         "columnSize": "Größe",
         "columns": "Spalten",

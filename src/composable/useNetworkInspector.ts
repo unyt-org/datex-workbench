@@ -94,6 +94,38 @@ function getSignatureType(parsedBlock: ParsedSection[]): string {
         : 'Unknown';
 }
 
+function getBlockId(parsedBlock: ParsedSection[]): {
+    contextId: number;
+    sectionIndex: number;
+    blockNumber: number;
+} {
+    const blockHeader = parsedBlock.find((section) => section.name === 'Block Header');
+    if (!blockHeader) return { contextId: 0, sectionIndex: 0, blockNumber: 0 };
+
+    // get Context ID field
+    const contextIdField = blockHeader.fields.find((field) => field.name === 'Context ID');
+    const contextId =
+        contextIdField && 'parsedValue' in contextIdField
+            ? Number(contextIdField.parsedValue) || 0
+            : 0;
+
+    // get Section Index field
+    const sectionIndexField = blockHeader.fields.find((field) => field.name === 'Section Index');
+    const sectionIndex =
+        sectionIndexField && 'parsedValue' in sectionIndexField
+            ? Number(sectionIndexField.parsedValue) || 0
+            : 0;
+
+    // get Block Number field
+    const blockNumberField = blockHeader.fields.find((field) => field.name === 'Block Number');
+    const blockNumber =
+        blockNumberField && 'parsedValue' in blockNumberField
+            ? Number(blockNumberField.parsedValue) || 0
+            : 0;
+
+    return { contextId, sectionIndex, blockNumber };
+}
+
 // Extract all metadata once from parsed block
 function extractBlockMetadata(parsedBlock: ParsedSection[]) {
     return {
@@ -104,6 +136,7 @@ function extractBlockMetadata(parsedBlock: ParsedSection[]) {
         size: getBlockSize(parsedBlock),
         encryptionType: getEncryptionType(parsedBlock),
         signatureType: getSignatureType(parsedBlock),
+        blockId: getBlockId(parsedBlock),
     };
 }
 
@@ -113,6 +146,12 @@ const MAX_STORED_BLOCKS = 200;
 const INITIAL_DISPLAYED_BLOCKS = 20;
 const LOAD_MORE_INCREMENT = 20;
 
+export type BlockId = {
+    contextId: number;
+    sectionIndex: number;
+    blockNumber: number;
+};
+
 // Serializable block entry for localStorage
 interface StoredBlockEntry {
     blockBase64: string;
@@ -120,6 +159,7 @@ interface StoredBlockEntry {
     socketUuid: string;
     interfaceName: string;
     capturedAt: number;
+    blockId: BlockId;
 }
 
 // Utility functions for base64 conversion
@@ -151,6 +191,7 @@ function saveBlocksToStorage(blocks: RawBlockEntry[]): void {
             socketUuid: block.socketUuid,
             interfaceName: block.interfaceName,
             capturedAt: block.capturedAt,
+            blockId: block.blockId,
         }));
         localStorage.setItem(STORAGE_KEY, JSON.stringify(storedBlocks));
     } catch (error) {
@@ -220,20 +261,19 @@ function sendTestBlock() {
     return Datex.execute('@@local :: 1 + 41');
 }
 
-Datex.comHub.registerIncomingBlockInterceptor((block: Uint8Array, socket_uuid: string) => {
+function handleBlock(block: Uint8Array, socket_uuid: string, direction: 'in' | 'out') {
     const parsedBlock = parseStructure(definition, block);
-    console.log(parsedBlock, socket_uuid);
 
     // Extract metadata once at capture time
     const metadata = extractBlockMetadata(parsedBlock);
 
-    // Add new block at the beginning (top of list)
-    blocks.value.unshift({
-        direction: 'in',
+    // Add new block
+    blocks.value.push({
+        direction,
         parsedBlock,
         originalBinary: block,
         socketUuid: socket_uuid,
-        interfaceName: 'local',
+        interfaceName: 'todo',
         capturedAt: Date.now(),
         ...metadata,
     });
@@ -253,7 +293,16 @@ Datex.comHub.registerIncomingBlockInterceptor((block: Uint8Array, socket_uuid: s
     }
 
     // Persist to localStorage
-    saveBlocksToStorage(blocks.value);
+    // TODO: enable via preferences
+    // saveBlocksToStorage(blocks.value);
+}
+
+Datex.comHub.registerIncomingBlockInterceptor((block: Uint8Array, socket_uuid: string) => {
+    handleBlock(block, socket_uuid, 'in');
+});
+
+Datex.comHub.registerOutgoingBlockInterceptor((block: Uint8Array, socket_uuid: string) => {
+    handleBlock(block, socket_uuid, 'out');
 });
 
 export function useNetworkInspector() {

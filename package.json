@@ -1,6 +1,6 @@
 {
     "name": "datex-workbench",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "private": true,
     "type": "module",
     "engines": {
@@ -23,7 +23,7 @@
         "@tanstack/vue-table": "^8.21.3",
         "@tanstack/vue-virtual": "^3.13.23",
         "@unyt/datex": "0.0.15",
-        "@unyt/speck": "0.0.12",
+        "@unyt/speck": "^0.0.13",
         "@vueuse/core": "^14.2.1",
         "ag-grid-community": "^35.0.0",
         "ag-grid-vue3": "^35.0.0",
@@ -44,8 +44,8 @@
         "vue": "^3.5.22",
         "vue-i18n": "^11.4.0",
         "vue-router": "^4.6.3",
-        "vuedraggable": "^4.1.0",
-        "vue-sonner": "^2.0.9"
+        "vue-sonner": "^2.0.9",
+        "vuedraggable": "^4.1.0"
     },
     "devDependencies": {
         "@iconify-json/radix-icons": "^1.2.5",

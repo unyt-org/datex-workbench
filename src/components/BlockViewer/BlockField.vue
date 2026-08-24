@@ -1,17 +1,28 @@
 <script setup lang="ts">
-import type { FieldDefinition, ParsedField } from '@unyt/speck';
+import type { FieldDefinition, ParsedField, ParsedValue } from '@unyt/speck';
 import { getColor } from '@/views/BlockViewer/settings';
+import { getInstructionColor } from '@/lib/instruction-types';
 // import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps<{
     field: ParsedField;
     shortenWithDots: boolean;
     fieldDef: FieldDefinition;
+    grayOut: boolean;
 }>();
 
 function byteToHexString(b: number): string {
     return b.toString(16).padStart(2, '0');
+}
+
+function getByteColor(fieldDef: FieldDefinition, parsedValue: ParsedValue): string {
+    if (typeof parsedValue === 'string') {
+        const instructionColor = getInstructionColor(parsedValue);
+        if (instructionColor) {
+            return instructionColor;
+        }
+    }
+    return getColor(fieldDef);
 }
 </script>
 
@@ -22,7 +33,7 @@ function byteToHexString(b: number): string {
                 <Tooltip>
                     <TooltipTrigger
                         class="byte-wrapper"
-                        :style="{ backgroundColor: getColor(fieldDef) }"
+                        :style="{ backgroundColor: getByteColor(indexInner) }"
                         >{{ byteToHexString(byte) }}</TooltipTrigger
                     >
                     <TooltipContent>
@@ -34,7 +45,7 @@ function byteToHexString(b: number): string {
                 <Tooltip>
                     <TooltipTrigger
                         class="byte-wrapper"
-                        :style="{ backgroundColor: getColor(fieldDef) }"
+                        :style="{ backgroundColor: getByteColor(0) }"
                         >..</TooltipTrigger
                     >
                     <TooltipContent>
@@ -47,12 +58,30 @@ function byteToHexString(b: number): string {
 
     <div class="field-styling contents">
         <div v-for="(byte, indexInner) in field.bytes" :key="indexInner">
-            <div class="byte-wrapper text-base" :style="{ backgroundColor: getColor(fieldDef) }">
+            <div
+                class="byte-wrapper text-base"
+                :style="{
+                    backgroundColor: getByteColor(
+                        fieldDef,
+                        'parsedValue' in field ? field.parsedValue : null,
+                    ),
+                }"
+                :class="{ 'greyed-out': props.grayOut }"
+            >
                 {{ byteToHexString(byte) }}
             </div>
         </div>
         <div v-if="shortenWithDots">
-            <div class="byte-wrapper text-base" :style="{ backgroundColor: getColor(fieldDef) }">
+            <div
+                class="byte-wrapper text-base"
+                :style="{
+                    backgroundColor: getByteColor(
+                        fieldDef,
+                        'parsedValue' in field ? field.parsedValue : null,
+                    ),
+                }"
+                :class="{ 'greyed-out': props.grayOut }"
+            >
                 ..
             </div>
         </div>
@@ -100,5 +129,9 @@ function byteToHexString(b: number): string {
             padding-right: calc((var(--total-column-width) - 2ch) / 2);
         }
     }
+}
+
+.greyed-out {
+    filter: grayscale(100%) opacity(80%) !important;
 }
 </style>

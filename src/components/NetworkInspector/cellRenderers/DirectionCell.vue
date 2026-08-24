@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, ArrowRight } from 'lucide-vue-next';
+import { MoveLeft, MoveRight } from 'lucide-vue-next';
 
 const props = defineProps<{
     value: string;
@@ -8,7 +8,7 @@ const props = defineProps<{
 
 <template>
     <div class="flex items-center">
-        <ArrowLeft v-if="props.value === 'in'" class="h-4 w-4 text-green-500" />
-        <ArrowRight v-else class="h-4 w-4 text-blue-500" />
+        <MoveLeft v-if="props.value === 'in'" class="h-4 w-4" />
+        <MoveRight v-else class="h-4 w-4" />
     </div>
 </template>

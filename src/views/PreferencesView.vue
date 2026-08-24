@@ -9,15 +9,42 @@ const { preferences, resetSection, resetAll } = usePreferences();
 const showResetAllConfirm = ref(false);
 
 const datexRuntimePatchUrl = ref(localStorage.getItem('localDatexModuleUrl') || '');
+const datexRuntimeLogLevel = ref(localStorage.getItem('datexRuntimeLogLevel') || '');
 const localDatexModuleUrlFailed = localStorage.getItem('localDatexModuleUrlFailed') === 'true';
+
+const websocketServerEndpoint = ref(localStorage.getItem('websocketServerEndpoint') || '');
 
 function saveDatexRuntimePatchUrl() {
     if (datexRuntimePatchUrl.value) {
         localStorage.setItem('localDatexModuleUrl', datexRuntimePatchUrl.value);
     } else {
         localStorage.removeItem('localDatexModuleUrl');
+        localStorage.removeItem('localDatexModuleUrlFailed');
     }
-    // reload the page to apply the new patch
+}
+
+function saveWebsocketServerEndpoint() {
+    if (websocketServerEndpoint.value) {
+        localStorage.setItem('websocketServerEndpoint', websocketServerEndpoint.value);
+    } else {
+        localStorage.removeItem('websocketServerEndpoint');
+    }
+}
+
+function saveDatexRuntimeLogLevel() {
+    if (datexRuntimeLogLevel.value) {
+        localStorage.setItem('datexRuntimeLogLevel', datexRuntimeLogLevel.value);
+    } else {
+        localStorage.removeItem('datexRuntimeLogLevel');
+    }
+}
+
+function saveAdvancedSettings() {
+    saveDatexRuntimePatchUrl();
+    saveWebsocketServerEndpoint();
+    saveDatexRuntimeLogLevel();
+
+    // reload the page to apply changes
     window.location.reload();
 }
 
@@ -140,6 +167,7 @@ function confirmResetAll() {
             <section class="rounded-xl border border-border bg-card p-6">
                 <header class="mb-4 flex items-center justify-between">
                     <h2 class="text-lg font-medium text-foreground">Advanced</h2>
+                    <Button class="ml-2" @click="saveAdvancedSettings"> Save </Button>
                 </header>
 
                 <div class="space-y-4">
@@ -157,7 +185,49 @@ function confirmResetAll() {
                                 placeholder="Enter URL to DATEX Runtime patch"
                                 :class="`bg-background border border-border rounded-md px-3 py-1.5 text-sm text-foreground w-70 ${localDatexModuleUrlFailed ? 'border-rose-500' : ''}`"
                             />
-                            <Button class="ml-2" @click="saveDatexRuntimePatchUrl"> Save </Button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4 mt-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm text-foreground">Websocket Server Endpoint</div>
+                            <div class="text-xs text-muted-foreground">
+                                WebSocket URL to connect to
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <input
+                                v-model="websocketServerEndpoint"
+                                type="text"
+                                placeholder="wss://example.unyt.land"
+                                :class="`bg-background border border-border rounded-md px-3 py-1.5 text-sm text-foreground w-70`"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4 mt-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm text-foreground">DATEX Runtime log level</div>
+                            <div class="text-xs text-muted-foreground">
+                                Set the log level for the DATEX Runtime
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <select
+                                v-model="datexRuntimeLogLevel"
+                                :class="`bg-background border border-border rounded-md px-3 py-1.5 text-sm text-foreground`"
+                            >
+                                <option default value="">Disable Logs</option>
+                                <option value="trace">Trace</option>
+                                <option value="debug">Debug</option>
+                                <option value="info">Info</option>
+                                <option value="warn">Warn</option>
+                                <option value="error">Error</option>
+                            </select>
                         </div>
                     </div>
                 </div>

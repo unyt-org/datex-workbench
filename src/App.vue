@@ -14,6 +14,7 @@ try {
 } catch {
     localPatchHost = localPatch;
 }
+
 const localDatexModuleUrlFailed = localStorage.getItem('localDatexModuleUrlFailed') === 'true';
 const version = Datex.js_version;
 </script>
@@ -40,7 +41,7 @@ const version = Datex.js_version;
         <div v-if="!localDatexModuleUrlFailed && localPatchHost">
             <RouterLink
                 :to="{ name: 'preferences' }"
-                class="absolute top-5 right-5 bg-blue-400/80 px-2 py-1 rounded text-sm z-50 flex items-center"
+                class="group absolute bottom-3 right-3 bg-blue-400/80 px-2 py-1 rounded text-sm z-50 flex items-center"
             >
                 <InfoIcon class="inline-block size-4 mr-1" />
                 <span
@@ -55,7 +56,7 @@ const version = Datex.js_version;
         <div v-if="localDatexModuleUrlFailed">
             <RouterLink
                 :to="{ name: 'preferences' }"
-                class="absolute top-5 right-5 bg-rose-400/80 px-2 py-1 rounded text-sm z-50 flex items-center"
+                class="absolute bottom-3 right-3 bg-rose-400/80 px-2 py-1 rounded text-sm z-50 flex items-center"
             >
                 <TriangleAlert class="inline-block size-4 mr-1" />
                 <span

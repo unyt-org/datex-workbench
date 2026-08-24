@@ -1,4 +1,5 @@
 import PointerView from '@/components/PointerView.vue';
+import MemoryView from '@/components/Memory/MemoryView.vue';
 import { getPointers } from '@/lib/runtime';
 // import WindowGeneralView from '@/views/WindowGeneralView.vue';
 import { createRouter, createWebHistory } from 'vue-router';
@@ -56,6 +57,11 @@ const router = createRouter({
             path: '/pointers',
             component: PointerView,
             props: { pointers: getPointers() },
+        },
+        {
+            path: '/memory',
+            name: 'memory',
+            component: MemoryView,
         },
         {
             path: '/repl',

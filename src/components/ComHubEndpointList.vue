@@ -54,7 +54,7 @@
                             <div class="dim mt-1 flex items-center gap-2 text-xs">
                                 <span
                                     >Known since
-                                    {{ formatTime(socket.properties.known_since) }}</span
+                                    {{ formatTime(Number(socket.properties.known_since)) }}</span
                                 >
                                 <span>·</span>
                                 <span>Distance: {{ socket.properties.distance }}</span>
