@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import {
-    type InstructionParts,
-    getInstructionParts,
-} from '@/types/disassembler';
+import { type InstructionParts, getInstructionParts } from '@/types/disassembler';
 import type { Span, InstructionTree } from '@/lib/_temp_types.ts';
 import InstructionLabel from './InstructionLabel.vue';
 import { Plus, Minus } from 'lucide-vue-next';
@@ -47,7 +44,12 @@ const innerNode = computed<InstructionTree | null>(() => {
 const hasExpandableContent = computed(() => children.value.length > 0 || innerNode.value !== null);
 const bgStyle = computed(() => {
     if (props.nestingLevel === 0) return {};
-    return { backgroundColor: `rgba(128, 128, 128, 0.08)`, borderRadius: '4px', paddingTop: '4px', paddingBottom: '4px' };
+    return {
+        backgroundColor: `rgba(128, 128, 128, 0.08)`,
+        borderRadius: '4px',
+        paddingTop: '4px',
+        paddingBottom: '4px',
+    };
 });
 
 const isOpen = ref(true);
@@ -56,16 +58,20 @@ function toggle() {
     isOpen.value = !isOpen.value;
 }
 
-function focusSpan(span: Span|null) {
-  selectedBodySpan.value = span;
+function focusSpan(span: Span | null) {
+    selectedBodySpan.value = span;
 }
-
 </script>
 
 <template>
     <!-- ── Expandable node ── -->
     <div class="root" v-if="hasExpandableContent" :style="isInnerScope && bgStyle">
-        <div class="tree-row cursor-pointer" @click="toggle" @mouseenter="focusSpan(parts.span)" @mouseleave="focusSpan(null)">
+        <div
+            class="tree-row cursor-pointer"
+            @click="toggle"
+            @mouseenter="focusSpan(parts.span)"
+            @mouseleave="focusSpan(null)"
+        >
             <!-- Ancestor vertical lines -->
             <span
                 v-for="(isParentLast, idx) in prefixParts"
@@ -75,7 +81,15 @@ function focusSpan(span: Span|null) {
             />
 
             <!-- Junction with expand icon -->
-            <span v-if="true" class="tree-junction" :class="{ 'expanded': isOpen, 'is-last': isLast, 'is-root': depth === 0 || isInnerScope }">
+            <span
+                v-if="true"
+                class="tree-junction"
+                :class="{
+                    expanded: isOpen,
+                    'is-last': isLast,
+                    'is-root': depth === 0 || isInnerScope,
+                }"
+            >
                 <span class="expand-box">
                     <Minus v-if="isOpen" class="size-3" />
                     <Plus v-else class="size-3" />
@@ -83,7 +97,7 @@ function focusSpan(span: Span|null) {
             </span>
 
             <!-- Horizontal connector -->
-            <span v-if="true" class="tree-hline" :class="{ 'expanded': isOpen }" />
+            <span v-if="true" class="tree-hline" :class="{ expanded: isOpen }" />
             <InstructionLabel :name="parts.name" :meta="parts.meta" />
         </div>
 
@@ -123,7 +137,11 @@ function focusSpan(span: Span|null) {
             class="tree-indent"
             :class="{ 'has-line': !isParentLast && idx >= stripParentsBeforeIndex }"
         ></span>
-        <span v-if="depth > 0" class="tree-junction leaf" :class="{ 'is-last': isLast, 'is-root': depth === 0 || isInnerScope }" />
+        <span
+            v-if="depth > 0"
+            class="tree-junction leaf"
+            :class="{ 'is-last': isLast, 'is-root': depth === 0 || isInnerScope }"
+        />
         <InstructionLabel :name="parts.name" :meta="parts.meta" />
     </div>
 </template>
@@ -142,7 +160,6 @@ function focusSpan(span: Span|null) {
 .tree-row:hover {
     background-color: rgba(100, 100, 100, 0.2);
 }
-
 
 /* ── Indent column (ancestor vertical lines) ── */
 .tree-indent {
@@ -256,8 +273,6 @@ function focusSpan(span: Span|null) {
     position: absolute;
     top: 10px;
 }
-
-
 
 /* ── Expand/Collapse box ── */
 .expand-box {

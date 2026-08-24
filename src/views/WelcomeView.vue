@@ -7,7 +7,6 @@ import { sidebarItems } from '@/lib/sidebar-items';
 const { t } = useI18n();
 const router = useRouter();
 
-
 const quickActionItems = ['repl', 'networkInspector', 'memory', 'about'];
 
 const quickActions = sidebarItems

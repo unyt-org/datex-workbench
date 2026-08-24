@@ -15,7 +15,7 @@ export interface InstructionParts {
 export function getInstructionParts(
     instruction: TreeInstruction | FlatInstruction,
 ): InstructionParts {
-    const {span, instruction: instr} = instruction;
+    const { span, instruction: instr } = instruction;
     if (typeof instr === 'string') {
         return { name: instr, meta: null, inner: null, span };
     }

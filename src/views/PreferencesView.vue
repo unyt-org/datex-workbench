@@ -167,9 +167,7 @@ function confirmResetAll() {
             <section class="rounded-xl border border-border bg-card p-6">
                 <header class="mb-4 flex items-center justify-between">
                     <h2 class="text-lg font-medium text-foreground">Advanced</h2>
-                    <Button class="ml-2" @click="saveAdvancedSettings">
-                        Save
-                    </Button>
+                    <Button class="ml-2" @click="saveAdvancedSettings"> Save </Button>
                 </header>
 
                 <div class="space-y-4">
@@ -233,7 +231,6 @@ function confirmResetAll() {
                         </div>
                     </div>
                 </div>
-
             </section>
 
             <!-- Reset all confirmation -->

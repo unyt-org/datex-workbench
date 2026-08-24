@@ -25,8 +25,12 @@ const showNested = ref(true);
 const selectedBodySpan = defineModel<null | Span>();
 
 // ─── Disassembly ────────────────────────────────────────────
-const treeData = computed(() => Datex.disassembleDXBTree(props.dxb)) as ComputedRef<[InstructionTree, string | null]>;
-const flatData = computed(() => Datex.disassembleDXBFlat(props.dxb)) as ComputedRef<[FlatInstruction[], string | null]>;
+const treeData = computed(() => Datex.disassembleDXBTree(props.dxb)) as ComputedRef<
+    [InstructionTree, string | null]
+>;
+const flatData = computed(() => Datex.disassembleDXBFlat(props.dxb)) as ComputedRef<
+    [FlatInstruction[], string | null]
+>;
 const error = computed(() => (viewMode.value === 'tree' ? treeData.value[1] : flatData.value[1]));
 
 let decompiledCode: ComputedRef<string> | string = '';
@@ -123,7 +127,11 @@ try {
             <div>
                 <!-- Tree mode -->
                 <template v-if="viewMode === 'tree' && treeData[0]">
-                    <InstructionTreeNode :node="treeData[0]" :show-nested="showNested" v-model="selectedBodySpan" />
+                    <InstructionTreeNode
+                        :node="treeData[0]"
+                        :show-nested="showNested"
+                        v-model="selectedBodySpan"
+                    />
                 </template>
 
                 <!-- Flat mode -->
