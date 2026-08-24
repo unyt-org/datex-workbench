@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import {
-    type InstructionParts,
-    getInstructionParts,
-} from '@/types/disassembler';
+import { type InstructionParts, getInstructionParts } from '@/types/disassembler';
 import type { FlatInstruction, Span } from '@/lib/_temp_types.ts';
 import InstructionLabel from './InstructionLabel.vue';
 
@@ -35,26 +32,32 @@ const bgStyle = computed(() => {
     return { backgroundColor: `rgba(128, 128, 128, 0.08)`, borderRadius: '4px', padding: '4px' };
 });
 
-function focusSpan(span: Span|null) {
-  selectedBodySpan.value = span;
+function focusSpan(span: Span | null) {
+    selectedBodySpan.value = span;
 }
 </script>
 
 <template>
     <!-- Node with inner instructions: collapsible -->
-    <details v-if="hasExpandableContent" open class="flat-node" @mouseenter="focusSpan(parts.span)" @mouseleave="focusSpan(null)">
+    <details
+        v-if="hasExpandableContent"
+        open
+        class="flat-node"
+        @mouseenter="focusSpan(parts.span)"
+        @mouseleave="focusSpan(null)"
+    >
         <summary class="flat-line">
             <InstructionLabel :name="parts.name" :meta="parts.meta" />
         </summary>
 
         <div :style="bgStyle">
-          <InstructionFlatItem
-            v-for="(nested, i) in innerInstructions"
-            :key="i"
-            :instruction="nested as FlatInstruction"
-            :show-nested="showNested"
-            :indent-level="indentLevel + 1"
-        />
+            <InstructionFlatItem
+                v-for="(nested, i) in innerInstructions"
+                :key="i"
+                :instruction="nested as FlatInstruction"
+                :show-nested="showNested"
+                :indent-level="indentLevel + 1"
+            />
         </div>
     </details>
 

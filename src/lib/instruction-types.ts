@@ -10,6 +10,6 @@ export const typeColors: Record<string, string> = {
 
 export function getInstructionColor(name: string, light = false): string {
     const type = (instructionTypes as Record<string, string>)[name];
-    const colorName = (type && type in typeColors) ? type : 'DEFAULT';
+    const colorName = type && type in typeColors ? type : 'DEFAULT';
     return `var(--${typeColors[colorName]}${light ? '-light' : ''})`;
 }

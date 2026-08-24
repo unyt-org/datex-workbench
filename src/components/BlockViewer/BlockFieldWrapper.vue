@@ -13,7 +13,6 @@ const props = defineProps<{
     grayOut: boolean;
 }>();
 
-
 const emit = defineEmits(['field-clicked']);
 function handleClick() {
     emit(
@@ -58,7 +57,12 @@ const subfieldsMatchByteLength =
             </BlockField>
         </div>
         <div v-else-if="!subfieldsMatchByteLength" class="contents">
-            <BlockField :field="field" :shortenWithDots="false" :fieldDef="fieldDef" :grayOut="grayOut"></BlockField>
+            <BlockField
+                :field="field"
+                :shortenWithDots="false"
+                :fieldDef="fieldDef"
+                :grayOut="grayOut"
+            ></BlockField>
         </div>
         <div v-else class="subfield-wrapper contents">
             <BlockField

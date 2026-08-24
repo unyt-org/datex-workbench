@@ -6,7 +6,7 @@ import {
     GitGraph,
     Info,
     EthernetPort,
-    Database
+    Database,
 } from 'lucide-vue-next';
 
 export const sidebarItems = [
@@ -18,11 +18,11 @@ export const sidebarItems = [
         description: 'welcome.replDesc',
     },
     {
-      icon: Database,
-      key: 'memory',
-      path: '/memory',
-      label: 'nav.memory',
-      description: 'welcome.memoryDesc',
+        icon: Database,
+        key: 'memory',
+        path: '/memory',
+        label: 'nav.memory',
+        description: 'welcome.memoryDesc',
     },
     {
         icon: EthernetPort,

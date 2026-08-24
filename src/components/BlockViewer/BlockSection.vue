@@ -49,7 +49,6 @@ function findField(fieldIdentifier: FieldIdentifier | null): ParsedField | null 
     const field = section.fields[fieldIdentifier.fieldIndex];
     return field || null;
 }
-
 </script>
 
 <template>
@@ -63,7 +62,8 @@ function findField(fieldIdentifier: FieldIdentifier | null): ParsedField | null 
                     'selected-field':
                         selectedField &&
                         sectionId === selectedField.sectionIndex &&
-                        (index === selectedField.fieldIndex || findField(selectedField)?.name === field.name),
+                        (index === selectedField.fieldIndex ||
+                            findField(selectedField)?.name === field.name),
                 }"
             >
                 <BlockFieldWrapper

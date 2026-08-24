@@ -24,7 +24,6 @@ function getByteColor(fieldDef: FieldDefinition, parsedValue: ParsedValue): stri
     }
     return getColor(fieldDef);
 }
-
 </script>
 
 <template>
@@ -59,12 +58,30 @@ function getByteColor(fieldDef: FieldDefinition, parsedValue: ParsedValue): stri
 
     <div class="field-styling contents">
         <div v-for="(byte, indexInner) in field.bytes" :key="indexInner">
-            <div class="byte-wrapper text-base" :style="{ backgroundColor: getByteColor(fieldDef, 'parsedValue' in field ? field.parsedValue : null) }" :class="{ 'greyed-out': props.grayOut }">
+            <div
+                class="byte-wrapper text-base"
+                :style="{
+                    backgroundColor: getByteColor(
+                        fieldDef,
+                        'parsedValue' in field ? field.parsedValue : null,
+                    ),
+                }"
+                :class="{ 'greyed-out': props.grayOut }"
+            >
                 {{ byteToHexString(byte) }}
             </div>
         </div>
         <div v-if="shortenWithDots">
-            <div class="byte-wrapper text-base" :style="{ backgroundColor: getByteColor(fieldDef, 'parsedValue' in field ? field.parsedValue : null) }" :class="{ 'greyed-out': props.grayOut }">
+            <div
+                class="byte-wrapper text-base"
+                :style="{
+                    backgroundColor: getByteColor(
+                        fieldDef,
+                        'parsedValue' in field ? field.parsedValue : null,
+                    ),
+                }"
+                :class="{ 'greyed-out': props.grayOut }"
+            >
                 ..
             </div>
         </div>
@@ -115,7 +132,6 @@ function getByteColor(fieldDef: FieldDefinition, parsedValue: ParsedValue): stri
 }
 
 .greyed-out {
-    filter: grayscale(100%) opacity(80%)!important;
+    filter: grayscale(100%) opacity(80%) !important;
 }
-
 </style>
