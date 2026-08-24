@@ -7,6 +7,9 @@ import EditorTabs from '@/components/Editor/EditorTabs.vue';
 import type { FileTreeNode } from '@/types/FileTree';
 import { getFileDragPath } from '@/composable/useFileDragDrop';
 import * as tabs from '@/composable/useEditorTabs';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 // ── Workspace setup ────────────────────────────────────────────────
 const workspace = new Workspace({
@@ -484,7 +487,7 @@ onMounted(async () => {
                     <div
                         class="bg-sidebar text-sidebar-foreground rounded px-4 py-2 text-sm shadow-lg"
                     >
-                        Drop to open file
+                        {{ t('editor.dropToOpen') }}
                     </div>
                 </div>
 
@@ -509,7 +512,7 @@ onMounted(async () => {
                     v-show="!tabs.activeFile.value"
                     class="pointer-events-none absolute inset-0 top-[37px] flex items-center justify-center bg-[#1e1e1e] opacity-50 select-none"
                 >
-                    No file is open
+                    {{ t('editor.noFileOpen') }}
                 </div>
             </div>
         </ResizablePanel>

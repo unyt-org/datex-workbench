@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import { FilePlus, FolderPlus, TriangleAlert, File as FileIcon, Folder } from 'lucide-vue-next';
 import { cn } from '@/lib/utils';
 import { ref, nextTick, computed, onMounted, onUnmounted } from 'vue';
@@ -10,6 +11,8 @@ import { useFileSelection } from '@/composable/useFileSelection';
 import { useFileClipboard } from '@/composable/useFileClipboard';
 import { isMac } from '@/composable/usePlatform';
 import { getFileDragPath, isInvalidDrop, clearFileDragOver } from '@/composable/useFileDragDrop';
+
+const { t } = useI18n();
 
 // ── Props ──────────────────────────────────────────────────────────
 interface Props {
@@ -378,19 +381,19 @@ onUnmounted(() => {
     >
         <!-- Header with Actions -->
         <div class="border-sidebar-border flex items-center justify-between border-b px-4 py-3">
-            <h2 class="text-sidebar-foreground text-sm font-semibold">Files</h2>
+            <h2 class="text-sidebar-foreground text-sm font-semibold">{{ t('editor.files') }}</h2>
             <div class="flex items-center gap-1">
                 <button
                     @click="startCreateFileAtRoot"
                     class="hover:bg-sidebar-accent rounded p-1.5 transition-colors"
-                    title="New File"
+                    :title="t('editor.newFile')"
                 >
                     <FilePlus class="text-sidebar-foreground h-4 w-4" />
                 </button>
                 <button
                     @click="startCreateFolderAtRoot"
                     class="hover:bg-sidebar-accent rounded p-1.5 transition-colors"
-                    title="New Folder"
+                    :title="t('editor.newFolder')"
                 >
                     <FolderPlus class="text-sidebar-foreground h-4 w-4" />
                 </button>
@@ -420,7 +423,9 @@ onUnmounted(() => {
                             @blur="handleRootBlur"
                             type="text"
                             :placeholder="
-                                rootCreationType === 'file' ? 'filename.ext' : 'foldername'
+                                rootCreationType === 'file'
+                                    ? t('editor.filenamePlaceholder')
+                                    : t('editor.foldernamePlaceholder')
                             "
                             :class="
                                 cn(
@@ -437,10 +442,11 @@ onUnmounted(() => {
                         class="mx-3 mt-0.5 flex items-start gap-1.5 rounded border border-red-500 bg-[#5a1d1d] px-2 py-1 text-xs text-red-200"
                     >
                         <TriangleAlert class="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-red-400" />
-                        <span
-                            >A file or folder <strong>{{ newItemName.trim() }}</strong> already
-                            exists. Please choose a different name.</span
-                        >
+                        <i18n-t keypath="editor.duplicateExists" tag="span">
+                            <template #name>
+                                <strong>{{ newItemName.trim() }}</strong>
+                            </template>
+                        </i18n-t>
                     </div>
                 </div>
 

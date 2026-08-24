@@ -30,7 +30,11 @@
         "unavailable": "अनुपलब्ध",
         "unlimited": "असीमित",
         "reset": "रीसेट",
-        "searchPlaceholder": "खोजें: type:traceback sender:name"
+        "searchPlaceholder": "खोजें: type:traceback sender:name",
+        "cut": "कट",
+        "copy": "कॉपी",
+        "paste": "पेस्ट",
+        "rename": "नाम बदलें"
     },
     "theme": {
         "toggle": "थीम बदलें",
@@ -159,6 +163,18 @@
     "comhub": {
         "advancedMode": "उन्नत मोड",
         "groupByEndpoint": "एंडपॉइंट के अनुसार समूहित करें",
-        "searchPlaceholder": "खोजें (जैसे \\@उदाहरण)"
+        "searchPlaceholder": "खोजें (जैसे \\@उदाहरण)",
+    "editor": {
+        "files": "फ़ाइलें",
+        "newFile": "नई फ़ाइल",
+        "newFolder": "नया फ़ोल्डर",
+        "filenamePlaceholder": "फ़ाइलनाम.ext",
+        "foldernamePlaceholder": "फ़ोल्डरनाम",
+        "duplicateExists": "फ़ाइल या फ़ोल्डर {name} पहले से मौजूद है। कृपया दूसरा नाम चुनें।",
+        "copyPath": "पथ कॉपी करें",
+        "copyRelativePath": "सापेक्ष पथ कॉपी करें",
+        "dropToOpen": "फ़ाइल खोलने के लिए छोड़ें",
+        "noFileOpen": "कोई फ़ाइल खुली नहीं है"
     }
+}
 }
