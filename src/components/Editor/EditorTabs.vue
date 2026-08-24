@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { X } from 'lucide-vue-next';
 import { cn } from '@/lib/utils';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 // ── Props ──────────────────────────────────────────────────────────
 interface Props {
@@ -76,7 +79,11 @@ function handleMiddleClick(e: MouseEvent, path: string) {
             <span class="editor-tab__name">{{ fileName(path) }}</span>
 
             <!-- Close button -->
-            <button class="editor-tab__close" title="Close" @click.stop="emit('tab-close', path)">
+            <button
+                class="editor-tab__close"
+                :title="t('common.close')"
+                @click.stop="emit('tab-close', path)"
+            >
                 <X class="h-3 w-3" />
             </button>
         </div>

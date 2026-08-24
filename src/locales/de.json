@@ -30,7 +30,11 @@
         "unavailable": "Nicht verfügbar",
         "unlimited": "Unbegrenzt",
         "reset": "Zurücksetzen",
-        "searchPlaceholder": "Suchen: type:traceback sender:name"
+        "searchPlaceholder": "Suchen: type:traceback sender:name",
+        "cut": "Ausschneiden",
+        "copy": "Kopieren",
+        "paste": "Einfügen",
+        "rename": "Umbenennen"
     },
     "theme": {
         "toggle": "Design umschalten",
@@ -159,6 +163,18 @@
     "comhub": {
         "advancedMode": "Erweiterter Modus",
         "groupByEndpoint": "Nach Endpoint gruppieren",
-        "searchPlaceholder": "Suchen (z. B. \\@beispiel)"
+        "searchPlaceholder": "Suchen (z. B. \\@beispiel)",
+    "editor": {
+        "files": "Dateien",
+        "newFile": "Neue Datei",
+        "newFolder": "Neuer Ordner",
+        "filenamePlaceholder": "dateiname.erw",
+        "foldernamePlaceholder": "ordnername",
+        "duplicateExists": "Eine Datei oder ein Ordner {name} existiert bereits. Bitte wählen Sie einen anderen Namen.",
+        "copyPath": "Pfad kopieren",
+        "copyRelativePath": "Relativen Pfad kopieren",
+        "dropToOpen": "Zum Öffnen der Datei ablegen",
+        "noFileOpen": "Keine Datei geöffnet"
     }
+}
 }

@@ -30,7 +30,11 @@
         "unavailable": "Unavailable",
         "unlimited": "Unlimited",
         "reset": "Reset",
-        "searchPlaceholder": "{'Search: type:traceback sender:name'}"
+        "searchPlaceholder": "{'Search: type:traceback sender:name'}",
+        "cut": "Cut",
+        "copy": "Copy",
+        "paste": "Paste",
+        "rename": "Rename"
     },
     "theme": {
         "toggle": "Toggle theme",
@@ -159,6 +163,18 @@
     "comhub": {
         "advancedMode": "Advanced Mode",
         "groupByEndpoint": "Group by Endpoint",
-        "searchPlaceholder": "Search (e.g. \\@example)"
+        "searchPlaceholder": "Search (e.g. \\@example)",
+    "editor": {
+        "files": "Files",
+        "newFile": "New File",
+        "newFolder": "New Folder",
+        "filenamePlaceholder": "filename.ext",
+        "foldernamePlaceholder": "foldername",
+        "duplicateExists": "A file or folder {name} already exists. Please choose a different name.",
+        "copyPath": "Copy Path",
+        "copyRelativePath": "Copy Relative Path",
+        "dropToOpen": "Drop to open file",
+        "noFileOpen": "No file is open"
     }
+}
 }
