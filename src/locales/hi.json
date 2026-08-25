@@ -6,9 +6,11 @@
         "nodeDesc": "DATEX नोड ग्राफ़ देखें और संपादित करें",
         "editorDesc": "वर्कबेंच में DATEX फ़ाइलें संपादित करें",
         "replDesc": "इंटरैक्टिव DATEX रनटाइम वातावरण",
+        "aboutDesc": "रनटाइम जानकारी देखें",
         "soon": "जल्द ही",
         "fileEditor": "फ़ाइल संपादक",
-        "repl": "REPL"
+        "repl": "REPL",
+        "memoryDesc": "कैश और मेमोरी में साझा मानों को देखें और जांचें"
     },
     "common": {
         "loading": "लोड हो रहा है...",
@@ -28,7 +30,11 @@
         "unavailable": "अनुपलब्ध",
         "unlimited": "असीमित",
         "reset": "रीसेट",
-        "searchPlaceholder": "खोजें: type:traceback sender:name"
+        "searchPlaceholder": "खोजें: type:traceback sender:name",
+        "cut": "कट",
+        "copy": "कॉपी",
+        "paste": "पेस्ट",
+        "rename": "नाम बदलें"
     },
     "theme": {
         "toggle": "थीम बदलें",
@@ -39,7 +45,7 @@
     "nav": {
         "welcome": "स्वागत है",
         "block": "ब्लॉक",
-        "network": "नेटवर्क",
+        "networkInspector": "नेटवर्क",
         "nodeView": "नोड दृश्य",
         "networkTree": "नेटवर्क ट्री",
         "collection": "संग्रह",
@@ -47,7 +53,8 @@
         "repl": "REPL",
         "comhub": "ComHub",
         "networkVisualizer": "नेटवर्क विज़ुअलाइज़र",
-        "preferences": "प्राथमिकताएँ"
+        "preferences": "प्राथमिकताएँ",
+        "memory": "स्मृति"
     },
     "block": {
         "openFile": "फ़ाइल खोलें",
@@ -80,6 +87,7 @@
         "columnInterface": "इंटरफ़ेस",
         "columnSender": "प्रेषक",
         "columnReceiver": "प्राप्तकर्ता",
+        "blockId": "ब्लॉक आईडी",
         "columnTime": "समय",
         "columnSize": "आकार",
         "columns": "कॉलम",
@@ -156,5 +164,17 @@
         "advancedMode": "उन्नत मोड",
         "groupByEndpoint": "एंडपॉइंट के अनुसार समूहित करें",
         "searchPlaceholder": "खोजें (जैसे \\@उदाहरण)"
+    },
+    "editor": {
+        "files": "फ़ाइलें",
+        "newFile": "नई फ़ाइल",
+        "newFolder": "नया फ़ोल्डर",
+        "filenamePlaceholder": "फ़ाइलनाम.ext",
+        "foldernamePlaceholder": "फ़ोल्डरनाम",
+        "duplicateExists": "फ़ाइल या फ़ोल्डर {name} पहले से मौजूद है। कृपया दूसरा नाम चुनें।",
+        "copyPath": "पथ कॉपी करें",
+        "copyRelativePath": "सापेक्ष पथ कॉपी करें",
+        "dropToOpen": "फ़ाइल खोलने के लिए छोड़ें",
+        "noFileOpen": "कोई फ़ाइल खुली नहीं है"
     }
 }

@@ -1,42 +1,17 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import IconLogo from '@/components/icons/IconLogo.vue';
-import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { sidebarItems } from '@/lib/sidebar-items';
 
 const { t } = useI18n();
 const router = useRouter();
 
-const quickActions = computed(() => [
-    {
-        label: t('nav.network'),
-        description: t('welcome.networkDesc'),
-        icon: 'network',
-        route: '/network',
-        available: true,
-    },
-    {
-        label: t('nav.nodeView'),
-        description: t('welcome.nodeDesc'),
-        icon: 'node',
-        route: '/node-view',
-        available: true,
-    },
-    {
-        label: t('welcome.fileEditor'),
-        description: t('welcome.editorDesc'),
-        icon: 'editor',
-        route: '/editor',
-        available: true,
-    },
-    {
-        label: t('welcome.repl'),
-        description: t('welcome.replDesc'),
-        icon: 'repl',
-        route: '/repl',
-        available: true,
-    },
-]);
+const quickActionItems = ['repl', 'networkInspector', 'memory', 'about'];
+
+const quickActions = sidebarItems
+    .filter((item) => quickActionItems.includes(item.key))
+    .sort((a, b) => quickActionItems.indexOf(a.key) - quickActionItems.indexOf(b.key));
 
 function navigate(route: string | null) {
     if (route) router.push(route);
@@ -68,88 +43,17 @@ function navigate(route: string | null) {
                     <button
                         v-for="action in quickActions"
                         :key="action.label"
-                        class="group flex flex-col gap-2 rounded-lg border border-border bg-card p-4 text-left transition-all"
-                        :class="
-                            action.available
-                                ? 'hover:border-primary/50 hover:bg-accent cursor-pointer'
-                                : 'opacity-50 cursor-not-allowed'
-                        "
-                        @click="navigate(action.route)"
+                        class="group flex flex-col gap-2 rounded-lg border border-border bg-card p-4 text-left transition-all hover:border-primary/50 hover:bg-accent cursor-pointer"
+                        @click="navigate(action.path)"
                     >
                         <!-- Icon -->
                         <div class="flex items-center justify-between">
                             <div
                                 class="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary"
                             >
-                                <!-- Network -->
-                                <svg
-                                    v-if="action.icon === 'network'"
-                                    class="h-4 w-4"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <circle cx="12" cy="5" r="3" />
-                                    <circle cx="19" cy="19" r="3" />
-                                    <circle cx="5" cy="19" r="3" />
-                                    <line x1="12" y1="8" x2="12" y2="12" />
-                                    <line x1="12" y1="12" x2="19" y2="16" />
-                                    <line x1="12" y1="12" x2="5" y2="16" />
-                                </svg>
-                                <!-- Node -->
-                                <svg
-                                    v-else-if="action.icon === 'node'"
-                                    class="h-4 w-4"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <rect x="3" y="3" width="7" height="7" rx="1" />
-                                    <rect x="14" y="3" width="7" height="7" rx="1" />
-                                    <rect x="3" y="14" width="7" height="7" rx="1" />
-                                    <rect x="14" y="14" width="7" height="7" rx="1" />
-                                    <line x1="10" y1="6.5" x2="14" y2="6.5" />
-                                    <line x1="6.5" y1="10" x2="6.5" y2="14" />
-                                </svg>
-                                <!-- Editor -->
-                                <svg
-                                    v-else-if="action.icon === 'editor'"
-                                    class="h-4 w-4"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <path
-                                        d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
-                                    />
-                                    <polyline points="14 2 14 8 20 8" />
-                                    <line x1="16" y1="13" x2="8" y2="13" />
-                                    <line x1="16" y1="17" x2="8" y2="17" />
-                                </svg>
-                                <!-- REPL -->
-                                <svg
-                                    v-else-if="action.icon === 'repl'"
-                                    class="h-4 w-4"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <polyline points="4 17 10 11 4 5" />
-                                    <line x1="12" y1="19" x2="20" y2="19" />
-                                </svg>
+                                <component :is="action.icon" :size="28" class="h-4 w-4" />
                             </div>
-                            <span
-                                v-if="!action.available"
-                                class="text-xs text-muted-foreground border border-border rounded px-1.5 py-0.5"
-                            >
-                                {{ t('welcome.soon') }}
-                            </span>
                             <svg
-                                v-else
                                 class="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
                                 viewBox="0 0 24 24"
                                 fill="none"
@@ -163,8 +67,8 @@ function navigate(route: string | null) {
 
                         <!-- Text -->
                         <div>
-                            <p class="text-sm font-medium text-foreground">{{ action.label }}</p>
-                            <p class="text-xs text-muted-foreground">{{ action.description }}</p>
+                            <p class="text-sm font-medium text-foreground">{{ t(action.label) }}</p>
+                            <p class="text-xs text-muted-foreground">{{ t(action.description) }}</p>
                         </div>
                     </button>
                 </div>

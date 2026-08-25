@@ -6,15 +6,9 @@ import datexGrammar from './datex.tmLanguage.json';
 
 const mode = useColorMode();
 
-const placeholderCode = `const example = [1,2,3,"test"];
-const sharedValue = shared 42;
-
-function myFunction() (
-    @example :: print "Hello DATEX";
-)
-
-myFunction();
-`;
+const props = defineProps<{
+    code: string;
+}>();
 
 const highlightedHtml = ref('');
 let highlighter: Highlighter | null = null;
@@ -27,7 +21,7 @@ async function highlight() {
         });
     }
     const theme = mode.value === 'dark' ? 'github-dark' : 'github-light';
-    highlightedHtml.value = highlighter.codeToHtml(placeholderCode, {
+    highlightedHtml.value = highlighter.codeToHtml(props.code, {
         lang: 'datex',
         theme,
     });

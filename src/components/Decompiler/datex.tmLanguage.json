@@ -16,7 +16,7 @@
             "name": "comment.line.double-slash.datex"
         },
         "keywords": {
-            "match": "\\b(const|let|shared|function|if|else|return|true|false|null|print)\\b",
+            "match": "\\b(const|let|shared|mut|function|if|else|return|true|false|null|print)\\b",
             "name": "keyword.control.datex"
         },
         "strings": {
@@ -29,7 +29,7 @@
             "name": "constant.numeric.datex"
         },
         "endpoints": {
-            "match": "@[a-zA-Z_][a-zA-Z0-9_]*",
+            "match": "@[@+]?[a-zA-Z_][a-zA-Z0-9_]*",
             "name": "variable.other.constant.datex"
         },
         "functions": {

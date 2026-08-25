@@ -59,7 +59,7 @@
                                 Distance: {{ socket.properties?.distance ?? 'N/A' }} • Created:
                                 {{
                                     socket.properties?.known_since
-                                        ? formatTime(socket.properties.known_since)
+                                        ? formatTime(Number(socket.properties.known_since))
                                         : 'unknown'
                                 }}
                             </div>
@@ -143,7 +143,7 @@ function getSortedSockets(sockets: ComHubSocket[]) {
     return [...sockets].sort((a, b) => {
         if (a.properties.is_direct !== b.properties.is_direct)
             return a.properties.is_direct ? -1 : 1;
-        return a.properties.known_since - b.properties.known_since;
+        return Number(a.properties.known_since) - Number(b.properties.known_since);
     });
 }
 

@@ -11,6 +11,9 @@ import {
 } from 'lucide-vue-next';
 import { shortcuts } from '@/composable/usePlatform';
 import { ref, onMounted, nextTick } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 // ── Props ──────────────────────────────────────────────────────────
 interface Props {
@@ -108,12 +111,12 @@ function handleClickOutside(e: MouseEvent) {
                     <!-- Cut / Copy -->
                     <button class="context-menu-item" @click="handleAction('cut')">
                         <Scissors class="h-4 w-4 flex-shrink-0" />
-                        <span class="context-menu-label">Cut</span>
+                        <span class="context-menu-label">{{ t('common.cut') }}</span>
                         <span class="context-menu-shortcut">{{ shortcuts.cut }}</span>
                     </button>
                     <button class="context-menu-item" @click="handleAction('copy')">
                         <Copy class="h-4 w-4 flex-shrink-0" />
-                        <span class="context-menu-label">Copy</span>
+                        <span class="context-menu-label">{{ t('common.copy') }}</span>
                         <span class="context-menu-shortcut">{{ shortcuts.copy }}</span>
                     </button>
 
@@ -122,12 +125,12 @@ function handleClickOutside(e: MouseEvent) {
                     <!-- Copy Path / Copy Relative Path -->
                     <button class="context-menu-item" @click="handleAction('copy-path')">
                         <Link class="h-4 w-4 flex-shrink-0" />
-                        <span class="context-menu-label">Copy Path</span>
+                        <span class="context-menu-label">{{ t('editor.copyPath') }}</span>
                         <span class="context-menu-shortcut">{{ shortcuts.copyPath }}</span>
                     </button>
                     <button class="context-menu-item" @click="handleAction('copy-relative-path')">
                         <Link class="h-4 w-4 flex-shrink-0" />
-                        <span class="context-menu-label">Copy Relative Path</span>
+                        <span class="context-menu-label">{{ t('editor.copyRelativePath') }}</span>
                         <span class="context-menu-shortcut">{{ shortcuts.copyRelativePath }}</span>
                     </button>
 
@@ -137,11 +140,11 @@ function handleClickOutside(e: MouseEvent) {
                     <template v-if="nodeType === 'folder'">
                         <button class="context-menu-item" @click="handleAction('new-file')">
                             <FilePlus class="h-4 w-4 flex-shrink-0" />
-                            <span class="context-menu-label">New File</span>
+                            <span class="context-menu-label">{{ t('editor.newFile') }}</span>
                         </button>
                         <button class="context-menu-item" @click="handleAction('new-folder')">
                             <FolderPlus class="h-4 w-4 flex-shrink-0" />
-                            <span class="context-menu-label">New Folder</span>
+                            <span class="context-menu-label">{{ t('editor.newFolder') }}</span>
                         </button>
                         <div class="context-menu-separator" />
                     </template>
@@ -151,11 +154,11 @@ function handleClickOutside(e: MouseEvent) {
                 <template v-if="!hasNode">
                     <button class="context-menu-item" @click="handleAction('new-file')">
                         <FilePlus class="h-4 w-4 flex-shrink-0" />
-                        <span class="context-menu-label">New File</span>
+                        <span class="context-menu-label">{{ t('editor.newFile') }}</span>
                     </button>
                     <button class="context-menu-item" @click="handleAction('new-folder')">
                         <FolderPlus class="h-4 w-4 flex-shrink-0" />
-                        <span class="context-menu-label">New Folder</span>
+                        <span class="context-menu-label">{{ t('editor.newFolder') }}</span>
                     </button>
                     <div v-if="hasClipboard" class="context-menu-separator" />
                 </template>
@@ -164,7 +167,7 @@ function handleClickOutside(e: MouseEvent) {
                 <template v-if="hasClipboard">
                     <button class="context-menu-item" @click="handleAction('paste')">
                         <ClipboardPaste class="h-4 w-4 flex-shrink-0" />
-                        <span class="context-menu-label">Paste</span>
+                        <span class="context-menu-label">{{ t('common.paste') }}</span>
                         <span class="context-menu-shortcut">{{ shortcuts.paste }}</span>
                     </button>
                     <div v-if="hasNode" class="context-menu-separator" />
@@ -174,14 +177,14 @@ function handleClickOutside(e: MouseEvent) {
                 <template v-if="hasNode">
                     <button class="context-menu-item" @click="handleAction('rename')">
                         <Pencil class="h-4 w-4 flex-shrink-0" />
-                        <span class="context-menu-label">Rename</span>
+                        <span class="context-menu-label">{{ t('common.rename') }}</span>
                     </button>
                     <button
                         class="context-menu-item context-menu-item--danger"
                         @click="handleAction('delete')"
                     >
                         <Trash2 class="h-4 w-4 flex-shrink-0" />
-                        <span class="context-menu-label">Delete</span>
+                        <span class="context-menu-label">{{ t('common.delete') }}</span>
                     </button>
                 </template>
             </div>

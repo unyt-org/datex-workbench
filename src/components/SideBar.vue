@@ -2,25 +2,16 @@
 import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import IconLogo from '@/components/icons/IconLogo.vue';
-import { Network, SendToBack, Terminal, Box, GitGraph, Cpu, Info, Settings } from 'lucide-vue-next';
+import { Settings } from 'lucide-vue-next';
 import draggable from 'vuedraggable';
 import { useI18n } from 'vue-i18n';
+import { sidebarItems as sideBarItemsList } from '@/lib/sidebar-items';
 
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 
-const sidebarItems = ref([
-    { icon: Terminal, key: 'nav.repl', path: '/repl' },
-    { icon: Cpu, key: 'nav.comhub', path: '/comhub' },
-    { icon: SendToBack, key: 'nav.networkVisualizer', path: '/network-visualizer' },
-    { icon: Box, key: 'nav.block', path: '/block' },
-    { icon: Network, key: 'nav.network', path: '/network' },
-    { icon: GitGraph, key: 'nav.nodeView', path: '/node-view' },
-    { icon: Info, key: 'nav.about', path: '/about' },
-    // { icon: AppWindow, name: 'Windows', path: '/windows' },
-    // { icon: MousePointer2, name: 'Pointers', path: '/pointers' },
-]);
+const sidebarItems = ref([...sideBarItemsList]);
 
 const activePath = computed(() => route.path);
 
@@ -111,7 +102,7 @@ const navigate = (path: string) => {
                         <div
                             class="card invisible absolute left-14 z-999 m-0 ml-2 whitespace-nowrap px-3 py-1.5 text-xs font-mono shadow-xl group-hover:visible"
                         >
-                            {{ t(element.key) }}
+                            {{ t(element.label) }}
 
                             <div
                                 class="bg-card border-l border-b border-neutral-200 dark:border-neutral-700 absolute -left-1 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45"

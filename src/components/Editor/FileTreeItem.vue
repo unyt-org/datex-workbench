@@ -20,6 +20,9 @@ import {
     isInvalidDrop,
     getFileDragPath,
 } from '@/composable/useFileDragDrop';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 // ── Types ──────────────────────────────────────────────────────────
 export interface CreatingState {
@@ -319,10 +322,11 @@ function handleRenameKeydown(e: KeyboardEvent) {
             :style="{ marginLeft: paddingLeft }"
         >
             <TriangleAlert class="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-red-400" />
-            <span
-                >A file or folder <strong>{{ renameValue.trim() }}</strong> already exists. Please
-                choose a different name.</span
-            >
+            <i18n-t keypath="editor.duplicateExists" tag="span">
+                <template #name>
+                    <strong>{{ renameValue.trim() }}</strong>
+                </template>
+            </i18n-t>
         </div>
 
         <!-- Children (only rendered for expanded folders) -->
@@ -345,7 +349,11 @@ function handleRenameKeydown(e: KeyboardEvent) {
                         @keydown="handleCreateKeydown"
                         @blur="handleCreateBlur"
                         type="text"
-                        :placeholder="creatingType === 'file' ? 'filename.ext' : 'foldername'"
+                        :placeholder="
+                            creatingType === 'file'
+                                ? t('editor.filenamePlaceholder')
+                                : t('editor.foldernamePlaceholder')
+                        "
                         :class="
                             cn(
                                 'bg-sidebar-accent text-sidebar-accent-foreground flex-1 rounded px-2 py-0.5 text-sm outline-none focus:ring-1',
@@ -363,10 +371,11 @@ function handleRenameKeydown(e: KeyboardEvent) {
                     :style="{ marginLeft: childPaddingLeft }"
                 >
                     <TriangleAlert class="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-red-400" />
-                    <span
-                        >A file or folder <strong>{{ newItemName.trim() }}</strong> already exists.
-                        Please choose a different name.</span
-                    >
+                    <i18n-t keypath="editor.duplicateExists" tag="span">
+                        <template #name>
+                            <strong>{{ newItemName.trim() }}</strong>
+                        </template>
+                    </i18n-t>
                 </div>
             </div>
 
