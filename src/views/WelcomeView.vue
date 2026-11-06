@@ -25,7 +25,7 @@ function navigate(route: string | null) {
             <!-- Header -->
             <div class="flex flex-col items-center gap-2 text-center">
                 <div class="flex items-center gap-3">
-                    <IconLogo class="h-12 w-12" />
+                    <IconLogo />
                     <h1 class="text-3xl font-semibold tracking-tight text-foreground">
                         DATEX Workbench
                     </h1>

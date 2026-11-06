@@ -19,6 +19,9 @@ const activePath = computed(() => route.path);
 const navigate = (path: string) => {
     router.push(path);
 };
+
+const hideEndpointHeader = computed(() => route.path === '/' || route.path === '/preferences');
+
 </script>
 
 <template>
@@ -47,7 +50,7 @@ const navigate = (path: string) => {
                             : 'text-dim hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                     "
                 >
-                    <IconLogo :size="28" :stroke-width="1.5" />
+                    <IconLogo />
                 </div>
 
                 <div
@@ -136,10 +139,7 @@ const navigate = (path: string) => {
         </div>
     </aside>
 
-    <div>
-      <EndpointHeader />
-    </div>
-
+    <EndpointHeader v-if="!hideEndpointHeader" />
 </template>
 
 <style scoped>

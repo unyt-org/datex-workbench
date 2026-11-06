@@ -23,7 +23,7 @@ const version = Datex.js_version;
     <div class="flex h-screen flex-col">
         <div class="flex grow overflow-hidden">
             <!-- SideBar -->
-            <SideBar class="z-53 flex-none" />
+            <SideBar />
             <!-- z must be 50+, bc 50 is the highest z index on website-->
 
             <main class="main relative flex-1 overflow-hidden">

@@ -18,6 +18,13 @@ export const sidebarItems = [
         description: 'welcome.replDesc',
     },
     {
+        icon: ArrowLeftRight,
+        key: 'networkInspector',
+        path: '/network',
+        label: 'nav.networkInspector',
+        description: 'welcome.networkDesc',
+    },
+    {
         icon: Database,
         key: 'memory',
         path: '/memory',
@@ -44,13 +51,6 @@ export const sidebarItems = [
         path: '/block',
         label: 'nav.block',
         description: 'welcome.blockDesc',
-    },
-    {
-        icon: ArrowLeftRight,
-        key: 'networkInspector',
-        path: '/network',
-        label: 'nav.networkInspector',
-        description: 'welcome.networkDesc',
     },
     {
         icon: GitGraph,

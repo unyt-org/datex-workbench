@@ -12,15 +12,37 @@ import {
   ComboboxSeparator,
   ComboboxViewport,
 } from '@/components/ui/combobox'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { Combobox, ComboboxTrigger, ComboboxAnchor } from '@/components/ui/combobox'
 import { connectInspector } from '@/lib/inspector/mod';
 import EndpointLabel from './EndpointLabel.vue'
+import { ref, nextTick } from 'vue'
 
 defineProps<{
   fullWidth?: boolean
 }>();
 
 const { groupedEndpoints, selectedEndpoint, search, searchEndpoint } = useEndpointSearch()
+
+
+const comboboxOpen = ref(false);
+const dialogOpen = ref(false);
+const newEndpoint = ref("");
+
+function openConnectDialog(event: Event) {
+  event.preventDefault(); // don't select the item / set the model to null
+  newEndpoint.value = search.value; // prefill with what was typed
+  comboboxOpen.value = false;
+  nextTick(() => {
+    dialogOpen.value = true;
+  });
+}
+
+function submitNewEndpoint() {
+  connectInspector(newEndpoint.value);
+  dialogOpen.value = false;
+}
 
 </script>
 <template>
@@ -87,11 +109,31 @@ const { groupedEndpoints, selectedEndpoint, search, searchEndpoint } = useEndpoi
       </ComboboxViewport>
       <ComboboxSeparator />
       <ComboboxGroup class="bg-popover">
-        <ComboboxItem :value="null">
+        <ComboboxItem :value="null" @select="openConnectDialog">
           <ChevronsLeftRightEllipsisIcon />
-          Connect endpoint
+          Connect new endpoint
         </ComboboxItem>
       </ComboboxGroup>
     </ComboboxList>
   </Combobox>
+
+  <Dialog v-model:open="dialogOpen">
+  <DialogContent class="sm:max-w-md">
+    <DialogHeader>
+      <DialogTitle>Connect new endpoint</DialogTitle>
+      <DialogDescription>
+        Enter the endpoint you want to connect to.
+      </DialogDescription>
+    </DialogHeader>
+    <form class="grid gap-4" @submit.prevent="submitNewEndpoint">
+      <Input v-model="newEndpoint" placeholder="@example" />
+      <DialogFooter>
+        <DialogClose as-child>
+          <Button type="button" variant="outline">Cancel</Button>
+        </DialogClose>
+        <Button type="submit" disabled>Connect</Button>
+      </DialogFooter>
+    </form>
+  </DialogContent>
+</Dialog>
 </template>

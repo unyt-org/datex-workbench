@@ -38,6 +38,11 @@ export function useEndpointSearch(): {
 
   const selectedEndpoint = ref({ endpoint: activeEndpoint.value });
 
+  // update selectedEndpoint when activeEndpoint changes
+  watch(activeEndpoint, (newVal) => {
+    selectedEndpoint.value = { endpoint: newVal };
+  });
+
   watch(selectedEndpoint, (newVal) => {
     if (newVal?.endpoint) {
       setActiveEndpoint(newVal.endpoint).then(success => {
