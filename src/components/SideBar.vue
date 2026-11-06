@@ -6,8 +6,7 @@ import { Settings } from 'lucide-vue-next';
 import draggable from 'vuedraggable';
 import { useI18n } from 'vue-i18n';
 import { sidebarItems as sideBarItemsList } from '@/lib/sidebar-items';
-import { Endpoint } from '@/lib/runtime-loader';
-import EndpointHeader from './EndpointHeader/EndpointHeader.vue';
+import EndpointHeader from './Endpoints/EndpointHeader.vue';
 
 const { t } = useI18n();
 const router = useRouter();

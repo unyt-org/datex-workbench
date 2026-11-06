@@ -3,7 +3,6 @@ import type { Inspector } from '../_temp_types.ts';
 import { reactive, ref } from 'vue';
 import { Datex } from '../runtime.ts';
 
-// TODO: store in eternal storage
 /**
  * A map of connected inspector instances keyed by their corresponding endpoints.
  */

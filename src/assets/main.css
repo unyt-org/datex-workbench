@@ -153,6 +153,7 @@
 
 @theme {
   --animate-ping-once: ping 1s cubic-bezier(0, 0, 0.2, 1) 1 forwards;
+  --animate-ping-once-long: ping 2s cubic-bezier(0, 0, 0.2, 1) 1 forwards;
 }
 
 @layer base {

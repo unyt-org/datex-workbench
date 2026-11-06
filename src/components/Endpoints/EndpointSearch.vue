@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { CheckIcon, ChevronDownIcon, ChevronsLeftRightEllipsisIcon } from 'lucide-vue-next'
-import { computed, ref, watch } from 'vue'
+import { CheckIcon, ChevronsLeftRightEllipsisIcon, ChevronDownIcon } from 'lucide-vue-next'
+import { useEndpointSearch } from '@/lib/composables/use-endpoint-search'
 import { Button } from '@/components/ui/button'
 import {
-  Combobox,
-  ComboboxAnchor,
   ComboboxEmpty,
   ComboboxGroup,
   ComboboxInput,
@@ -12,68 +10,35 @@ import {
   ComboboxItemIndicator,
   ComboboxList,
   ComboboxSeparator,
-  ComboboxTrigger,
   ComboboxViewport,
 } from '@/components/ui/combobox'
-import { refDebounced } from "@vueuse/core";
+import { Combobox, ComboboxTrigger, ComboboxAnchor } from '@/components/ui/combobox'
+import { connectInspector } from '@/lib/inspector/mod';
+import EndpointLabel from './EndpointLabel.vue'
 
-import { connectedInspectorInstances, availableInspectorEndpoints, connectInspector, activeEndpoint, setActiveEndpoint } from '../../lib/inspector/mod.ts';
-import EndpointLabel from './EndpointLabel.vue';
-import { Endpoint } from '../../lib/runtime-loader.ts';
-console.log(connectedInspectorInstances);
+defineProps<{
+  fullWidth?: boolean
+}>();
 
-const groupedEndpoints = computed(() => [
-  {
-    label: 'Active Sessions',
-    endpoints: Array.from(connectedInspectorInstances).map(([endpoint]) => ({ endpoint })),
-  },
-  {
-    label: 'Other Endpoints',
-    endpoints: Array.from(availableInspectorEndpoints.keys()).map(endpoint => ({ endpoint })),
-  },
-])
-
-const selectedEndpoint = ref({ endpoint: activeEndpoint.value });
-
-watch(selectedEndpoint, (newVal) => {
-  if (newVal?.endpoint) {
-    setActiveEndpoint(newVal.endpoint).then(success => {
-      if (!success) {
-        console.error("Failed to set active endpoint", newVal.endpoint);
-      }
-    });
-  }
-});
-
-globalThis.activeEndpoint = activeEndpoint;
-
-const search = ref('');
-const debouncedSearch = refDebounced(search, 300);
-
-const searchEndpoint = computed(() => {
-  if (!debouncedSearch.value || debouncedSearch.value.length < 3) {
-    return null;
-  }
-  if (debouncedSearch.value.startsWith('@')) {
-    return Endpoint.get(debouncedSearch.value);
-  }
-  return Endpoint.get("@" + debouncedSearch.value);
-})
-
+const { groupedEndpoints, selectedEndpoint, search, searchEndpoint } = useEndpointSearch()
 
 </script>
-
 <template>
-  <div class="bg-muted top-3 right-3 absolute z-10 rounded-sm">
-    <Combobox v-model="selectedEndpoint" by="endpoint">
+  <Combobox v-model="selectedEndpoint" by="endpoint" :class="fullWidth ? 'w-full!' : ''">
     <ComboboxAnchor as-child>
       <ComboboxTrigger as-child>
         <Button
           variant="outline"
-          class="h-9  justify-between px-2.5"
+          class="h-9 w-full! max-w-none justify-between px-2.5"
+          :class="fullWidth ? 'w-full!' : ''"
         >
           <template v-if="selectedEndpoint">
-            <EndpointLabel :endpoint="selectedEndpoint.endpoint" />
+            <div class="flex items-center gap-3">
+              <EndpointLabel :endpoint="selectedEndpoint.endpoint" />
+              <div class="text-muted-foreground">
+                Example
+              </div>
+            </div>
           </template>
           <template v-else>
             Select endpoint
@@ -82,7 +47,7 @@ const searchEndpoint = computed(() => {
         </Button>
       </ComboboxTrigger>
     </ComboboxAnchor>
-    <ComboboxList class="w-72" align="start">
+    <ComboboxList class="w-(--reka-combobox-trigger-width) min-w-[300px]" align="end">
       <ComboboxInput v-model="search" placeholder="Search endpoints..." />
       <ComboboxViewport class="max-h-[260px]">
         <ComboboxEmpty>
@@ -129,5 +94,4 @@ const searchEndpoint = computed(() => {
       </ComboboxGroup>
     </ComboboxList>
   </Combobox>
-  </div>
 </template>

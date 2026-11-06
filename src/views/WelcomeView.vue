@@ -3,6 +3,7 @@ import { useRouter } from 'vue-router';
 import IconLogo from '@/components/icons/IconLogo.vue';
 import { useI18n } from 'vue-i18n';
 import { sidebarItems } from '@/lib/sidebar-items';
+import EndpointSearch from '@/components/Endpoints/EndpointSearch.vue';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -34,8 +35,11 @@ function navigate(route: string | null) {
                 </p>
             </div>
 
+            <!-- Endpoint search -->
+            <EndpointSearch fullWidth />
+
             <!-- Quick actions -->
-            <div class="w-full max-w-2xl">
+            <div class="w-full max-w-xl">
                 <p class="mb-4 text-xs font-medium uppercase tracking-widest text-muted-foreground">
                     {{ t('welcome.quickActions') }}
                 </p>
