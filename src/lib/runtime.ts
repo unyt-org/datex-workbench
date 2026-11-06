@@ -55,7 +55,10 @@ export const Datex: RuntimeT = await Runtime.create(defaultConfig, {
 globalThis.Datex = Datex;
 // @ts-expect-error expose Endpoint globally for debugging purposes
 globalThis.Endpoint = Builtins.Endpoint;
-
+// @ts-expect-error expose Tagged globally for debugging purposes
+globalThis.Tagged = Builtins.Tagged;
+// @ts-expect-error expose tagged globally for debugging purposes
+globalThis.tagged = Builtins.tagged;
 
 export function getPointers(): Map<string, DIF.Definitions.DIFValueContainer> {
     const values = [

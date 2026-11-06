@@ -6,6 +6,8 @@ import { Settings } from 'lucide-vue-next';
 import draggable from 'vuedraggable';
 import { useI18n } from 'vue-i18n';
 import { sidebarItems as sideBarItemsList } from '@/lib/sidebar-items';
+import { Endpoint } from '@/lib/runtime-loader';
+import EndpointHeader from './EndpointHeader/EndpointHeader.vue';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -26,18 +28,6 @@ const navigate = (path: string) => {
     <aside
         class="bg-transparent relative z-30 flex h-full w-16 flex-col border-r transition-all duration-300 ease-in-out select-none"
     >
-        <!-- Button for Collapsing SideBar -->
-        <!-- <button
-            @click="isCollapsed = !isCollapsed"
-            class="border-sidebar-border bg-sidebar absolute -right-3 top-1/2 z-50 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border shadow-sm transition-all hover:scale-110 active:scale-95"
-            title="Toggle Sidebar"
-        >
-            <ChevronLeft v-if="!isCollapsed" :size="14" class="text-sidebar-foreground" />
-            <ChevronRight v-else :size="14" class="text-sidebar-foreground translate-x-1.5" />
-        </button> -->
-
-        <!-- For Collapse -->
-        <!-- :class="[isCollapsed ? 'pointer-events-none opacity-0' : 'opacity-100']" -->
         <div
             class="flex h-full min-h-0 flex-col items-center overflow-visible transition-opacity duration-200 wco-container"
         >
@@ -112,7 +102,7 @@ const navigate = (path: string) => {
                 </template>
             </draggable>
 
-            <div class="mt-auto pb-4 w-full">
+            <div class="mt-auto pb-1 w-full">
                 <div
                     class="group relative flex w-full cursor-pointer items-center justify-center py-2"
                     @click="navigate('/preferences')"
@@ -146,6 +136,11 @@ const navigate = (path: string) => {
             </div>
         </div>
     </aside>
+
+    <div>
+      <EndpointHeader />
+    </div>
+
 </template>
 
 <style scoped>

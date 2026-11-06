@@ -22,3 +22,21 @@ export const Network = mod.Network;
 export const Builtins = mod.Builtins;
 export const Repl = mod.Repl;
 export const Shared = mod.Shared;
+
+// only temp
+export type SharedRef<T, R, M> = T & { __sharedRef: [R, M] };
+// only temp
+export enum SharedContainerMutability {
+    Mutable,
+    Immutable
+}
+// only temp
+export enum SharedReferenceMutability {
+    Mutable,
+    Immutable
+}
+
+export const Endpoint = Builtins.Endpoint;
+export type Endpoint = any;
+export const Tagged = Builtins.Tagged;
+export type Tagged<T extends string, Value = typeof Builtins.EMPTY_TAG> = typeof Builtins.Tagged<T, Value>;
