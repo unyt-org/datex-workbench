@@ -44,6 +44,7 @@
     },
     "nav": {
         "welcome": "स्वागत है",
+        "logs": "लॉग्स",
         "block": "ब्लॉक",
         "networkInspector": "नेटवर्क",
         "nodeView": "नोड दृश्य",

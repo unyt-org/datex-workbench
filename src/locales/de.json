@@ -44,6 +44,7 @@
     },
     "nav": {
         "welcome": "Willkommen",
+        "logs": "Logs",
         "block": "Block Viewer",
         "networkInspector": "Netzwerk-Inspektor",
         "nodeView": "Knotenansicht",

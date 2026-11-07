@@ -26,6 +26,7 @@ sessionStorage.setItem('datexRuntimeEndpointName', endpointName);
 
 const defaultConfig: RuntimeConfig = {
     endpoint: Builtins.Endpoint.get(endpointName),
+    name: "DATEX Workbench",
     interfaces: [
         {
             type: 'websocket-client',

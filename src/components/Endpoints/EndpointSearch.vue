@@ -57,9 +57,6 @@ function submitNewEndpoint() {
           <template v-if="selectedEndpoint">
             <div class="flex items-center gap-3">
               <EndpointLabel :endpoint="selectedEndpoint.endpoint" />
-              <div class="text-muted-foreground">
-                Example
-              </div>
             </div>
           </template>
           <template v-else>

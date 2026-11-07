@@ -247,12 +247,12 @@ const isBlockSecure = computed(() => {
                         selectedBlockEntry?.receivers.join(', ')
                     }}</span>
                 </div>
-                <button
+                <!--<button
                     class="text-muted-foreground hover:text-foreground transition"
                     @click="closeBlockViewer"
                 >
                     <X class="size-4" />
-                </button>
+                </button>-->
             </div>
             <div class="flex-1 overflow-y-auto">
                 <DatexBlockProtocolView

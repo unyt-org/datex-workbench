@@ -3,10 +3,10 @@ import { Endpoint } from "../runtime-loader";
 import { Datex } from "../runtime";
 import { useTimeoutPoll } from "@vueuse/core";
 import { computed } from "vue";
-import { connectedInspectorInstances } from "../inspector/mod";
 
 type EndpointConnectionStatusHandler = {
   isConnected: Ref<boolean>,
+  endpointName: Ref<string|null>,
   pollCount: Ref<number>,
   disconnectionCount: Ref<number>,
   rc: number,
@@ -23,6 +23,7 @@ export function acquireStatusHandler(
   if (endpoint === Endpoint.get("@@local")) {
     return {
       isConnected: ref(true),
+      endpointName: ref(Datex.executeSync("@@local.name")),
       pollCount: ref(0),
       disconnectionCount: ref(0),
       rc: 1,
@@ -34,6 +35,7 @@ export function acquireStatusHandler(
 
   if (!handler) {
     const isConnected = ref(false);
+    const endpointName = ref<string|null>(null);
     const pollCount = ref(0);
     const connectionLostCount = ref(0);
     const scope = effectScope(true);
@@ -42,7 +44,10 @@ export function acquireStatusHandler(
       useTimeoutPoll(async () => {
         const wasConnected = isConnected.value;
         try {
-          isConnected.value = !!(await Datex.comHub.getTrace(endpoint.toString()));
+          const name = await Datex.execute<string|null>(endpoint.toString() + ".name");
+          console.log("name of", endpoint.toString(), name);
+          endpointName.value = name;
+          isConnected.value = true;
         } catch {
           isConnected.value = false;
         }
@@ -55,7 +60,7 @@ export function acquireStatusHandler(
       }, POLL_INTERVAL_MS, { immediate: true, immediateCallback: true });
     });
 
-    handler = { isConnected, pollCount, disconnectionCount: connectionLostCount, rc: 0, scope };
+    handler = { isConnected, endpointName, pollCount, disconnectionCount: connectionLostCount, rc: 0, scope };
     endpointConnectionStatusHandlers.set(endpoint, handler);
   }
 
@@ -82,7 +87,7 @@ function releaseStatusHandler(endpoint: Endpoint) {
  */
 export function useEndpointConnectionStatus(
   endpoint: MaybeRefOrGetter<Endpoint>,
-): { isConnected: Ref<boolean>, pollCount: Ref<number>, connectionLostCount: Ref<number> } {
+): { isConnected: Ref<boolean>, pollCount: Ref<number>, connectionLostCount: Ref<number>, endpointName: Ref<string|null> } {
 const current = shallowRef<EndpointConnectionStatusHandler>();
   let held: Endpoint | undefined;
 
@@ -105,5 +110,6 @@ const current = shallowRef<EndpointConnectionStatusHandler>();
     isConnected: computed(() => current.value?.isConnected.value ?? false),
     pollCount: computed(() => current.value?.pollCount.value ?? 0),
     connectionLostCount: computed(() => current.value?.disconnectionCount.value ?? 0),
+    endpointName: computed(() => current.value?.endpointName.value ?? null),
   };
 }

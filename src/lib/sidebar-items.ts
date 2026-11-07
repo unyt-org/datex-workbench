@@ -7,6 +7,7 @@ import {
     Info,
     EthernetPort,
     Database,
+    LogsIcon,
 } from 'lucide-vue-next';
 
 export const sidebarItems = [
@@ -30,6 +31,13 @@ export const sidebarItems = [
         path: '/memory',
         label: 'nav.memory',
         description: 'welcome.memoryDesc',
+    },
+     {
+        icon: LogsIcon,
+        key: 'logs',
+        path: '/logs',
+        label: 'nav.logs',
+        description: 'welcome.logsDesc',
     },
     {
         icon: EthernetPort,

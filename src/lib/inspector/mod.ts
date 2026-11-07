@@ -26,19 +26,16 @@ async function restoreInspectorEndpoints() {
     availableEndpoints.forEach((endpoint: string) => availableInspectorEndpoints.add(Endpoint.get(endpoint)));
 
     const connectedEndpoints = [Endpoint.get('@@local')]
-    console.log("restoring inspector endpoints for", connectedEndpoints);
 
     await Promise.all(
       connectedEndpoints.map((endpoint) => connectInspector(endpoint))
     )
-    console.log("restored inspector endpoints", connectedInspectorInstances);
 }
 
 export async function connectInspector(endpoint: Endpoint|string): Promise<boolean> {
   const endpointObj = typeof endpoint === 'string' ? Endpoint.get(endpoint) : endpoint;
   try {
     const inspector = await Datex.createInspector(endpointObj);
-    console.log("new inspector", inspector);
     connectedInspectorInstances.set(endpointObj, inspector);
     activeEndpoint.value = endpointObj;
     availableInspectorEndpoints.delete(endpointObj);

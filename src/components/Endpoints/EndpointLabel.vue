@@ -5,10 +5,11 @@ import { computed, ref, watch } from 'vue';
 import { connectedInspectorInstances } from '@/lib/inspector/mod.ts';
 
 const props = defineProps<{
-  endpoint: Endpoint
+  endpoint: Endpoint,
+  compact?: boolean
 }>();
 
-const { isConnected, connectionLostCount, pollCount} = useEndpointConnectionStatus(() => props.endpoint);
+const { isConnected, connectionLostCount, endpointName, pollCount} = useEndpointConnectionStatus(() => props.endpoint);
 
 const initialPollCount = ref(pollCount.value);
 const initialConnectionLostCount = ref(connectionLostCount.value);
@@ -24,7 +25,7 @@ const hasInspectorSession = computed(() => connectedInspectorInstances.has(props
 </script>
 
 <template>
-  <div class="flex items-start gap-1">
+  <div class="flex items-start gap-2">
     <span v-if="isConnected" class="relative flex">
       <span :class="hasInspectorSession ? 'text-blue-400' : 'text-green-500'">●</span>
         <span
@@ -46,5 +47,8 @@ const hasInspectorSession = computed(() => connectedInspectorInstances.has(props
     </span>
 
     <span>{{ endpoint.toString() }}</span>
+    <span v-if="!compact" class="text-muted-foreground">
+      {{ endpointName }}
+    </span>
   </div>
 </template>
