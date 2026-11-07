@@ -171,7 +171,7 @@ const isBlockSecure = computed(() => {
         <!-- Left panel: block list -->
         <div class="flex flex-col p-4 pt-0" :class="selectedBlock ? 'w-1/2' : 'w-full'">
             <div class="mb-4">
-                <h1 class="mb-3 text-2xl font-bold">{{ t('network.title') }}</h1>
+                <h1 class="mb-3 text-xl font-medium">{{ t('network.title') }}</h1>
 
                 <!--
                 <div class="flex flex-wrap gap-2">

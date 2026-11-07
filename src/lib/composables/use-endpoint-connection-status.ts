@@ -45,7 +45,6 @@ export function acquireStatusHandler(
         const wasConnected = isConnected.value;
         try {
           const name = await Datex.execute<string|null>(endpoint.toString() + ".name");
-          console.log("name of", endpoint.toString(), name);
           endpointName.value = name;
           isConnected.value = true;
         } catch {
