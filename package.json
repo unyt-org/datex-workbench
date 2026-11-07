@@ -28,6 +28,7 @@
         "@vueuse/core": "^14.4.0",
         "ag-grid-community": "^35.0.0",
         "ag-grid-vue3": "^35.0.0",
+        "ansi_up": "^6.0.6",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "dagre": "^0.8.5",
