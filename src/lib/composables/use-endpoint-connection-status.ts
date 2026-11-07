@@ -85,18 +85,22 @@ function releaseStatusHandler(endpoint: Endpoint) {
  * @returns An object containing reactive references for the connection status, poll count, and connection lost count of the endpoint.
  */
 export function useEndpointConnectionStatus(
-  endpoint: MaybeRefOrGetter<Endpoint>,
+  endpoint: MaybeRefOrGetter<Endpoint|null>,
 ): { isConnected: Ref<boolean>, pollCount: Ref<number>, connectionLostCount: Ref<number>, endpointName: Ref<string|null> } {
 const current = shallowRef<EndpointConnectionStatusHandler>();
   let held: Endpoint | undefined;
 
   watch(
-    () => toValue(endpoint).toString(),
+    () => toValue(endpoint)?.toString(),
     () => {
       const next = toValue(endpoint);
       if (held) releaseStatusHandler(held);
       held = next;
-      current.value = acquireStatusHandler(next);
+      if (next) {
+        current.value = acquireStatusHandler(next);
+      } else {
+        current.value = undefined;
+      }
     },
     { immediate: true },
   );

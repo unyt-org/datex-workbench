@@ -6,7 +6,7 @@ import { refDebounced } from '@vueuse/core';
 import { useDiscoveredEndpoints } from './use-discovered-endpoints.ts';
 
 export function useEndpointSearch(): {
-  groupedEndpoints: ComputedRef<{ label: string; endpoints: { endpoint: string }[] }[]>,
+  groupedEndpoints: ComputedRef<{ label: string; endpoints: { endpoint: Endpoint }[] }[]>,
   selectedEndpoint: Ref<{endpoint: Endpoint}>,
   search: Ref<string>,
   searchEndpoint: ComputedRef<Endpoint | null>,
