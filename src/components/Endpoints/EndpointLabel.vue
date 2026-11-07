@@ -6,7 +6,7 @@ import { connectedInspectorInstances } from '@/lib/inspector/mod.ts';
 
 const props = defineProps<{
   endpoint: Endpoint,
-  compact?: boolean
+  compact?: boolean,
 }>();
 
 const { isConnected, connectionLostCount, endpointName, pollCount} = useEndpointConnectionStatus(() => props.endpoint);
@@ -21,7 +21,7 @@ watch(() => props.endpoint, () => {
 });
 
 const hasInspectorSession = computed(() => connectedInspectorInstances.has(props.endpoint));
-
+const showDisconnectedAsError = computed(() => hasInspectorSession.value);
 </script>
 
 <template>
@@ -37,7 +37,7 @@ const hasInspectorSession = computed(() => connectedInspectorInstances.has(props
         </span>
     </span>
     <span v-else class="relative flex">
-      <span class="text-foreground">●</span>
+      <span :class="showDisconnectedAsError ? 'text-rose-500' : 'text-foreground'">●</span>
       <span
           v-if="connectionLostCount != initialConnectionLostCount"
           :key="connectionLostCount"
