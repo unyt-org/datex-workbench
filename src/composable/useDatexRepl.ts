@@ -1,14 +1,18 @@
-import { ref } from 'vue';
+import { ref, shallowRef, watch, toValue, type MaybeRefOrGetter } from 'vue';
 import { Datex } from '@/lib/runtime';
+import type { Endpoint } from '@/lib/runtime-loader';
 
 export interface ReplEntry {
     type: 'input' | 'output' | 'error';
     content: string;
 }
 
-const entries = ref<ReplEntry[]>([]);
-const history = ref<string[]>([]);
-const suggestions = ref<string[]>([]);
+type ReplState = {
+  repl: InstanceType<typeof Repl>,
+  entries: ReplEntry[];
+  history: string[];
+  suggestions: string[];
+}
 
 // unused template for future LSP
 // function startLspTemplate() {
@@ -25,7 +29,55 @@ const suggestions = ref<string[]>([]);
 //     });
 // }
 
-export function useDatexRepl() {
+declare const Repl: {
+    new (...args: any[]): any;
+}; // FIXME
+
+const cachedReplStates = new Map<Endpoint, ReplState>();
+
+export function useDatexRepl(endpoint: MaybeRefOrGetter<Endpoint | null>) {
+    const repl = shallowRef<InstanceType<typeof Repl> | null>(null);
+    const entries = ref<ReplEntry[]>([]);
+    const history = ref<string[]>([]);
+    const suggestions = ref<string[]>([]);
+
+    const currentEndpoint = ref<Endpoint | null>(null);
+    watch(
+        () => toValue(endpoint),
+        (ep) => {
+            if (ep === currentEndpoint.value) return;
+            // update cached state for the previous endpoint
+            if (currentEndpoint.value && cachedReplStates.has(currentEndpoint.value)) {
+                cachedReplStates.set(currentEndpoint.value, {
+                    repl: repl.value!,
+                    entries: entries.value,
+                    history: history.value,
+                    suggestions: suggestions.value,
+                });
+            }
+            if (ep) {
+                if (!cachedReplStates.has(ep)) {
+                    cachedReplStates.set(ep, {
+                        repl: new Repl(Datex, ep),
+                        entries: [],
+                        history: [],
+                        suggestions: [],
+                    });
+                }
+                const state = cachedReplStates.get(ep);
+                repl.value = state?.repl ?? null;
+                entries.value = state?.entries ?? [];
+                history.value = state?.history ?? [];
+                suggestions.value = state?.suggestions ?? [];
+            } else {
+                repl.value = null;
+            }
+            currentEndpoint.value = ep;
+            console.log('using repl for ' + ep, repl.value);
+        },
+        { immediate: true },
+    );
+
     function updateSuggestions(input: string) {
         const trimmed = input.trim();
 
@@ -89,12 +141,19 @@ export function useDatexRepl() {
             return;
         }
 
+        // capture before await so a running command stays on its original endpoint
+        const current = repl.value;
+        if (!current) {
+            entries.value.push({ type: 'error', content: 'No endpoint available' });
+            return;
+        }
+
         try {
-            const result = await Datex.execute(code);
+            const result = await current.execute(code);
 
             entries.value.push({
                 type: 'output',
-                content: formatOutput(Datex.valueToString(result)),
+                content: formatOutput(result),
             });
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);

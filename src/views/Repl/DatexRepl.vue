@@ -2,8 +2,9 @@
 import { ref, nextTick, watch, computed, onMounted } from 'vue';
 import { useDatexRepl } from '@/composable/useDatexRepl';
 import { ChevronRight, ChevronLeft, Trash2 } from 'lucide-vue-next';
+import { activeEndpoint } from '@/lib/inspector/mod';
 
-const { entries, history, executeCommand, reset, suggestions, updateSuggestions } = useDatexRepl();
+const { entries, history, executeCommand, reset, suggestions, updateSuggestions } = useDatexRepl(() => activeEndpoint.value);
 
 const currentInput = ref('');
 const historyIdx = ref(-1);
