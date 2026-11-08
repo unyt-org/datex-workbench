@@ -1,4 +1,5 @@
 import type { Runtime as RuntimeT, RuntimeConfig, DIF } from '@unyt/datex';
+import type { Endpoint } from './runtime-loader';
 import { Builtins, Runtime } from './runtime-loader';
 
 export type ComHubMetadata = {
@@ -9,7 +10,7 @@ export type ComHubMetadata = {
         sockets: {
             uuid: string;
             direction: string;
-            endpoint: string;
+            endpoint: Endpoint;
             properties: Record<string, unknown>;
         }[];
         is_waiting_for_socket_connections: boolean;

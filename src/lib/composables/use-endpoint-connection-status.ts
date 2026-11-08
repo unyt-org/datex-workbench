@@ -1,5 +1,5 @@
 import { ref, toValue, onScopeDispose, type MaybeRefOrGetter, type Ref, effectScope, type EffectScope, shallowRef, watch } from "vue";
-import { Endpoint } from "../runtime-loader";
+import { Endpoint } from "@/lib/runtime-loader";
 import { Datex } from "../runtime";
 import { useTimeoutPoll } from "@vueuse/core";
 import { computed } from "vue";

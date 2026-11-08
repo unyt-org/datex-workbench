@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useEndpointConnectionStatus } from '@/lib/composables/use-endpoint-connection-status.ts';
-import type { Endpoint } from '../../lib/runtime-loader.ts';
+import type { Endpoint } from "@/lib/runtime-loader";
 import { computed, ref, watch } from 'vue';
 import { connectedInspectorInstances } from '@/lib/inspector/mod.ts';
 
@@ -19,7 +19,6 @@ watch(() => props.endpoint, () => {
   initialPollCount.value = pollCount.value;
   initialConnectionLostCount.value = connectionLostCount.value;
 });
-
 const hasInspectorSession = computed(() => connectedInspectorInstances.has(props.endpoint));
 const showDisconnectedAsError = computed(() => hasInspectorSession.value);
 </script>

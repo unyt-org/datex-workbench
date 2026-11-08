@@ -3,15 +3,15 @@
         <div
             v-for="iface in filteredInterfaces"
             :key="iface.uuid"
-            class="card cursor-pointer transition hover:bg-neutral-100/80 dark:hover:bg-neutral-800/80"
+            class="card cursor-pointer"
         >
             <!-- Interface Header -->
             <div class="flex items-start justify-between gap-2">
                 <div class="flex-1 cursor-pointer" @click="toggle(iface.uuid)">
                     <h3 class="text-primary font-semibold">
                         {{ iface.properties?.interface_type || 'Unknown interface' }}
-                        <span v-if="iface.properties && iface.properties.name"
-                            >({{ iface.properties.name }})</span
+                        <span class="text-muted-foreground ml-1 font-normal" v-if="iface.properties && iface.properties.name"
+                            >{{ iface.properties.name }}</span
                         >
                     </h3>
                     <div class="text-dim mt-1 text-xs">
@@ -43,9 +43,7 @@
                     <div class="flex items-start justify-between gap-2">
                         <div class="flex flex-1 flex-col gap-1">
                             <h4 class="flex items-center gap-2 font-semibold">
-                                <span class="font-mono text-blue-600 dark:text-blue-400">{{
-                                    socket.endpoint
-                                }}</span>
+                                <EndpointLabel :endpoint="socket.endpoint" />
                                 <span
                                     v-if="socket.properties && socket.properties.is_direct"
                                     class="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900 dark:text-green-300"
@@ -85,7 +83,9 @@
 <script setup lang="ts">
 import type { ComHubInterface, ComHubSocket } from '@/components/ComHubOverviewWrapper.vue';
 import { Datex } from '@/lib/runtime';
+import { Endpoint } from '@/lib/runtime-loader';
 import { computed, reactive, watch } from 'vue';
+import EndpointLabel from './Endpoints/EndpointLabel.vue';
 
 const props = defineProps<{
     interfaces: ComHubInterface[];
@@ -126,7 +126,7 @@ watch(
     },
 );
 
-async function disconnectSocket(interfaceUuid: string, socketUuid: string, endpoint: string) {
+async function disconnectSocket(interfaceUuid: string, socketUuid: string, endpoint: Endpoint) {
     await Datex.comHub.removeSocket(socketUuid as `socket::${string}`);
     console.warn('[ComHub] disconnectSocket called', { interfaceUuid, socketUuid, endpoint });
 }

@@ -87,7 +87,9 @@
     </div>
 </template>
 
+
 <script setup lang="ts">
+import type { Endpoint } from "@/lib/runtime-loader";
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getComHubMetadata } from '@/lib/runtime';
@@ -112,7 +114,7 @@ interface InterfaceProperties {
 export interface ComHubSocket {
     uuid: string;
     direction: string;
-    endpoint: string;
+    endpoint: Endpoint;
     properties: {
         known_since: bigint;
         distance: number;

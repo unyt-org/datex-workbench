@@ -1,6 +1,6 @@
-import { Endpoint } from '../runtime-loader.ts';
+import { Endpoint } from "@/lib/runtime-loader";
 import type { Inspector } from '../_temp_types.ts';
-import { reactive, ref, computed, shallowReactive, markRaw } from 'vue';
+import { reactive, ref, computed, shallowReactive } from 'vue';
 import { Datex } from '../runtime.ts';
 
 /**

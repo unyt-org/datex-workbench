@@ -1,22 +1,18 @@
 <template>
     <div>
         <div
-            v-for="[endpointId, sockets] in filteredEndpoints"
-            :key="endpointId"
-            class="card cursor-pointer transition hover:bg-neutral-100 dark:hover:bg-neutral-700/50"
+            v-for="[endpoint, sockets] in filteredEndpoints"
+            :key="endpoint"
+            class="card cursor-pointer"
         >
             <!-- Endpoint Header -->
             <div
                 class="flex cursor-pointer items-center justify-between"
-                @click="toggle(endpointId)"
+                @click="toggle(endpoint)"
             >
                 <div class="flex flex-col gap-1">
                     <div class="flex items-center gap-2">
-                        <h3
-                            class="font-mono text-sm font-semibold text-blue-600 dark:text-blue-400"
-                        >
-                            {{ endpointId }}
-                        </h3>
+                        <EndpointLabel :endpoint="endpoint" />
                         <span
                             v-if="isDirect(sockets)"
                             class="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900 dark:text-green-300"
@@ -31,13 +27,13 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <span class="text-xs text-neutral-400">{{
-                        expanded[endpointId] ? '▾' : '▸'
+                        expanded[endpoint] ? '▾' : '▸'
                     }}</span>
                 </div>
             </div>
 
             <!-- Expanded Socket List -->
-            <div v-if="expanded[endpointId]" class="mt-3 flex flex-col gap-2 border-t pt-3">
+            <div v-if="expanded[endpoint]" class="mt-3 flex flex-col gap-2 border-t pt-3">
                 <div v-for="(socket, idx) in sockets" :key="socket.uuid + idx" class="card-inner">
                     <div class="flex items-start justify-between gap-2">
                         <div class="flex flex-1 flex-col gap-1">
@@ -87,6 +83,8 @@
 import type { ComHubInterface, ComHubSocket } from '@/components/ComHubOverviewWrapper.vue';
 import { removeSocket } from '@/lib/runtime';
 import { computed, reactive, watch } from 'vue';
+import EndpointLabel from './Endpoints/EndpointLabel.vue';
+import { Endpoint } from "@/lib/runtime-loader";
 
 interface SocketWithInterface extends ComHubSocket {
     interface: {

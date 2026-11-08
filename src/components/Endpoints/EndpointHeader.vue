@@ -4,7 +4,7 @@ import EndpointSearch from './EndpointSearch.vue';
 </script>
 
 <template>
-  <div class="top-3 right-3 absolute z-10 rounded-sm">
+  <div class="top-5 right-5 absolute z-10 rounded-sm">
     <EndpointSearch />
   </div>
 </template>
