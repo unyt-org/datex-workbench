@@ -3,6 +3,12 @@ import { ref, nextTick, watch, computed, onMounted } from 'vue';
 import { useDatexRepl } from '@/composable/useDatexRepl';
 import { ChevronRight, ChevronLeft, Trash2 } from 'lucide-vue-next';
 import { activeEndpoint } from '@/lib/inspector/mod';
+import { useShikiHighlighter } from '@/composable/useShikiHighlighter';
+import { useColorMode } from '@vueuse/core';
+const mode = useColorMode();
+
+const highlighter = await useShikiHighlighter();
+const theme = computed(() => mode.value === 'dark' ? 'github-dark' : 'github-light');
 
 const { entries, history, executeCommand, reset, suggestions, updateSuggestions } = useDatexRepl(() => activeEndpoint.value);
 
@@ -93,6 +99,11 @@ watch(currentInput, (val) => {
 onMounted(() => {
     resizeTextarea();
 });
+
+function highlightDatexText(content: string) {
+    return highlighter.codeToHtml(content, { lang: 'datex', theme: theme.value });
+}
+
 </script>
 
 <template>
@@ -105,11 +116,11 @@ onMounted(() => {
             >
                 <div v-if="entry.type === 'input'" class="text-muted-foreground flex gap-2">
                     <ChevronRight :size="14" class="mt-1 opacity-50" />
-                    <span class="text-primary">{{ entry.content }}</span>
+                    <span class="[&>pre]:bg-transparent! [&_code]:whitespace-break-spaces" v-html="highlightDatexText(entry.content)"></span>
                 </div>
                 <div v-else-if="entry.type === 'output'" class="text-primary flex gap-2">
                     <ChevronLeft :size="14" class="text-dim mt-1" />
-                    <span v-html="entry.content" class="text-primary"></span>
+                    <span class="[&>pre]:bg-transparent! [&_code]:whitespace-break-spaces" v-html="highlightDatexText(entry.content)"></span>
                 </div>
 
                 <div
