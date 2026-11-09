@@ -3,7 +3,7 @@
         <div
             v-for="iface in filteredInterfaces"
             :key="iface.uuid"
-            class="card cursor-pointer"
+            class="card"
         >
           <InterfaceCard :iface="iface" :advancedMode="props.advancedMode" />
         </div>
@@ -11,7 +11,7 @@
         <div
             v-for="iface in filteredReconnectingInterfaces"
             :key="iface.uuid"
-            class="card cursor-pointer"
+            class="card"
         >
           <InterfaceCard :iface="iface" :advancedMode="props.advancedMode" reconnecting />
         </div>

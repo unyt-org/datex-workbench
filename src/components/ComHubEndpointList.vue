@@ -3,7 +3,7 @@
         <div
             v-for="[endpoint, sockets] in filteredEndpoints"
             :key="endpoint"
-            class="card cursor-pointer"
+            class="card"
         >
             <!-- Endpoint Header -->
             <div
