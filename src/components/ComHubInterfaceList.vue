@@ -81,14 +81,14 @@
 </template>
 
 <script setup lang="ts">
-import type { ComHubInterface, ComHubSocket } from '@/components/ComHubOverviewWrapper.vue';
 import { Datex } from '@/lib/runtime';
 import { Endpoint } from '@/lib/runtime-loader';
-import { computed, reactive, watch } from 'vue';
+import { computed, markRaw, reactive, watch } from 'vue';
 import EndpointLabel from './Endpoints/EndpointLabel.vue';
+import type { ComHubMetadataInterface, ComHubMetadataInterfaceSocket, InterfaceDirection } from '@/lib/_temp_types.ts';
 
 const props = defineProps<{
-    interfaces: ComHubInterface[];
+    interfaces: ComHubMetadataInterface[];
     searchQuery: string;
     advancedMode: boolean;
 }>();
@@ -104,9 +104,9 @@ const filteredInterfaces = computed(() => {
                 socket.endpoint.toLowerCase().includes(query),
             );
             if (matchingSockets.length === 0) return null;
-            return { ...iface, sockets: matchingSockets };
+            return markRaw({ ...iface, sockets: matchingSockets });
         })
-        .filter((iface): iface is ComHubInterface => iface !== null);
+        .filter((iface): iface is ComHubMetadataInterface => iface !== null);
 });
 watch(filteredInterfaces, (ifaces) => {
     if (!props.searchQuery.trim()) return;
@@ -139,18 +139,18 @@ function toggle(uuid: string) {
     expanded[uuid] = !expanded[uuid];
 }
 
-function getSortedSockets(sockets: ComHubSocket[]) {
+function getSortedSockets(sockets: ComHubMetadataInterfaceSocket[]) {
     return [...sockets].sort((a, b) => {
-        if (a.properties.is_direct !== b.properties.is_direct)
-            return a.properties.is_direct ? -1 : 1;
-        return Number(a.properties.known_since) - Number(b.properties.known_since);
+        if (a.properties?.is_direct !== b.properties?.is_direct)
+            return a.properties?.is_direct ? -1 : 1;
+        return Number(a.properties?.known_since) - Number(b.properties?.known_since);
     });
 }
 
-function getDirectionArrow(direction: string): string {
-    if (direction === 'InOut') return '↔';
-    if (direction === 'In') return '←';
-    if (direction === 'Out') return '→';
+function getDirectionArrow(direction: InterfaceDirection): string {
+    if (direction.tag === 'InOut') return '↔';
+    if (direction.tag === 'In') return '←';
+    if (direction.tag === 'Out') return '→';
     return '';
 }
 

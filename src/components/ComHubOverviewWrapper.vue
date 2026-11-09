@@ -90,14 +90,15 @@
 
 <script setup lang="ts">
 import type { Endpoint } from "@/lib/runtime-loader";
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import type { ComHubMetadataInterface } from "@/lib/_temp_types";
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getComHubMetadata } from '@/lib/runtime';
 import ComHubInterfaceList from '@/components/ComHubInterfaceList.vue';
 import ComHubEndpointList from '@/components/ComHubEndpointList.vue';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Settings } from 'lucide-vue-next';
+import { activeInspector } from "@/lib/inspector/mod";
 
 const { t } = useI18n();
 
@@ -134,7 +135,7 @@ export interface ComHubInterface {
 const searchQuery = ref('');
 const advancedMode = ref(false);
 const groupByEndpoint = ref(false);
-const interfaces = ref<ComHubInterface[]>([]);
+const interfaces = ref<ComHubMetadataInterface[]>([]);
 
 const effectiveSearch = computed(() => {
     const q = searchQuery.value.trim();
@@ -142,8 +143,9 @@ const effectiveSearch = computed(() => {
     return q;
 });
 
-function syncMetadata() {
-    interfaces.value = getComHubMetadata().interfaces as ComHubInterface[];
+async function syncMetadata() {
+    const endpoint_metadata = await activeInspector.value.com_hub_metadata();
+    interfaces.value = endpoint_metadata.interfaces;
 }
 
 let intervalId: ReturnType<typeof setInterval> | null = null;
@@ -156,4 +158,9 @@ onMounted(() => {
 onUnmounted(() => {
     if (intervalId !== null) clearInterval(intervalId);
 });
+
+watch(activeInspector, () => {
+    syncMetadata();
+});
+
 </script>

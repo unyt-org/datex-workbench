@@ -1,21 +1,7 @@
 import type { Runtime as RuntimeT, RuntimeConfig, DIF } from '@unyt/datex';
-import type { Endpoint } from './runtime-loader';
 import { Builtins, Runtime } from './runtime-loader';
+import type { ComHubMetadata } from './_temp_types';
 
-export type ComHubMetadata = {
-    endpoint: typeof Builtins.Endpoint;
-    interfaces: {
-        uuid: string;
-        properties: Record<string, unknown>;
-        sockets: {
-            uuid: string;
-            direction: string;
-            endpoint: Endpoint;
-            properties: Record<string, unknown>;
-        }[];
-        is_waiting_for_socket_connections: boolean;
-    }[];
-};
 
 const websocketServerEndpointURL =
     localStorage.getItem('websocketServerEndpoint') || 'wss://example.unyt.land';

@@ -50,12 +50,12 @@
                             <div class="dim mt-1 flex items-center gap-2 text-xs">
                                 <span
                                     >Known since
-                                    {{ formatTime(Number(socket.properties.known_since)) }}</span
+                                    {{ formatTime(Number(socket.properties?.known_since)) }}</span
                                 >
                                 <span>·</span>
-                                <span>Distance: {{ socket.properties.distance }}</span>
+                                <span>Distance: {{ socket.properties?.distance }}</span>
                                 <span
-                                    v-if="socket.properties.is_direct"
+                                    v-if="socket.properties?.is_direct"
                                     class="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900 dark:text-green-300"
                                     >direct</span
                                 >
@@ -80,21 +80,20 @@
 </template>
 
 <script setup lang="ts">
-import type { ComHubInterface, ComHubSocket } from '@/components/ComHubOverviewWrapper.vue';
 import { removeSocket } from '@/lib/runtime';
-import { computed, reactive, watch } from 'vue';
+import { computed, markRaw, reactive, watch } from 'vue';
 import EndpointLabel from './Endpoints/EndpointLabel.vue';
-import { Endpoint } from "@/lib/runtime-loader";
+import type { ComHubMetadataInterface, ComHubMetadataInterfaceSocket } from '@/lib/_temp_types.ts';
 
-interface SocketWithInterface extends ComHubSocket {
+interface SocketWithInterface extends ComHubMetadataInterfaceSocket {
     interface: {
         uuid: string;
-        properties: ComHubInterface['properties'];
+        properties: ComHubMetadataInterface['properties'];
     };
 }
 
 const props = defineProps<{
-    interfaces: ComHubInterface[];
+    interfaces: ComHubMetadataInterface[];
     searchQuery: string;
     advancedMode: boolean;
 }>();
@@ -105,10 +104,10 @@ const endpointMap = computed((): Map<string, SocketWithInterface[]> => {
     const map = new Map<string, SocketWithInterface[]>();
     for (const iface of props.interfaces) {
         for (const socket of iface.sockets) {
-            const entry: SocketWithInterface = {
+            const entry: SocketWithInterface = markRaw({
                 ...socket,
                 interface: { uuid: iface.uuid, properties: iface.properties },
-            };
+            });
             if (!map.has(socket.endpoint)) map.set(socket.endpoint, []);
             map.get(socket.endpoint)!.push(entry);
         }
