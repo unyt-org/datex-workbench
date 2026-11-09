@@ -73,13 +73,13 @@
         <div class="flex-1 overflow-y-auto no-drag">
             <ComHubEndpointList
                 v-if="groupByEndpoint"
-                :interfaces="interfaces"
+                :interfaces="comHubMetadata?.interfaces ?? []"
                 :search-query="effectiveSearch"
                 :advanced-mode="advancedMode"
             />
             <ComHubInterfaceList
                 v-else
-                :interfaces="interfaces"
+                :comHubMetadata="comHubMetadata"
                 :search-query="effectiveSearch"
                 :advanced-mode="advancedMode"
             />
@@ -90,7 +90,7 @@
 
 <script setup lang="ts">
 import type { Endpoint } from "@/lib/runtime-loader";
-import type { ComHubMetadataInterface } from "@/lib/_temp_types";
+import type { ComHubMetadata } from "@/lib/_temp_types";
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ComHubInterfaceList from '@/components/ComHubInterfaceList.vue';
@@ -135,7 +135,7 @@ export interface ComHubInterface {
 const searchQuery = ref('');
 const advancedMode = ref(false);
 const groupByEndpoint = ref(false);
-const interfaces = ref<ComHubMetadataInterface[]>([]);
+const comHubMetadata = ref<ComHubMetadata|null>(null);
 
 const effectiveSearch = computed(() => {
     const q = searchQuery.value.trim();
@@ -145,7 +145,7 @@ const effectiveSearch = computed(() => {
 
 async function syncMetadata() {
     const endpoint_metadata = await activeInspector.value.com_hub_metadata();
-    interfaces.value = endpoint_metadata.interfaces;
+    comHubMetadata.value = endpoint_metadata;
 }
 
 let intervalId: ReturnType<typeof setInterval> | null = null;
