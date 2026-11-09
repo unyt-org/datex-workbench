@@ -37,7 +37,7 @@
         "modern-monaco": "^0.4.0",
         "reka-ui": "^2.11.0",
         "search-query-parser": "^1.6.0",
-        "shadcn": "^3.5.0",
+        "shadcn": "^1.0.0",
         "shadcn-ui": "^0.9.5",
         "shiki": "^4.0.2",
         "tailwind-merge": "^3.3.1",
@@ -52,7 +52,7 @@
     "devDependencies": {
         "@iconify-json/radix-icons": "^1.2.5",
         "@iconify/vue": "^5.0.0",
-        "@tailwindcss/typography": "^0.5.19",
+        "@tailwindcss/typography": "^0.5.4",
         "@tsconfig/node22": "^22.0.2",
         "@types/dagre": "^0.7.54",
         "@types/jsdom": "^27.0.0",
@@ -65,7 +65,7 @@
         "@vue/test-utils": "^2.4.6",
         "@vue/tsconfig": "^0.8.1",
         "eslint": "^9.39.1",
-        "eslint-plugin-vue": "~10.5.0",
+        "eslint-plugin-vue": "^10.2.0",
         "jiti": "^2.6.1",
         "jsdom": "^27.0.1",
         "npm-run-all2": "^8.0.4",
@@ -73,9 +73,9 @@
         "prettier-plugin-tailwindcss": "^0.7.2",
         "typescript": "~5.9.0",
         "vite": "^7.1.11",
-        "vite-plugin-pwa": "^1.2.0",
+        "vite-plugin-pwa": "^1.1.0",
         "vite-plugin-vue-devtools": "^8.0.3",
-        "vitest": "^3.2.4",
+        "vitest": "^5.1.0",
         "vue-tsc": "^3.1.1"
     }
 }
