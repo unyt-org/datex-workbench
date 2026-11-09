@@ -152,7 +152,7 @@ let intervalId: ReturnType<typeof setInterval> | null = null;
 
 onMounted(() => {
     syncMetadata();
-    intervalId = setInterval(syncMetadata, 1000);
+    intervalId = setInterval(syncMetadata, 2000);
 });
 
 onUnmounted(() => {
