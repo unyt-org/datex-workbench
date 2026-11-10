@@ -31,7 +31,7 @@ watch(activeInspector, async (newInspector) => {
                 Logs
             </h2>
         </div>
-        <div class="flex flex-col gap-1 font-mono">
+        <div class="flex flex-col gap-1 font-mono overflow-auto">
             <div v-for="log in currentInspectorLogsList" :key="log.message" class="flex gap-2">
                 <span v-if="log.module" class="text-muted-foreground">{{ log.module }}</span>
                 <span v-if="log.tag" class="bg-foreground text-background px-2 rounded">{{ log.tag }}</span>
