@@ -50,7 +50,7 @@
         "nodeView": "नोड दृश्य",
         "networkTree": "नेटवर्क ट्री",
         "collection": "संग्रह",
-        "about": "बारे में",
+        "about": "स्थिति",
         "repl": "REPL",
         "comhub": "ComHub",
         "networkVisualizer": "नेटवर्क विज़ुअलाइज़र",
@@ -119,7 +119,7 @@
         "next": "अगला"
     },
     "about": {
-        "title": "बारे में",
+        "title": "स्थिति",
         "datexVersion": "DATEX संस्करण",
         "device": "डिवाइस",
         "otherVersions": "अन्य संस्करण",

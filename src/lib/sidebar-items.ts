@@ -8,9 +8,19 @@ import {
     EthernetPort,
     Database,
     LogsIcon,
+    ChartBar,
+    ActivityIcon,
+    ChartColumn,
 } from 'lucide-vue-next';
 
 export const sidebarItems = [
+    {
+        icon: ChartColumn,
+        key: 'about',
+        path: '/status',
+        label: 'nav.about',
+        description: 'welcome.aboutDesc',
+    },
     {
         icon: Terminal,
         key: 'repl',
@@ -67,11 +77,4 @@ export const sidebarItems = [
     //     label: 'nav.nodeView',
     //     description: 'welcome.nodeDesc',
     // },
-    {
-        icon: Info,
-        key: 'about',
-        path: '/about',
-        label: 'nav.about',
-        description: 'welcome.aboutDesc',
-    },
 ];

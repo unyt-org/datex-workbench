@@ -50,7 +50,7 @@
         "nodeView": "Node View",
         "networkTree": "Network Tree",
         "collection": "Collection",
-        "about": "About",
+        "about": "Status",
         "repl": "REPL",
         "comhub": "ComHub",
         "networkVisualizer": "Network Visualizer",
@@ -119,7 +119,7 @@
         "next": "Next"
     },
     "about": {
-        "title": "About",
+        "title": "Status",
         "datexVersion": "DATEX Version",
         "device": "Device",
         "otherVersions": "Other Versions",
