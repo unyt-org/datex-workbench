@@ -6,7 +6,7 @@ import { getPointers } from '@/lib/runtime';
 import { createRouter, createWebHistory } from 'vue-router';
 import WelcomeView from '../views/WelcomeView.vue';
 import DatexRepl from '@/views/Repl/DatexRepl.vue';
-import AboutView from '@/views/AboutView.vue';
+import AboutView from '@/views/AboutView/AboutView.vue';
 import NetworkTraceView from '@/views/NetworkTrace/NetworkTraceView.vue';
 import ComHubOverviewWrapper from '@/components/ComHubOverviewWrapper.vue';
 import EndpointView from '@/components/endpoint/EndpointView.vue';

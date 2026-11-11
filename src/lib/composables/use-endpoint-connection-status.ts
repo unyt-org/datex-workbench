@@ -9,9 +9,15 @@ type EndpointConnectionStatusHandler = {
   endpointName: Ref<string|null>,
   pollCount: Ref<number>,
   disconnectionCount: Ref<number>,
+  refresh: () => Promise<void>,
   rc: number,
   scope: EffectScope
 }
+
+/**
+ * global map to track endpoint pings
+ */
+export const endpointPings = ref(new WeakMap<Endpoint, number>());
 
 const endpointConnectionStatusHandlers = new Map<Endpoint, EndpointConnectionStatusHandler>();
 const POLL_INTERVAL_MS = 5000;
@@ -27,6 +33,7 @@ export function acquireStatusHandler(
       pollCount: ref(0),
       disconnectionCount: ref(0),
       rc: 1,
+      refresh: async () => {},
       scope: effectScope(true)
     };
   }
@@ -40,26 +47,40 @@ export function acquireStatusHandler(
     const connectionLostCount = ref(0);
     const scope = effectScope(true);
 
-    scope.run(() => {
-      useTimeoutPoll(async () => {
+    let inFlight: Promise<void> | null = null;
+
+    const poll = (): Promise<void> => {
+      // if a poll is already running, share it instead of starting a second one
+      if (inFlight) return inFlight;
+
+      inFlight = (async () => {
         const wasConnected = isConnected.value;
         try {
-          const name = await Datex.execute<string|null>(endpoint.toString() + ".name");
-          endpointName.value = name;
+          const startTime = performance.now();
+          endpointName.value = await Datex.execute<string|null>(endpoint.toString() + ".name");
           isConnected.value = true;
+          const endTime = performance.now();
+          endpointPings.value.set(endpoint, endTime - startTime);
         } catch {
           isConnected.value = false;
         }
         pollCount.value++;
-        // increment disconnection count once if we just lost connection
         if (!isConnected.value && wasConnected) {
           connectionLostCount.value++;
         }
+      })().finally(() => {
+        inFlight = null;
+      });
 
-      }, POLL_INTERVAL_MS, { immediate: true, immediateCallback: true });
+      return inFlight;
+    };
+
+    scope.run(() => {
+      useTimeoutPoll(poll, POLL_INTERVAL_MS, { immediate: true, immediateCallback: true });
     });
 
-    handler = { isConnected, endpointName, pollCount, disconnectionCount: connectionLostCount, rc: 0, scope };
+
+    handler = { isConnected, endpointName, pollCount, disconnectionCount: connectionLostCount, refresh: poll, rc: 0, scope };
     endpointConnectionStatusHandlers.set(endpoint, handler);
   }
 
@@ -85,8 +106,8 @@ function releaseStatusHandler(endpoint: Endpoint) {
  * @returns An object containing reactive references for the connection status, poll count, and connection lost count of the endpoint.
  */
 export function useEndpointConnectionStatus(
-  endpoint: MaybeRefOrGetter<Endpoint|null>,
-): { isConnected: Ref<boolean>, pollCount: Ref<number>, connectionLostCount: Ref<number>, endpointName: Ref<string|null> } {
+  endpoint: MaybeRefOrGetter<Endpoint|null>
+): { isConnected: Ref<boolean>, pollCount: Ref<number>, connectionLostCount: Ref<number>, endpointName: Ref<string|null>, refresh: () => Promise<void>, } {
 const current = shallowRef<EndpointConnectionStatusHandler>();
   let held: Endpoint | undefined;
 
@@ -114,5 +135,6 @@ const current = shallowRef<EndpointConnectionStatusHandler>();
     pollCount: computed(() => current.value?.pollCount.value ?? 0),
     connectionLostCount: computed(() => current.value?.disconnectionCount.value ?? 0),
     endpointName: computed(() => current.value?.endpointName.value ?? null),
+    refresh: () => current.value?.refresh() ?? Promise.resolve(),
   };
 }

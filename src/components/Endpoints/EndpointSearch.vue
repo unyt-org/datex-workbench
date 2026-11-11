@@ -22,6 +22,7 @@ defineProps<{
 
 const { groupedEndpoints, selectedEndpoint, search, searchEndpoint } = useEndpointSearch()
 
+// triggers ping requests for currently searching endpoint so that it appears in the list when reachable
 useEndpointConnectionStatus(() => searchEndpoint?.value);
 
 

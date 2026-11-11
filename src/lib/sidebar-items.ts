@@ -60,13 +60,13 @@ export const sidebarItems = [
         label: 'nav.block',
         description: 'welcome.blockDesc',
     },
-    {
-        icon: GitGraph,
-        key: 'nodeView',
-        path: '/node-view',
-        label: 'nav.nodeView',
-        description: 'welcome.nodeDesc',
-    },
+    // {
+    //     icon: GitGraph,
+    //     key: 'nodeView',
+    //     path: '/node-view',
+    //     label: 'nav.nodeView',
+    //     description: 'welcome.nodeDesc',
+    // },
     {
         icon: Info,
         key: 'about',

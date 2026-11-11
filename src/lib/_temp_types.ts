@@ -82,16 +82,36 @@ export type LogMessage = {
     tag: string | null;
     message: string;
 };
+
+export type RuntimeInfo = {
+    device_type: string | null;
+    other_versions: Map<string, string>;
+    datex_version: string;
+    running_since: number;
+};
+
+export type HeapStats = {
+    total: number;
+    used: number;
+    max_used: number;
+};
+
+export type RuntimeStats = {
+    heap: HeapStats | null;
+};
+
 export declare class Inspector {
-    /**
-     * Returns the name of the inspector.
-     */ public name(): Promise<string>;
+    public name: string;
+    public info: RuntimeInfo;
     /**
      * Returns a stream of all global log messages of the endpoint.
      */ public logs(): Promise<SharedRef<ReadableStream<LogMessage>, SharedContainerMutability.Mutable, SharedReferenceMutability.Mutable>>;
     /**
      * Returns the current metadata information (connected interfaces, sockets) of the endpoint's com hub.
      */ public com_hub_metadata(): Promise<ComHubMetadata>;
+    /**
+     * Returns the current runtime statistics of the endpoint.
+     */ public stats(): Promise<RuntimeStats>;
     /**
      * Attempts to reboot the endpoint associated with the inspector.
      * Currently, this function is not implemented and will panic if called.

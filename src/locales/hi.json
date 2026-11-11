@@ -121,7 +121,9 @@
     "about": {
         "title": "बारे में",
         "datexVersion": "DATEX संस्करण",
-        "jsVersion": "JS संस्करण",
+        "device": "डिवाइस",
+        "otherVersions": "अन्य संस्करण",
+        "heapUsage": "हीप उपयोग",
         "endpoint": "एंडपॉइंट",
         "activeFeatures": "सक्रिय सुविधाएँ"
     },

@@ -5,6 +5,7 @@ import { RouterLink } from 'vue-router';
 import { RouterView } from 'vue-router';
 import { Datex } from './lib/runtime';
 import { InfoIcon, TriangleAlert } from 'lucide-vue-next';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 const localPatch = localStorage.getItem('localDatexModuleUrl');
 
@@ -20,6 +21,7 @@ const version = Datex.js_version;
 </script>
 
 <template>
+  <TooltipProvider :delay-duration="150" disable-hoverable-content>
     <div class="flex h-screen flex-col">
         <div class="flex grow overflow-hidden">
             <!-- SideBar -->
@@ -68,6 +70,7 @@ const version = Datex.js_version;
             ></div>
         </div>
     </div>
+  </TooltipProvider>
 </template>
 
 <style scoped>

@@ -121,7 +121,9 @@
     "about": {
         "title": "About",
         "datexVersion": "DATEX Version",
-        "jsVersion": "JS Version",
+        "device": "Device",
+        "otherVersions": "Other Versions",
+        "heapUsage": "Heap Usage",
         "endpoint": "Endpoint",
         "activeFeatures": "Active Features"
     },
