@@ -162,7 +162,7 @@ try {
         <!-- Error banner -->
         <div
             v-if="error"
-            class="mx-4 mb-3 px-3 py-2 rounded-md border text-sm font-mono bg-red-950/40 border-red-900/60 text-red-300"
+            class="mx-4 mb-3 px-3 py-2 rounded-md border text-sm font-mono bg-rose-950/40 border-rose-900/60 text-rose-300"
         >
             ⚠ {{ error }}
         </div>

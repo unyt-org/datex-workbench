@@ -142,11 +142,10 @@ function extractBlockMetadata(parsedBlock: ParsedSection[]) {
     };
 }
 
-// Storage configuration
-const STORAGE_KEY = 'datex-workbench:network-inspector:blocks';
-const MAX_STORED_BLOCKS = 200;
-const INITIAL_DISPLAYED_BLOCKS = 20;
-const LOAD_MORE_INCREMENT = 20;
+// Maximum number of blocks kept in memory, oldest are dropped first
+const MAX_BLOCKS = 400;
+
+let nextBlockId = 0;
 
 export type BlockId = {
     contextId: number;
@@ -154,79 +153,6 @@ export type BlockId = {
     blockNumber: number;
 };
 
-// Serializable block entry for localStorage
-interface StoredBlockEntry {
-    blockBase64: string;
-    direction: 'in' | 'out';
-    socketUuid: string;
-    interfaceName: string;
-    capturedAt: number;
-    blockId: BlockId;
-}
-
-// Utility functions for base64 conversion
-function arrayBufferToBase64(buffer: Uint8Array): string {
-    let binary = '';
-    const len = buffer.byteLength;
-    for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(buffer[i]!);
-    }
-    return btoa(binary);
-}
-
-function base64ToArrayBuffer(base64: string): Uint8Array {
-    const binary = atob(base64);
-    const len = binary.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-        bytes[i] = binary.charCodeAt(i);
-    }
-    return bytes;
-}
-
-// Save blocks to localStorage
-function saveBlocksToStorage(blocks: RawBlockEntry[]): void {
-    try {
-        const storedBlocks: StoredBlockEntry[] = blocks.map((block) => ({
-            blockBase64: arrayBufferToBase64(block.originalBinary),
-            direction: block.direction,
-            socketUuid: block.socketUuid,
-            interfaceName: block.interfaceName,
-            capturedAt: block.capturedAt,
-            blockId: block.blockId,
-        }));
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(storedBlocks));
-    } catch (error) {
-        console.warn('Failed to save blocks to localStorage:', error);
-    }
-}
-
-// Load blocks from localStorage
-function loadBlocksFromStorage(definition: StructureDefinition): RawBlockEntry[] {
-    try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (!stored) return [];
-
-        const storedBlocks: StoredBlockEntry[] = JSON.parse(stored);
-        return storedBlocks.map((stored) => {
-            const originalBinary = base64ToArrayBuffer(stored.blockBase64);
-            const parsedBlock = parseStructure(definition, originalBinary);
-            const metadata = extractBlockMetadata(parsedBlock);
-            return {
-                direction: stored.direction,
-                parsedBlock,
-                originalBinary,
-                socketUuid: stored.socketUuid,
-                interfaceName: stored.interfaceName,
-                capturedAt: stored.capturedAt,
-                ...metadata,
-            };
-        });
-    } catch (error) {
-        console.warn('Failed to load blocks from localStorage:', error);
-        return [];
-    }
-}
 
 const definition = await (
     await fetch(
@@ -237,66 +163,24 @@ const definition = await (
 // Initialize blocks from storage
 const blocks = ref<RawBlockEntry[]>([]);
 
-// Lazy loading state
-const loadedBlocksCount = ref(INITIAL_DISPLAYED_BLOCKS);
-
-// Computed property for progressively displaying blocks
-const displayedBlocks = computed(() => blocks.value.slice(0, loadedBlocksCount.value));
-
-// Check if more blocks are available to load
-const hasMoreBlocks = computed(() => loadedBlocksCount.value < blocks.value.length);
-
-// Load more blocks (called when user scrolls near bottom)
-function loadMoreBlocks() {
-    if (hasMoreBlocks.value) {
-        const remaining = blocks.value.length - loadedBlocksCount.value;
-        loadedBlocksCount.value += Math.min(LOAD_MORE_INCREMENT, remaining);
-    }
-}
-
-// Reset loaded count when blocks array significantly changes
-function resetLoadedCount() {
-    loadedBlocksCount.value = Math.min(INITIAL_DISPLAYED_BLOCKS, blocks.value.length);
-}
-
-function sendTestBlock() {
-    return Datex.execute('@@local :: 1 + 41');
-}
 
 function handleBlock(block: Uint8Array, socket_uuid: string, direction: 'in' | 'out') {
     const parsedBlock = parseStructure(definition, block);
 
-    // Extract metadata once at capture time
-    const metadata = extractBlockMetadata(parsedBlock);
-
-    // Add new block
     blocks.value.push({
+        id: nextBlockId++,
         direction,
         parsedBlock,
         originalBinary: block,
         socketUuid: socket_uuid,
         interfaceName: 'todo',
         capturedAt: Date.now(),
-        ...metadata,
+        ...extractBlockMetadata(parsedBlock),
     });
 
-    // Keep only the most recent 200 blocks (FIFO rotation)
-    if (blocks.value.length > MAX_STORED_BLOCKS) {
-        blocks.value = blocks.value.slice(0, MAX_STORED_BLOCKS);
-    }
-
-    // Reset loaded count to show new block while maintaining scroll position logic
-    // Only reset if we're at the top (showing initial blocks)
-    if (loadedBlocksCount.value <= INITIAL_DISPLAYED_BLOCKS) {
-        loadedBlocksCount.value = INITIAL_DISPLAYED_BLOCKS;
-    } else {
-        // User has scrolled down, increment to include new block
-        loadedBlocksCount.value = Math.min(loadedBlocksCount.value + 1, blocks.value.length);
-    }
-
-    // Persist to localStorage
-    // TODO: enable via preferences
-    // saveBlocksToStorage(blocks.value);
+    // Drop the oldest blocks once the limit is exceeded
+    const overflow = blocks.value.length - MAX_BLOCKS;
+    if (overflow > 0) blocks.value.splice(0, overflow);
 }
 
 let localInterceptorUUID: string|null = null;
@@ -325,7 +209,6 @@ export function useNetworkInspector(showDebug: Ref<boolean>) {
         for await (const block of blocks) {
             // stop if inspector is no longer active
             if (inspector !== activeInspector.value) break;
-            console.log("block =>", block);
             handleBlock(new Uint8Array(block.block), block.socket_uuid, block.direction.tag === 'Incoming' ? 'in' : 'out');
         }
     }
@@ -352,13 +235,6 @@ export function useNetworkInspector(showDebug: Ref<boolean>) {
     }, { immediate: true });
 
     return {
-        sendTestBlock,
         blocks,
-        displayedBlocks,
-        hasMoreBlocks,
-        loadMoreBlocks,
-        resetLoadedCount,
-        loadedBlocksCount,
-        saveBlocksToStorage,
     };
 }

@@ -58,10 +58,10 @@ const selectedBodySpan = ref<null | Span>(null);
 </script>
 
 <template>
-    <div class="flex flex-col h-full">
+    <div class="flex flex-col gap-3 h-full">
         <!-- Block sections: auto-size, max 50% height, scrolls if needed -->
         <BlockProtocolBytes
-            class="m-1 rounded-lg overflow-y-auto"
+            class="rounded-lg overflow-y-auto"
             style="max-height: 40%; flex-shrink: 0"
             :structure="parsedBlock"
             :structureDef="dxbDefinition"
@@ -72,13 +72,13 @@ const selectedBodySpan = ref<null | Span>(null);
         <!-- Details view: fills remaining height -->
         <DisassemblerView
             v-if="isBodySelected && bodyDXB"
-            class="m-1 flex-1 min-h-0 rounded-lg overflow-hidden bg-card"
+            class="flex-1 min-h-0 rounded-lg overflow-hidden bg-card"
             :dxb="bodyDXB"
             v-model="selectedBodySpan"
         />
         <BlockProtocolInfo
             v-else-if="selectedField"
-            class="m-1 flex-1 min-h-0 rounded-lg overflow-y-auto"
+            class="flex-1 min-h-0 rounded-lg overflow-y-auto"
             :structure="parsedBlock"
             :structureDef="dxbDefinition"
             :selectedField="selectedField"
