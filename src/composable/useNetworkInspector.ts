@@ -297,13 +297,10 @@ function handleBlock(block: Uint8Array, socket_uuid: string, direction: 'in' | '
     // saveBlocksToStorage(blocks.value);
 }
 
-Datex.comHub.registerIncomingBlockInterceptor((block: Uint8Array, socket_uuid: string) => {
-    handleBlock(block, socket_uuid, 'in');
+Datex.comHub.registerBlockInterceptor((block: Uint8Array, socket_uuid: string, direction: "Incoming"|"Outgoing") => {
+    handleBlock(block, socket_uuid, direction === "Incoming" ? 'in' : 'out');
 });
 
-Datex.comHub.registerOutgoingBlockInterceptor((block: Uint8Array, socket_uuid: string) => {
-    handleBlock(block, socket_uuid, 'out');
-});
 
 export function useNetworkInspector() {
     return {
