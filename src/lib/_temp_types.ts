@@ -99,6 +99,14 @@ export type HeapStats = {
 export type RuntimeStats = {
     heap: HeapStats | null;
 };
+export type BlockDirection = Tagged<"Incoming"> | Tagged<"Outgoing">;
+
+export type CapturedBlockData = {
+    block: number[];
+    socket_uuid: string;
+    direction: BlockDirection;
+};
+
 
 export declare class Inspector {
     public name: string;
@@ -106,6 +114,9 @@ export declare class Inspector {
     /**
      * Returns a stream of all global log messages of the endpoint.
      */ public logs(): Promise<SharedRef<ReadableStream<LogMessage>, SharedContainerMutability.Mutable, SharedReferenceMutability.Mutable>>;
+    /**
+     * Returns a stream of all incoming and outgoing blocks on the endpoint (excluding debug blocks).
+     */ public blocks(): Promise<SharedRef<ReadableStream<CapturedBlockData>, SharedContainerMutability.Mutable, SharedReferenceMutability.Mutable>>;
     /**
      * Returns the current metadata information (connected interfaces, sockets) of the endpoint's com hub.
      */ public com_hub_metadata(): Promise<ComHubMetadata>;

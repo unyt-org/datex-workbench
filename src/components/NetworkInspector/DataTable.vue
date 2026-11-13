@@ -111,12 +111,12 @@ watch(
 <template>
     <div class="flex h-full w-full flex-col overflow-hidden">
         <!-- Header: filter + column visibility -->
-        <div class="flex shrink-0 items-center justify-between gap-4 px-1 py-4">
+        <div class="flex shrink-0 items-center justify-between gap-4 px-1 py-2">
             <div class="max-w-sm flex-1">
                 <slot name="filter" />
             </div>
             <div class="flex items-center gap-2">
-                <div>
+                <div class="flex items-center gap-4">
                     <slot name="actions" />
                 </div>
                 <DropdownMenu>

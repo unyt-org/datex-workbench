@@ -1,7 +1,9 @@
+import type { Inspector } from '@/lib/_temp_types';
+import { activeEndpoint, activeInspector } from '@/lib/inspector/mod';
 import { Datex } from '@/lib/runtime';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
 import { parseStructure, type ParsedSection, type StructureDefinition } from '@unyt/speck';
-import { computed, ref } from 'vue';
+import { computed, ref, watch, type Ref } from 'vue';
 
 // Helper functions to extract metadata from parsed block structure (parse once, read many)
 function getBlockType(parsedBlock: ParsedSection[]): string {
@@ -233,7 +235,7 @@ const definition = await (
 ).json();
 
 // Initialize blocks from storage
-const blocks = ref<RawBlockEntry[]>(loadBlocksFromStorage(definition));
+const blocks = ref<RawBlockEntry[]>([]);
 
 // Lazy loading state
 const loadedBlocksCount = ref(INITIAL_DISPLAYED_BLOCKS);
@@ -297,12 +299,58 @@ function handleBlock(block: Uint8Array, socket_uuid: string, direction: 'in' | '
     // saveBlocksToStorage(blocks.value);
 }
 
-Datex.comHub.registerBlockInterceptor((block: Uint8Array, socket_uuid: string, direction: "Incoming"|"Outgoing") => {
-    handleBlock(block, socket_uuid, direction === "Incoming" ? 'in' : 'out');
-});
+let localInterceptorUUID: string|null = null;
+
+function collectBlocksLocal(showDebug: boolean) {
+  if (localInterceptorUUID !== null) return;
+  localInterceptorUUID = Datex.comHub.registerBlockInterceptor((block: Uint8Array, socket_uuid: string, direction: "Incoming"|"Outgoing") => {
+      handleBlock(block, socket_uuid, direction === "Incoming" ? 'in' : 'out');
+  }, showDebug);
+}
+
+function stopCollectingBlocksLocal() {
+    if (localInterceptorUUID !== null) {
+        Datex.comHub.unregisterBlockInterceptor(localInterceptorUUID);
+        localInterceptorUUID = null;
+    }
+}
 
 
-export function useNetworkInspector() {
+
+export function useNetworkInspector(showDebug: Ref<boolean>) {
+
+    async function collectBlocksRemote(inspector: Inspector) {
+      // Handle changes to the active inspector if needed
+        let blocks = await inspector.blocks()
+        for await (const block of blocks) {
+            // stop if inspector is no longer active
+            if (inspector !== activeInspector.value) break;
+            console.log("block =>", block);
+            handleBlock(new Uint8Array(block.block), block.socket_uuid, block.direction.tag === 'Incoming' ? 'in' : 'out');
+        }
+    }
+
+    let lastInspector: Inspector|null = null;
+
+    watch([activeInspector, showDebug], ([newInspector, showDebug]) => {
+        // only reset blocks if the inspector has changed
+        if (newInspector !== lastInspector) {
+          blocks.value = [];
+          lastInspector = newInspector;
+        }
+
+        // collect local blocks with optional debug flag
+        if (activeEndpoint.value.toString() === "@@local") {
+          stopCollectingBlocksLocal();
+          collectBlocksLocal(showDebug);
+        }
+        // collect remote blocks if not local
+        else {
+          stopCollectingBlocksLocal();
+          collectBlocksRemote(newInspector);
+        }
+    }, { immediate: true });
+
     return {
         sendTestBlock,
         blocks,

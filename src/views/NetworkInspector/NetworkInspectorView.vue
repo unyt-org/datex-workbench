@@ -13,8 +13,13 @@ import { filterRowsBySearch, parseSearchQuery } from '@/utils/searchParser';
 import { Trash, X, Lock, Unlock } from 'lucide-vue-next';
 import { computed, nextTick, ref, watch } from 'vue';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
+import Checkbox from '@/components/ui/checkbox/Checkbox.vue';
+import Label from '@/components/ui/label/Label.vue';
+import { activeEndpoint } from '@/lib/inspector/mod';
 
 const { t } = useI18n();
+
+const showDebug = ref(false);
 
 const {
     blocks,
@@ -23,7 +28,7 @@ const {
     loadMoreBlocks,
     resetLoadedCount,
     saveBlocksToStorage,
-} = useNetworkInspector();
+} = useNetworkInspector(showDebug);
 
 // Search query state
 const searchQuery = ref('');
@@ -56,9 +61,6 @@ function clearBlocks() {
         blocks.value = [];
         resetLoadedCount();
     }
-
-    // Persist changes to localStorage
-    saveBlocksToStorage(blocks.value);
 }
 
 // Scroll container ref for maintaining scroll position
@@ -164,6 +166,9 @@ const isBlockSecure = computed(() => {
         (entry.signatureType !== 'None' && entry.signatureType !== 'Unknown')
     );
 });
+
+const isLocalEndpoint = computed(() => activeEndpoint.value.toString() === "@@local");
+
 </script>
 
 <template>
@@ -172,33 +177,6 @@ const isBlockSecure = computed(() => {
         <div class="flex h-full">
           <!-- Left panel: block list -->
           <div class="flex flex-col" :class="selectedBlock ? 'w-1/2' : 'w-full'">
-              <div class="mb-4">
-
-                  <!--
-                  <div class="flex flex-wrap gap-2">
-                      <Button
-                          v-for="blockType in BLOCK_TYPES"
-                          :key="blockType.id"
-                          @click="sendTestBlock()"
-                          variant="outline"
-                          size="sm"
-                          class="text-foreground border-border"
-                          :title="blockType.description"
-                      >
-                          {{ blockType.label }}
-                      </Button>
-
-                      <Button
-                          @click="sendTestBlock"
-                          variant="outline"
-                          size="sm"
-                          class="text-foreground border-border"
-                          title="Legacy traceback block (base64 encoded)"
-                      >
-                          TraceBack (Legacy)
-                      </Button>
-                  </div>-->
-              </div>
 
               <div ref="scrollContainerRef" class="flex-1 overflow-y-auto">
                   <DataTable
@@ -209,7 +187,7 @@ const isBlockSecure = computed(() => {
                       @row-click="onRowClick"
                   >
                       <template #filter>
-                          <div class="flex items-center gap-2">
+                          <div class="flex items-center gap-4">
                               <NetworkFilter
                                   v-model:filter-value="searchQuery"
                                   :suggestions="searchSuggestions"
@@ -218,11 +196,18 @@ const isBlockSecure = computed(() => {
                           </div>
                       </template>
                       <template #actions>
+                          <Label v-if="isLocalEndpoint" class="flex items-center gap-2 whitespace-nowrap">
+                              <Checkbox
+                                v-model="showDebug"
+                                label="Show Debug Blocks"
+                            />
+                            Show Debug Blocks
+                          </Label>
                           <Button
                               variant="outline"
                               size="icon"
                               title="t('network.clearAll')"
-                              class="text-foreground border-border transition-colors hover:text-red-600"
+                              class="text-foreground border-border transition-colors hover:text-rose-600"
                               :disabled="blocks.length === 0"
                               @click="clearBlocks()"
                           >

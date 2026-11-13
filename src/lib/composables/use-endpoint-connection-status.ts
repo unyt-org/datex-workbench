@@ -57,7 +57,7 @@ export function acquireStatusHandler(
         const wasConnected = isConnected.value;
         try {
           const startTime = performance.now();
-          endpointName.value = await Datex.execute<string|null>(endpoint.toString() + ".name");
+          endpointName.value = await Datex.executeRemote<string|null>(endpoint, "@@local.name", [], true);
           isConnected.value = true;
           const endTime = performance.now();
           endpointPings.value.set(endpoint, endTime - startTime);
