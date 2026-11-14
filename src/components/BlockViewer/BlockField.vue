@@ -66,7 +66,7 @@ function getByteColor(fieldDef: FieldDefinition, parsedValue: ParsedValue): stri
                         'parsedValue' in field ? field.parsedValue : null,
                     ),
                 }"
-                :class="{ 'greyed-out': props.grayOut }"
+                :class="{ 'greyed-out': props.grayOut, 'font-bold': fieldDef.byteSize=='remaining' && indexInner == 0 }"
             >
                 {{ byteToHexString(byte) }}
             </div>

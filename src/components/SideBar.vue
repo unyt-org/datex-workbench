@@ -18,6 +18,16 @@ const activePath = computed(() => route.path);
 const navigate = (path: string) => {
     router.push(path);
 };
+
+function handleClick(event: MouseEvent, path: string) {
+    // if ctrl/cmd pressed, spawn a new window
+    if (event.ctrlKey || event.metaKey || event.shiftKey) {
+        window.open(path, '_blank', 'noopener,noreferrer');
+        return;
+    }
+    navigate(path);
+}
+
 </script>
 
 <template>
@@ -26,18 +36,6 @@ const navigate = (path: string) => {
     <aside
         class="bg-transparent relative z-30 flex h-full w-16 flex-col border-r transition-all duration-300 ease-in-out select-none"
     >
-        <!-- Button for Collapsing SideBar -->
-        <!-- <button
-            @click="isCollapsed = !isCollapsed"
-            class="border-sidebar-border bg-sidebar absolute -right-3 top-1/2 z-50 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border shadow-sm transition-all hover:scale-110 active:scale-95"
-            title="Toggle Sidebar"
-        >
-            <ChevronLeft v-if="!isCollapsed" :size="14" class="text-sidebar-foreground" />
-            <ChevronRight v-else :size="14" class="text-sidebar-foreground translate-x-1.5" />
-        </button> -->
-
-        <!-- For Collapse -->
-        <!-- :class="[isCollapsed ? 'pointer-events-none opacity-0' : 'opacity-100']" -->
         <div
             class="flex h-full min-h-0 flex-col items-center overflow-visible transition-opacity duration-200 wco-container"
         >
@@ -58,7 +56,7 @@ const navigate = (path: string) => {
                             : 'text-dim hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                     "
                 >
-                    <IconLogo :size="28" :stroke-width="1.5" />
+                    <IconLogo />
                 </div>
 
                 <div
@@ -81,7 +79,7 @@ const navigate = (path: string) => {
                 <template #item="{ element }">
                     <div
                         class="group relative flex w-full cursor-pointer items-center justify-center py-2"
-                        @click="navigate(element.path)"
+                        @click="handleClick($event, element.path)"
                     >
                         <div
                             class="absolute left-0 h-10 w-0.5 rounded-full bg-sidebar-border transition-all"
@@ -96,7 +94,7 @@ const navigate = (path: string) => {
                                     : 'text-dim hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                             "
                         >
-                            <component :is="element.icon" :size="28" :stroke-width="1.5" />
+                            <component :is="element.icon" :size="28" :stroke-width="activePath === element.path ? 2 : 1.5" />
                         </div>
 
                         <div
@@ -112,7 +110,7 @@ const navigate = (path: string) => {
                 </template>
             </draggable>
 
-            <div class="mt-auto pb-4 w-full">
+            <div class="mt-auto pb-1 w-full">
                 <div
                     class="group relative flex w-full cursor-pointer items-center justify-center py-2"
                     @click="navigate('/preferences')"
@@ -130,7 +128,7 @@ const navigate = (path: string) => {
                                 : 'text-dim hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                         "
                     >
-                        <Settings :size="28" :stroke-width="1.5" />
+                        <Settings :size="28" :stroke-width="activePath === '/preferences' ? 2 : 1.5" />
                     </div>
 
                     <div

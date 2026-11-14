@@ -10,20 +10,24 @@ import { useNetworkInspector } from '@/composable/useNetworkInspector';
 import DatexBlockProtocolView from '@/views/BlockViewer/DatexBlockProtocolView.vue';
 import type { NetworkBlockTableRow } from '@/types/NetworkInspector/TableRow';
 import { filterRowsBySearch, parseSearchQuery } from '@/utils/searchParser';
-import { Trash, X, Lock, Unlock } from 'lucide-vue-next';
+import { Trash, X, Lock, Unlock, BanIcon } from 'lucide-vue-next';
 import { computed, nextTick, ref, watch } from 'vue';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
+import Checkbox from '@/components/ui/checkbox/Checkbox.vue';
+import Label from '@/components/ui/label/Label.vue';
+import { activeEndpoint } from '@/lib/inspector/mod';
+import EndpointSearch from '@/components/Endpoints/EndpointSearch.vue';
+import StandaloneWindowHeader from '@/components/Endpoints/StandaloneWindowHeader.vue';
+import { useWindowControlsOverlay } from '@/utils/windowControlsOverlay';
+import BlockIcons from '@/components/NetworkInspector/BlockIcons.vue';
 
 const { t } = useI18n();
 
+const showDebug = ref(false);
+
 const {
     blocks,
-    displayedBlocks,
-    hasMoreBlocks,
-    loadMoreBlocks,
-    resetLoadedCount,
-    saveBlocksToStorage,
-} = useNetworkInspector();
+} = useNetworkInspector(showDebug);
 
 // Search query state
 const searchQuery = ref('');
@@ -41,6 +45,10 @@ function onRowClick(row: Record<string, unknown>) {
     }
 }
 
+function onRowUnselect() {
+    selectedBlockEntry.value = null;
+}
+
 function closeBlockViewer() {
     selectedBlockEntry.value = null;
 }
@@ -54,46 +62,14 @@ function clearBlocks() {
     } else {
         // Delete ALL blocks when search is empty
         blocks.value = [];
-        resetLoadedCount();
     }
-
-    // Persist changes to localStorage
-    saveBlocksToStorage(blocks.value);
 }
 
-// Scroll container ref for maintaining scroll position
-const scrollContainerRef = ref<HTMLElement | null>(null);
-let savedScrollTop = 0;
-let savedScrollHeight = 0;
 
-// Watch for new blocks and preserve scroll position
-watch(
-    () => blocks.value.length,
-    (newLength, oldLength) => {
-        if (newLength > oldLength && scrollContainerRef.value) {
-            // Save scroll position before DOM update
-            savedScrollTop = scrollContainerRef.value.scrollTop;
-            savedScrollHeight = scrollContainerRef.value.scrollHeight;
-
-            // Adjust scroll after DOM update
-            nextTick(() => {
-                if (scrollContainerRef.value) {
-                    const newScrollHeight = scrollContainerRef.value.scrollHeight;
-                    const heightDiff = newScrollHeight - savedScrollHeight;
-
-                    // Only adjust if user is scrolled down (not watching new items at top)
-                    if (savedScrollTop > 50) {
-                        scrollContainerRef.value.scrollTop = savedScrollTop + heightDiff;
-                    }
-                }
-            });
-        }
-    },
-);
 
 // Computed property to transform DISPLAYED blocks into table rows (using pre-parsed metadata)
 const allTableRows = computed<NetworkBlockTableRow[]>(() => {
-    return displayedBlocks.value.map((block) => {
+    return blocks.value.map((block) => {
         return {
             direction: block.direction,
             blockType: block.blockType,
@@ -106,6 +82,7 @@ const allTableRows = computed<NetworkBlockTableRow[]>(() => {
             size: block.size,
             isEncrypted: block.encryptionType !== 'None' && block.encryptionType !== 'Unknown',
             isSigned: block.signatureType !== 'None' && block.signatureType !== 'Unknown',
+            isDebug: block.isDebug,
             interface: block.interfaceName,
             capturedAt: block.capturedAt,
             blockId: block.blockId,
@@ -156,59 +133,52 @@ const dynamicColumns = computed(() => {
     return createColumns(t, parsedQuery);
 });
 
-const isBlockSecure = computed(() => {
+const isBlockDebug = computed(() => {
     const entry = selectedBlockEntry.value;
     if (!entry) return false;
-    return (
-        (entry.encryptionType !== 'None' && entry.encryptionType !== 'Unknown') ||
-        (entry.signatureType !== 'None' && entry.signatureType !== 'Unknown')
-    );
+    return entry.isDebug ?? false;
 });
+
+const isBlockEncrypted = computed(() => {
+    const entry = selectedBlockEntry.value;
+    if (!entry) return false;
+    return entry.encryptionType !== 'None' && entry.encryptionType !== 'Unknown';
+});
+
+const isBlockSigned = computed(() => {
+    const entry = selectedBlockEntry.value;
+    if (!entry) return false;
+    return entry.signatureType !== 'None' && entry.signatureType !== 'Unknown';
+});
+
+const isLocalEndpoint = computed(() => activeEndpoint.value.toString() === "@@local");
+const controlsOverlayEnabled = useWindowControlsOverlay();
+
 </script>
 
 <template>
-    <div class="top-offset bg-background text-foreground flex h-full">
-        <!-- Left panel: block list -->
-        <div class="flex flex-col p-4 pt-0" :class="selectedBlock ? 'w-1/2' : 'w-full'">
-            <div class="mb-4">
-                <h1 class="mb-3 text-2xl font-bold">{{ t('network.title') }}</h1>
+    <StandaloneWindowHeader :title="t('network.title')"/>
+    <div class="bg-background text-foreground flex h-full flex-col gap-3 p-4 pt-0 overflow-hidden">
+        <div class="flex justify-between items-center gap-4" v-if="!controlsOverlayEnabled">
+          <h1 class="shrink-0 text-xl font-medium">{{ t('network.title') }}</h1>
+          <EndpointSearch />
+        </div>
 
-                <!--
-                <div class="flex flex-wrap gap-2">
-                    <Button
-                        v-for="blockType in BLOCK_TYPES"
-                        :key="blockType.id"
-                        @click="sendTestBlock()"
-                        variant="outline"
-                        size="sm"
-                        class="text-foreground border-border"
-                        :title="blockType.description"
-                    >
-                        {{ blockType.label }}
-                    </Button>
-
-                    <Button
-                        @click="sendTestBlock"
-                        variant="outline"
-                        size="sm"
-                        class="text-foreground border-border"
-                        title="Legacy traceback block (base64 encoded)"
-                    >
-                        TraceBack (Legacy)
-                    </Button>
-                </div>-->
-            </div>
-
-            <div ref="scrollContainerRef" class="flex-1 overflow-y-auto">
+        <div class="flex min-h-0 flex-1 gap-3">
+            <!-- Left panel: block list -->
+            <div class="flex min-h-0 flex-col" :class="selectedBlock ? 'w-1/2' : 'w-full'">
                 <DataTable
+                    :get-row-id="(row) => String(row.capturedAt)"
+                    class="min-h-0 flex-1 no-drag"
                     :columns="dynamicColumns"
                     :data="tableRows"
-                    :has-more-data="hasMoreBlocks && !searchQuery.trim()"
-                    @load-more="loadMoreBlocks"
+                    :has-more-data="!searchQuery.trim()"
+                    :has-selected="selectedBlockEntry != null"
                     @row-click="onRowClick"
+                    @row-unselect="onRowUnselect"
                 >
                     <template #filter>
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-4">
                             <NetworkFilter
                                 v-model:filter-value="searchQuery"
                                 :suggestions="searchSuggestions"
@@ -217,48 +187,51 @@ const isBlockSecure = computed(() => {
                         </div>
                     </template>
                     <template #actions>
+                        <Label v-if="isLocalEndpoint" class="flex items-center gap-2 whitespace-nowrap">
+                            <Checkbox v-model="showDebug" label="Record Debug Blocks" />
+                            Record Debug Blocks
+                        </Label>
                         <Button
                             variant="outline"
                             size="icon"
-                            title="t('network.clearAll')"
-                            class="text-foreground border-border transition-colors hover:text-red-600"
+                            :title="t('network.clearAll')"
+                            class="text-foreground border-border transition-colors hover:text-rose-600"
                             :disabled="blocks.length === 0"
                             @click="clearBlocks()"
                         >
-                            <Trash class="h-4 w-4" />
+                            <BanIcon class="h-4 w-4" />
                         </Button>
                     </template>
                 </DataTable>
             </div>
-        </div>
 
-        <!-- Right panel: block viewer -->
-        <div v-if="selectedBlock" class="w-1/2 flex flex-col h-full overflow-y-auto">
-            <div class="flex items-center justify-between px-4 py-2">
-                <div class="flex items-center gap-2 text-sm font-mono">
-                    <span class="text-muted-foreground uppercase">{{
-                        selectedBlockEntry?.blockType
-                    }}</span>
-                    <Lock v-if="isBlockSecure" class="size-3.5 text-muted-foreground" />
-                    <Unlock v-else class="size-3.5 text-muted-foreground" />
-                    <span class="text-foreground pl-3">{{ selectedBlockEntry?.sender }}</span>
-                    <span class="text-muted-foreground">→</span>
-                    <span class="text-foreground">{{
-                        selectedBlockEntry?.receivers.join(', ')
-                    }}</span>
+            <!-- Right panel: block viewer -->
+            <div v-if="selectedBlock" class="flex min-h-0 w-1/2 flex-col">
+                <div class="flex shrink-0 items-center justify-between px-4 py-4">
+                    <div class="flex items-center gap-2 text-sm font-mono">
+                        <span class="text-muted-foreground uppercase">{{ selectedBlockEntry?.blockType }}</span>
+                        <BlockIcons
+                            :isEncrypted="isBlockEncrypted"
+                            :isSigned="isBlockSigned"
+                            :isDebug="isBlockDebug"
+                        />
+                        <span class="text-foreground pl-3">{{ selectedBlockEntry?.sender }}</span>
+                        <span class="text-muted-foreground">→</span>
+                        <span class="text-foreground">{{ selectedBlockEntry?.receivers.join(', ') }}</span>
+                    </div>
+                    <button
+                        class="text-muted-foreground hover:text-foreground transition"
+                        @click="closeBlockViewer"
+                    >
+                        <X class="size-4" />
+                    </button>
                 </div>
-                <button
-                    class="text-muted-foreground hover:text-foreground transition"
-                    @click="closeBlockViewer"
-                >
-                    <X class="size-4" />
-                </button>
-            </div>
-            <div class="flex-1 overflow-y-auto">
-                <DatexBlockProtocolView
-                    :blockData="selectedBlock"
-                    :key="selectedBlock.byteLength + '-' + Date.now()"
-                />
+                <div class="min-h-0 flex-1 overflow-y-auto no-drag">
+                    <DatexBlockProtocolView
+                        :blockData="selectedBlock"
+                        :key="selectedBlock.byteLength + '-' + Date.now()"
+                    />
+                </div>
             </div>
         </div>
     </div>

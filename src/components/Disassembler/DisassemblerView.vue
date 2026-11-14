@@ -7,20 +7,22 @@ import type { InstructionTree, FlatInstruction, Span } from '@/lib/_temp_types.t
 import { useI18n } from 'vue-i18n';
 import InstructionFlatItem from './InstructionFlatItem.vue';
 import InstructionTreeNode from './InstructionTreeNode.vue';
+import { usePersistentRef } from '@/lib/composables/use-persistent-ref.ts';
 
 const { t } = useI18n();
 
-const viewType = ref<'disassembler' | 'decompiler'>('disassembler');
-
 type ViewMode = 'tree' | 'flat';
+
+const viewType = usePersistentRef<'disassembler' | 'decompiler'>('disassembler/viewType', 'disassembler');
+const viewMode = usePersistentRef<ViewMode>('disassembler/viewMode', 'tree');
+const showNested = usePersistentRef<boolean>('disassembler/showNested', true);
 
 const props = defineProps<{
     /** Raw DXB body bytes to disassemble */
     dxb: Uint8Array;
 }>();
 
-const viewMode = ref<ViewMode>('tree');
-const showNested = ref(true);
+
 
 const selectedBodySpan = defineModel<null | Span>();
 
@@ -160,7 +162,7 @@ try {
         <!-- Error banner -->
         <div
             v-if="error"
-            class="mx-4 mb-3 px-3 py-2 rounded-md border text-sm font-mono bg-red-950/40 border-red-900/60 text-red-300"
+            class="mx-4 mb-3 px-3 py-2 rounded-md border text-sm font-mono bg-rose-950/40 border-rose-900/60 text-rose-300"
         >
             ⚠ {{ error }}
         </div>

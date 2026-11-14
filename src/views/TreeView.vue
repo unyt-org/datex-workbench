@@ -798,7 +798,7 @@ onUnmounted(() => {
 
 <template>
     <div
-        class="no-drag relative h-full w-full overflow-hidden bg-neutral-50 dark:bg-neutral-950 node-canvas"
+        class="relative h-full w-full overflow-hidden bg-neutral-50 dark:bg-neutral-950 node-canvas"
         :class="isPanning ? 'cursor-grabbing' : 'cursor-grab'"
         @mousemove="onMouseMove"
         @mouseup="mouseUp"

@@ -18,5 +18,6 @@ export interface RawBlockEntry {
     size: number;
     encryptionType: string;
     signatureType: string;
+    isDebug: boolean;
     blockId: BlockId;
 }

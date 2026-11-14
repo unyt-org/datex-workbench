@@ -293,7 +293,7 @@ function resetTypeFilters() {
         </div>
 
         <!-- Tree Structure (Scrollable) -->
-        <ScrollArea class="flex-1.5 mb-15 no-drag">
+        <ScrollArea class="flex-1.5 mb-15">
             <SidebarGroup>
                 <SidebarGroupContent>
                     <SidebarMenu>

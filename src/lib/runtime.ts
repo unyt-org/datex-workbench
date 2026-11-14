@@ -1,20 +1,7 @@
 import type { Runtime as RuntimeT, RuntimeConfig, DIF } from '@unyt/datex';
 import { Builtins, Runtime } from './runtime-loader';
+import type { ComHubMetadata } from './_temp_types';
 
-export type ComHubMetadata = {
-    endpoint: typeof Builtins.Endpoint;
-    interfaces: {
-        uuid: string;
-        properties: Record<string, unknown>;
-        sockets: {
-            uuid: string;
-            direction: string;
-            endpoint: string;
-            properties: Record<string, unknown>;
-        }[];
-        is_waiting_for_socket_connections: boolean;
-    }[];
-};
 
 const websocketServerEndpointURL =
     localStorage.getItem('websocketServerEndpoint') || 'wss://example.unyt.land';
@@ -26,6 +13,7 @@ sessionStorage.setItem('datexRuntimeEndpointName', endpointName);
 
 const defaultConfig: RuntimeConfig = {
     endpoint: Builtins.Endpoint.get(endpointName),
+    name: "DATEX Workbench",
     interfaces: [
         {
             type: 'websocket-client',
@@ -53,6 +41,12 @@ export const Datex: RuntimeT = await Runtime.create(defaultConfig, {
 
 // @ts-expect-error expose Datex globally for debugging purposes
 globalThis.Datex = Datex;
+// @ts-expect-error expose Endpoint globally for debugging purposes
+globalThis.Endpoint = Builtins.Endpoint;
+// @ts-expect-error expose Tagged globally for debugging purposes
+globalThis.Tagged = Builtins.Tagged;
+// @ts-expect-error expose tagged globally for debugging purposes
+globalThis.tagged = Builtins.tagged;
 
 export function getPointers(): Map<string, DIF.Definitions.DIFValueContainer> {
     const values = [

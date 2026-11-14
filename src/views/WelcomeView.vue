@@ -3,11 +3,12 @@ import { useRouter } from 'vue-router';
 import IconLogo from '@/components/icons/IconLogo.vue';
 import { useI18n } from 'vue-i18n';
 import { sidebarItems } from '@/lib/sidebar-items';
+import EndpointSearch from '@/components/Endpoints/EndpointSearch.vue';
 
 const { t } = useI18n();
 const router = useRouter();
 
-const quickActionItems = ['repl', 'networkInspector', 'memory', 'about'];
+const quickActionItems = ['repl', 'networkInspector']; // , 'memory', 'about'];
 
 const quickActions = sidebarItems
     .filter((item) => quickActionItems.includes(item.key))
@@ -19,12 +20,12 @@ function navigate(route: string | null) {
 </script>
 
 <template>
-    <main class="flex h-full w-full items-center justify-center bg-background p-8">
+    <main class="drag flex h-full w-full items-center justify-center bg-background p-8">
         <div class="no-drag flex flex-col items-center justify-center gap-12">
             <!-- Header -->
             <div class="flex flex-col items-center gap-2 text-center">
                 <div class="flex items-center gap-3">
-                    <IconLogo class="h-12 w-12" />
+                    <IconLogo />
                     <h1 class="text-3xl font-semibold tracking-tight text-foreground">
                         DATEX Workbench
                     </h1>
@@ -34,8 +35,11 @@ function navigate(route: string | null) {
                 </p>
             </div>
 
+            <!-- Endpoint search -->
+            <EndpointSearch fullWidth />
+
             <!-- Quick actions -->
-            <div class="w-full max-w-2xl">
+            <div class="w-full max-w-xl">
                 <p class="mb-4 text-xs font-medium uppercase tracking-widest text-muted-foreground">
                     {{ t('welcome.quickActions') }}
                 </p>
@@ -67,8 +71,8 @@ function navigate(route: string | null) {
 
                         <!-- Text -->
                         <div>
-                            <p class="text-sm font-medium text-foreground">{{ t(action.label) }}</p>
-                            <p class="text-xs text-muted-foreground">{{ t(action.description) }}</p>
+                            <p class="font-medium text-foreground">{{ t(action.label) }}</p>
+                            <p class="text-sm text-muted-foreground">{{ t(action.description) }}</p>
                         </div>
                     </button>
                 </div>

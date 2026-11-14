@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-defineProps<{
+const props = withDefaults(defineProps<{
     tooltip: string;
     asChild?: boolean;
-}>();
+}>(), {
+    asChild: true,
+});
 </script>
 
 <template>
-    <TooltipProvider>
-        <Tooltip>
-            <TooltipTrigger :as-child="asChild ?? true">
-                <slot />
-            </TooltipTrigger>
-            <TooltipContent>
-                {{ tooltip }}
-            </TooltipContent>
-        </Tooltip>
-    </TooltipProvider>
+    <Tooltip>
+        <TooltipTrigger :as-child="asChild ?? true">
+            <slot />
+        </TooltipTrigger>
+        <TooltipContent>
+            {{ tooltip }}
+        </TooltipContent>
+    </Tooltip>
 </template>

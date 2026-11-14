@@ -1,9 +1,9 @@
 <template>
     <div class="bg-page flex h-full flex-col overflow-hidden p-5 top-offset">
         <div class="mb-4 flex items-center gap-2">
-            <h2 class="mr-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+            <h1 class="mr-2 text-lg mb-3 font-medium text-neutral-900 dark:text-neutral-100">
                 Memory Inspector
-            </h2>
+            </h1>
         </div>
         <div>
             <div v-for="[address, value] in pointers" :key="address" class="mb-2">

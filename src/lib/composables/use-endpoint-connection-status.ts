@@ -1,0 +1,140 @@
+import { ref, toValue, onScopeDispose, type MaybeRefOrGetter, type Ref, effectScope, type EffectScope, shallowRef, watch } from "vue";
+import { Endpoint } from "@/lib/runtime-loader";
+import { Datex } from "../runtime";
+import { useTimeoutPoll } from "@vueuse/core";
+import { computed } from "vue";
+
+type EndpointConnectionStatusHandler = {
+  isConnected: Ref<boolean>,
+  endpointName: Ref<string|null>,
+  pollCount: Ref<number>,
+  disconnectionCount: Ref<number>,
+  refresh: () => Promise<void>,
+  rc: number,
+  scope: EffectScope
+}
+
+/**
+ * global map to track endpoint pings
+ */
+export const endpointPings = ref(new WeakMap<Endpoint, number>());
+
+const endpointConnectionStatusHandlers = new Map<Endpoint, EndpointConnectionStatusHandler>();
+const POLL_INTERVAL_MS = 5000;
+
+export function acquireStatusHandler(
+  endpoint: Endpoint,
+): EndpointConnectionStatusHandler {
+  // for endpoint @@local, don't poll, always consider it connected
+  if (endpoint === Endpoint.get("@@local")) {
+    return {
+      isConnected: ref(true),
+      endpointName: ref(Datex.executeSync("@@local.name")),
+      pollCount: ref(0),
+      disconnectionCount: ref(0),
+      rc: 1,
+      refresh: async () => {},
+      scope: effectScope(true)
+    };
+  }
+
+  let handler = endpointConnectionStatusHandlers.get(endpoint);
+
+  if (!handler) {
+    const isConnected = ref(false);
+    const endpointName = ref<string|null>(null);
+    const pollCount = ref(0);
+    const connectionLostCount = ref(0);
+    const scope = effectScope(true);
+
+    let inFlight: Promise<void> | null = null;
+
+    const poll = (): Promise<void> => {
+      // if a poll is already running, share it instead of starting a second one
+      if (inFlight) return inFlight;
+
+      inFlight = (async () => {
+        const wasConnected = isConnected.value;
+        try {
+          const startTime = performance.now();
+          endpointName.value = await Datex.executeRemote<string|null>(endpoint, "@@local.name", [], true);
+          isConnected.value = true;
+          const endTime = performance.now();
+          endpointPings.value.set(endpoint, endTime - startTime);
+        } catch {
+          isConnected.value = false;
+        }
+        pollCount.value++;
+        if (!isConnected.value && wasConnected) {
+          connectionLostCount.value++;
+        }
+      })().finally(() => {
+        inFlight = null;
+      });
+
+      return inFlight;
+    };
+
+    scope.run(() => {
+      useTimeoutPoll(poll, POLL_INTERVAL_MS, { immediate: true, immediateCallback: true });
+    });
+
+
+    handler = { isConnected, endpointName, pollCount, disconnectionCount: connectionLostCount, refresh: poll, rc: 0, scope };
+    endpointConnectionStatusHandlers.set(endpoint, handler);
+  }
+
+  handler.rc++;
+
+  return handler;
+}
+
+function releaseStatusHandler(endpoint: Endpoint) {
+  const handler = endpointConnectionStatusHandlers.get(endpoint);
+  if (!handler) return;
+
+  if (--handler.rc === 0) {
+    handler.scope.stop();
+    endpointConnectionStatusHandlers.delete(endpoint);
+  }
+}
+
+/**
+ * Composable to get the connection status of an endpoint.
+ * Returns a reactive boolean indicating whether the endpoint is connected.
+ * @param endpoint
+ * @returns An object containing reactive references for the connection status, poll count, and connection lost count of the endpoint.
+ */
+export function useEndpointConnectionStatus(
+  endpoint: MaybeRefOrGetter<Endpoint|null>
+): { isConnected: Ref<boolean>, pollCount: Ref<number>, connectionLostCount: Ref<number>, endpointName: Ref<string|null>, refresh: () => Promise<void>, } {
+const current = shallowRef<EndpointConnectionStatusHandler>();
+  let held: Endpoint | undefined;
+
+  watch(
+    () => toValue(endpoint)?.toString(),
+    () => {
+      const next = toValue(endpoint);
+      if (held) releaseStatusHandler(held);
+      held = next;
+      if (next) {
+        current.value = acquireStatusHandler(next);
+      } else {
+        current.value = undefined;
+      }
+    },
+    { immediate: true },
+  );
+
+  onScopeDispose(() => {
+    if (held) releaseStatusHandler(held);
+  });
+
+  return {
+    isConnected: computed(() => current.value?.isConnected.value ?? false),
+    pollCount: computed(() => current.value?.pollCount.value ?? 0),
+    connectionLostCount: computed(() => current.value?.disconnectionCount.value ?? 0),
+    endpointName: computed(() => current.value?.endpointName.value ?? null),
+    refresh: () => current.value?.refresh() ?? Promise.resolve(),
+  };
+}

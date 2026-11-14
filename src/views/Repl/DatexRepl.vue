@@ -2,8 +2,21 @@
 import { ref, nextTick, watch, computed, onMounted } from 'vue';
 import { useDatexRepl } from '@/composable/useDatexRepl';
 import { ChevronRight, ChevronLeft, Trash2 } from 'lucide-vue-next';
+import { activeEndpoint } from '@/lib/inspector/mod';
+import { useShikiHighlighter } from '@/composable/useShikiHighlighter';
+import { useColorMode } from '@vueuse/core';
+import StandaloneWindowHeader from '@/components/Endpoints/StandaloneWindowHeader.vue';
+import { useI18n } from 'vue-i18n';
+import EndpointSearch from '@/components/Endpoints/EndpointSearch.vue';
+import { useWindowControlsOverlay } from '@/utils/windowControlsOverlay';
 
-const { entries, history, executeCommand, reset, suggestions, updateSuggestions } = useDatexRepl();
+const mode = useColorMode();
+const { t } = useI18n();
+
+const highlighter = await useShikiHighlighter();
+const theme = computed(() => mode.value === 'dark' ? 'github-dark' : 'github-light');
+
+const { entries, history, executeCommand, reset, suggestions, updateSuggestions } = useDatexRepl(() => activeEndpoint.value);
 
 const currentInput = ref('');
 const historyIdx = ref(-1);
@@ -92,11 +105,23 @@ watch(currentInput, (val) => {
 onMounted(() => {
     resizeTextarea();
 });
+
+function highlightDatexText(content: string) {
+    return highlighter.codeToHtml(content, { lang: 'datex', theme: theme.value });
+}
+const controlsOverlayEnabled = useWindowControlsOverlay();
+
 </script>
 
 <template>
-    <div class="top-offset bg-page text-primary relative flex h-full flex-col font-mono text-sm">
-        <div ref="scrollContainer" class="flex-1 space-y-2 overflow-y-auto p-4">
+    <StandaloneWindowHeader :title="t('nav.repl')" />
+    <div class="bg-page text-primary relative flex h-full flex-col">
+
+        <div  v-if="!controlsOverlayEnabled" class="p-4 pt-2 flex justify-end">
+          <EndpointSearch />
+        </div>
+
+        <div ref="scrollContainer" class="flex-1 space-y-2 overflow-y-auto p-4 font-mono text-sm">
             <div
                 v-for="(entry, i) in entries"
                 :key="i"
@@ -104,11 +129,11 @@ onMounted(() => {
             >
                 <div v-if="entry.type === 'input'" class="text-muted-foreground flex gap-2">
                     <ChevronRight :size="14" class="mt-1 opacity-50" />
-                    <span class="text-primary">{{ entry.content }}</span>
+                    <span class="[&>pre]:bg-transparent! [&_code]:whitespace-break-spaces" v-html="highlightDatexText(entry.content)"></span>
                 </div>
                 <div v-else-if="entry.type === 'output'" class="text-primary flex gap-2">
                     <ChevronLeft :size="14" class="text-dim mt-1" />
-                    <span v-html="entry.content" class="text-primary"></span>
+                    <span class="[&>pre]:bg-transparent! [&_code]:whitespace-break-spaces" v-html="highlightDatexText(entry.content)"></span>
                 </div>
 
                 <div

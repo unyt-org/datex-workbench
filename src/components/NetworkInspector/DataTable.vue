@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="TData, TValue">
 import { useI18n } from 'vue-i18n';
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import {
     useVueTable,
     getCoreRowModel,
@@ -28,6 +28,9 @@ interface DataTableProps {
     data: TData[];
     filterValue?: string;
     hasMoreData?: boolean;
+    hasSelected?: boolean;
+    /** Stable id per row. Without it, TanStack uses the row index, which shifts on sort/filter. */
+    getRowId?: (row: TData, index: number) => string;
 }
 
 const props = withDefaults(defineProps<DataTableProps>(), {
@@ -37,6 +40,7 @@ const props = withDefaults(defineProps<DataTableProps>(), {
 const emit = defineEmits<{
     'load-more': [];
     'row-click': [row: Record<string, unknown>];
+    'row-unselect': [];
 }>();
 
 const sorting = ref<SortingState>([]);
@@ -49,6 +53,7 @@ const table = useVueTable({
     get columns() {
         return props.columns;
     },
+    getRowId: props.getRowId,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -77,27 +82,87 @@ const rows = computed(() => table.getRowModel().rows);
 // Virtual scrolling
 const parentRef = ref<HTMLElement | null>(null);
 
-const virtualizer = useVirtualizer({
-    get count() {
-        return rows.value.length;
+const virtualizer = useVirtualizer(
+    computed(() => ({
+        count: rows.value.length,
+        getScrollElement: () => parentRef.value,
+        estimateSize: () => 50,
+        overscan: 10,
+    })),
+);
+
+const ROW_HEIGHT = 50;
+watch(
+    () => [rows.value, props.data] as const,
+    ([newRows, newData], [oldRows, oldData]) => {
+        const el = parentRef.value;
+        if (!el || newData === oldData) return;
+
+        const scrollTop = el.scrollTop;
+        const distanceFromBottom = el.scrollHeight - scrollTop - el.clientHeight;
+        const followBottom = !oldRows.length || distanceFromBottom < 2;
+
+        const anchorIndex = Math.floor(scrollTop / ROW_HEIGHT);
+        const anchorId = oldRows[anchorIndex]?.id;
+        const offsetInRow = scrollTop - anchorIndex * ROW_HEIGHT;
+
+        nextTick(() => {
+            if (followBottom) {
+                el.scrollTop = el.scrollHeight;
+                return;
+            }
+            const newIndex = newRows.findIndex((r) => r.id === anchorId);
+            if (newIndex !== -1) {
+                el.scrollTop = newIndex * ROW_HEIGHT + offsetInRow;
+            }
+        });
     },
-    getScrollElement: () => parentRef.value,
-    estimateSize: () => 48,
-    overscan: 10,
-});
+);
 
 const virtualRows = computed(() => virtualizer.value.getVirtualItems());
 const totalSize = computed(() => virtualizer.value.getTotalSize());
 
-// Load more when scrolling near bottom
-function onScroll(e: Event) {
-    if (!props.hasMoreData) return;
-    const target = e.target as HTMLElement;
-    const bottom = target.scrollHeight - target.scrollTop - target.clientHeight;
+function columnStyle(size: number) {
+    return {
+        flex: `1 0 ${size}px`,
+        minWidth: `${size}px`,
+    };
+}
+
+const loadMoreRequested = ref(false);
+
+watch(
+    () => props.data.length,
+    () => {
+        loadMoreRequested.value = false;
+    },
+);
+
+function maybeLoadMore() {
+    const el = parentRef.value;
+    if (!el || !props.hasMoreData || loadMoreRequested.value) return;
+    const bottom = el.scrollHeight - el.scrollTop - el.clientHeight;
     if (bottom < 300) {
+        loadMoreRequested.value = true;
         emit('load-more');
     }
 }
+
+function onScroll() {
+    maybeLoadMore();
+}
+
+watch([totalSize, () => props.hasMoreData], maybeLoadMore, { flush: 'post' });
+
+let resizeObserver: ResizeObserver | null = null;
+
+onMounted(() => {
+    if (!parentRef.value) return;
+    resizeObserver = new ResizeObserver(maybeLoadMore);
+    resizeObserver.observe(parentRef.value);
+});
+
+onBeforeUnmount(() => resizeObserver?.disconnect());
 
 // Watch filter changes
 watch(
@@ -106,17 +171,43 @@ watch(
         table.setGlobalFilter(val ?? '');
     },
 );
+
+const selectedRowId = ref<string | null>(null);
+
+function selectRow(index: number) {
+    const row = rows.value[index];
+    if (!row) return;
+
+    if (selectedRowId.value === row.id) {
+        selectedRowId.value = null;
+        emit('row-unselect');
+        return;
+    }
+    selectedRowId.value = row.id;
+    emit('row-click', row.original as Record<string, unknown>);
+}
+
+watch(
+    () => props.hasSelected,
+    (newVal) => {
+        if (!newVal) {
+            selectedRowId.value = null;
+        }
+    },
+);
+defineExpose({ scrollElement: parentRef });
+
 </script>
 
 <template>
-    <div class="flex h-full w-full flex-col overflow-hidden">
+    <div class="flex h-full w-full flex-col">
         <!-- Header: filter + column visibility -->
-        <div class="flex shrink-0 items-center justify-between gap-4 px-1 py-4">
+        <div class="flex shrink-0 items-center justify-between gap-4 py-2">
             <div class="max-w-sm flex-1">
                 <slot name="filter" />
             </div>
             <div class="flex items-center gap-2">
-                <div>
+                <div class="flex items-center gap-4">
                     <slot name="actions" />
                 </div>
                 <DropdownMenu>
@@ -142,9 +233,9 @@ watch(
         </div>
 
         <!-- Table -->
-        <div class="flex-1 overflow-hidden rounded-md border border-border">
+        <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border border-border">
             <!-- Table header -->
-            <div class="bg-background border-b border-border">
+            <div class="shrink-0 bg-background border-b border-border">
                 <div
                     v-for="headerGroup in table.getHeaderGroups()"
                     :key="headerGroup.id"
@@ -153,11 +244,9 @@ watch(
                     <div
                         v-for="header in headerGroup.headers"
                         :key="header.id"
-                        class="flex items-center gap-1 px-3 py-3 text-sm font-medium border-r border-border last:border-r-0 cursor-pointer select-none"
-                        :style="{
-                            width: header.getSize() + 'px',
-                            flex: header.getSize() ? 'none' : '1',
-                        }"
+                        class="flex items-center gap-1 px-3 py-2 text-sm font-medium border-r border-border last:border-r-0 select-none"
+                        :class="{ 'cursor-pointer': header.column.getCanSort() }"
+                        :style="columnStyle(header.getSize())"
                         @click="header.column.getCanSort() ? header.column.toggleSorting() : null"
                     >
                         <FlexRender
@@ -174,34 +263,26 @@ watch(
             <!-- Virtual rows -->
             <div
                 ref="parentRef"
-                class="overflow-auto"
-                style="height: calc(100% - 48px)"
+                class="min-h-0 flex-1 overflow-auto"
                 @scroll="onScroll"
             >
                 <div :style="{ height: totalSize + 'px', position: 'relative' }">
                     <div
                         v-for="virtualRow in virtualRows"
-                        :key="virtualRow.index"
-                        class="flex absolute w-full border-b border-border hover:bg-accent cursor-pointer"
-                        @click="
-                            emit(
-                                'row-click',
-                                rows[virtualRow.index]?.original as Record<string, unknown>,
-                            )
-                        "
+                        :key="rows[virtualRow.index]?.id ?? virtualRow.index"
+                        class="flex absolute left-0 top-0 w-full border-b border-border hover:bg-card cursor-pointer"
+                        :class="{ 'bg-card': selectedRowId === rows[virtualRow.index]?.id, 'text-muted-foreground': rows[virtualRow.index]?.original.isDebug }"
                         :style="{
                             transform: `translateY(${virtualRow.start}px)`,
                             height: virtualRow.size + 'px',
                         }"
+                        @click="selectRow(virtualRow.index)"
                     >
                         <div
                             v-for="cell in rows[virtualRow.index]?.getVisibleCells()"
                             :key="cell.id"
                             class="flex items-center px-3 overflow-hidden text-sm border-r border-border last:border-r-0"
-                            :style="{
-                                width: cell.column.getSize() + 'px',
-                                flex: cell.column.getSize() ? 'none' : '1',
-                            }"
+                            :style="columnStyle(cell.column.getSize())"
                         >
                             <FlexRender
                                 :render="cell.column.columnDef.cell"

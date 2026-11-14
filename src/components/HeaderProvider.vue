@@ -42,7 +42,7 @@ export default {
             class="group mr-4 flex items-center space-x-2 transition-all"
             v-show="route.path !== '/'"
         >
-            <IconLogo class="h-6 w-6" />
+            <IconLogo />
             <div class="flex items-baseline space-x-1">
                 <span class="text-primary text-lg font-bold">DATEX Workbench</span>
                 <sup class="unyt-blue text-xs font-semibold">beta</sup>
