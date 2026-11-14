@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n';
 import TooltipWrapper from '@/components/NetworkInspector/TooltipWrapper.vue';
 
 defineProps<{
-    value: string;
     isEncrypted?: boolean;
     isSigned?: boolean;
     isDebug?: boolean;
