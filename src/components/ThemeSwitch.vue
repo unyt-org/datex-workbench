@@ -39,7 +39,7 @@ watch(
 </script>
 
 <template>
-    <DropdownMenu class="z-1000 no-drag">
+    <DropdownMenu class="z-1000">
         <DropdownMenuTrigger as-child>
             <Button variant="ghost">
                 <Moon
@@ -51,7 +51,7 @@ watch(
                 <span class="sr-only">{{ t('theme.toggle') }}</span>
             </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent class="no-drag ml-2">
+        <DropdownMenuContent class="ml-2">
             <DropdownMenuItem @click="setTheme('light')"> {{ t('theme.light') }} </DropdownMenuItem>
             <DropdownMenuItem @click="setTheme('dark')"> {{ t('theme.dark') }} </DropdownMenuItem>
             <DropdownMenuItem @click="setTheme('system')">

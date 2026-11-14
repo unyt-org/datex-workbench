@@ -200,9 +200,9 @@ defineExpose({ scrollElement: parentRef });
 </script>
 
 <template>
-    <div class="flex h-full w-full flex-col overflow-hidden">
+    <div class="flex h-full w-full flex-col">
         <!-- Header: filter + column visibility -->
-        <div class="flex shrink-0 items-center justify-between gap-4 px-1 py-2">
+        <div class="flex shrink-0 items-center justify-between gap-4 py-2">
             <div class="max-w-sm flex-1">
                 <slot name="filter" />
             </div>
@@ -271,7 +271,7 @@ defineExpose({ scrollElement: parentRef });
                         v-for="virtualRow in virtualRows"
                         :key="rows[virtualRow.index]?.id ?? virtualRow.index"
                         class="flex absolute left-0 top-0 w-full border-b border-border hover:bg-card cursor-pointer"
-                        :class="{ 'bg-card': selectedRowId === rows[virtualRow.index]?.id }"
+                        :class="{ 'bg-card': selectedRowId === rows[virtualRow.index]?.id, 'text-muted-foreground': rows[virtualRow.index]?.original.isDebug }"
                         :style="{
                             transform: `translateY(${virtualRow.start}px)`,
                             height: virtualRow.size + 'px',

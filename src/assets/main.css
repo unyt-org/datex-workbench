@@ -219,7 +219,7 @@
 
     /* Buttons */
     .btn-danger {
-        @apply rounded bg-red-100 px-2 py-1 text-xs text-red-600 transition hover:bg-red-200 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800;
+        @apply rounded bg-red-100 px-2 py-1 text-xs text-rose-600 transition hover:bg-rose-200 dark:bg-rose-900 dark:text-rose-300 dark:hover:bg-rose-800;
     }
     .btn-icon {
         @apply rounded p-1.5 text-neutral-600 transition hover:bg-neutral-200 dark:text-neutral-400 dark:hover:bg-neutral-700;
@@ -230,6 +230,6 @@
         @apply mb-3 rounded-lg border border-neutral-200 bg-white p-3 text-neutral-900 shadow-sm dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100;
     }
     .card-inner {
-        @apply rounded border border-neutral-200 bg-neutral-50 p-3 text-sm dark:border-neutral-700 dark:bg-neutral-800;
+        @apply rounded-md border border-neutral-100 bg-neutral-50 p-3 text-sm dark:border-neutral-800 dark:bg-neutral-800/60;
     }
 }

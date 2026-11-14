@@ -8,6 +8,8 @@ import { endpointPings as endpointRtts } from '@/lib/composables/use-endpoint-co
 import type { RuntimeStats } from '@/lib/_temp_types';
 import { onUnmounted } from 'vue';
 import ProgressBar from '@/components/CustomUI/ProgressBar.vue';
+import EndpointSearch from '@/components/Endpoints/EndpointSearch.vue';
+import StandaloneWindowHeader from '@/components/Endpoints/StandaloneWindowHeader.vue';
 
 const { t } = useI18n();
 
@@ -69,8 +71,10 @@ const peakHeapColors = computed(() => {
 </script>
 
 <template>
-    <div class="flex h-full w-full items-center justify-center">
-        <div class="w-full max-w-xl rounded-xl bg-muted/30 p-6">
+    <StandaloneWindowHeader alwaysVisible :title="t('about.title')"/>
+    <div class="flex flex-col h-full w-full items-center justify-center p-4">
+
+        <div class="w-full max-w-xl rounded-xl bg-muted/30 p-6 no-drag">
             <h1 class="text-xl font-semibold mb-1 text-foreground">
               <EndpointLabel :endpoint="activeEndpoint" variant="colored-name"/>
             </h1>

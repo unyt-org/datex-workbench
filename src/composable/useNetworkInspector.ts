@@ -96,6 +96,20 @@ function getSignatureType(parsedBlock: ParsedSection[]): string {
         : 'Unknown';
 }
 
+function getBlockIsDebug(parsedBlock: ParsedSection[]): boolean {
+    const blockHeader = parsedBlock.find((section) => section.name === 'Block Header');
+    if (!blockHeader) return false;
+
+    const flags = blockHeader.fields.find((field) => field.name === 'Flags and Timestamp');
+    if (!flags || !('subFields' in flags)) return false;
+
+    const isDebug = flags.subFields.find(
+        (field: { name: string }) => field.name === 'Is Debug Block',
+    );
+
+    return isDebug && 'parsedValue' in isDebug ? Boolean(isDebug.parsedValue) : false;
+}
+
 function getBlockId(parsedBlock: ParsedSection[]): {
     contextId: number;
     sectionIndex: number;
@@ -139,6 +153,7 @@ function extractBlockMetadata(parsedBlock: ParsedSection[]) {
         encryptionType: getEncryptionType(parsedBlock),
         signatureType: getSignatureType(parsedBlock),
         blockId: getBlockId(parsedBlock),
+        isDebug: getBlockIsDebug(parsedBlock)
     };
 }
 

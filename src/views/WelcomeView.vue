@@ -8,7 +8,7 @@ import EndpointSearch from '@/components/Endpoints/EndpointSearch.vue';
 const { t } = useI18n();
 const router = useRouter();
 
-const quickActionItems = ['repl', 'networkInspector', 'memory', 'about'];
+const quickActionItems = ['repl', 'networkInspector']; // , 'memory', 'about'];
 
 const quickActions = sidebarItems
     .filter((item) => quickActionItems.includes(item.key))
@@ -20,7 +20,7 @@ function navigate(route: string | null) {
 </script>
 
 <template>
-    <main class="flex h-full w-full items-center justify-center bg-background p-8">
+    <main class="drag flex h-full w-full items-center justify-center bg-background p-8">
         <div class="no-drag flex flex-col items-center justify-center gap-12">
             <!-- Header -->
             <div class="flex flex-col items-center gap-2 text-center">
@@ -71,8 +71,8 @@ function navigate(route: string | null) {
 
                         <!-- Text -->
                         <div>
-                            <p class="text-sm font-medium text-foreground">{{ t(action.label) }}</p>
-                            <p class="text-xs text-muted-foreground">{{ t(action.description) }}</p>
+                            <p class="font-medium text-foreground">{{ t(action.label) }}</p>
+                            <p class="text-sm text-muted-foreground">{{ t(action.description) }}</p>
                         </div>
                     </button>
                 </div>

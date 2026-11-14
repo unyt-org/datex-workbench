@@ -6,7 +6,6 @@ import { Settings } from 'lucide-vue-next';
 import draggable from 'vuedraggable';
 import { useI18n } from 'vue-i18n';
 import { sidebarItems as sideBarItemsList } from '@/lib/sidebar-items';
-import EndpointHeader from './Endpoints/EndpointHeader.vue';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -20,7 +19,14 @@ const navigate = (path: string) => {
     router.push(path);
 };
 
-const hideEndpointHeader = computed(() => route.path === '/' || route.path === '/preferences');
+function handleClick(event: MouseEvent, path: string) {
+    // if ctrl/cmd pressed, spawn a new window
+    if (event.ctrlKey || event.metaKey || event.shiftKey) {
+        window.open(path, '_blank', 'noopener,noreferrer');
+        return;
+    }
+    navigate(path);
+}
 
 </script>
 
@@ -73,7 +79,7 @@ const hideEndpointHeader = computed(() => route.path === '/' || route.path === '
                 <template #item="{ element }">
                     <div
                         class="group relative flex w-full cursor-pointer items-center justify-center py-2"
-                        @click="navigate(element.path)"
+                        @click="handleClick($event, element.path)"
                     >
                         <div
                             class="absolute left-0 h-10 w-0.5 rounded-full bg-sidebar-border transition-all"
@@ -88,7 +94,7 @@ const hideEndpointHeader = computed(() => route.path === '/' || route.path === '
                                     : 'text-dim hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                             "
                         >
-                            <component :is="element.icon" :size="28" :stroke-width="1.5" />
+                            <component :is="element.icon" :size="28" :stroke-width="activePath === element.path ? 2 : 1.5" />
                         </div>
 
                         <div
@@ -122,7 +128,7 @@ const hideEndpointHeader = computed(() => route.path === '/' || route.path === '
                                 : 'text-dim hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                         "
                     >
-                        <Settings :size="28" :stroke-width="1.5" />
+                        <Settings :size="28" :stroke-width="activePath === '/preferences' ? 2 : 1.5" />
                     </div>
 
                     <div
@@ -138,8 +144,6 @@ const hideEndpointHeader = computed(() => route.path === '/' || route.path === '
             </div>
         </div>
     </aside>
-
-    <EndpointHeader v-if="!hideEndpointHeader" />
 </template>
 
 <style scoped>

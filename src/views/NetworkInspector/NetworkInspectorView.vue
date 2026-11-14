@@ -10,12 +10,16 @@ import { useNetworkInspector } from '@/composable/useNetworkInspector';
 import DatexBlockProtocolView from '@/views/BlockViewer/DatexBlockProtocolView.vue';
 import type { NetworkBlockTableRow } from '@/types/NetworkInspector/TableRow';
 import { filterRowsBySearch, parseSearchQuery } from '@/utils/searchParser';
-import { Trash, X, Lock, Unlock } from 'lucide-vue-next';
+import { Trash, X, Lock, Unlock, BanIcon } from 'lucide-vue-next';
 import { computed, nextTick, ref, watch } from 'vue';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
 import Checkbox from '@/components/ui/checkbox/Checkbox.vue';
 import Label from '@/components/ui/label/Label.vue';
 import { activeEndpoint } from '@/lib/inspector/mod';
+import EndpointSearch from '@/components/Endpoints/EndpointSearch.vue';
+import StandaloneWindowHeader from '@/components/Endpoints/StandaloneWindowHeader.vue';
+import { useWindowControlsOverlay } from '@/utils/windowControlsOverlay';
+import BlockIcons from '@/components/NetworkInspector/BlockIcons.vue';
 
 const { t } = useI18n();
 
@@ -78,6 +82,7 @@ const allTableRows = computed<NetworkBlockTableRow[]>(() => {
             size: block.size,
             isEncrypted: block.encryptionType !== 'None' && block.encryptionType !== 'Unknown',
             isSigned: block.signatureType !== 'None' && block.signatureType !== 'Unknown',
+            isDebug: block.isDebug,
             interface: block.interfaceName,
             capturedAt: block.capturedAt,
             blockId: block.blockId,
@@ -128,29 +133,43 @@ const dynamicColumns = computed(() => {
     return createColumns(t, parsedQuery);
 });
 
-const isBlockSecure = computed(() => {
+const isBlockDebug = computed(() => {
     const entry = selectedBlockEntry.value;
     if (!entry) return false;
-    return (
-        (entry.encryptionType !== 'None' && entry.encryptionType !== 'Unknown') ||
-        (entry.signatureType !== 'None' && entry.signatureType !== 'Unknown')
-    );
+    return entry.isDebug ?? false;
+});
+
+const isBlockEncrypted = computed(() => {
+    const entry = selectedBlockEntry.value;
+    if (!entry) return false;
+    return entry.encryptionType !== 'None' && entry.encryptionType !== 'Unknown';
+});
+
+const isBlockSigned = computed(() => {
+    const entry = selectedBlockEntry.value;
+    if (!entry) return false;
+    return entry.signatureType !== 'None' && entry.signatureType !== 'Unknown';
 });
 
 const isLocalEndpoint = computed(() => activeEndpoint.value.toString() === "@@local");
+const controlsOverlayEnabled = useWindowControlsOverlay();
 
 </script>
 
 <template>
-    <div class="top-offset bg-background text-foreground flex h-full flex-col gap-3 p-4 pt-0">
-        <h1 class="shrink-0 text-xl font-medium">{{ t('network.title') }}</h1>
+    <StandaloneWindowHeader :title="t('network.title')"/>
+    <div class="bg-background text-foreground flex h-full flex-col gap-3 p-4 pt-0 overflow-hidden">
+        <div class="flex justify-between items-center gap-4" v-if="!controlsOverlayEnabled">
+          <h1 class="shrink-0 text-xl font-medium">{{ t('network.title') }}</h1>
+          <EndpointSearch />
+        </div>
 
-        <div class="flex min-h-0 flex-1 gap-3 overflow-hidden">
+        <div class="flex min-h-0 flex-1 gap-3">
             <!-- Left panel: block list -->
             <div class="flex min-h-0 flex-col" :class="selectedBlock ? 'w-1/2' : 'w-full'">
                 <DataTable
                     :get-row-id="(row) => String(row.capturedAt)"
-                    class="min-h-0 flex-1"
+                    class="min-h-0 flex-1 no-drag"
                     :columns="dynamicColumns"
                     :data="tableRows"
                     :has-more-data="!searchQuery.trim()"
@@ -169,8 +188,8 @@ const isLocalEndpoint = computed(() => activeEndpoint.value.toString() === "@@lo
                     </template>
                     <template #actions>
                         <Label v-if="isLocalEndpoint" class="flex items-center gap-2 whitespace-nowrap">
-                            <Checkbox v-model="showDebug" label="Show Debug Blocks" />
-                            Show Debug Blocks
+                            <Checkbox v-model="showDebug" label="Record Debug Blocks" />
+                            Record Debug Blocks
                         </Label>
                         <Button
                             variant="outline"
@@ -180,7 +199,7 @@ const isLocalEndpoint = computed(() => activeEndpoint.value.toString() === "@@lo
                             :disabled="blocks.length === 0"
                             @click="clearBlocks()"
                         >
-                            <Trash class="h-4 w-4" />
+                            <BanIcon class="h-4 w-4" />
                         </Button>
                     </template>
                 </DataTable>
@@ -191,8 +210,11 @@ const isLocalEndpoint = computed(() => activeEndpoint.value.toString() === "@@lo
                 <div class="flex shrink-0 items-center justify-between px-4 py-4">
                     <div class="flex items-center gap-2 text-sm font-mono">
                         <span class="text-muted-foreground uppercase">{{ selectedBlockEntry?.blockType }}</span>
-                        <Lock v-if="isBlockSecure" class="size-3.5 text-muted-foreground" />
-                        <Unlock v-else class="size-3.5 text-muted-foreground" />
+                        <BlockIcons
+                            :isEncrypted="isBlockEncrypted"
+                            :isSigned="isBlockSigned"
+                            :isDebug="isBlockDebug"
+                        />
                         <span class="text-foreground pl-3">{{ selectedBlockEntry?.sender }}</span>
                         <span class="text-muted-foreground">→</span>
                         <span class="text-foreground">{{ selectedBlockEntry?.receivers.join(', ') }}</span>
@@ -204,7 +226,7 @@ const isLocalEndpoint = computed(() => activeEndpoint.value.toString() === "@@lo
                         <X class="size-4" />
                     </button>
                 </div>
-                <div class="min-h-0 flex-1 overflow-y-auto">
+                <div class="min-h-0 flex-1 overflow-y-auto no-drag">
                     <DatexBlockProtocolView
                         :blockData="selectedBlock"
                         :key="selectedBlock.byteLength + '-' + Date.now()"

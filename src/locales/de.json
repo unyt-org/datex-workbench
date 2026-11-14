@@ -93,7 +93,8 @@
         "columnSize": "Größe",
         "columns": "Spalten",
         "notEncrypted": "Nicht verschlüsselt",
-        "notSigned": "Nicht signiert"
+        "notSigned": "Nicht signiert",
+        "debugBlock": "Debug-Block"
     },
     "trace": {
         "endpoint": "\\@endpoint",

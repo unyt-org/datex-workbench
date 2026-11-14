@@ -14,19 +14,19 @@ import {
 } from 'lucide-vue-next';
 
 export const sidebarItems = [
+      {
+        icon: Terminal,
+        key: 'repl',
+        path: '/repl',
+        label: 'nav.repl',
+        description: 'welcome.replDesc',
+    },
     {
         icon: ChartColumn,
         key: 'about',
         path: '/status',
         label: 'nav.about',
         description: 'welcome.aboutDesc',
-    },
-    {
-        icon: Terminal,
-        key: 'repl',
-        path: '/repl',
-        label: 'nav.repl',
-        description: 'welcome.replDesc',
     },
     {
         icon: ArrowLeftRight,

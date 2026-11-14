@@ -17,7 +17,8 @@ import EndpointLabel from './EndpointLabel.vue'
 import { useEndpointConnectionStatus } from '@/lib/composables/use-endpoint-connection-status.ts'
 
 defineProps<{
-  fullWidth?: boolean
+  fullWidth?: boolean,
+  noBorder?: boolean
 }>();
 
 const { groupedEndpoints, selectedEndpoint, search, searchEndpoint } = useEndpointSearch()
@@ -28,11 +29,11 @@ useEndpointConnectionStatus(() => searchEndpoint?.value);
 
 </script>
 <template>
-  <Combobox v-model="selectedEndpoint" by="endpoint" :class="fullWidth ? 'w-full!' : ''">
+  <Combobox class="no-drag" v-model="selectedEndpoint" by="endpoint" :class="fullWidth ? 'w-full!' : ''">
     <ComboboxAnchor as-child>
       <ComboboxTrigger as-child>
         <Button
-          variant="outline"
+          :variant="noBorder ? 'ghost' : 'outline'"
           class="h-9 w-full! max-w-none justify-between px-2.5"
           :class="fullWidth ? 'w-full!' : ''"
         >
@@ -88,13 +89,6 @@ useEndpointConnectionStatus(() => searchEndpoint?.value);
           </ComboboxGroup>
         </template>
       </ComboboxViewport>
-      <ComboboxSeparator />
-      <!--<ComboboxGroup class="bg-popover">
-        <ComboboxItem :value="null" @select="openConnectDialog">
-          <ChevronsLeftRightEllipsisIcon />
-          Connect new endpoint
-        </ComboboxItem>
-      </ComboboxGroup>-->
     </ComboboxList>
   </Combobox>
 </template>

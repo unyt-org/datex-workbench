@@ -5,7 +5,13 @@ import { ChevronRight, ChevronLeft, Trash2 } from 'lucide-vue-next';
 import { activeEndpoint } from '@/lib/inspector/mod';
 import { useShikiHighlighter } from '@/composable/useShikiHighlighter';
 import { useColorMode } from '@vueuse/core';
+import StandaloneWindowHeader from '@/components/Endpoints/StandaloneWindowHeader.vue';
+import { useI18n } from 'vue-i18n';
+import EndpointSearch from '@/components/Endpoints/EndpointSearch.vue';
+import { useWindowControlsOverlay } from '@/utils/windowControlsOverlay';
+
 const mode = useColorMode();
+const { t } = useI18n();
 
 const highlighter = await useShikiHighlighter();
 const theme = computed(() => mode.value === 'dark' ? 'github-dark' : 'github-light');
@@ -103,12 +109,19 @@ onMounted(() => {
 function highlightDatexText(content: string) {
     return highlighter.codeToHtml(content, { lang: 'datex', theme: theme.value });
 }
+const controlsOverlayEnabled = useWindowControlsOverlay();
 
 </script>
 
 <template>
-    <div class="top-offset bg-page text-primary relative flex h-full flex-col font-mono text-sm">
-        <div ref="scrollContainer" class="flex-1 space-y-2 overflow-y-auto p-4">
+    <StandaloneWindowHeader :title="t('nav.repl')" />
+    <div class="bg-page text-primary relative flex h-full flex-col">
+
+        <div  v-if="!controlsOverlayEnabled" class="p-4 pt-2 flex justify-end">
+          <EndpointSearch />
+        </div>
+
+        <div ref="scrollContainer" class="flex-1 space-y-2 overflow-y-auto p-4 font-mono text-sm">
             <div
                 v-for="(entry, i) in entries"
                 :key="i"

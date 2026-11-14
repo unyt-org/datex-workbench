@@ -44,7 +44,7 @@ const showDisconnectedAsError = computed(() => hasInspectorSession.value);
 
 <template>
   <div class="flex items-start gap-2" :class="variant == 'colored-name' ? 'flex-row-reverse justify-between' : ''">
-    <span class="relative flex cursor-pointer select-none" @click="refresh()">
+    <span class="relative flex cursor-pointer select-none" @click="refresh(); $event.stopPropagation()">
       <span :class="textColor">●</span>
       <span
         v-if="connectionLostCount != initialConnectionLostCount"
