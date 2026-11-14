@@ -151,7 +151,7 @@ const isBlockSigned = computed(() => {
     return entry.signatureType !== 'None' && entry.signatureType !== 'Unknown';
 });
 
-const isLocalEndpoint = computed(() => activeEndpoint.value.toString() === "@@local");
+const isLocalEndpoint = computed(() => activeEndpoint.value?.toString() === "@@local");
 const controlsOverlayEnabled = useWindowControlsOverlay();
 
 </script>
@@ -226,7 +226,7 @@ const controlsOverlayEnabled = useWindowControlsOverlay();
                         <X class="size-4" />
                     </button>
                 </div>
-                <div class="min-h-0 flex-1 overflow-y-auto no-drag">
+                <div class="min-h-0 flex-1 overflow-y-auto">
                     <DatexBlockProtocolView
                         :blockData="selectedBlock"
                         :key="selectedBlock.byteLength + '-' + Date.now()"

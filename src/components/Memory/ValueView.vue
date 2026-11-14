@@ -10,12 +10,17 @@ const props = defineProps<{
 }>();
 console.log('value', props.value);
 
-const currentValue = ref(props.value.value);
+const currentValue = ref(normalizeValue(props.value.value));
+
+function normalizeValue(value: unknown) {
+    if (typeof value === 'bigint') return value.toString();
+    return value;
+}
 
 // @ts-expect-error fixme when types are updated
 props.value.observe((newValue) => {
     console.log('value changed', newValue);
     currentValue.value = null; // TODO: this is a workaround to force to re-render
-    currentValue.value = props.value.value;
+    currentValue.value = normalizeValue(props.value.value);
 });
 </script>

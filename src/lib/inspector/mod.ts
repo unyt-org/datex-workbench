@@ -12,11 +12,12 @@ export const connectedInspectorInstances = shallowReactive(new Map<Endpoint, Ins
  */
 export const availableInspectorEndpoints = reactive(new Set<Endpoint>());
 
-export const activeEndpoint = ref<Endpoint>(Endpoint.get('@@local'));
-export const activeInspector = computed(() => connectedInspectorInstances.get(activeEndpoint.value)!);
+export const activeEndpoint = ref<Endpoint|null>(null);
+export const activeInspector = computed(() => connectedInspectorInstances.get(activeEndpoint.value) ?? null);
+// @ts-ignore used for debugging
 globalThis.activeInspector = activeInspector;
 
-await restoreInspectorEndpoints();
+restoreInspectorEndpoints();
 
 function storeInspectorEndpoints() {
     // store both connected and available endpoints, skip @@local
@@ -24,31 +25,32 @@ function storeInspectorEndpoints() {
     localStorage.setItem('inspectorEndpoints', JSON.stringify(allEndpoint));
 }
 async function restoreInspectorEndpoints() {
+    // restore list of available inspector endpoints from localStorage
     const availableEndpoints = JSON.parse(localStorage.getItem('inspectorEndpoints') || '[]');
     availableEndpoints.forEach((endpoint: string) => availableInspectorEndpoints.add(Endpoint.get(endpoint)));
 
-    const connectedEndpoints = [Endpoint.get('@@local')]
-
-    await Promise.all(
-      connectedEndpoints.map((endpoint) => connectInspector(endpoint))
-    )
+    const connectedEndpoints = new Set([Endpoint.get('@@local')]);
 
     // restore active endpoint if not already set
-    const storedActiveEndpoint = localStorage.getItem('activeEndpoint');
-    if (storedActiveEndpoint) {
-        const storedActiveEndpointObj = Endpoint.get(storedActiveEndpoint);
-        if (activeEndpoint.value !== storedActiveEndpointObj) {
-            setActiveEndpoint(storedActiveEndpointObj);
-        }
+    const storedActiveEndpointObj = Endpoint.get(localStorage.getItem('activeEndpoint') ?? '@@local');
+    if (activeEndpoint.value !== storedActiveEndpointObj) {
+        setActiveEndpoint(storedActiveEndpointObj, false);
     }
+    connectedEndpoints.add(storedActiveEndpointObj);
+
+    await Promise.all(
+      Array.from(connectedEndpoints).map((endpoint) => connectInspector(endpoint, false))
+    );
 }
 
-export async function connectInspector(endpoint: Endpoint|string): Promise<boolean> {
+export async function connectInspector(endpoint: Endpoint|string, setActive = true): Promise<boolean> {
   const endpointObj = typeof endpoint === 'string' ? Endpoint.get(endpoint) : endpoint;
   try {
     const inspector = await Datex.createInspector(endpointObj, endpoint.toString());
     connectedInspectorInstances.set(endpointObj, inspector);
-    activeEndpoint.value = endpointObj;
+    if (setActive) {
+      setActiveEndpoint(endpointObj);
+    }
     availableInspectorEndpoints.delete(endpointObj);
     storeInspectorEndpoints();
     return true;
@@ -65,17 +67,13 @@ export async function connectInspector(endpoint: Endpoint|string): Promise<boole
  * @param endpoint
  * @returns
  */
-export async function setActiveEndpoint(endpoint: Endpoint): Promise<boolean> {
-  // ensure the endpoint inspector is connected and in the connectedInspectorInstances map
-  if (!connectedInspectorInstances.has(endpoint)) {
-    const success = await connectInspector(endpoint);
-    if (!success) {
-      return false;
-    }
-  }
+export async function setActiveEndpoint(endpoint: Endpoint, connectInspectorIfNeeded = true): Promise<boolean> {
   activeEndpoint.value = endpoint;
   localStorage.setItem('activeEndpoint', activeEndpoint.value.toString());
+
+  // ensure the endpoint inspector is connected and in the connectedInspectorInstances map
+  if (!connectedInspectorInstances.has(endpoint) && connectInspectorIfNeeded) {
+    await connectInspector(endpoint);
+  }
   return true;
 }
-
-globalThis.setActiveEndpoint = setActiveEndpoint;

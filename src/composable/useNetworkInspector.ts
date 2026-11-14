@@ -231,6 +231,8 @@ export function useNetworkInspector(showDebug: Ref<boolean>) {
     let lastInspector: Inspector|null = null;
 
     watch([activeInspector, showDebug], ([newInspector, showDebug]) => {
+        if (!newInspector) return;
+
         // only reset blocks if the inspector has changed
         if (newInspector !== lastInspector) {
           blocks.value = [];
@@ -238,7 +240,7 @@ export function useNetworkInspector(showDebug: Ref<boolean>) {
         }
 
         // collect local blocks with optional debug flag
-        if (activeEndpoint.value.toString() === "@@local") {
+        if (activeEndpoint.value?.toString() === "@@local") {
           stopCollectingBlocksLocal();
           collectBlocksLocal(showDebug);
         }

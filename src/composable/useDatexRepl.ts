@@ -48,48 +48,82 @@ const DEFAULT_SUGGESTIONS: string[] = [
   'endpoint'
 ];
 
+/**
+ * Stores entries and history in local storage for the given endpoint
+ * @param endpoint
+ * @param state
+ */
+function persistReplState(endpoint: Endpoint, state: ReplState) {
+  const key = `replState:${endpoint}`;
+  localStorage.setItem(key, JSON.stringify({
+    entries: state.entries,
+    history: state.history,
+  }));
+}
+
+function tryLoadPersistedReplState(endpoint: Endpoint): ReplState | null {
+  const key = `replState:${endpoint}`;
+  const data = localStorage.getItem(key);
+  if (!data) return null;
+  try {
+    const parsed = JSON.parse(data);
+    return {
+      repl: new Repl(Datex, endpoint),
+      entries: parsed.entries ?? [],
+      history: parsed.history ?? [],
+      suggestions: [],
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function useDatexRepl(endpoint: MaybeRefOrGetter<Endpoint | null>) {
     const repl = shallowRef<InstanceType<typeof Repl> | null>(null);
     const entries = ref<ReplEntry[]>([]);
     const history = ref<string[]>([]);
     const suggestions = ref<string[]>([]);
 
-    const currentEndpoint = ref<Endpoint | null>(null);
     watch(
-        () => toValue(endpoint),
-        (ep) => {
-            if (ep === currentEndpoint.value) return;
-            // update cached state for the previous endpoint
-            if (currentEndpoint.value && cachedReplStates.has(currentEndpoint.value)) {
-                cachedReplStates.set(currentEndpoint.value, {
-                    repl: repl.value!,
-                    entries: entries.value,
-                    history: history.value,
-                    suggestions: suggestions.value,
-                });
-            }
-            if (ep) {
-                if (!cachedReplStates.has(ep)) {
-                    cachedReplStates.set(ep, {
-                        repl: new Repl(Datex, ep),
-                        entries: [],
-                        history: [],
-                        suggestions: [],
-                    });
-                }
-                const state = cachedReplStates.get(ep);
-                repl.value = state?.repl ?? null;
-                entries.value = state?.entries ?? [];
-                history.value = state?.history ?? [];
-                suggestions.value = state?.suggestions ?? [];
-            } else {
-                repl.value = null;
-            }
-            currentEndpoint.value = ep;
-            console.log('using repl for ' + ep, repl.value);
+        [entries, history],
+        ([newEntries, newHistory]) => {
+          if (toValue(endpoint)) {
+            const state = cachedReplStates.get(toValue(endpoint)) ?? {
+                repl: repl.value,
+                entries: [],
+                history: [],
+                suggestions: suggestions.value,
+            };
+
+            state.entries = newEntries;
+            state.history = newHistory;
+
+            cachedReplStates.set(toValue(endpoint), state);
+            persistReplState(toValue(endpoint), state);
+          }
         },
-        { immediate: true },
+        { deep: true },
     );
+
+    watch(() => toValue(endpoint), (ep) => {
+        if (ep) {
+          if (!cachedReplStates.has(ep)) {
+            const persistedState = tryLoadPersistedReplState(ep);
+            cachedReplStates.set(ep, persistedState ?? {
+                repl: new Repl(Datex, ep),
+                entries: [],
+                history: [],
+                suggestions: [],
+            });
+          }
+
+          const state = cachedReplStates.get(ep)!;
+          repl.value = state.repl ?? null;
+          entries.value = state.entries ?? [];
+          history.value = state.history ?? [];
+          suggestions.value = state.suggestions ?? [];
+        }
+    }, { immediate: true });
 
     function updateSuggestions(input: string) {
         const trimmed = input.trim();
@@ -124,11 +158,6 @@ export function useDatexRepl(endpoint: MaybeRefOrGetter<Endpoint | null>) {
         const cmd = code.trim().toLowerCase();
 
         if (cmd === 'clear') {
-            entries.value = [];
-            return;
-        }
-
-        if (cmd === 'reset') {
             reset();
             return;
         }
@@ -180,8 +209,6 @@ export function useDatexRepl(endpoint: MaybeRefOrGetter<Endpoint | null>) {
 
     function reset() {
         entries.value = [];
-        history.value = [];
-        suggestions.value = [];
     }
 
     return {

@@ -31,7 +31,7 @@ const version = Datex.js_version;
             <SideBar />
             <!-- z must be 50+, bc 50 is the highest z index on website-->
 
-            <main class="main relative flex-1 flex flex-col">
+            <main class="main relative flex-1 flex flex-col overflow-x-hidden">
                 <!-- Header -->
                 <!-- <HeaderProvider class="z-10 flex-none" /> -->
 

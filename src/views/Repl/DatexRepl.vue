@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, nextTick, watch, computed, onMounted } from 'vue';
 import { useDatexRepl } from '@/composable/useDatexRepl';
-import { ChevronRight, ChevronLeft, Trash2, BanIcon } from 'lucide-vue-next';
+import { ChevronRight, ChevronLeft, Trash2, BanIcon, Loader2 } from 'lucide-vue-next';
 import { activeEndpoint } from '@/lib/inspector/mod';
 import { useShikiHighlighter } from '@/composable/useShikiHighlighter';
 import { useColorMode } from '@vueuse/core';
@@ -9,6 +9,7 @@ import StandaloneWindowHeader from '@/components/Endpoints/StandaloneWindowHeade
 import { useI18n } from 'vue-i18n';
 import EndpointSearch from '@/components/Endpoints/EndpointSearch.vue';
 import { useWindowControlsOverlay } from '@/utils/windowControlsOverlay';
+import {Tooltip, TooltipTrigger, TooltipContent} from '@/components/ui/tooltip';
 
 const mode = useColorMode();
 const { t } = useI18n();
@@ -23,6 +24,9 @@ const historyIdx = ref(-1);
 const textareaRef = ref<HTMLTextAreaElement | null>(null);
 const scrollContainer = ref<HTMLElement | null>(null);
 const selectedIdx = ref(0);
+const executingLong = ref(false);
+const executing = ref(false);
+
 
 const ghostText = computed(() => {
     const list = suggestions.value;
@@ -52,7 +56,15 @@ const resizeTextarea = async () => {
     autoResize();
 };
 
-function handleKeydown(e: KeyboardEvent) {
+function scrollDown() {
+    scrollContainer.value?.scrollTo({
+        top: scrollContainer.value.scrollHeight,
+        behavior: 'instant',
+    });
+}
+
+
+async function handleKeydown(e: KeyboardEvent) {
     const el = textareaRef.value;
     if (!el) return;
 
@@ -60,19 +72,22 @@ function handleKeydown(e: KeyboardEvent) {
         e.preventDefault();
         const code = currentInput.value;
         currentInput.value = '';
-        executeCommand(code);
-        historyIdx.value = -1;
-        scrollContainer.value?.scrollTo({
-            top: scrollContainer.value.scrollHeight,
-            behavior: 'instant',
-        });
+        let done = false;
+        executing.value = true;
+        // after 100ms, if the command is still executing, mark it as long executing
         setTimeout(() => {
-            scrollContainer.value?.scrollTo({
-                top: scrollContainer.value.scrollHeight,
-                behavior: 'instant',
-            });
-        }, 0);
-    }
+            if (!done) executingLong.value = true;
+        }, 100);
+        await executeCommand(code);
+        done = true;
+        historyIdx.value = -1;
+        scrollDown();
+        setTimeout(scrollDown, 0);
+        setTimeout(focusInput, 0);
+
+        executing.value = false;
+        executingLong.value = false;
+      }
 
     if (e.key === 'Tab') {
         e.preventDefault();
@@ -111,6 +126,7 @@ watch(currentInput, (val) => {
 onMounted(() => {
     resizeTextarea();
     focusInput();
+    scrollDown();
 });
 
 function focusInput() {
@@ -128,13 +144,31 @@ const controlsOverlayEnabled = useWindowControlsOverlay();
 <template>
     <StandaloneWindowHeader :title="t('nav.repl')" />
     <div class="bg-page text-primary relative flex h-full flex-col overflow-hidden">
-      <div v-if="!controlsOverlayEnabled" class="px-4 pt-2 pb-0 flex justify-end">
-        <EndpointSearch />
+      <div class="px-4 pb-0 flex justify-end gap-3 items-center">
+         <div :class="controlsOverlayEnabled && 'absolute right-3 top-3'">
+          <Tooltip>
+            <TooltipTrigger>
+                <button
+                  @click="reset"
+                  class="p-0 not-disabled:cursor-pointer opacity-70 disabled:opacity-20"
+                  :disabled="!entries.length"
+                  >
+                    <BanIcon :size="16" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left" :avoidCollisions=false>
+                  <p>Clear</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <div v-if="!controlsOverlayEnabled">
+            <EndpointSearch />
+          </div>
       </div>
 
       <div
         ref="scrollContainer"
-        class="flex-1 flex flex-col gap-2 overflow-y-auto p-4 font-mono text-sm"
+        class="flex-1 flex flex-col gap-2 overflow-y-auto p-4 pt-3 font-mono text-sm"
         :class="{'pt-0': !controlsOverlayEnabled}"
         >
           <template v-for="(entry, i) in entries" :key="i">
@@ -144,7 +178,10 @@ const controlsOverlayEnabled = useWindowControlsOverlay();
                 v-if="entry.type!='output' || entry.content"
             >
                 <div v-if="entry.type === 'input'" class="text-muted-foreground flex items-start gap-2">
-                    <ChevronRight :size="18" class="shrink-0"/>
+                    <div>
+                      <Loader2 v-if="i === entries.length - 1 && executingLong" class="absolute mt-0.5 h-4 w-4 animate-spin" />
+                      <ChevronRight :size="18" class="shrink-0" :class="{ 'opacity-0': i === entries.length - 1 && executingLong }"/>
+                    </div>
                     <span class="[&>pre]:bg-transparent! [&_code]:whitespace-break-spaces" v-html="highlightDatexText(entry.content)"></span>
                 </div>
                 <div v-else-if="entry.type === 'output'" class="text-primary flex gap-2 items-start">
@@ -161,7 +198,7 @@ const controlsOverlayEnabled = useWindowControlsOverlay();
             </div>
           </template>
 
-          <div class="flex items-start gap-2" @click="focusInput()">
+          <div v-if="!executing" class="flex items-start gap-2" @click="focusInput()">
                 <span class="text-dim">
                     <ChevronRight :size="18" />
                 </span>
@@ -185,10 +222,6 @@ const controlsOverlayEnabled = useWindowControlsOverlay();
                         placeholder="Type DATEX commands..."
                     ></textarea>
                 </div>
-
-                <button @click="reset" class="p-0 not-disabled:cursor-pointer disabled:opacity-20" :disabled="!entries.length">
-                    <BanIcon :size="16" />
-                </button>
             </div>
             <div class="w-full h-fit flex-1" @click="focusInput()"></div>
 

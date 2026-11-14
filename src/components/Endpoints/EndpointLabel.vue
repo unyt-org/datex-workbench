@@ -7,7 +7,7 @@ import TooltipWrapper from '../NetworkInspector/TooltipWrapper.vue';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const props = defineProps<{
-  endpoint: Endpoint,
+  endpoint?: Endpoint | null,
   compact?: boolean,
   variant?: "colored-name" | "compact" | "default"
 }>();
@@ -17,19 +17,11 @@ const { isConnected, connectionLostCount, endpointName, pollCount, refresh} = us
 const initialPollCount = ref(pollCount.value);
 const initialConnectionLostCount = ref(connectionLostCount.value);
 
-const statusText = computed(() => {
-  if (isConnected.value) {
-    return hasInspectorSession.value ? 'Connected with inspector session' : 'Connected';
-  } else {
-    return showDisconnectedAsError.value ? 'Disconnected (error)' : 'Disconnected';
-  }
-});
-
 const textColor = computed(() => {
   if (isConnected.value) {
     return hasInspectorSession.value ? 'text-blue-400' : 'text-green-500';
   } else {
-    return showDisconnectedAsError.value ? 'text-rose-500' : 'text-foreground';
+    return hasInspectorSession.value && pollCount.value> 0 ? 'text-rose-500' : 'text-foreground';
   }
 });
 
@@ -39,12 +31,11 @@ watch(() => props.endpoint, () => {
   initialConnectionLostCount.value = connectionLostCount.value;
 });
 const hasInspectorSession = computed(() => connectedInspectorInstances.has(props.endpoint));
-const showDisconnectedAsError = computed(() => hasInspectorSession.value);
 </script>
 
 <template>
   <div class="flex items-start gap-2" :class="variant == 'colored-name' ? 'flex-row-reverse justify-between' : ''">
-    <span class="relative flex cursor-pointer select-none" @click="refresh(); $event.stopPropagation()">
+    <span v-if="endpoint" class="relative flex cursor-pointer select-none" @click="refresh(); $event.stopPropagation()">
       <span :class="textColor">●</span>
       <span
         v-if="connectionLostCount != initialConnectionLostCount"
@@ -61,9 +52,12 @@ const showDisconnectedAsError = computed(() => hasInspectorSession.value);
         ●
       </span>
     </span>
+    <span v-else class="relative flex select-none">
+      ...
+    </span>
 
     <span>
-      <span :class="variant == 'colored-name' ? textColor : ''">{{ endpoint.toString() }}</span>
+      <span :class="variant == 'colored-name' ? textColor : ''">{{ endpoint?.toString() }}</span>
       <span v-if="variant != 'compact'" :class="variant == 'colored-name' ? 'text-foreground' : 'text-muted-foreground'">
         &nbsp;{{ endpointName }}
       </span>

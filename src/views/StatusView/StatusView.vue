@@ -13,7 +13,7 @@ import StandaloneWindowHeader from '@/components/Endpoints/StandaloneWindowHeade
 
 const { t } = useI18n();
 
-const info = computed(() => activeInspector.value.info);
+const info = computed(() => activeInspector.value?.info);
 const rtt = computed(() => endpointRtts.value.get(activeEndpoint.value) ?? 0)
 
 const runtimeStats = ref<RuntimeStats|null>(null);
@@ -75,17 +75,21 @@ const peakHeapColors = computed(() => {
     <div class="flex flex-col h-full w-full items-center justify-center p-4">
 
         <div class="w-full max-w-xl rounded-xl bg-muted/30 p-6 no-drag">
-            <h1 class="text-xl font-semibold mb-1 text-foreground">
+            <h1 class="text-xl font-semibold text-foreground">
               <EndpointLabel :endpoint="activeEndpoint" variant="colored-name"/>
             </h1>
 
-             <div class="text-muted-foreground mb-4 text-sm">
+            <div v-if="!info" class="text-muted-foreground mt-3">
+              No endpoint information available
+            </div>
+
+            <div v-if="info" class="text-muted-foreground mb-4 text-sm">
               Running since {{ new Date(Number(info.running_since)).toLocaleDateString('de-DE') + ' ' + new Date(Number(info.running_since)).toLocaleTimeString('de-DE') }}
               &bull;
               RTT {{Math.round(rtt)}}ms
             </div>
 
-            <div class="flex flex-col gap-2 bg-muted/20 p-4 rounded-lg">
+            <div v-if="info" class="flex flex-col gap-2 bg-muted/20 p-4 rounded-lg">
               <div v-if="info.device_type" class="flex gap-1">
                   <span class="text-foreground font-semibold flex items-center gap-2">
                     <MemoryStickIcon class="w-5 h-5"/>

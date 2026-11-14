@@ -60,8 +60,10 @@ const effectiveSearch = computed(() => {
 });
 
 async function syncMetadata() {
-    const endpoint_metadata = await activeInspector.value.com_hub_metadata();
-    comHubMetadata.value = endpoint_metadata;
+    const endpointMetadata = await activeInspector.value?.com_hub_metadata();
+    if (endpointMetadata) {
+      comHubMetadata.value = endpointMetadata;
+    }
 }
 
 let intervalId: ReturnType<typeof setInterval> | null = null;

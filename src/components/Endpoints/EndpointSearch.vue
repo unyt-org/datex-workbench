@@ -15,6 +15,7 @@ import {
 import { Combobox, ComboboxTrigger, ComboboxAnchor } from '@/components/ui/combobox'
 import EndpointLabel from './EndpointLabel.vue'
 import { useEndpointConnectionStatus } from '@/lib/composables/use-endpoint-connection-status.ts'
+import { activeEndpoint } from '@/lib/inspector/mod.ts'
 
 defineProps<{
   fullWidth?: boolean,
