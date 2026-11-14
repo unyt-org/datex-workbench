@@ -4,7 +4,7 @@ import type { Endpoint } from '@/lib/runtime-loader';
 
 export interface ReplEntry {
     type: 'input' | 'output' | 'error';
-    content: string;
+    content: string | null;
 }
 
 type ReplState = {
@@ -34,6 +34,19 @@ declare const Repl: {
 }; // FIXME
 
 const cachedReplStates = new Map<Endpoint, ReplState>();
+
+const DEFAULT_SUGGESTIONS: string[] = [
+  'var',
+  'true',
+  'false',
+  'null',
+  'clear',
+  'reset',
+  'help',
+  'test',
+  'name',
+  'endpoint'
+];
 
 export function useDatexRepl(endpoint: MaybeRefOrGetter<Endpoint | null>) {
     const repl = shallowRef<InstanceType<typeof Repl> | null>(null);
@@ -94,7 +107,7 @@ export function useDatexRepl(endpoint: MaybeRefOrGetter<Endpoint | null>) {
 
         const lastToken = lastTokenMatch[0];
 
-        const keywords = ['var', 'true', 'false', 'null', 'clear', 'reset', 'help', 'test'];
+        const keywords = DEFAULT_SUGGESTIONS;
 
         suggestions.value = keywords.filter((k) => k.startsWith(lastToken)).slice(0, 8);
     }
@@ -153,7 +166,7 @@ export function useDatexRepl(endpoint: MaybeRefOrGetter<Endpoint | null>) {
 
             entries.value.push({
                 type: 'output',
-                content: formatOutput(result),
+                content: result,
             });
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
@@ -169,19 +182,6 @@ export function useDatexRepl(endpoint: MaybeRefOrGetter<Endpoint | null>) {
         entries.value = [];
         history.value = [];
         suggestions.value = [];
-    }
-
-    function formatOutput(val: unknown): string {
-        if (val === 'null' || val === undefined) {
-            return '<span class="opacity-40 italic">void</span>';
-        }
-
-        return String(val)
-            .replace(/\x1b\[32m/g, '<span class="text-emerald-400">')
-            .replace(/\x1b\[31m/g, '<span class="text-red-400">')
-            .replace(/\x1b\[33m/g, '<span class="text-yellow-400">')
-            .replace(/\x1b\[36m/g, '<span class="text-cyan-400">')
-            .replace(/\x1b\[0m/g, '</span>');
     }
 
     return {

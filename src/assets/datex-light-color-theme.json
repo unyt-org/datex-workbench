@@ -1,0 +1,79 @@
+{
+    "name": "DATEX Light",
+    "type": "light",
+    "colors": {
+        "editor.background": "#FFFFFF",
+        "editor.foreground": "#1F1F1F"
+    },
+    "tokenColors": [
+        {
+            "settings": {
+                "background": "#FFFFFF",
+                "foreground": "#1F1F1F"
+            }
+        },
+        {
+            "name": "String",
+            "scope": [
+                "string.quoted.double.datex",
+                "string.quoted.single.datex"
+            ],
+            "settings": {
+                "foreground": "#8a3fc7"
+            }
+        },
+        {
+            "name": "Integer",
+            "scope": "constant.numeric.integer.datex",
+            "settings": {
+                "foreground": "#c25e14"
+            }
+        },
+        {
+            "name": "Float",
+            "scope": "constant.numeric.float.datex",
+            "settings": {
+                "foreground": "#c25e14"
+            }
+        },
+        {
+            "name": "Boolean / Null",
+            "scope": "constant.language.datex",
+            "settings": {
+                "foreground": "#c21f6e"
+            }
+        },
+        {
+            "name": "Keyword",
+            "scope": "keyword.control.datex",
+            "settings": {
+                "foreground": "#0b5cad"
+            }
+        },
+        {
+            "name": "Slot",
+            "scope": "variable.other.slot.datex",
+            "settings": {
+                "foreground": "#6e6e6e"
+            }
+        },
+        {
+            "name": "Endpoint",
+            "scope": "variable.other.endpoint.datex",
+            "settings": {
+                "foreground": "#1f8a1a"
+            }
+        },
+        {
+            "name": "Comment",
+            "scope": [
+                "comment.line.double-slash.datex",
+                "comment.block.datex"
+            ],
+            "settings": {
+                "foreground": "#7a7a7a",
+                "fontStyle": "italic"
+            }
+        }
+    ]
+}

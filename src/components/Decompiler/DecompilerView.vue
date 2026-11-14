@@ -13,7 +13,7 @@ const highlightedHtml = ref('');
 const highlighter = await useShikiHighlighter();
 
 async function highlight() {
-    const theme = mode.value === 'dark' ? 'github-dark' : 'github-light';
+    const theme = mode.value === 'dark' ? 'DATEX Dark' : 'DATEX Light';
     highlightedHtml.value = highlighter.codeToHtml(props.code, {
         lang: 'datex',
         theme,

@@ -166,6 +166,10 @@ aside {
         -webkit-app-region: drag;
     }
 
+    .wco-container > div {
+      padding-top: 0;
+    }
+
     .wco-container > * {
         -webkit-app-region: no-drag;
     }
