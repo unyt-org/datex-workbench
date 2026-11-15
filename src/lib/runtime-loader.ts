@@ -4,7 +4,7 @@ let mod: typeof import('@unyt/datex');
 
 if (localModuleUrl) {
     try {
-        mod = (await import(localModuleUrl)) as typeof import('@unyt/datex');
+        mod = (await import(/* @vite-ignore */ localModuleUrl)) as typeof import('@unyt/datex');
         localStorage.removeItem('localDatexModuleUrlFailed');
     } catch (error) {
         console.error(`Failed to load local module from ${localModuleUrl}:`, error);
