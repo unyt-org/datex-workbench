@@ -1,8 +1,6 @@
-
-
 <script setup lang="ts">
-import type { Endpoint } from "@/lib/runtime-loader";
-import type { ComHubMetadata } from "@/lib/_temp_types";
+import type { Endpoint } from '@/lib/runtime-loader';
+import type { ComHubMetadata } from '@/lib/_temp_types';
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useWindowControlsOverlay } from '@/utils/windowControlsOverlay';
 import EndpointSearch from '@/components/Endpoints/EndpointSearch.vue';
@@ -12,9 +10,9 @@ import ComHubEndpointList from '@/components/ComHubEndpointList.vue';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Settings } from 'lucide-vue-next';
-import { activeInspector } from "@/lib/inspector/mod";
-import StandaloneWindowHeader from "./Endpoints/StandaloneWindowHeader.vue";
-import Input from "./ui/input/Input.vue";
+import { activeInspector } from '@/lib/inspector/mod';
+import StandaloneWindowHeader from './Endpoints/StandaloneWindowHeader.vue';
+import Input from './ui/input/Input.vue';
 
 const { t } = useI18n();
 
@@ -51,7 +49,7 @@ export interface ComHubInterface {
 const searchQuery = ref('');
 const advancedMode = ref(false);
 const groupByEndpoint = ref(false);
-const comHubMetadata = ref<ComHubMetadata|null>(null);
+const comHubMetadata = ref<ComHubMetadata | null>(null);
 
 const effectiveSearch = computed(() => {
     const q = searchQuery.value.trim();
@@ -62,7 +60,7 @@ const effectiveSearch = computed(() => {
 async function syncMetadata() {
     const endpointMetadata = await activeInspector.value?.com_hub_metadata();
     if (endpointMetadata) {
-      comHubMetadata.value = endpointMetadata;
+        comHubMetadata.value = endpointMetadata;
     }
 }
 
@@ -81,85 +79,87 @@ watch(activeInspector, () => {
     syncMetadata();
 });
 const controlsOverlayEnabled = useWindowControlsOverlay();
-
-
 </script>
 
 <template>
-  <div class="drag"></div>
+    <div class="drag"></div>
     <StandaloneWindowHeader :title="'ComHub'" />
 
     <div class="bg-page flex h-full flex-col overflow-hidden p-5">
         <div class="mb-4 flex items-center gap-4 justify-between">
             <div class="flex items-center gap-2">
-              <h2 v-if="!controlsOverlayEnabled" class="mr-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-                  ComHub
-              </h2>
+                <h2
+                    v-if="!controlsOverlayEnabled"
+                    class="mr-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+                >
+                    ComHub
+                </h2>
 
-              <div class="w-[300px] flex-1">
-                  <Input
-                      v-model="searchQuery"
-                      type="text"
-                      :placeholder="t('comhub.searchPlaceholder')"
-                      class="bg-card text-primary w-full rounded border border-neutral-300 px-3 py-2 text-sm placeholder-neutral-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-neutral-600 dark:placeholder-neutral-500"
-                  />
-              </div>
+                <div class="w-[300px] flex-1">
+                    <Input
+                        v-model="searchQuery"
+                        type="text"
+                        :placeholder="t('comhub.searchPlaceholder')"
+                        class="bg-card text-primary w-full rounded border border-neutral-300 px-3 py-2 text-sm placeholder-neutral-400 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:border-neutral-600 dark:placeholder-neutral-500"
+                    />
+                </div>
 
-              <Popover>
-                  <PopoverTrigger as-child>
-                      <Button
-                          variant="outline"
-                          size="icon"
-                          :title="t('common.settings')"
-                          class="btn-icon"
-                      >
-                          <Settings class="h-4 w-4" />
-                      </Button>
-                  </PopoverTrigger>
-                  <PopoverContent align="start" class="w-52">
-                      <div class="flex flex-col gap-3 p-1">
-                          <div class="flex items-center justify-between">
-                              <span class="text-dim text-sm">{{ t('comhub.advancedMode') }}</span>
-                              <button
-                                  role="switch"
-                                  :aria-checked="advancedMode"
-                                  @click="advancedMode = !advancedMode"
-                                  class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none"
-                                  :class="
-                                      advancedMode
-                                          ? 'bg-blue-500'
-                                          : 'bg-neutral-300 dark:bg-neutral-600'
-                                  "
-                              >
-                                  <span
-                                      class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform"
-                                      :class="advancedMode ? 'translate-x-4' : 'translate-x-0'"
-                                  />
-                              </button>
-                          </div>
-                          <div class="flex items-center justify-between">
-                              <span class="text-dim text-sm">{{ t('comhub.groupByEndpoint') }}</span>
-                              <button
-                                  role="switch"
-                                  :aria-checked="groupByEndpoint"
-                                  @click="groupByEndpoint = !groupByEndpoint"
-                                  class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none"
-                                  :class="
-                                      groupByEndpoint
-                                          ? 'bg-blue-500'
-                                          : 'bg-neutral-300 dark:bg-neutral-600'
-                                  "
-                              >
-                                  <span
-                                      class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform"
-                                      :class="groupByEndpoint ? 'translate-x-4' : 'translate-x-0'"
-                                  />
-                              </button>
-                          </div>
-                      </div>
-                  </PopoverContent>
-              </Popover>
-
+                <Popover>
+                    <PopoverTrigger as-child>
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            :title="t('common.settings')"
+                            class="btn-icon"
+                        >
+                            <Settings class="h-4 w-4" />
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" class="w-52">
+                        <div class="flex flex-col gap-3 p-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-dim text-sm">{{ t('comhub.advancedMode') }}</span>
+                                <button
+                                    role="switch"
+                                    :aria-checked="advancedMode"
+                                    @click="advancedMode = !advancedMode"
+                                    class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none"
+                                    :class="
+                                        advancedMode
+                                            ? 'bg-blue-500'
+                                            : 'bg-neutral-300 dark:bg-neutral-600'
+                                    "
+                                >
+                                    <span
+                                        class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform"
+                                        :class="advancedMode ? 'translate-x-4' : 'translate-x-0'"
+                                    />
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-dim text-sm">{{
+                                    t('comhub.groupByEndpoint')
+                                }}</span>
+                                <button
+                                    role="switch"
+                                    :aria-checked="groupByEndpoint"
+                                    @click="groupByEndpoint = !groupByEndpoint"
+                                    class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none"
+                                    :class="
+                                        groupByEndpoint
+                                            ? 'bg-blue-500'
+                                            : 'bg-neutral-300 dark:bg-neutral-600'
+                                    "
+                                >
+                                    <span
+                                        class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform"
+                                        :class="groupByEndpoint ? 'translate-x-4' : 'translate-x-0'"
+                                    />
+                                </button>
+                            </div>
+                        </div>
+                    </PopoverContent>
+                </Popover>
             </div>
 
             <EndpointSearch v-if="!controlsOverlayEnabled" />

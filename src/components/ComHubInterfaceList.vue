@@ -1,17 +1,11 @@
 <template>
     <div class="flex flex-col gap-3">
-        <div
-            v-for="iface in filteredInterfaces"
-            :key="iface.uuid"
-        >
-          <InterfaceCard :iface="iface" :advancedMode="props.advancedMode" />
+        <div v-for="iface in filteredInterfaces" :key="iface.uuid">
+            <InterfaceCard :iface="iface" :advancedMode="props.advancedMode" />
         </div>
 
-        <div
-            v-for="iface in filteredReconnectingInterfaces"
-            :key="iface.uuid"
-        >
-          <InterfaceCard :iface="iface" :advancedMode="props.advancedMode" reconnecting />
+        <div v-for="iface in filteredReconnectingInterfaces" :key="iface.uuid">
+            <InterfaceCard :iface="iface" :advancedMode="props.advancedMode" reconnecting />
         </div>
 
         <div v-if="filteredInterfaces.length === 0" class="text-dim text-sm">
@@ -32,11 +26,11 @@ const props = defineProps<{
 }>();
 
 function filterInterfaces(interfaces: ComHubMetadataInterface[]) {
-  const query = props.searchQuery.trim().toLowerCase();
+    const query = props.searchQuery.trim().toLowerCase();
 
-  if (!query) return interfaces;
+    if (!query) return interfaces;
 
-  return interfaces
+    return interfaces
         .map((iface) => {
             const matchingSockets = iface.sockets.filter((socket) =>
                 socket.endpoint?.toString().toLowerCase().includes(query),

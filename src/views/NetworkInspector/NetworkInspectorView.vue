@@ -25,9 +25,7 @@ const { t } = useI18n();
 
 const showDebug = ref(false);
 
-const {
-    blocks,
-} = useNetworkInspector(showDebug);
+const { blocks } = useNetworkInspector(showDebug);
 
 // Search query state
 const searchQuery = ref('');
@@ -64,8 +62,6 @@ function clearBlocks() {
         blocks.value = [];
     }
 }
-
-
 
 // Computed property to transform DISPLAYED blocks into table rows (using pre-parsed metadata)
 const allTableRows = computed<NetworkBlockTableRow[]>(() => {
@@ -151,17 +147,16 @@ const isBlockSigned = computed(() => {
     return entry.signatureType !== 'None' && entry.signatureType !== 'Unknown';
 });
 
-const isLocalEndpoint = computed(() => activeEndpoint.value?.toString() === "@@local");
+const isLocalEndpoint = computed(() => activeEndpoint.value?.toString() === '@@local');
 const controlsOverlayEnabled = useWindowControlsOverlay();
-
 </script>
 
 <template>
-    <StandaloneWindowHeader :title="t('network.title')"/>
+    <StandaloneWindowHeader :title="t('network.title')" />
     <div class="bg-background text-foreground flex h-full flex-col gap-3 p-4 pt-0 overflow-hidden">
         <div class="flex justify-between items-center gap-4" v-if="!controlsOverlayEnabled">
-          <h1 class="shrink-0 text-xl font-medium">{{ t('network.title') }}</h1>
-          <EndpointSearch />
+            <h1 class="shrink-0 text-xl font-medium">{{ t('network.title') }}</h1>
+            <EndpointSearch />
         </div>
 
         <div class="flex min-h-0 flex-1 gap-3">
@@ -187,7 +182,10 @@ const controlsOverlayEnabled = useWindowControlsOverlay();
                         </div>
                     </template>
                     <template #actions>
-                        <Label v-if="isLocalEndpoint" class="flex items-center gap-2 whitespace-nowrap">
+                        <Label
+                            v-if="isLocalEndpoint"
+                            class="flex items-center gap-2 whitespace-nowrap"
+                        >
                             <Checkbox v-model="showDebug" label="Record Debug Blocks" />
                             Record Debug Blocks
                         </Label>
@@ -209,7 +207,9 @@ const controlsOverlayEnabled = useWindowControlsOverlay();
             <div v-if="selectedBlock" class="flex min-h-0 w-1/2 flex-col">
                 <div class="flex shrink-0 items-center justify-between px-4 py-4">
                     <div class="flex items-center gap-2 text-sm font-mono">
-                        <span class="text-muted-foreground uppercase">{{ selectedBlockEntry?.blockType }}</span>
+                        <span class="text-muted-foreground uppercase">{{
+                            selectedBlockEntry?.blockType
+                        }}</span>
                         <BlockIcons
                             :isEncrypted="isBlockEncrypted"
                             :isSigned="isBlockSigned"
@@ -217,7 +217,9 @@ const controlsOverlayEnabled = useWindowControlsOverlay();
                         />
                         <span class="text-foreground pl-3">{{ selectedBlockEntry?.sender }}</span>
                         <span class="text-muted-foreground">→</span>
-                        <span class="text-foreground">{{ selectedBlockEntry?.receivers.join(', ') }}</span>
+                        <span class="text-foreground">{{
+                            selectedBlockEntry?.receivers.join(', ')
+                        }}</span>
                     </div>
                     <button
                         class="text-muted-foreground hover:text-foreground transition"

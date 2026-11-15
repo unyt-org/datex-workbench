@@ -9,15 +9,17 @@ import StandaloneWindowHeader from '@/components/Endpoints/StandaloneWindowHeade
 import { useI18n } from 'vue-i18n';
 import EndpointSearch from '@/components/Endpoints/EndpointSearch.vue';
 import { useWindowControlsOverlay } from '@/utils/windowControlsOverlay';
-import {Tooltip, TooltipTrigger, TooltipContent} from '@/components/ui/tooltip';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 const mode = useColorMode();
 const { t } = useI18n();
 
 const highlighter = await useShikiHighlighter();
-const theme = computed(() => mode.value === 'dark' ? 'DATEX Dark' : 'DATEX Light');
+const theme = computed(() => (mode.value === 'dark' ? 'DATEX Dark' : 'DATEX Light'));
 
-const { entries, history, executeCommand, reset, suggestions, updateSuggestions } = useDatexRepl(() => activeEndpoint.value);
+const { entries, history, executeCommand, reset, suggestions, updateSuggestions } = useDatexRepl(
+    () => activeEndpoint.value,
+);
 
 const currentInput = ref('');
 const historyIdx = ref(-1);
@@ -26,7 +28,6 @@ const scrollContainer = ref<HTMLElement | null>(null);
 const selectedIdx = ref(0);
 const executingLong = ref(false);
 const executing = ref(false);
-
 
 const ghostText = computed(() => {
     const list = suggestions.value;
@@ -63,7 +64,6 @@ function scrollDown() {
     });
 }
 
-
 async function handleKeydown(e: KeyboardEvent) {
     const el = textareaRef.value;
     if (!el) return;
@@ -87,7 +87,7 @@ async function handleKeydown(e: KeyboardEvent) {
 
         executing.value = false;
         executingLong.value = false;
-      }
+    }
 
     if (e.key === 'Tab') {
         e.preventDefault();
@@ -138,67 +138,84 @@ function highlightDatexText(content: string | null) {
     return highlighter.codeToHtml(content, { lang: 'datex', theme: theme.value });
 }
 const controlsOverlayEnabled = useWindowControlsOverlay();
-
 </script>
 
 <template>
     <StandaloneWindowHeader :title="t('nav.repl')" />
     <div class="bg-page text-primary relative flex h-full flex-col overflow-hidden">
-      <div class="px-4 pb-0 flex justify-end gap-3 items-center">
-         <div :class="controlsOverlayEnabled && 'absolute right-3 top-3'">
-          <Tooltip>
-            <TooltipTrigger>
-                <button
-                  @click="reset"
-                  class="p-0 not-disabled:cursor-pointer opacity-70 disabled:opacity-20"
-                  :disabled="!entries.length"
-                  >
-                    <BanIcon :size="16" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="left" :avoidCollisions=false>
-                  <p>Clear</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-          <div v-if="!controlsOverlayEnabled">
-            <EndpointSearch />
-          </div>
-      </div>
-
-      <div
-        ref="scrollContainer"
-        class="flex-1 flex flex-col gap-2 overflow-y-auto p-4 pt-3 font-mono text-sm"
-        :class="{'pt-0': !controlsOverlayEnabled}"
-        >
-          <template v-for="(entry, i) in entries" :key="i">
-            <div
-
-                class="history-item text-sm break-all whitespace-pre-wrap no-drag"
-                v-if="entry.type!='output' || entry.content"
-            >
-                <div v-if="entry.type === 'input'" class="text-muted-foreground flex items-start gap-2">
-                    <div>
-                      <Loader2 v-if="i === entries.length - 1 && executingLong" class="absolute mt-0.5 h-4 w-4 animate-spin" />
-                      <ChevronRight :size="18" class="shrink-0" :class="{ 'opacity-0': i === entries.length - 1 && executingLong }"/>
-                    </div>
-                    <span class="[&>pre]:bg-transparent! [&_code]:whitespace-break-spaces" v-html="highlightDatexText(entry.content)"></span>
-                </div>
-                <div v-else-if="entry.type === 'output'" class="text-primary flex gap-2 items-start">
-                    <ChevronLeft :size="18" class="opacity-50 shrink-0" />
-                    <span class="[&>pre]:bg-transparent! [&_code]:whitespace-break-spaces" v-html="highlightDatexText(entry.content)"></span>
-                </div>
-
-                <div
-                    v-else
-                    class="card border-rose-500/20 border-2 bg-rose-500/20 text-rose-500 border ml-6"
-                >
-                    {{ entry.content }}
-                </div>
+        <div class="px-4 pb-0 flex justify-end gap-3 items-center">
+            <div :class="controlsOverlayEnabled && 'absolute right-3 top-3'">
+                <Tooltip>
+                    <TooltipTrigger>
+                        <button
+                            @click="reset"
+                            class="p-0 not-disabled:cursor-pointer opacity-70 disabled:opacity-20"
+                            :disabled="!entries.length"
+                        >
+                            <BanIcon :size="16" />
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" :avoidCollisions="false">
+                        <p>Clear</p>
+                    </TooltipContent>
+                </Tooltip>
             </div>
-          </template>
+            <div v-if="!controlsOverlayEnabled">
+                <EndpointSearch />
+            </div>
+        </div>
 
-          <div v-if="!executing" class="flex items-start gap-2" @click="focusInput()">
+        <div
+            ref="scrollContainer"
+            class="flex-1 flex flex-col gap-2 overflow-y-auto p-4 pt-3 font-mono text-sm"
+            :class="{ 'pt-0': !controlsOverlayEnabled }"
+        >
+            <template v-for="(entry, i) in entries" :key="i">
+                <div
+                    class="history-item text-sm break-all whitespace-pre-wrap no-drag"
+                    v-if="entry.type != 'output' || entry.content"
+                >
+                    <div
+                        v-if="entry.type === 'input'"
+                        class="text-muted-foreground flex items-start gap-2"
+                    >
+                        <div>
+                            <Loader2
+                                v-if="i === entries.length - 1 && executingLong"
+                                class="absolute mt-0.5 h-4 w-4 animate-spin"
+                            />
+                            <ChevronRight
+                                :size="18"
+                                class="shrink-0"
+                                :class="{ 'opacity-0': i === entries.length - 1 && executingLong }"
+                            />
+                        </div>
+                        <span
+                            class="[&>pre]:bg-transparent! [&_code]:whitespace-break-spaces"
+                            v-html="highlightDatexText(entry.content)"
+                        ></span>
+                    </div>
+                    <div
+                        v-else-if="entry.type === 'output'"
+                        class="text-primary flex gap-2 items-start"
+                    >
+                        <ChevronLeft :size="18" class="opacity-50 shrink-0" />
+                        <span
+                            class="[&>pre]:bg-transparent! [&_code]:whitespace-break-spaces"
+                            v-html="highlightDatexText(entry.content)"
+                        ></span>
+                    </div>
+
+                    <div
+                        v-else
+                        class="card border-rose-500/20 border-2 bg-rose-500/20 text-rose-500 border ml-6"
+                    >
+                        {{ entry.content }}
+                    </div>
+                </div>
+            </template>
+
+            <div v-if="!executing" class="flex items-start gap-2" @click="focusInput()">
                 <span class="text-dim">
                     <ChevronRight :size="18" />
                 </span>
@@ -242,7 +259,6 @@ const controlsOverlayEnabled = useWindowControlsOverlay();
                   {{ s }}
               </div>
             </div>-->
-
-      </div>
+        </div>
     </div>
 </template>

@@ -9,11 +9,11 @@ export interface ReplEntry {
 }
 
 type ReplState = {
-  repl: InstanceType<typeof Repl>,
-  entries: ReplEntry[];
-  history: string[];
-  suggestions: string[];
-}
+    repl: InstanceType<typeof Repl>;
+    entries: ReplEntry[];
+    history: string[];
+    suggestions: string[];
+};
 
 // unused template for future LSP
 // function startLspTemplate() {
@@ -30,20 +30,19 @@ type ReplState = {
 //     });
 // }
 
-
 const cachedReplStates = new Map<Endpoint, ReplState>();
 
 const DEFAULT_SUGGESTIONS: string[] = [
-  'var',
-  'true',
-  'false',
-  'null',
-  'clear',
-  'reset',
-  'help',
-  'test',
-  'name',
-  'endpoint'
+    'var',
+    'true',
+    'false',
+    'null',
+    'clear',
+    'reset',
+    'help',
+    'test',
+    'name',
+    'endpoint',
 ];
 
 /**
@@ -52,28 +51,31 @@ const DEFAULT_SUGGESTIONS: string[] = [
  * @param state
  */
 function persistReplState(endpoint: Endpoint, state: ReplState) {
-  const key = `replState:${endpoint}`;
-  localStorage.setItem(key, JSON.stringify({
-    entries: state.entries,
-    history: state.history,
-  }));
+    const key = `replState:${endpoint}`;
+    localStorage.setItem(
+        key,
+        JSON.stringify({
+            entries: state.entries,
+            history: state.history,
+        }),
+    );
 }
 
 function tryLoadPersistedReplState(endpoint: Endpoint): ReplState | null {
-  const key = `replState:${endpoint}`;
-  const data = localStorage.getItem(key);
-  if (!data) return null;
-  try {
-    const parsed = JSON.parse(data);
-    return {
-      repl: new Repl(Datex, endpoint),
-      entries: parsed.entries ?? [],
-      history: parsed.history ?? [],
-      suggestions: [],
-    };
-  } catch {
-    return null;
-  }
+    const key = `replState:${endpoint}`;
+    const data = localStorage.getItem(key);
+    if (!data) return null;
+    try {
+        const parsed = JSON.parse(data);
+        return {
+            repl: new Repl(Datex, endpoint),
+            entries: parsed.entries ?? [],
+            history: parsed.history ?? [],
+            suggestions: [],
+        };
+    } catch {
+        return null;
+    }
 }
 
 export function useDatexRepl(endpoint: MaybeRefOrGetter<Endpoint | null>) {
@@ -85,43 +87,50 @@ export function useDatexRepl(endpoint: MaybeRefOrGetter<Endpoint | null>) {
     watch(
         [entries, history],
         ([newEntries, newHistory]) => {
-          if (toValue(endpoint)) {
-            const state = cachedReplStates.get(toValue(endpoint)) ?? {
-                repl: repl.value,
-                entries: [],
-                history: [],
-                suggestions: suggestions.value,
-            };
+            if (toValue(endpoint)) {
+                const state = cachedReplStates.get(toValue(endpoint)) ?? {
+                    repl: repl.value,
+                    entries: [],
+                    history: [],
+                    suggestions: suggestions.value,
+                };
 
-            state.entries = newEntries;
-            state.history = newHistory;
+                state.entries = newEntries;
+                state.history = newHistory;
 
-            cachedReplStates.set(toValue(endpoint), state);
-            persistReplState(toValue(endpoint), state);
-          }
+                cachedReplStates.set(toValue(endpoint), state);
+                persistReplState(toValue(endpoint), state);
+            }
         },
         { deep: true },
     );
 
-    watch(() => toValue(endpoint), (ep) => {
-        if (ep) {
-          if (!cachedReplStates.has(ep)) {
-            const persistedState = tryLoadPersistedReplState(ep);
-            cachedReplStates.set(ep, persistedState ?? {
-                repl: new Repl(Datex, ep),
-                entries: [],
-                history: [],
-                suggestions: [],
-            });
-          }
+    watch(
+        () => toValue(endpoint),
+        (ep) => {
+            if (ep) {
+                if (!cachedReplStates.has(ep)) {
+                    const persistedState = tryLoadPersistedReplState(ep);
+                    cachedReplStates.set(
+                        ep,
+                        persistedState ?? {
+                            repl: new Repl(Datex, ep),
+                            entries: [],
+                            history: [],
+                            suggestions: [],
+                        },
+                    );
+                }
 
-          const state = cachedReplStates.get(ep)!;
-          repl.value = state.repl ?? null;
-          entries.value = state.entries ?? [];
-          history.value = state.history ?? [];
-          suggestions.value = state.suggestions ?? [];
-        }
-    }, { immediate: true });
+                const state = cachedReplStates.get(ep)!;
+                repl.value = state.repl ?? null;
+                entries.value = state.entries ?? [];
+                history.value = state.history ?? [];
+                suggestions.value = state.suggestions ?? [];
+            }
+        },
+        { immediate: true },
+    );
 
     function updateSuggestions(input: string) {
         const trimmed = input.trim();

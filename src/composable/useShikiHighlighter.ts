@@ -6,12 +6,12 @@ import datexLight from '../assets/datex-light-color-theme.json';
 let highlighter: Highlighter | undefined;
 
 export async function useShikiHighlighter(): Promise<Highlighter> {
-  if (!highlighter) {
-    highlighter = await createHighlighter({
-      themes: [datexDark as ThemeRegistration, datexLight as ThemeRegistration],
-      langs: [datexGrammar as never],
-    });
-  }
+    if (!highlighter) {
+        highlighter = await createHighlighter({
+            themes: [datexDark as ThemeRegistration, datexLight as ThemeRegistration],
+            langs: [datexGrammar as never],
+        });
+    }
 
-  return highlighter;
+    return highlighter;
 }

@@ -153,7 +153,7 @@ function extractBlockMetadata(parsedBlock: ParsedSection[]) {
         encryptionType: getEncryptionType(parsedBlock),
         signatureType: getSignatureType(parsedBlock),
         blockId: getBlockId(parsedBlock),
-        isDebug: getBlockIsDebug(parsedBlock)
+        isDebug: getBlockIsDebug(parsedBlock),
     };
 }
 
@@ -168,7 +168,6 @@ export type BlockId = {
     blockNumber: number;
 };
 
-
 const definition = await (
     await fetch(
         'https://raw.githubusercontent.com/unyt-org/datex-specification/refs/heads/main/assets/structures/dxb.json',
@@ -177,7 +176,6 @@ const definition = await (
 
 // Initialize blocks from storage
 const blocks = ref<RawBlockEntry[]>([]);
-
 
 function handleBlock(block: Uint8Array, socket_uuid: string, direction: 'in' | 'out') {
     const parsedBlock = parseStructure(definition, block);
@@ -198,13 +196,16 @@ function handleBlock(block: Uint8Array, socket_uuid: string, direction: 'in' | '
     if (overflow > 0) blocks.value.splice(0, overflow);
 }
 
-let localInterceptorUUID: string|null = null;
+let localInterceptorUUID: string | null = null;
 
 function collectBlocksLocal(showDebug: boolean) {
-  if (localInterceptorUUID !== null) return;
-  localInterceptorUUID = Datex.comHub.registerBlockInterceptor((block: Uint8Array, socket_uuid: string, direction: "Incoming"|"Outgoing") => {
-      handleBlock(block, socket_uuid, direction === "Incoming" ? 'in' : 'out');
-  }, showDebug);
+    if (localInterceptorUUID !== null) return;
+    localInterceptorUUID = Datex.comHub.registerBlockInterceptor(
+        (block: Uint8Array, socket_uuid: string, direction: 'Incoming' | 'Outgoing') => {
+            handleBlock(block, socket_uuid, direction === 'Incoming' ? 'in' : 'out');
+        },
+        showDebug,
+    );
 }
 
 function stopCollectingBlocksLocal() {
@@ -214,42 +215,47 @@ function stopCollectingBlocksLocal() {
     }
 }
 
-
-
 export function useNetworkInspector(showDebug: Ref<boolean>) {
-
     async function collectBlocksRemote(inspector: Inspector) {
-      // Handle changes to the active inspector if needed
-        let blocks = await inspector.blocks()
+        // Handle changes to the active inspector if needed
+        const blocks = await inspector.blocks();
         for await (const block of blocks) {
             // stop if inspector is no longer active
             if (inspector !== activeInspector.value) break;
-            handleBlock(new Uint8Array(block.block), block.socket_uuid, block.direction.tag === 'Incoming' ? 'in' : 'out');
+            handleBlock(
+                new Uint8Array(block.block),
+                block.socket_uuid,
+                block.direction.tag === 'Incoming' ? 'in' : 'out',
+            );
         }
     }
 
-    let lastInspector: Inspector|null = null;
+    let lastInspector: Inspector | null = null;
 
-    watch([activeInspector, showDebug], ([newInspector, showDebug]) => {
-        if (!newInspector) return;
+    watch(
+        [activeInspector, showDebug],
+        ([newInspector, showDebug]) => {
+            if (!newInspector) return;
 
-        // only reset blocks if the inspector has changed
-        if (newInspector !== lastInspector) {
-          blocks.value = [];
-          lastInspector = newInspector;
-        }
+            // only reset blocks if the inspector has changed
+            if (newInspector !== lastInspector) {
+                blocks.value = [];
+                lastInspector = newInspector;
+            }
 
-        // collect local blocks with optional debug flag
-        if (activeEndpoint.value?.toString() === "@@local") {
-          stopCollectingBlocksLocal();
-          collectBlocksLocal(showDebug);
-        }
-        // collect remote blocks if not local
-        else {
-          stopCollectingBlocksLocal();
-          collectBlocksRemote(newInspector);
-        }
-    }, { immediate: true });
+            // collect local blocks with optional debug flag
+            if (activeEndpoint.value?.toString() === '@@local') {
+                stopCollectingBlocksLocal();
+                collectBlocksLocal(showDebug);
+            }
+            // collect remote blocks if not local
+            else {
+                stopCollectingBlocksLocal();
+                collectBlocksRemote(newInspector);
+            }
+        },
+        { immediate: true },
+    );
 
     return {
         blocks,

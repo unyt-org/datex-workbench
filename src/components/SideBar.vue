@@ -27,7 +27,6 @@ function handleClick(event: MouseEvent, path: string) {
     }
     navigate(path);
 }
-
 </script>
 
 <template>
@@ -94,7 +93,11 @@ function handleClick(event: MouseEvent, path: string) {
                                     : 'text-dim hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                             "
                         >
-                            <component :is="element.icon" :size="28" :stroke-width="activePath === element.path ? 2 : 1.5" />
+                            <component
+                                :is="element.icon"
+                                :size="28"
+                                :stroke-width="activePath === element.path ? 2 : 1.5"
+                            />
                         </div>
 
                         <div
@@ -128,7 +131,10 @@ function handleClick(event: MouseEvent, path: string) {
                                 : 'text-dim hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
                         "
                     >
-                        <Settings :size="28" :stroke-width="activePath === '/preferences' ? 2 : 1.5" />
+                        <Settings
+                            :size="28"
+                            :stroke-width="activePath === '/preferences' ? 2 : 1.5"
+                        />
                     </div>
 
                     <div
@@ -167,7 +173,7 @@ aside {
     }
 
     .wco-container > div {
-      padding-top: 0;
+        padding-top: 0;
     }
 
     .wco-container > * {

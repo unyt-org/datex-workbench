@@ -1,4 +1,10 @@
-import { Tagged, type SharedRef, SharedContainerMutability, SharedReferenceMutability, Endpoint } from './runtime-loader.ts';
+import {
+    Tagged,
+    type SharedRef,
+    SharedContainerMutability,
+    SharedReferenceMutability,
+    Endpoint,
+} from './runtime-loader.ts';
 /** TODO: remove and use types from datex-web, just temporary until types are updated */
 export type Span = { start: number; end: number };
 export type SpannedInstruction<T> = { instruction: T; span: Span };
@@ -12,13 +18,17 @@ export type InstructionTree = { instruction: TreeInstruction; children?: Instruc
 export type TreeResult = [InstructionTree, string | null];
 export type FlatResult = [FlatInstruction[], string | null];
 
+export type InterfaceDirection = Tagged<'In'> | Tagged<'Out'> | Tagged<'InOut'>;
 
-export type InterfaceDirection = Tagged<"In"> | Tagged<"Out"> | Tagged<"InOut">;
-
-export type ReconnectionConfig = Tagged<"NoReconnect"> | Tagged<"Reconnect", {
-    attempts: number | null;
-    interval: number | null;
-}>;
+export type ReconnectionConfig =
+    | Tagged<'NoReconnect'>
+    | Tagged<
+          'Reconnect',
+          {
+              attempts: number | null;
+              interval: number | null;
+          }
+      >;
 
 /**
  * The properties of a communication interface, which are used to describe the capabilities and characteristics of the interface.
@@ -38,7 +48,7 @@ export type ComInterfaceProperties = {
     connectable_interfaces: RuntimeConfigInterface[] | null;
 };
 
-export type InterfacePriority = Tagged<"None"> | Tagged<"Priority", number>;
+export type InterfacePriority = Tagged<'None'> | Tagged<'Priority', number>;
 
 export type RuntimeConfigInterface = {
     type: string;
@@ -74,8 +84,12 @@ export type ComHubMetadata = {
     reconnecting_interfaces: ComHubMetadataInterface[];
 };
 
-
-export type LogLevel = Tagged<"Trace"> | Tagged<"Debug"> | Tagged<"Info"> | Tagged<"Warn"> | Tagged<"Error">;
+export type LogLevel =
+    | Tagged<'Trace'>
+    | Tagged<'Debug'>
+    | Tagged<'Info'>
+    | Tagged<'Warn'>
+    | Tagged<'Error'>;
 export type LogMessage = {
     level: LogLevel;
     module: string;
@@ -99,7 +113,7 @@ export type HeapStats = {
 export type RuntimeStats = {
     heap: HeapStats | null;
 };
-export type BlockDirection = Tagged<"Incoming"> | Tagged<"Outgoing">;
+export type BlockDirection = Tagged<'Incoming'> | Tagged<'Outgoing'>;
 
 export type CapturedBlockData = {
     block: number[];
@@ -107,16 +121,27 @@ export type CapturedBlockData = {
     direction: BlockDirection;
 };
 
-
 export declare class Inspector {
     public name: string;
     public info: RuntimeInfo;
     /**
      * Returns a stream of all global log messages of the endpoint.
-     */ public logs(): Promise<SharedRef<ReadableStream<LogMessage>, SharedContainerMutability.Mutable, SharedReferenceMutability.Mutable>>;
+     */ public logs(): Promise<
+        SharedRef<
+            ReadableStream<LogMessage>,
+            SharedContainerMutability.Mutable,
+            SharedReferenceMutability.Mutable
+        >
+    >;
     /**
      * Returns a stream of all incoming and outgoing blocks on the endpoint (excluding debug blocks).
-     */ public blocks(): Promise<SharedRef<ReadableStream<CapturedBlockData>, SharedContainerMutability.Mutable, SharedReferenceMutability.Mutable>>;
+     */ public blocks(): Promise<
+        SharedRef<
+            ReadableStream<CapturedBlockData>,
+            SharedContainerMutability.Mutable,
+            SharedReferenceMutability.Mutable
+        >
+    >;
     /**
      * Returns the current metadata information (connected interfaces, sockets) of the endpoint's com hub.
      */ public com_hub_metadata(): Promise<ComHubMetadata>;

@@ -21,10 +21,6 @@ const { t } = useI18n();
             :searchTerms="searchTerms ?? []"
             class="font-medium uppercase"
         />
-        <BlockIcons
-            :isEncrypted="isEncrypted"
-            :isSigned="isSigned"
-            :isDebug="isDebug"
-        />
+        <BlockIcons :isEncrypted="isEncrypted" :isSigned="isSigned" :isDebug="isDebug" />
     </div>
 </template>

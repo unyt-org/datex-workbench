@@ -9,7 +9,9 @@ const props = defineProps<{
 }>();
 
 const width = computed(() => `${Math.min(100, Math.max(0, props.value))}%`);
-const secondaryWidth = computed(() => `${Math.min(100, Math.max(0, (props.secondaryValue ?? 0) - props.value))}%`);
+const secondaryWidth = computed(
+    () => `${Math.min(100, Math.max(0, (props.secondaryValue ?? 0) - props.value))}%`,
+);
 </script>
 <template>
     <div
@@ -42,9 +44,12 @@ const secondaryWidth = computed(() => `${Math.min(100, Math.max(0, (props.second
     background-size: 22.6px 22.6px;
 }
 
-
 @keyframes stripes {
-    from { background-position: 0 0; }
-    to   { background-position: 22.6px 0; }
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 22.6px 0;
+    }
 }
 </style>

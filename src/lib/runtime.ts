@@ -2,7 +2,6 @@ import type { Runtime as RuntimeT, RuntimeConfig, DIF } from '@unyt/datex';
 import { Builtins, Repl, Runtime } from './runtime-loader';
 import type { ComHubMetadata } from './_temp_types';
 
-
 const websocketServerEndpointURL =
     localStorage.getItem('websocketServerEndpoint') || 'wss://example.unyt.land';
 
@@ -13,7 +12,7 @@ sessionStorage.setItem('datexRuntimeEndpointName', endpointName);
 
 const defaultConfig: RuntimeConfig = {
     endpoint: Builtins.Endpoint.get(endpointName),
-    name: "DATEX Workbench",
+    name: 'DATEX Workbench',
     interfaces: [
         {
             type: 'websocket-client',

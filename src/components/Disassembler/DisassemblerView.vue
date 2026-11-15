@@ -13,7 +13,10 @@ const { t } = useI18n();
 
 type ViewMode = 'tree' | 'flat';
 
-const viewType = usePersistentRef<'disassembler' | 'decompiler'>('disassembler/viewType', 'disassembler');
+const viewType = usePersistentRef<'disassembler' | 'decompiler'>(
+    'disassembler/viewType',
+    'disassembler',
+);
 const viewMode = usePersistentRef<ViewMode>('disassembler/viewMode', 'tree');
 const showNested = usePersistentRef<boolean>('disassembler/showNested', true);
 
@@ -21,8 +24,6 @@ const props = defineProps<{
     /** Raw DXB body bytes to disassemble */
     dxb: Uint8Array;
 }>();
-
-
 
 const selectedBodySpan = defineModel<null | Span>();
 

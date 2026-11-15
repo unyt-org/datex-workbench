@@ -14,10 +14,7 @@
         },
         {
             "name": "String",
-            "scope": [
-                "string.quoted.double.datex",
-                "string.quoted.single.datex"
-            ],
+            "scope": ["string.quoted.double.datex", "string.quoted.single.datex"],
             "settings": {
                 "foreground": "#b781e3"
             }
@@ -66,10 +63,7 @@
         },
         {
             "name": "Comment",
-            "scope": [
-                "comment.line.double-slash.datex",
-                "comment.block.datex"
-            ],
+            "scope": ["comment.line.double-slash.datex", "comment.block.datex"],
             "settings": {
                 "foreground": "#848484",
                 "fontStyle": "italic"

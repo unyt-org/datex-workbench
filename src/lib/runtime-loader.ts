@@ -28,15 +28,18 @@ export type SharedRef<T, R, M> = T & { __sharedRef: [R, M] };
 // only temp
 export enum SharedContainerMutability {
     Mutable,
-    Immutable
+    Immutable,
 }
 // only temp
 export enum SharedReferenceMutability {
     Mutable,
-    Immutable
+    Immutable,
 }
 
 export const Endpoint = Builtins.Endpoint;
 export type Endpoint = any;
 export const Tagged = Builtins.Tagged;
-export type Tagged<T extends string, Value = typeof Builtins.EMPTY_TAG> = typeof Builtins.Tagged<T, Value>;
+export type Tagged<T extends string, Value = typeof Builtins.EMPTY_TAG> = typeof Builtins.Tagged<
+    T,
+    Value
+>;

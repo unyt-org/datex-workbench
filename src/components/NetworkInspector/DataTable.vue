@@ -196,7 +196,6 @@ watch(
     },
 );
 defineExpose({ scrollElement: parentRef });
-
 </script>
 
 <template>
@@ -261,17 +260,16 @@ defineExpose({ scrollElement: parentRef });
             </div>
 
             <!-- Virtual rows -->
-            <div
-                ref="parentRef"
-                class="min-h-0 flex-1 overflow-auto"
-                @scroll="onScroll"
-            >
+            <div ref="parentRef" class="min-h-0 flex-1 overflow-auto" @scroll="onScroll">
                 <div :style="{ height: totalSize + 'px', position: 'relative' }">
                     <div
                         v-for="virtualRow in virtualRows"
                         :key="rows[virtualRow.index]?.id ?? virtualRow.index"
                         class="flex absolute left-0 top-0 w-full border-b border-border hover:bg-card cursor-pointer"
-                        :class="{ 'bg-card': selectedRowId === rows[virtualRow.index]?.id, 'text-muted-foreground': rows[virtualRow.index]?.original.isDebug }"
+                        :class="{
+                            'bg-card': selectedRowId === rows[virtualRow.index]?.id,
+                            'text-muted-foreground': rows[virtualRow.index]?.original.isDebug,
+                        }"
                         :style="{
                             transform: `translateY(${virtualRow.start}px)`,
                             height: virtualRow.size + 'px',

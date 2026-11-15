@@ -14,7 +14,7 @@ import {
 } from 'lucide-vue-next';
 
 export const sidebarItems = [
-      {
+    {
         icon: Terminal,
         key: 'repl',
         path: '/repl',
@@ -42,7 +42,7 @@ export const sidebarItems = [
         label: 'nav.memory',
         description: 'welcome.memoryDesc',
     },
-     {
+    {
         icon: LogsIcon,
         key: 'logs',
         path: '/logs',
