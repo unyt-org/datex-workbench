@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, nextTick, watch, computed, onMounted } from 'vue';
 import { useDatexRepl } from '@/composable/useDatexRepl';
-import { ChevronRight, ChevronLeft, BanIcon, Loader2 } from 'lucide-vue-next';
+import { ChevronRight, ChevronLeft, BanIcon, Loader2 } from '@lucide/vue';
 import { activeEndpoint } from '@/lib/inspector/mod';
 import { useShikiHighlighter } from '@/composable/useShikiHighlighter';
 import { useColorMode } from '@vueuse/core';

@@ -6,7 +6,7 @@ import {
     ChevronRight,
     ChevronDown,
     TriangleAlert,
-} from 'lucide-vue-next';
+} from '@lucide/vue';
 import { cn } from '@/lib/utils';
 import { ref, nextTick, computed, watch } from 'vue';
 import type { FileTreeNode } from '@/types/FileTree';

@@ -8,7 +8,7 @@ import type {
 } from '@/lib/_temp_types.ts';
 import { ref } from 'vue';
 import type { Endpoint } from '@/lib/runtime-loader.ts';
-import { Loader2, UnplugIcon } from 'lucide-vue-next';
+import { Loader2, UnplugIcon } from '@lucide/vue';
 import Card from '@/components/ui/card/Card.vue';
 import CardContent from '../ui/card/CardContent.vue';
 

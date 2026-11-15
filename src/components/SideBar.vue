@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import IconLogo from '@/components/icons/IconLogo.vue';
-import { Settings } from 'lucide-vue-next';
+import { Settings } from '@lucide/vue';
 import draggable from 'vuedraggable';
 import { useI18n } from 'vue-i18n';
 import { sidebarItems as sideBarItemsList } from '@/lib/sidebar-items';

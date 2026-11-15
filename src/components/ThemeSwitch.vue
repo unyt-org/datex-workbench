@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useI18n } from 'vue-i18n';
 import { useColorMode } from '@vueuse/core';
-import { Moon, Sun } from 'lucide-vue-next';
+import { Moon, Sun } from '@lucide/vue';
 import { watch } from 'vue';
 import { usePreferences } from '@/preferences';
 

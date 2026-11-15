@@ -19,7 +19,7 @@ import {
     DropdownMenuContent,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronDown, ArrowUp, ArrowDown } from 'lucide-vue-next';
+import { ChevronDown, ArrowUp, ArrowDown } from '@lucide/vue';
 
 const { t } = useI18n();
 

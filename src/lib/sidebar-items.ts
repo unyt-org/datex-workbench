@@ -7,7 +7,7 @@ import {
     Database,
     LogsIcon,
     ChartColumn,
-} from 'lucide-vue-next';
+} from '@lucide/vue';
 
 export const sidebarItems = [
     {

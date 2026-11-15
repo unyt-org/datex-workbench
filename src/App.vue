@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { RouterLink } from 'vue-router';
 import { RouterView } from 'vue-router';
 import { Datex } from './lib/runtime';
-import { InfoIcon, TriangleAlert } from 'lucide-vue-next';
+import { InfoIcon, TriangleAlert } from '@lucide/vue';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { useWindowControlsOverlayCssVariables } from '@/utils/windowControlsOverlay';
 

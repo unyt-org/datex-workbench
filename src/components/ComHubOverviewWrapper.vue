@@ -9,7 +9,7 @@ import ComHubInterfaceList from '@/components/ComHubInterfaceList.vue';
 import ComHubEndpointList from '@/components/ComHubEndpointList.vue';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { Settings } from 'lucide-vue-next';
+import { Settings } from '@lucide/vue';
 import { activeInspector } from '@/lib/inspector/mod';
 import StandaloneWindowHeader from './Endpoints/StandaloneWindowHeader.vue';
 import Input from './ui/input/Input.vue';

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LockOpen, FileX, ScanEyeIcon } from 'lucide-vue-next';
+import { LockOpen, FileX, ScanEyeIcon } from '@lucide/vue';
 import { useI18n } from 'vue-i18n';
 import TooltipWrapper from '@/components/NetworkInspector/TooltipWrapper.vue';
 

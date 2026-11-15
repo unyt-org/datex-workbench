@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-import { FilePlus, FolderPlus, TriangleAlert, File as FileIcon, Folder } from 'lucide-vue-next';
+import { FilePlus, FolderPlus, TriangleAlert, File as FileIcon, Folder } from '@lucide/vue';
 import { cn } from '@/lib/utils';
 import { ref, nextTick, computed, onMounted, onUnmounted } from 'vue';
 import type { FileTreeNode } from '@/types/FileTree';

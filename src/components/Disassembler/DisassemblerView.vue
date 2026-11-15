@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import DecompilerView from '@/components/Decompiler/DecompilerView.vue';
 import { Datex } from '@/lib/runtime.ts';
-import { FoldVertical, GitFork, List, UnfoldVertical } from 'lucide-vue-next';
+import { FoldVertical, GitFork, List, UnfoldVertical } from '@lucide/vue';
 import { computed, type ComputedRef } from 'vue';
 import type { InstructionTree, FlatInstruction, Span } from '@/lib/_temp_types.ts';
 import { useI18n } from 'vue-i18n';

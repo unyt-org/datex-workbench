@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CheckIcon, ChevronDownIcon, XIcon, Loader2 } from 'lucide-vue-next';
+import { CheckIcon, ChevronDownIcon, XIcon, Loader2 } from '@lucide/vue';
 import { useEndpointSearch } from '@/lib/composables/use-endpoint-search';
 import { Button } from '@/components/ui/button';
 import {

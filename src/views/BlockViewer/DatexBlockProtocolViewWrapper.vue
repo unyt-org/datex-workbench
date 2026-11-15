@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { consumePendingLaunchedFile } from '@/lib/pwaLaunch';
 import DatexBlockProtocolView from './DatexBlockProtocolView.vue';
-import { Upload, Download, FileWarning } from 'lucide-vue-next';
+import { Upload, Download, FileWarning } from '@lucide/vue';
 import { parseStructure } from '@unyt/speck';
 import { dxbDefinition } from './settings';
 

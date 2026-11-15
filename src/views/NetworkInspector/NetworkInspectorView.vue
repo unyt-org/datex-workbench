@@ -10,7 +10,7 @@ import { useNetworkInspector } from '@/composable/useNetworkInspector';
 import DatexBlockProtocolView from '@/views/BlockViewer/DatexBlockProtocolView.vue';
 import type { NetworkBlockTableRow } from '@/types/NetworkInspector/TableRow';
 import { filterRowsBySearch, parseSearchQuery } from '@/utils/searchParser';
-import { X, BanIcon } from 'lucide-vue-next';
+import { X, BanIcon } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
 import Checkbox from '@/components/ui/checkbox/Checkbox.vue';
