@@ -41,6 +41,6 @@ export const Endpoint = Builtins.Endpoint;
 export type Endpoint = any;
 export const Tagged = Builtins.Tagged;
 export type Tagged<T extends string, Value = typeof Builtins.EMPTY_TAG> = {
-  tag: T;
-  value: Value;
-}
+    tag: T;
+    value: Value;
+};
