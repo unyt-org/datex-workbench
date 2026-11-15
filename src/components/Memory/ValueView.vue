@@ -17,7 +17,6 @@ const theme = computed(() => (mode.value === 'dark' ? 'DATEX Dark' : 'DATEX Ligh
 const props = defineProps<{
     value: Shared.BaseSharedContainer<unknown, Shared.SharedContainerMutability>;
 }>();
-console.log('value', props.value);
 
 const currentValue = ref(formatValue(props.value.value));
 const highlighter = await useShikiHighlighter();
