@@ -1,73 +1,77 @@
 <template>
     <div class="flex flex-col gap-3 w-full">
-        <Card
-            class="p-0"
-            v-for="[endpoint, sockets] in filteredEndpoints"
-            :key="endpoint"
-        >
+        <Card class="p-0" v-for="[endpoint, sockets] in filteredEndpoints" :key="endpoint">
             <CardContent class="p-4">
-              <!-- Endpoint Header -->
-              <div
-                  class="flex cursor-pointer items-center justify-between"
-                  @click="toggle(endpoint)"
-              >
-                  <div class="flex flex-col gap-1">
-                      <div class="flex items-center gap-2">
-                          <EndpointLabel :connectionStatus="false" :endpoint="endpoint" />
-                          <span
-                              v-if="isDirect(sockets)"
-                              class="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900 dark:text-green-300"
-                              >direct</span
-                          >
-                      </div>
-                      <div class="text-dim text-xs">
-                          Connected via {{ sockets.length }}
-                          {{ sockets.length === 1 ? 'socket' : 'sockets' }}
-                          {{ getEndpointDirection(sockets) }}
-                      </div>
-                  </div>
-              </div>
+                <!-- Endpoint Header -->
+                <div
+                    class="flex cursor-pointer items-center justify-between"
+                    @click="toggle(endpoint)"
+                >
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <EndpointLabel :connectionStatus="false" :endpoint="endpoint" />
+                            <span
+                                v-if="isDirect(sockets)"
+                                class="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900 dark:text-green-300"
+                                >direct</span
+                            >
+                        </div>
+                        <div class="text-dim text-xs">
+                            Connected via {{ sockets.length }}
+                            {{ sockets.length === 1 ? 'socket' : 'sockets' }}
+                            {{ getEndpointDirection(sockets) }}
+                        </div>
+                    </div>
+                </div>
 
-              <!-- Expanded Socket List -->
-              <div v-if="expanded[endpoint]" class="mt-3 flex flex-col gap-2 border-t pt-3">
-                  <div v-for="(socket, idx) in sockets" :key="socket.uuid + idx" class="card-inner">
-                      <div class="flex items-start justify-between gap-2">
-                          <div class="flex flex-1 flex-col gap-1">
-                              <h4 class="text-sm font-semibold">
-                                  {{ socket.interface.properties.interface_type }}
-                                  <span
-                                      v-if="socket.interface.properties.name"
-                                      class="font-normal text-neutral-500"
-                                  >
-                                      ({{ socket.interface.properties.name }})
-                                  </span>
-                              </h4>
-                              <div class="text-faint mt-0.5 font-mono text-xs">{{ socket.uuid }}</div>
-                              <div class="dim mt-1 flex items-center gap-2 text-xs">
-                                  <span
-                                      >Known since
-                                      {{ formatTime(Number(socket.properties?.known_since)) }}</span
-                                  >
-                                  <span>·</span>
-                                  <span>Distance: {{ socket.properties?.distance }}</span>
-                                  <span
-                                      v-if="socket.properties?.is_direct"
-                                      class="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900 dark:text-green-300"
-                                      >direct</span
-                                  >
-                              </div>
-                          </div>
-                          <button
-                              v-if="advancedMode"
-                              @click.stop="removeSocket(socket.uuid)"
-                              class="btn-danger w-24 flex items-center gap-1"
-                          >
-                              <UnplugIcon class="h-5 w-5" />
-                              Disconnect
-                          </button>
-                      </div>
-                  </div>
-              </div>
+                <!-- Expanded Socket List -->
+                <div v-if="expanded[endpoint]" class="mt-3 flex flex-col gap-2 border-t pt-3">
+                    <div
+                        v-for="(socket, idx) in sockets"
+                        :key="socket.uuid + idx"
+                        class="card-inner"
+                    >
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex flex-1 flex-col gap-1">
+                                <h4 class="text-sm font-semibold">
+                                    {{ socket.interface.properties.interface_type }}
+                                    <span
+                                        v-if="socket.interface.properties.name"
+                                        class="font-normal text-neutral-500"
+                                    >
+                                        ({{ socket.interface.properties.name }})
+                                    </span>
+                                </h4>
+                                <div class="text-faint mt-0.5 font-mono text-xs">
+                                    {{ socket.uuid }}
+                                </div>
+                                <div class="dim mt-1 flex items-center gap-2 text-xs">
+                                    <span
+                                        >Known since
+                                        {{
+                                            formatTime(Number(socket.properties?.known_since))
+                                        }}</span
+                                    >
+                                    <span>·</span>
+                                    <span>Distance: {{ socket.properties?.distance }}</span>
+                                    <span
+                                        v-if="socket.properties?.is_direct"
+                                        class="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900 dark:text-green-300"
+                                        >direct</span
+                                    >
+                                </div>
+                            </div>
+                            <button
+                                v-if="advancedMode"
+                                @click.stop="removeSocket(socket.uuid)"
+                                class="btn-danger w-24 flex items-center gap-1"
+                            >
+                                <UnplugIcon class="h-5 w-5" />
+                                Disconnect
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </CardContent>
         </Card>
 

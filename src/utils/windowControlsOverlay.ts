@@ -15,7 +15,7 @@ declare global {
 }
 
 export function useWindowControlsOverlayCssVariables() {
-    let wco: WindowControlsOverlay|undefined;
+    let wco: WindowControlsOverlay | undefined;
 
     function updateTitlebarInsets() {
         if (!wco?.visible) {

@@ -9,7 +9,6 @@ defineProps<{
     isDebug?: boolean;
     searchTerms?: string[];
 }>();
-
 </script>
 
 <template>
