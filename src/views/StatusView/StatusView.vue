@@ -8,7 +8,6 @@ import { endpointPings as endpointRtts } from '@/lib/composables/use-endpoint-co
 import type { RuntimeStats } from '@/lib/_temp_types';
 import { onUnmounted } from 'vue';
 import ProgressBar from '@/components/CustomUI/ProgressBar.vue';
-import EndpointSearch from '@/components/Endpoints/EndpointSearch.vue';
 import StandaloneWindowHeader from '@/components/Endpoints/StandaloneWindowHeader.vue';
 
 const { t } = useI18n();

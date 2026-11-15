@@ -2,8 +2,8 @@ import type { Inspector } from '@/lib/_temp_types';
 import { activeEndpoint, activeInspector } from '@/lib/inspector/mod';
 import { Datex } from '@/lib/runtime';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
-import { parseStructure, type ParsedSection, type StructureDefinition } from '@unyt/speck';
-import { computed, ref, watch, type Ref } from 'vue';
+import { parseStructure, type ParsedSection } from '@unyt/speck';
+import { ref, watch, type Ref } from 'vue';
 
 // Helper functions to extract metadata from parsed block structure (parse once, read many)
 function getBlockType(parsedBlock: ParsedSection[]): string {

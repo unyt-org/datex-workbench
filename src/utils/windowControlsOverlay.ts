@@ -1,7 +1,21 @@
 import { onMounted, onUnmounted, ref, type Ref } from 'vue';
 
+// FIXME: only placeholder type definition
+type WindowControlsOverlay = {
+    visible: boolean;
+    getTitlebarAreaRect(): DOMRect;
+    addEventListener(event: 'geometrychange', listener: () => void): void;
+    removeEventListener(event: 'geometrychange', listener: () => void): void;
+};
+
+declare global {
+    interface Navigator {
+        windowControlsOverlay?: WindowControlsOverlay;
+    }
+}
+
 export function useWindowControlsOverlayCssVariables() {
-    let wco: any;
+    let wco: WindowControlsOverlay|undefined;
 
     function updateTitlebarInsets() {
         if (!wco?.visible) {

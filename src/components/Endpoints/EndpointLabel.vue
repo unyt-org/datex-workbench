@@ -3,8 +3,6 @@ import { useEndpointConnectionStatus } from '@/lib/composables/use-endpoint-conn
 import type { Endpoint } from '@/lib/runtime-loader';
 import { computed, ref, watch } from 'vue';
 import { connectedInspectorInstances } from '@/lib/inspector/mod.ts';
-import TooltipWrapper from '../NetworkInspector/TooltipWrapper.vue';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const props = withDefaults(
     defineProps<{

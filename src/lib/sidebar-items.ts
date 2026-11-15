@@ -3,13 +3,9 @@ import {
     SendToBack,
     Terminal,
     Box,
-    GitGraph,
-    Info,
     EthernetPort,
     Database,
     LogsIcon,
-    ChartBar,
-    ActivityIcon,
     ChartColumn,
 } from 'lucide-vue-next';
 

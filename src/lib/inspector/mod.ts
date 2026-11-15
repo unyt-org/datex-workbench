@@ -16,7 +16,7 @@ export const activeEndpoint = ref<Endpoint | null>(null);
 export const activeInspector = computed(
     () => connectedInspectorInstances.get(activeEndpoint.value) ?? null,
 );
-// @ts-ignore used for debugging
+// @ts-expect-error used for debugging
 globalThis.activeInspector = activeInspector;
 
 restoreInspectorEndpoints();

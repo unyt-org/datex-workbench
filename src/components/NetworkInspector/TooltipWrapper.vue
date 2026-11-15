@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-const props = withDefaults(
+withDefaults(
     defineProps<{
         tooltip: string;
         asChild?: boolean;

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
 import HighlightedText from '@/components/NetworkInspector/HighlightedText.vue';
 import BlockIcons from '../BlockIcons.vue';
 
@@ -11,7 +10,6 @@ defineProps<{
     searchTerms?: string[];
 }>();
 
-const { t } = useI18n();
 </script>
 
 <template>
