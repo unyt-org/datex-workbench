@@ -160,8 +160,6 @@ function extractBlockMetadata(parsedBlock: ParsedSection[]) {
 // Maximum number of blocks kept in memory, oldest are dropped first
 const MAX_BLOCKS = 400;
 
-let nextBlockId = 0;
-
 export type BlockId = {
     contextId: number;
     sectionIndex: number;
