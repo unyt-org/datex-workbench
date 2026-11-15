@@ -20,8 +20,8 @@ export const DIF = mod.DIF;
 export const Runtime = mod.Runtime;
 export const Network = mod.Network;
 export const Builtins = mod.Builtins;
-export const Repl = mod.Repl;
 export const Shared = mod.Shared;
+export const Repl = mod.Repl;
 
 // only temp
 export type SharedRef<T, R, M> = T & { __sharedRef: [R, M] };

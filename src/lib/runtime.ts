@@ -1,5 +1,5 @@
 import type { Runtime as RuntimeT, RuntimeConfig, DIF } from '@unyt/datex';
-import { Builtins, Runtime } from './runtime-loader';
+import { Builtins, Repl, Runtime } from './runtime-loader';
 import type { ComHubMetadata } from './_temp_types';
 
 
@@ -47,6 +47,8 @@ globalThis.Endpoint = Builtins.Endpoint;
 globalThis.Tagged = Builtins.Tagged;
 // @ts-expect-error expose tagged globally for debugging purposes
 globalThis.tagged = Builtins.tagged;
+// @ts-expect-error expose tagged globally for debugging purposes
+globalThis.Repl = Repl;
 
 export function getPointers(): Map<string, DIF.Definitions.DIFValueContainer> {
     const values = [

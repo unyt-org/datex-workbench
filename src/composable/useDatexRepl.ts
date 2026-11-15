@@ -1,6 +1,7 @@
 import { ref, shallowRef, watch, toValue, type MaybeRefOrGetter } from 'vue';
 import { Datex } from '@/lib/runtime';
 import type { Endpoint } from '@/lib/runtime-loader';
+import { Repl } from '@/lib/runtime-loader';
 
 export interface ReplEntry {
     type: 'input' | 'output' | 'error';
@@ -29,9 +30,6 @@ type ReplState = {
 //     });
 // }
 
-declare const Repl: {
-    new (...args: any[]): any;
-}; // FIXME
 
 const cachedReplStates = new Map<Endpoint, ReplState>();
 
