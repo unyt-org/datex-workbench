@@ -89,6 +89,7 @@ import type { ComHubMetadataInterface, ComHubMetadataInterfaceSocket } from '@/l
 import { UnplugIcon } from 'lucide-vue-next';
 import Card from './ui/card/Card.vue';
 import CardContent from './ui/card/CardContent.vue';
+import { Tagged } from '@/lib/runtime-loader.ts';
 
 interface SocketWithInterface extends ComHubMetadataInterfaceSocket {
     interface: {
@@ -149,17 +150,21 @@ function toggle(endpointId: string) {
     expanded[endpointId] = !expanded[endpointId];
 }
 
+const InOut = new Tagged('InOut');
+const In = new Tagged('In');
+const Out = new Tagged('Out');
+
 function getEndpointDirection(sockets: SocketWithInterface[]): string {
     const dirs = new Set(sockets.map((s) => s.direction));
-    if (dirs.has('InOut')) return '↔';
-    if (dirs.has('In') && dirs.has('Out')) return '↔';
-    if (dirs.has('In')) return '←';
-    if (dirs.has('Out')) return '→';
+    if (dirs.has(InOut)) return '↔';
+    if (dirs.has(In) && dirs.has(Out)) return '↔';
+    if (dirs.has(In)) return '←';
+    if (dirs.has(Out)) return '→';
     return '↔';
 }
 
 function isDirect(sockets: SocketWithInterface[]): boolean {
-    return sockets.some((s) => s.properties.is_direct);
+    return sockets.some((s) => s.properties?.is_direct);
 }
 
 const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });

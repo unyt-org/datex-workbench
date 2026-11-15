@@ -181,7 +181,6 @@ function handleBlock(block: Uint8Array, socket_uuid: string, direction: 'in' | '
     const parsedBlock = parseStructure(definition, block);
 
     blocks.value.push({
-        id: nextBlockId++,
         direction,
         parsedBlock,
         originalBinary: block,

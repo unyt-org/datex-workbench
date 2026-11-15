@@ -40,7 +40,7 @@ export const Endpoint = Builtins.Endpoint;
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export type Endpoint = any;
 export const Tagged = Builtins.Tagged;
-export type Tagged<T extends string, Value = typeof Builtins.EMPTY_TAG> = typeof Builtins.Tagged<
-    T,
-    Value
->;
+export type Tagged<T extends string, Value = typeof Builtins.EMPTY_TAG> = {
+  tag: T;
+  value: Value;
+}

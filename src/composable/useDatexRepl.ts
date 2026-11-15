@@ -9,7 +9,7 @@ export interface ReplEntry {
 }
 
 type ReplState = {
-    repl: InstanceType<typeof Repl>;
+    repl: InstanceType<typeof Repl> | null;
     entries: ReplEntry[];
     history: string[];
     suggestions: string[];

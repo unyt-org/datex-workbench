@@ -268,7 +268,7 @@ defineExpose({ scrollElement: parentRef });
                         class="flex absolute left-0 top-0 w-full border-b border-border hover:bg-card cursor-pointer"
                         :class="{
                             'bg-card': selectedRowId === rows[virtualRow.index]?.id,
-                            'text-muted-foreground': rows[virtualRow.index]?.original.isDebug,
+                            'text-muted-foreground': (rows[virtualRow.index]?.original as Record<string,boolean>).isDebug,
                         }"
                         :style="{
                             transform: `translateY(${virtualRow.start}px)`,
