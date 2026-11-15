@@ -6,7 +6,7 @@ import { refDebounced } from '@vueuse/core';
 import { useDiscoveredEndpoints } from './use-discovered-endpoints.ts';
 
 export function useEndpointSearch(): {
-  groupedEndpoints: ComputedRef<{ label: string; endpoints: { endpoint: Endpoint }[] }[]>,
+  groupedEndpoints: ComputedRef<{ label: string; endpoints: { endpoint: Endpoint }[], editable: boolean }[]>,
   selectedEndpoint: Ref<{endpoint: Endpoint}>,
   search: Ref<string>,
   searchEndpoint: ComputedRef<Endpoint | null>,
@@ -17,10 +17,12 @@ export function useEndpointSearch(): {
       {
         label: 'Active Inspector Sessions',
         endpoints: Array.from(connectedInspectorInstances).map(([endpoint]) => ({ endpoint })),
+        editable: true,
       },
       {
         label: 'Recent Endpoints',
         endpoints: Array.from(availableInspectorEndpoints.keys()).map(endpoint => ({ endpoint })),
+        editable: true,
       }
     ];
 
@@ -31,6 +33,7 @@ export function useEndpointSearch(): {
     endpoints.push({
       label: 'Discovered Endpoints',
       endpoints: filteredDiscoveredEndpoints,
+      editable: false,
     });
 
     return endpoints;

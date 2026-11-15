@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CheckIcon, ChevronDownIcon, Loader2 } from 'lucide-vue-next'
+import { CheckIcon, ChevronDownIcon, XIcon, Loader2 } from 'lucide-vue-next'
 import { useEndpointSearch } from '@/lib/composables/use-endpoint-search'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,13 +9,12 @@ import {
   ComboboxItem,
   ComboboxItemIndicator,
   ComboboxList,
-  ComboboxSeparator,
   ComboboxViewport,
 } from '@/components/ui/combobox'
 import { Combobox, ComboboxTrigger, ComboboxAnchor } from '@/components/ui/combobox'
 import EndpointLabel from './EndpointLabel.vue'
 import { useEndpointConnectionStatus } from '@/lib/composables/use-endpoint-connection-status.ts'
-import { activeEndpoint } from '@/lib/inspector/mod.ts'
+import { removeEndpoint } from '@/lib/inspector/mod.ts'
 
 defineProps<{
   fullWidth?: boolean,
@@ -26,7 +25,6 @@ const { groupedEndpoints, selectedEndpoint, search, searchEndpoint } = useEndpoi
 
 // triggers ping requests for currently searching endpoint so that it appears in the list when reachable
 useEndpointConnectionStatus(() => searchEndpoint?.value);
-
 
 </script>
 <template>
@@ -78,14 +76,22 @@ useEndpointConnectionStatus(() => searchEndpoint?.value);
             :heading="endpointGroup.label"
           >
             <ComboboxItem
+              class="group"
               v-for="endpoint in endpointGroup.endpoints"
               :key="endpoint.endpoint.toString()"
               :value="endpoint"
             >
               <EndpointLabel :endpoint="endpoint.endpoint" />
-              <ComboboxItemIndicator>
-                <CheckIcon />
-              </ComboboxItemIndicator>
+              <div class="flex items-center gap-2 justify-between">
+                <XIcon
+                  v-if="selectedEndpoint.endpoint !== endpoint.endpoint && endpoint.endpoint.toString() !== '@@local' && endpointGroup.editable"
+                  class="group-hover:visible invisible cursor-pointer"
+                  @click.stop="removeEndpoint(endpoint.endpoint); $event.stopPropagation()"
+                />
+                <ComboboxItemIndicator>
+                  <CheckIcon />
+                </ComboboxItemIndicator>
+              </div>
             </ComboboxItem>
           </ComboboxGroup>
         </template>

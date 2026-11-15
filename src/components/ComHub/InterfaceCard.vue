@@ -104,7 +104,7 @@ function formatTime(ms: number): string {
                 <div class="flex items-center justify-between gap-6">
                     <div class="flex flex-1 flex-col gap-1">
                         <h4 class="flex items-center gap-2 font-semibold">
-                            <EndpointLabel :endpoint="socket.endpoint" />
+                            <EndpointLabel :connectionStatus="false" :endpoint="socket.endpoint" />
                             <span
                                 v-if="socket.properties && socket.properties.is_direct"
                                 class="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900 dark:text-green-300"

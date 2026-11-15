@@ -13,7 +13,7 @@
               >
                   <div class="flex flex-col gap-1">
                       <div class="flex items-center gap-2">
-                          <EndpointLabel :endpoint="endpoint" />
+                          <EndpointLabel :connectionStatus="false" :endpoint="endpoint" />
                           <span
                               v-if="isDirect(sockets)"
                               class="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900 dark:text-green-300"

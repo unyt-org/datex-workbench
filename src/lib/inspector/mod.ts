@@ -77,3 +77,10 @@ export async function setActiveEndpoint(endpoint: Endpoint, connectInspectorIfNe
   }
   return true;
 }
+
+export function removeEndpoint(endpoint: Endpoint|string) {
+  const endpointObj = typeof endpoint === 'string' ? Endpoint.get(endpoint) : endpoint;
+  connectedInspectorInstances.delete(endpointObj);
+  availableInspectorEndpoints.delete(endpointObj);
+  storeInspectorEndpoints();
+}

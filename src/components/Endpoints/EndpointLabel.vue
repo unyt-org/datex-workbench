@@ -6,13 +6,16 @@ import { connectedInspectorInstances } from '@/lib/inspector/mod.ts';
 import TooltipWrapper from '../NetworkInspector/TooltipWrapper.vue';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-const props = defineProps<{
+const props =  withDefaults(defineProps<{
   endpoint?: Endpoint | null,
   compact?: boolean,
-  variant?: "colored-name" | "compact" | "default"
-}>();
+  variant?: "colored-name" | "compact" | "default",
+  connectionStatus?: boolean
+}>(), {
+  connectionStatus: true
+});
 
-const { isConnected, connectionLostCount, endpointName, pollCount, refresh} = useEndpointConnectionStatus(() => props.endpoint);
+const { isConnected, connectionLostCount, endpointName, pollCount, refresh} = useEndpointConnectionStatus(() => props.connectionStatus ? props.endpoint : null);
 
 const initialPollCount = ref(pollCount.value);
 const initialConnectionLostCount = ref(connectionLostCount.value);
@@ -35,7 +38,7 @@ const hasInspectorSession = computed(() => connectedInspectorInstances.has(props
 
 <template>
   <div class="flex items-start gap-2" :class="variant == 'colored-name' ? 'flex-row-reverse justify-between' : ''">
-    <span v-if="endpoint" class="relative flex cursor-pointer select-none" @click="refresh(); $event.stopPropagation()">
+    <span v-if="endpoint && connectionStatus" class="relative flex cursor-pointer select-none" @click="refresh(); $event.stopPropagation()">
       <span :class="textColor">●</span>
       <span
         v-if="connectionLostCount != initialConnectionLostCount"
@@ -52,7 +55,7 @@ const hasInspectorSession = computed(() => connectedInspectorInstances.has(props
         ●
       </span>
     </span>
-    <span v-else class="relative flex select-none">
+    <span v-if="!endpoint" class="relative flex select-none">
       ...
     </span>
 
