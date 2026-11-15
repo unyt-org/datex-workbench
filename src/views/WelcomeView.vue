@@ -20,8 +20,8 @@ function navigate(route: string | null) {
 </script>
 
 <template>
-    <main class="drag flex h-full w-full items-center justify-center bg-background p-8">
-        <div class="no-drag flex flex-col items-center justify-center gap-12">
+    <main class="flex h-full w-full items-center justify-center bg-background p-8">
+        <div class="flex flex-col items-center justify-center gap-12">
             <!-- Header -->
             <div class="flex flex-col items-center gap-2 text-center">
                 <div class="flex items-center gap-3">
