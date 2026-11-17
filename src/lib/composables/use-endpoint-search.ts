@@ -4,7 +4,7 @@ import {
     activeEndpoint,
     setActiveEndpoint,
 } from '../../lib/inspector/mod.ts';
-import { Endpoint } from '@/lib/runtime-loader';
+import { Endpoint } from '@unyt/datex/lib';
 import { watch, ref, computed, type ComputedRef, type Ref } from 'vue';
 import { refDebounced } from '@vueuse/core';
 import { useDiscoveredEndpoints } from './use-discovered-endpoints.ts';

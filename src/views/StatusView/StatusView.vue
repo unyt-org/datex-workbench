@@ -5,7 +5,6 @@ import EndpointLabel from '@/components/Endpoints/EndpointLabel.vue';
 import { computed, onMounted, ref, watch } from 'vue';
 import { DatabaseZapIcon, MemoryStickIcon, TagIcon, TagsIcon } from '@lucide/vue';
 import { endpointPings as endpointRtts } from '@/lib/composables/use-endpoint-connection-status';
-import type { RuntimeStats } from '@/lib/_temp_types';
 import { onUnmounted } from 'vue';
 import ProgressBar from '@/components/CustomUI/ProgressBar.vue';
 import StandaloneWindowHeader from '@/components/Endpoints/StandaloneWindowHeader.vue';

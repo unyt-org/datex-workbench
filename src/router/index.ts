@@ -1,7 +1,6 @@
 import PointerView from '@/components/PointerView.vue';
 import MemoryView from '@/components/Memory/MemoryView.vue';
 import LogsView from '@/components/Logs/LogsView.vue';
-import { getPointers } from '@/lib/runtime';
 // import WindowGeneralView from '@/views/WindowGeneralView.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import WelcomeView from '../views/WelcomeView.vue';
@@ -53,11 +52,6 @@ const router = createRouter({
             path: '/u/:endpoint_id',
             name: 'endpoint',
             component: EndpointView,
-        },
-        {
-            path: '/pointers',
-            component: PointerView,
-            props: { pointers: getPointers() },
         },
         {
             path: '/logs',

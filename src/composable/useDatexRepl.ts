@@ -1,7 +1,7 @@
 import { ref, shallowRef, watch, toValue, type MaybeRefOrGetter } from 'vue';
 import { Datex } from '@/lib/runtime';
-import type { Endpoint } from '@/lib/runtime-loader';
-import { Repl } from '@/lib/runtime-loader';
+import type { Endpoint } from '@unyt/datex/lib';
+import { Repl } from '@unyt/datex/repl';
 
 export interface ReplEntry {
     type: 'input' | 'output' | 'error';
@@ -87,8 +87,9 @@ export function useDatexRepl(endpoint: MaybeRefOrGetter<Endpoint | null>) {
     watch(
         [entries, history],
         ([newEntries, newHistory]) => {
-            if (toValue(endpoint)) {
-                const state = cachedReplStates.get(toValue(endpoint)) ?? {
+          const endpointValue = toValue(endpoint);
+              if (endpointValue) {
+                const state = cachedReplStates.get(endpointValue) ?? {
                     repl: repl.value,
                     entries: [],
                     history: [],
@@ -98,8 +99,8 @@ export function useDatexRepl(endpoint: MaybeRefOrGetter<Endpoint | null>) {
                 state.entries = newEntries;
                 state.history = newHistory;
 
-                cachedReplStates.set(toValue(endpoint), state);
-                persistReplState(toValue(endpoint), state);
+                cachedReplStates.set(endpointValue, state);
+                persistReplState(endpointValue, state);
             }
         },
         { deep: true },
@@ -198,7 +199,7 @@ export function useDatexRepl(endpoint: MaybeRefOrGetter<Endpoint | null>) {
         }
 
         try {
-            const result = await current.execute(code);
+            const result = await current.execute(code) ?? null;
 
             entries.value.push({
                 type: 'output',

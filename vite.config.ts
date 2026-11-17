@@ -59,4 +59,8 @@ export default defineConfig({
             },
         },
     },
+    optimizeDeps: {
+      exclude: ['@unyt/datex'],
+    },
+    assetsInclude: ['**/*.wasm'],
 });

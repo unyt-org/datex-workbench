@@ -1,13 +1,8 @@
 <script setup lang="ts">
 import { Datex } from '@/lib/runtime.ts';
 import EndpointLabel from '../Endpoints/EndpointLabel.vue';
-import type {
-    ComHubMetadataInterface,
-    ComHubMetadataInterfaceSocket,
-    InterfaceDirection,
-} from '@/lib/_temp_types.ts';
 import { ref } from 'vue';
-import type { Endpoint } from '@/lib/runtime-loader.ts';
+import type { Endpoint } from '@unyt/datex/lib';
 import { Loader2, UnplugIcon } from '@lucide/vue';
 import Card from '@/components/ui/card/Card.vue';
 import CardContent from '../ui/card/CardContent.vue';

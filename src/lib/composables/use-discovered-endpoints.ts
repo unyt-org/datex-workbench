@@ -1,6 +1,6 @@
 import { Datex } from '../runtime';
 import { ref, type Ref } from 'vue';
-import type { Endpoint } from '../runtime-loader';
+import type { Endpoint } from '@unyt/datex/lib';
 import { useTimeoutPoll } from '@vueuse/core';
 
 /**

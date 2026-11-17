@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { FieldIdentifier } from '@/types/BlockViewer/FieldIdentifier';
-import type { Span, FlatResult } from '@/lib/_temp_types.ts';
 import BlockProtocolBytes from '@/views/BlockViewer/BlockProtocolBytesView.vue';
 import BlockProtocolInfo from '@/views/BlockViewer/BlockProtocolInfoView.vue';
 import { parseStructure } from '@unyt/speck';

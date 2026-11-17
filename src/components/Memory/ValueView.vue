@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { useShikiHighlighter } from '@/composable/useShikiHighlighter';
 import { Datex } from '@/lib/runtime';
-import { Tagged } from '@/lib/runtime-loader.ts';
+import { Tagged } from '@unyt/datex/lib';
 
 import type { Shared } from '@unyt/datex';
 import { useColorMode } from '@vueuse/core';
@@ -46,7 +46,6 @@ function formatValue(value: unknown) {
 }
 
 try {
-    // @ts-expect-error fixme when types are updated
     props.value.observe((newValue) => {
         console.log('value changed', newValue);
         setTimeout(() => {

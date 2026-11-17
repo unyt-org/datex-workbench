@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Endpoint } from '@/lib/runtime-loader';
-import type { ComHubMetadata } from '@/lib/_temp_types';
+import type { Endpoint } from '@unyt/datex/lib';
+import type { ComHubMetadata } from '@unyt/datex/network';
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useWindowControlsOverlay } from '@/utils/windowControlsOverlay';
 import EndpointSearch from '@/components/Endpoints/EndpointSearch.vue';

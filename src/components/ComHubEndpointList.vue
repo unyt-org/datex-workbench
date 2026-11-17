@@ -85,11 +85,11 @@
 import { removeSocket } from '@/lib/runtime';
 import { computed, markRaw, reactive, watch } from 'vue';
 import EndpointLabel from './Endpoints/EndpointLabel.vue';
-import type { ComHubMetadataInterface, ComHubMetadataInterfaceSocket } from '@/lib/_temp_types.ts';
+import type { ComHubMetadataInterface, ComHubMetadataInterfaceSocket } from '@unyt/datex/network';
 import { UnplugIcon } from '@lucide/vue';
 import Card from './ui/card/Card.vue';
 import CardContent from './ui/card/CardContent.vue';
-import { Tagged } from '@/lib/runtime-loader.ts';
+import { Tagged } from '@unyt/datex/lib';
 
 interface SocketWithInterface extends ComHubMetadataInterfaceSocket {
     interface: {

@@ -2,14 +2,13 @@ import type { Reactive } from 'vue';
 import { reactive } from 'vue';
 import { Datex } from './runtime';
 import type { Shared } from '@unyt/datex';
+import type { PointerAddress } from '@unyt/datex/shared-container';
 
 type PointerData = {
-    // @ts-expect-error fixme update ES version
-    value: WeakRef<Shared.BaseSharedContainer<unknown, Shared.SharedContainerMutability>>;
+  value: WeakRef<Shared.BaseSharedContainer<unknown, Shared.SharedContainerMutability>>;
 };
 
-function updateCachedPointers(cachedPointers: Reactive<Map<string, PointerData>>) {
-    // @ts-expect-error fixme update types
+function updateCachedPointers(cachedPointers: Reactive<Map<PointerAddress, PointerData>>) {
     const currentPointers = Datex.dif._cache;
     // add new pointers to the reactive map if they don't exist yet
     for (const [key, value] of currentPointers.entries()) {
@@ -24,9 +23,8 @@ function updateCachedPointers(cachedPointers: Reactive<Map<string, PointerData>>
         }
     }
 }
-export function getAllPointers(): Reactive<Map<string, PointerData>> {
-    const cachedPointers = reactive(new Map<string, PointerData>());
-    // @ts-expect-error fixme update types
+export function getAllPointers(): Reactive<Map<PointerAddress, PointerData>> {
+    const cachedPointers = reactive(new Map<PointerAddress, PointerData>());
     Datex.dif.registerCacheObserver(() => updateCachedPointers(cachedPointers));
     updateCachedPointers(cachedPointers); // Initial update to populate the reactive map
 

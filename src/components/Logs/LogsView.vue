@@ -3,7 +3,6 @@ import { AnsiUp } from 'ansi_up';
 
 import { watch, ref } from 'vue';
 import { activeInspector } from '@/lib/inspector/mod.ts';
-import type { LogMessage } from '@/lib/_temp_types';
 import Checkbox from '../ui/checkbox/Checkbox.vue';
 import { useWindowControlsOverlay } from '@/utils/windowControlsOverlay.ts';
 import StandaloneWindowHeader from '../Endpoints/StandaloneWindowHeader.vue';

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useEndpointConnectionStatus } from '@/lib/composables/use-endpoint-connection-status.ts';
-import type { Endpoint } from '@/lib/runtime-loader';
+import { Endpoint } from '@unyt/datex/lib';
 import { computed, ref, watch } from 'vue';
 import { connectedInspectorInstances } from '@/lib/inspector/mod.ts';
 
@@ -40,7 +40,7 @@ watch(
         initialConnectionLostCount.value = connectionLostCount.value;
     },
 );
-const hasInspectorSession = computed(() => connectedInspectorInstances.has(props.endpoint));
+const hasInspectorSession = computed(() => connectedInspectorInstances.has(props.endpoint!));
 </script>
 
 <template>

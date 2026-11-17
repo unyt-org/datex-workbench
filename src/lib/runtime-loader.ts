@@ -1,46 +1,19 @@
 const localModuleUrl = localStorage.getItem('localDatexModuleUrl');
 
-let mod: typeof import('@unyt/datex');
+export async function loadDatexCoreModule<T>(url: string): Promise<T> {
+  let mod: T;
 
-if (localModuleUrl) {
-    try {
-        mod = (await import(/* @vite-ignore */ localModuleUrl)) as typeof import('@unyt/datex');
-        localStorage.removeItem('localDatexModuleUrlFailed');
-    } catch (error) {
-        console.error(`Failed to load local module from ${localModuleUrl}:`, error);
-        localStorage.setItem('localDatexModuleUrlFailed', 'true');
-        mod = await import('@unyt/datex');
-    }
-} else {
-    mod = await import('@unyt/datex');
+  if (localModuleUrl) {
+      try {
+          mod = (await import(/* @vite-ignore */ localModuleUrl + url)) as T;
+          localStorage.removeItem('localDatexModuleUrlFailed');
+      } catch (error) {
+          console.error(`Failed to load local module from ${localModuleUrl}:`, error);
+          localStorage.setItem('localDatexModuleUrlFailed', 'true');
+          mod = await import('@unyt/datex' + url) as T;
+      }
+  } else {
+      mod = await import('@unyt/datex' + url) as T;
+  }
+  return mod as unknown as T;
 }
-
-// re-export everything from the module
-export const DIF = mod.DIF;
-export const Runtime = mod.Runtime;
-export const Network = mod.Network;
-export const Builtins = mod.Builtins;
-export const Shared = mod.Shared;
-export const Repl = mod.Repl;
-
-// only temp
-export type SharedRef<T, R, M> = T & { __sharedRef: [R, M] };
-// only temp
-export enum SharedContainerMutability {
-    Mutable,
-    Immutable,
-}
-// only temp
-export enum SharedReferenceMutability {
-    Mutable,
-    Immutable,
-}
-
-export const Endpoint = Builtins.Endpoint;
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export type Endpoint = any;
-export const Tagged = Builtins.Tagged;
-export type Tagged<T extends string, Value = typeof Builtins.EMPTY_TAG> = {
-    tag: T;
-    value: Value;
-};

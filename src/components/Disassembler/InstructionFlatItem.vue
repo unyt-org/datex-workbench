@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { type InstructionParts, getInstructionParts } from '@/types/disassembler';
-import type { FlatInstruction, Span } from '@/lib/_temp_types.ts';
 import InstructionLabel from './InstructionLabel.vue';
 
 const props = withDefaults(

@@ -9,7 +9,7 @@ import {
     shallowRef,
     watch,
 } from 'vue';
-import { Endpoint } from '@/lib/runtime-loader';
+import { Endpoint } from '@unyt/datex/lib';
 import { Datex } from '../runtime';
 import { useTimeoutPoll } from '@vueuse/core';
 import { computed } from 'vue';
@@ -133,7 +133,7 @@ export function useEndpointConnectionStatus(endpoint: MaybeRefOrGetter<Endpoint 
     refresh: () => Promise<void>;
 } {
     const current = shallowRef<EndpointConnectionStatusHandler>();
-    let held: Endpoint | undefined;
+    let held: Endpoint | null;
 
     watch(
         () => toValue(endpoint)?.toString(),

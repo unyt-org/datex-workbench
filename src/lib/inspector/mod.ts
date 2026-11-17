@@ -1,5 +1,4 @@
-import { Endpoint } from '@/lib/runtime-loader';
-import type { Inspector } from '../_temp_types.ts';
+import { Endpoint, type Inspector } from '@unyt/datex/lib';
 import { reactive, ref, computed, shallowReactive } from 'vue';
 import { Datex } from '../runtime.ts';
 
@@ -14,7 +13,7 @@ export const availableInspectorEndpoints = reactive(new Set<Endpoint>());
 
 export const activeEndpoint = ref<Endpoint | null>(null);
 export const activeInspector = computed(
-    () => connectedInspectorInstances.get(activeEndpoint.value) ?? null,
+    () => connectedInspectorInstances.get(activeEndpoint.value!) ?? null,
 );
 // @ts-expect-error used for debugging
 globalThis.activeInspector = activeInspector;
