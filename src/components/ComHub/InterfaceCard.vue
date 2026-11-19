@@ -6,7 +6,11 @@ import type { Endpoint } from '@unyt/datex/lib';
 import { Loader2, UnplugIcon } from '@lucide/vue';
 import Card from '@/components/ui/card/Card.vue';
 import CardContent from '../ui/card/CardContent.vue';
-import type { ComHubMetadataInterface, ComHubMetadataInterfaceSocket, InterfaceDirection } from '@unyt/datex';
+import type {
+    ComHubMetadataInterface,
+    ComHubMetadataInterfaceSocket,
+    InterfaceDirection,
+} from '@unyt/datex';
 
 defineProps<{
     iface: ComHubMetadataInterface;

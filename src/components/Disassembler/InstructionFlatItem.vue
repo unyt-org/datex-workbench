@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { type InstructionParts, getInstructionParts } from '@/types/disassembler';
 import InstructionLabel from './InstructionLabel.vue';
-import type { Span, FlatInstruction, Instruction } from '@unyt/datex/runtime';
+import type { Span, FlatInstruction } from '@unyt/datex/runtime';
 
 const props = withDefaults(
     defineProps<{
@@ -18,7 +18,7 @@ const selectedBodySpan = defineModel<Span | null>();
 const parts = computed<InstructionParts>(() => getInstructionParts(props.instruction));
 
 /** Inner instruction list (3rd element for FlatInstruction is Instruction[]) */
-const innerInstructions = computed<Instruction[]>(() => {
+const innerInstructions = computed<FlatInstruction[]>(() => {
     if (!props.showNested) return [];
     const inner = parts.value.inner;
     if (Array.isArray(inner)) return inner;

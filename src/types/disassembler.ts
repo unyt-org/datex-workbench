@@ -1,12 +1,12 @@
 // ─── Helpers ────────────────────────────────────────────────
 
-import type { FlatInstruction, Instruction, InstructionTree, TreeInstruction } from "@unyt/datex/runtime";
+import type { FlatInstruction, InstructionTree, TreeInstruction } from '@unyt/datex/runtime';
 
 export interface InstructionParts {
     name: string;
     meta: string | null;
     span: { start: number; end: number };
-    inner: InstructionTree | Instruction[] | null;
+    inner: InstructionTree | FlatInstruction[] | null;
 }
 
 /**

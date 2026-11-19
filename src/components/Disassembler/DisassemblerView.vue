@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n';
 import InstructionFlatItem from './InstructionFlatItem.vue';
 import InstructionTreeNode from './InstructionTreeNode.vue';
 import { usePersistentRef } from '@/lib/composables/use-persistent-ref.ts';
-import type { FlatInstruction, InstructionTree, Span } from '@unyt/datex/runtime';
+import type { Span } from '@unyt/datex/runtime';
 
 const { t } = useI18n();
 
@@ -28,12 +28,8 @@ const props = defineProps<{
 const selectedBodySpan = defineModel<null | Span>();
 
 // ─── Disassembly ────────────────────────────────────────────
-const treeData = computed(() => Datex.disassembleDXBTree(props.dxb)) as ComputedRef<
-    [InstructionTree, string | null]
->;
-const flatData = computed(() => Datex.disassembleDXBFlat(props.dxb)) as ComputedRef<
-    [FlatInstruction[], string | null]
->;
+const treeData = computed(() => Datex.disassembleDXBTree(props.dxb));
+const flatData = computed(() => Datex.disassembleDXBFlat(props.dxb));
 const error = computed(() => (viewMode.value === 'tree' ? treeData.value[1] : flatData.value[1]));
 
 let decompiledCode: ComputedRef<string> | string = '';
@@ -44,10 +40,13 @@ try {
     decompiledCode = '// Error during decompilation';
 }
 
-watch(flatData, (newVal) => {
-    console.log('Flat data changed:', newVal[0]);
-}, {immediate: true});
-
+watch(
+    flatData,
+    (newVal) => {
+        console.log('Flat data changed:', newVal[0]);
+    },
+    { immediate: true },
+);
 </script>
 
 <template>
