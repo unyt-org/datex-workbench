@@ -153,7 +153,7 @@ const controlsOverlayEnabled = useWindowControlsOverlay();
 
 <template>
     <StandaloneWindowHeader :title="t('network.title')" />
-    <div class="bg-background text-foreground flex h-full flex-col gap-3 p-4 pt-0 overflow-hidden">
+    <div class="bg-background text-foreground flex h-full flex-col gap-3 p-4 overflow-hidden">
         <div class="flex justify-between items-center gap-4" v-if="!controlsOverlayEnabled">
             <h1 class="shrink-0 text-xl font-medium">{{ t('network.title') }}</h1>
             <EndpointSearch />

@@ -1,7 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
-import { defineConfig } from 'vite';
+import { defineConfig, searchForWorkspaceRoot } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vite.dev/config/
@@ -63,4 +63,13 @@ export default defineConfig({
       exclude: ['@unyt/datex'],
     },
     assetsInclude: ['**/*.wasm'],
+    // FIXME: remove, only needed for tmp patch
+      server: {
+        fs: {
+            allow: [
+                searchForWorkspaceRoot(process.cwd()),
+                '../datex-web',
+            ],
+        },
+    },
 });

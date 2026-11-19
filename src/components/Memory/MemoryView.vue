@@ -16,9 +16,9 @@ const controlsOverlayEnabled = useWindowControlsOverlay();
 <template>
     <StandaloneWindowHeader :title="'Memory Inspector'" />
 
-    <div class="bg-background text-foreground flex h-full flex-col gap-3 p-4 pt-0 overflow-hidden">
+    <div class="bg-background text-foreground flex h-full flex-col gap-3 p-4 overflow-hidden">
         <div v-if="!controlsOverlayEnabled" class="flex items-center gap-2 justify-between">
-            <h1 class="text-lg font-medium text-neutral-900 dark:text-neutral-100">
+            <h1 class="text-xl font-medium text-neutral-900 dark:text-neutral-100">
                 Memory Inspector
             </h1>
 

@@ -34,9 +34,14 @@ watch(
 <template>
     <StandaloneWindowHeader :title="'Logs'" />
 
-    <div class="bg-page flex h-full flex-col overflow-hidden p-5">
+    <div class="bg-page flex h-full flex-col overflow-hidden p-4">
         <div class="mb-4 flex items-center gap-2 justify-between">
-            <h2 class="mr-2 text-lg font-medium text-neutral-900 dark:text-neutral-100">Logs</h2>
+            <h2
+                v-if="!controlsOverlayEnabled"
+                class="mr-2 text-xl font-medium text-neutral-900 dark:text-neutral-100"
+            >
+                Logs
+            </h2>
 
             <div class="flex items-center gap-7">
                 <div class="flex gap-5">

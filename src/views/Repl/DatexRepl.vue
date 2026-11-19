@@ -142,7 +142,7 @@ const controlsOverlayEnabled = useWindowControlsOverlay();
 
 <template>
     <StandaloneWindowHeader :title="t('nav.repl')" />
-    <div class="bg-page text-primary relative flex h-full flex-col overflow-hidden">
+    <div class="bg-page text-primary relative flex h-full flex-col pt-4 overflow-hidden">
         <div class="px-4 pb-0 flex justify-end gap-3 items-center">
             <div :class="controlsOverlayEnabled && 'absolute right-3 top-3'">
                 <Tooltip>

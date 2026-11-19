@@ -85,15 +85,10 @@ const controlsOverlayEnabled = useWindowControlsOverlay();
     <div class="drag"></div>
     <StandaloneWindowHeader :title="'ComHub'" />
 
-    <div class="bg-page flex h-full flex-col overflow-hidden p-5">
+    <div class="bg-page flex h-full flex-col overflow-hidden p-4">
         <div class="mb-4 flex items-center gap-4 justify-between">
             <div class="flex items-center gap-2">
-                <h2
-                    v-if="!controlsOverlayEnabled"
-                    class="mr-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100"
-                >
-                    ComHub
-                </h2>
+                <h2 v-if="!controlsOverlayEnabled" class="mr-2 text-xl font-medium">ComHub</h2>
 
                 <div class="w-[300px] flex-1">
                     <Input
