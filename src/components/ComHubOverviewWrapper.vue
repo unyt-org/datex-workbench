@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Endpoint } from '@unyt/datex/lib';
-import type { ComHubMetadata } from '@unyt/datex/network';
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import type { ComHubMetadata } from '@/lib/_temp_types.ts';
+import { ref, computed, onMounted, onUnmounted, watch, shallowRef } from 'vue';
 import { useWindowControlsOverlay } from '@/utils/windowControlsOverlay';
 import EndpointSearch from '@/components/Endpoints/EndpointSearch.vue';
 import { useI18n } from 'vue-i18n';
@@ -49,7 +49,7 @@ export interface ComHubInterface {
 const searchQuery = ref('');
 const advancedMode = ref(false);
 const groupByEndpoint = ref(false);
-const comHubMetadata = ref<ComHubMetadata | null>(null);
+const comHubMetadata = shallowRef<ComHubMetadata | null>(null);
 
 const effectiveSearch = computed(() => {
     const q = searchQuery.value.trim();

@@ -8,11 +8,12 @@ import { endpointPings as endpointRtts } from '@/lib/composables/use-endpoint-co
 import { onUnmounted } from 'vue';
 import ProgressBar from '@/components/CustomUI/ProgressBar.vue';
 import StandaloneWindowHeader from '@/components/Endpoints/StandaloneWindowHeader.vue';
+import type { RuntimeStats } from '@/lib/_temp_types.ts';
 
 const { t } = useI18n();
 
 const info = computed(() => activeInspector.value?.info);
-const rtt = computed(() => endpointRtts.value.get(activeEndpoint.value) ?? 0);
+const rtt = computed(() => endpointRtts.value.get(activeEndpoint.value!) ?? 0);
 
 const runtimeStats = ref<RuntimeStats | null>(null);
 

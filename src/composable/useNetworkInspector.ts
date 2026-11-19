@@ -1,3 +1,4 @@
+import type { Inspector } from '@/lib/_temp_types';
 import { activeEndpoint, activeInspector } from '@/lib/inspector/mod';
 import { Datex } from '@/lib/runtime';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';

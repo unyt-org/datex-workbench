@@ -7,15 +7,16 @@ import { useShikiHighlighter } from '@/composable/useShikiHighlighter';
 import { Datex } from '@/lib/runtime';
 import { Tagged } from '@unyt/datex/lib';
 
-import type { Shared } from '@unyt/datex';
 import { useColorMode } from '@vueuse/core';
 import { computed, ref } from 'vue';
+import type { BaseSharedContainer } from '@unyt/datex/shared-container';
+import type { Shared } from '@unyt/datex';
 const mode = useColorMode();
 
 const theme = computed(() => (mode.value === 'dark' ? 'DATEX Dark' : 'DATEX Light'));
 
 const props = defineProps<{
-    value: Shared.BaseSharedContainer<unknown, Shared.SharedContainerMutability>;
+    value: BaseSharedContainer<unknown, Shared.SharedContainerMutability>;
 }>();
 
 const currentValue = ref(formatValue(props.value.value));

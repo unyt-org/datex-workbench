@@ -33,7 +33,7 @@ const controlsOverlayEnabled = useWindowControlsOverlay();
                         >${{ normalizeAdress(address) }}</span
                     >
                     <div class="bg-background border p-3 rounded-sm w-full">
-                        <ValueView :value="value.value.deref()" />
+                        <ValueView :value="value.value.deref()!" />
                     </div>
                 </div>
             </div>

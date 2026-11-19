@@ -7,6 +7,7 @@ import Checkbox from '../ui/checkbox/Checkbox.vue';
 import { useWindowControlsOverlay } from '@/utils/windowControlsOverlay.ts';
 import StandaloneWindowHeader from '../Endpoints/StandaloneWindowHeader.vue';
 import EndpointSearch from '../Endpoints/EndpointSearch.vue';
+import type { LogMessage } from '@/lib/_temp_types.ts';
 
 const ansiUp = new AnsiUp();
 ansiUp.use_classes = false;

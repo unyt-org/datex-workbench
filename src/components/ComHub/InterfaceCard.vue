@@ -3,9 +3,11 @@ import { Datex } from '@/lib/runtime.ts';
 import EndpointLabel from '../Endpoints/EndpointLabel.vue';
 import { ref } from 'vue';
 import type { Endpoint } from '@unyt/datex/lib';
+import type { InterfaceDirection, ComHubMetadataInterface } from '@/lib/_temp_types.ts';
 import { Loader2, UnplugIcon } from '@lucide/vue';
 import Card from '@/components/ui/card/Card.vue';
 import CardContent from '../ui/card/CardContent.vue';
+import type { ComHubMetadataInterfaceSocket } from '@/lib/_temp_types.ts';
 
 defineProps<{
     iface: ComHubMetadataInterface;
@@ -15,7 +17,8 @@ defineProps<{
 
 const expanded = ref<boolean>(false);
 
-async function disconnectSocket(interfaceUuid: string, socketUuid: string, endpoint: Endpoint) {
+async function disconnectSocket(interfaceUuid: string, socketUuid: string, endpoint: Endpoint|null) {
+    if (!endpoint) return;
     await Datex.comHub.removeSocket(socketUuid as `socket::${string}`);
     console.warn('[ComHub] disconnectSocket called', { interfaceUuid, socketUuid, endpoint });
 }

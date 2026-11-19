@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-col gap-3 w-full">
-        <Card class="p-0" v-for="[endpoint, sockets] in filteredEndpoints" :key="endpoint">
+        <Card class="p-0" v-for="[endpoint, sockets] in filteredEndpoints" :key="endpoint.toString()">
             <CardContent class="p-4">
                 <!-- Endpoint Header -->
                 <div
@@ -25,7 +25,7 @@
                 </div>
 
                 <!-- Expanded Socket List -->
-                <div v-if="expanded[endpoint]" class="mt-3 flex flex-col gap-2 border-t pt-3">
+                <div v-if="expanded[endpoint.toString()]" class="mt-3 flex flex-col gap-2 border-t pt-3">
                     <div
                         v-for="(socket, idx) in sockets"
                         :key="socket.uuid + idx"
@@ -85,11 +85,11 @@
 import { removeSocket } from '@/lib/runtime';
 import { computed, markRaw, reactive, watch } from 'vue';
 import EndpointLabel from './Endpoints/EndpointLabel.vue';
-import type { ComHubMetadataInterface, ComHubMetadataInterfaceSocket } from '@unyt/datex/network';
+import type { ComHubMetadataInterface, ComHubMetadataInterfaceSocket } from '@/lib/_temp_types.ts';
 import { UnplugIcon } from '@lucide/vue';
 import Card from './ui/card/Card.vue';
 import CardContent from './ui/card/CardContent.vue';
-import { Tagged } from '@unyt/datex/lib';
+import { Endpoint, Tagged } from '@unyt/datex/lib';
 
 interface SocketWithInterface extends ComHubMetadataInterfaceSocket {
     interface: {
@@ -106,14 +106,15 @@ const props = defineProps<{
 
 const expanded = reactive<Record<string, boolean>>({});
 
-const endpointMap = computed((): Map<string, SocketWithInterface[]> => {
-    const map = new Map<string, SocketWithInterface[]>();
+const endpointMap = computed((): Map<Endpoint, SocketWithInterface[]> => {
+    const map = new Map<Endpoint, SocketWithInterface[]>();
     for (const iface of props.interfaces) {
         for (const socket of iface.sockets) {
             const entry: SocketWithInterface = markRaw({
                 ...socket,
                 interface: { uuid: iface.uuid, properties: iface.properties },
             });
+            if (!socket.endpoint) continue;
             if (!map.has(socket.endpoint)) map.set(socket.endpoint, []);
             map.get(socket.endpoint)!.push(entry);
         }
@@ -121,17 +122,17 @@ const endpointMap = computed((): Map<string, SocketWithInterface[]> => {
     return map;
 });
 
-const filteredEndpoints = computed((): [string, SocketWithInterface[]][] => {
+const filteredEndpoints = computed((): [Endpoint, SocketWithInterface[]][] => {
     const query = props.searchQuery.trim().toLowerCase();
     const entries = Array.from(endpointMap.value.entries());
     if (!query) return entries;
-    return entries.filter(([endpointId]) => endpointId.toLowerCase().includes(query));
+    return entries.filter(([endpointId]) => endpointId.toString().toLowerCase().includes(query));
 });
 
 watch(filteredEndpoints, (entries) => {
     if (!props.searchQuery.trim()) return;
     for (const [endpointId] of entries) {
-        expanded[endpointId] = true;
+        expanded[endpointId.toString()] = true;
     }
 });
 
@@ -146,8 +147,8 @@ watch(
     },
 );
 
-function toggle(endpointId: string) {
-    expanded[endpointId] = !expanded[endpointId];
+function toggle(endpointId: Endpoint) {
+    expanded[endpointId.toString()] = !expanded[endpointId.toString()];
 }
 
 const InOut = new Tagged('InOut');

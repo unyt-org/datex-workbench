@@ -1,6 +1,7 @@
-import { Endpoint, type Inspector } from '@unyt/datex/lib';
-import { reactive, ref, computed, shallowReactive } from 'vue';
+import { Endpoint } from '@unyt/datex/lib';
+import { computed, shallowReactive, shallowRef } from 'vue';
 import { Datex } from '../runtime.ts';
+import type { Inspector } from '../_temp_types.ts';
 
 /**
  * A map of connected inspector instances keyed by their corresponding endpoints.
@@ -9,9 +10,9 @@ export const connectedInspectorInstances = shallowReactive(new Map<Endpoint, Ins
 /**
  * A set of endpoints that are available for creating new inspector instances.
  */
-export const availableInspectorEndpoints = reactive(new Set<Endpoint>());
+export const availableInspectorEndpoints = shallowReactive(new Set<Endpoint>());
 
-export const activeEndpoint = ref<Endpoint | null>(null);
+export const activeEndpoint = shallowRef<Endpoint | null>(null);
 export const activeInspector = computed(
     () => connectedInspectorInstances.get(activeEndpoint.value!) ?? null,
 );

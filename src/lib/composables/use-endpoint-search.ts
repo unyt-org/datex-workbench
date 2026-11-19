@@ -5,7 +5,7 @@ import {
     setActiveEndpoint,
 } from '../../lib/inspector/mod.ts';
 import { Endpoint } from '@unyt/datex/lib';
-import { watch, ref, computed, type ComputedRef, type Ref } from 'vue';
+import { watch, ref, computed, type ComputedRef, type Ref, shallowRef } from 'vue';
 import { refDebounced } from '@vueuse/core';
 import { useDiscoveredEndpoints } from './use-discovered-endpoints.ts';
 
@@ -13,10 +13,12 @@ export function useEndpointSearch(): {
     groupedEndpoints: ComputedRef<
         { label: string; endpoints: { endpoint: Endpoint }[]; editable: boolean }[]
     >;
-    selectedEndpoint: Ref<{ endpoint: Endpoint }>;
+    selectedEndpoint: Ref<{ endpoint: Endpoint | null }>;
     search: Ref<string>;
     searchEndpoint: ComputedRef<Endpoint | null>;
 } {
+    const discovered = useDiscoveredEndpoints();
+
     const groupedEndpoints = computed(() => {
         const endpoints = [
             {
@@ -35,7 +37,7 @@ export function useEndpointSearch(): {
             },
         ];
 
-        const discoveredEndpoints = Array.from(useDiscoveredEndpoints().value).map((endpoint) => ({
+        const discoveredEndpoints = Array.from(discovered.value).map((endpoint) => ({
             endpoint,
         }));
         // remove any discovered endpoints that are already listed in active or recent endpoints
@@ -54,7 +56,7 @@ export function useEndpointSearch(): {
         return endpoints;
     });
 
-    const selectedEndpoint = ref({ endpoint: activeEndpoint.value });
+    const selectedEndpoint = shallowRef({ endpoint: activeEndpoint.value });
 
     // update selectedEndpoint when activeEndpoint changes
     watch(activeEndpoint, (newVal) => {

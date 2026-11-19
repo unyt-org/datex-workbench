@@ -11,6 +11,7 @@ sessionStorage.setItem('datexRuntimeEndpointName', endpointName);
 
 const defaultConfig: RuntimeConfig = {
     endpoint: Endpoint.get(endpointName),
+    // @ts-expect-error name is missing in type definition (fixme added in latest datex web)
     name: 'DATEX Workbench',
     interfaces: [
         {

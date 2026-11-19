@@ -7,6 +7,8 @@ import { ref, computed } from 'vue';
 import { dxbDefinition } from '@/views/BlockViewer/settings';
 import DisassemblerView from '@/components/Disassembler/DisassemblerView.vue';
 import { Datex } from '@/lib/runtime';
+import type { FlatResult } from '@/lib/_temp_types';
+import type { Span } from '@/lib/_temp_types';
 
 const props = defineProps<{
     blockData: Uint8Array;

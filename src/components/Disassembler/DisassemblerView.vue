@@ -7,6 +7,7 @@ import { useI18n } from 'vue-i18n';
 import InstructionFlatItem from './InstructionFlatItem.vue';
 import InstructionTreeNode from './InstructionTreeNode.vue';
 import { usePersistentRef } from '@/lib/composables/use-persistent-ref.ts';
+import type { FlatInstruction, InstructionTree, Span } from '@/lib/_temp_types.ts';
 
 const { t } = useI18n();
 

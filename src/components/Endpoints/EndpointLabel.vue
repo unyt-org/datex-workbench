@@ -17,7 +17,7 @@ const props = withDefaults(
 );
 
 const { isConnected, connectionLostCount, endpointName, pollCount, refresh } =
-    useEndpointConnectionStatus(() => (props.connectionStatus ? props.endpoint : null));
+    useEndpointConnectionStatus(() => (props.connectionStatus ? (props.endpoint ?? null) : null));
 
 const initialPollCount = ref(pollCount.value);
 const initialConnectionLostCount = ref(connectionLostCount.value);

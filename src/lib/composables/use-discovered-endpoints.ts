@@ -1,13 +1,13 @@
 import { Datex } from '../runtime';
-import { ref, type Ref } from 'vue';
+import { shallowRef, type ShallowRef } from 'vue';
 import type { Endpoint } from '@unyt/datex/lib';
 import { useTimeoutPoll } from '@vueuse/core';
 
 /**
  * Returns a reactive reference to the set of all endpoints registered in the ComHub.
  */
-export function useDiscoveredEndpoints(): Ref<Set<Endpoint>> {
-    const endpoints = ref(new Set<Endpoint>());
+export function useDiscoveredEndpoints(): ShallowRef<Set<Endpoint>> {
+    const endpoints = shallowRef(new Set<Endpoint>());
 
     useTimeoutPoll(
         () => {

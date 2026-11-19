@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { type InstructionParts, getInstructionParts } from '@/types/disassembler';
 import InstructionLabel from './InstructionLabel.vue';
 import { Plus, Minus } from '@lucide/vue';
+import type { InstructionTree, Span } from '@/lib/_temp_types.ts';
 
 const props = withDefaults(
     defineProps<{
