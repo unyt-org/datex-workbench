@@ -3,11 +3,10 @@ import { Datex } from '@/lib/runtime.ts';
 import EndpointLabel from '../Endpoints/EndpointLabel.vue';
 import { ref } from 'vue';
 import type { Endpoint } from '@unyt/datex/lib';
-import type { InterfaceDirection, ComHubMetadataInterface } from '@/lib/_temp_types.ts';
 import { Loader2, UnplugIcon } from '@lucide/vue';
 import Card from '@/components/ui/card/Card.vue';
 import CardContent from '../ui/card/CardContent.vue';
-import type { ComHubMetadataInterfaceSocket } from '@/lib/_temp_types.ts';
+import type { ComHubMetadataInterface, ComHubMetadataInterfaceSocket, InterfaceDirection } from '@unyt/datex';
 
 defineProps<{
     iface: ComHubMetadataInterface;

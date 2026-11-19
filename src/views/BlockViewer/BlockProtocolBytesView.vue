@@ -10,7 +10,7 @@ import { computed } from 'vue';
 import type { ParsedSection, ParsedStructure, StructureDefinition } from '@unyt/speck';
 import BlockSection from '@/components/BlockViewer/BlockSection.vue';
 import type { FieldIdentifier } from '@/types/BlockViewer/FieldIdentifier';
-import type { Span } from '@/lib/_temp_types';
+import type { Span } from '@unyt/datex/runtime';
 
 const props = defineProps<{
     structure: ParsedStructure;

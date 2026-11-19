@@ -2,7 +2,7 @@
 import type { FieldIdentifier } from '@/types/BlockViewer/FieldIdentifier';
 import type { ParsedField, ParsedSection, SectionDefinition } from '@unyt/speck';
 import BlockFieldWrapper from './BlockFieldWrapper.vue';
-import type { Span } from '@/lib/_temp_types.ts';
+import type { Span } from '@unyt/datex/runtime';
 
 const props = defineProps<{
     section: ParsedSection;

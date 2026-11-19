@@ -1,7 +1,7 @@
-import type { Inspector } from '@/lib/_temp_types';
 import { activeEndpoint, activeInspector } from '@/lib/inspector/mod';
 import { Datex } from '@/lib/runtime';
 import type { RawBlockEntry } from '@/types/NetworkInspector/BlockEntry';
+import type { Inspector } from '@unyt/datex';
 import { parseStructure, type ParsedSection } from '@unyt/speck';
 import { ref, watch, type Ref } from 'vue';
 

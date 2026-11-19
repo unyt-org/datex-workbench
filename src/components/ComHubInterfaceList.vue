@@ -16,8 +16,8 @@
 
 <script setup lang="ts">
 import { computed, markRaw } from 'vue';
-import type { ComHubMetadataInterface, ComHubMetadata } from '@/lib/_temp_types.ts';
 import InterfaceCard from './ComHub/InterfaceCard.vue';
+import type { ComHubMetadata, ComHubMetadataInterface } from '@unyt/datex';
 
 const props = defineProps<{
     comHubMetadata: ComHubMetadata | null;

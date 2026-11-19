@@ -2,12 +2,12 @@
 import DecompilerView from '@/components/Decompiler/DecompilerView.vue';
 import { Datex } from '@/lib/runtime.ts';
 import { FoldVertical, GitFork, List, UnfoldVertical } from '@lucide/vue';
-import { computed, type ComputedRef } from 'vue';
+import { computed, watch, type ComputedRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import InstructionFlatItem from './InstructionFlatItem.vue';
 import InstructionTreeNode from './InstructionTreeNode.vue';
 import { usePersistentRef } from '@/lib/composables/use-persistent-ref.ts';
-import type { FlatInstruction, InstructionTree, Span } from '@/lib/_temp_types.ts';
+import type { FlatInstruction, InstructionTree, Span } from '@unyt/datex/runtime';
 
 const { t } = useI18n();
 
@@ -43,6 +43,11 @@ try {
     console.error('Decompiler error:', err);
     decompiledCode = '// Error during decompilation';
 }
+
+watch(flatData, (newVal) => {
+    console.log('Flat data changed:', newVal[0]);
+}, {immediate: true});
+
 </script>
 
 <template>

@@ -1,7 +1,7 @@
 import { Endpoint } from '@unyt/datex/lib';
 import { computed, shallowReactive, shallowRef } from 'vue';
 import { Datex } from '../runtime.ts';
-import type { Inspector } from '../_temp_types.ts';
+import type { Inspector } from '@unyt/datex';
 
 /**
  * A map of connected inspector instances keyed by their corresponding endpoints.

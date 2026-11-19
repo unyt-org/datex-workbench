@@ -7,8 +7,7 @@ import { ref, computed } from 'vue';
 import { dxbDefinition } from '@/views/BlockViewer/settings';
 import DisassemblerView from '@/components/Disassembler/DisassemblerView.vue';
 import { Datex } from '@/lib/runtime';
-import type { FlatResult } from '@/lib/_temp_types';
-import type { Span } from '@/lib/_temp_types';
+import type { Span } from '@unyt/datex/runtime';
 
 const props = defineProps<{
     blockData: Uint8Array;
@@ -21,7 +20,7 @@ const bodyDXB = bodySection?.fields[0]?.bytes;
 
 // augments parsed body with disassembler data to separate instructions into separate fields
 if (bodyDXB) {
-    const [instructions] = Datex.disassembleDXBFlat(bodyDXB) as FlatResult;
+    const [instructions] = Datex.disassembleDXBFlat(bodyDXB);
     bodySection.fields = [];
     for (const { instruction, span } of instructions) {
         const bytes = bodyDXB.slice(span.start, span.end);

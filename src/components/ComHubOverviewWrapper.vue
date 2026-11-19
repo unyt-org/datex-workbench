@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Endpoint } from '@unyt/datex/lib';
-import type { ComHubMetadata } from '@/lib/_temp_types.ts';
 import { ref, computed, onMounted, onUnmounted, watch, shallowRef } from 'vue';
 import { useWindowControlsOverlay } from '@/utils/windowControlsOverlay';
 import EndpointSearch from '@/components/Endpoints/EndpointSearch.vue';
@@ -13,6 +12,7 @@ import { Settings } from '@lucide/vue';
 import { activeInspector } from '@/lib/inspector/mod';
 import StandaloneWindowHeader from './Endpoints/StandaloneWindowHeader.vue';
 import Input from './ui/input/Input.vue';
+import type { ComHubMetadata } from '@unyt/datex';
 
 const { t } = useI18n();
 

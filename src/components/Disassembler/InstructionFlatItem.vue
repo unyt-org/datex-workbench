@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { type InstructionParts, getInstructionParts } from '@/types/disassembler';
 import InstructionLabel from './InstructionLabel.vue';
-import type { FlatInstruction, Instruction, Span } from '@/lib/_temp_types.ts';
+import type { Span, FlatInstruction, Instruction } from '@unyt/datex/runtime';
 
 const props = withDefaults(
     defineProps<{

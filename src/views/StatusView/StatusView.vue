@@ -8,7 +8,7 @@ import { endpointPings as endpointRtts } from '@/lib/composables/use-endpoint-co
 import { onUnmounted } from 'vue';
 import ProgressBar from '@/components/CustomUI/ProgressBar.vue';
 import StandaloneWindowHeader from '@/components/Endpoints/StandaloneWindowHeader.vue';
-import type { RuntimeStats } from '@/lib/_temp_types.ts';
+import type { RuntimeStats } from '@unyt/datex';
 
 const { t } = useI18n();
 
