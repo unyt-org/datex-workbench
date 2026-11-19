@@ -5,7 +5,7 @@ import type { Shared } from '@unyt/datex';
 import type { PointerAddress } from '@unyt/datex/shared-container';
 
 type PointerData = {
-  value: WeakRef<Shared.BaseSharedContainer<unknown, Shared.SharedContainerMutability>>;
+    value: WeakRef<Shared.BaseSharedContainer<unknown, Shared.SharedContainerMutability>>;
 };
 
 function updateCachedPointers(cachedPointers: Reactive<Map<PointerAddress, PointerData>>) {

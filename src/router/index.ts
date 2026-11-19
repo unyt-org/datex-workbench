@@ -1,4 +1,3 @@
-import PointerView from '@/components/PointerView.vue';
 import MemoryView from '@/components/Memory/MemoryView.vue';
 import LogsView from '@/components/Logs/LogsView.vue';
 // import WindowGeneralView from '@/views/WindowGeneralView.vue';

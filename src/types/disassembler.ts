@@ -1,4 +1,9 @@
-import type { InstructionTree, FlatInstruction, TreeInstruction, Instruction } from '@/lib/_temp_types.ts';
+import type {
+    InstructionTree,
+    FlatInstruction,
+    TreeInstruction,
+    Instruction,
+} from '@/lib/_temp_types.ts';
 // ─── Helpers ────────────────────────────────────────────────
 
 export interface InstructionParts {

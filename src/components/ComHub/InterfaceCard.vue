@@ -17,7 +17,11 @@ defineProps<{
 
 const expanded = ref<boolean>(false);
 
-async function disconnectSocket(interfaceUuid: string, socketUuid: string, endpoint: Endpoint|null) {
+async function disconnectSocket(
+    interfaceUuid: string,
+    socketUuid: string,
+    endpoint: Endpoint | null,
+) {
     if (!endpoint) return;
     await Datex.comHub.removeSocket(socketUuid as `socket::${string}`);
     console.warn('[ComHub] disconnectSocket called', { interfaceUuid, socketUuid, endpoint });

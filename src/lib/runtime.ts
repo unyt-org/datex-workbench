@@ -1,5 +1,5 @@
-import { Endpoint, tagged } from "@unyt/datex/lib";
-import { Runtime, type RuntimeConfig } from "@unyt/datex";
+import { Endpoint, tagged } from '@unyt/datex/lib';
+import { Runtime, type RuntimeConfig } from '@unyt/datex';
 
 const websocketServerEndpointURL =
     localStorage.getItem('websocketServerEndpoint') || 'wss://example.unyt.land';

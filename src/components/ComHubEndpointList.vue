@@ -1,6 +1,10 @@
 <template>
     <div class="flex flex-col gap-3 w-full">
-        <Card class="p-0" v-for="[endpoint, sockets] in filteredEndpoints" :key="endpoint.toString()">
+        <Card
+            class="p-0"
+            v-for="[endpoint, sockets] in filteredEndpoints"
+            :key="endpoint.toString()"
+        >
             <CardContent class="p-4">
                 <!-- Endpoint Header -->
                 <div
@@ -25,7 +29,10 @@
                 </div>
 
                 <!-- Expanded Socket List -->
-                <div v-if="expanded[endpoint.toString()]" class="mt-3 flex flex-col gap-2 border-t pt-3">
+                <div
+                    v-if="expanded[endpoint.toString()]"
+                    class="mt-3 flex flex-col gap-2 border-t pt-3"
+                >
                     <div
                         v-for="(socket, idx) in sockets"
                         :key="socket.uuid + idx"

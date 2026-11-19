@@ -1,5 +1,9 @@
-import type { Endpoint, Tagged } from "@unyt/datex/lib";
-import type { SharedContainerMutability, SharedRef, SharedReferenceMutability } from "@unyt/datex/shared-container";
+import type { Endpoint, Tagged } from '@unyt/datex/lib';
+import type {
+    SharedContainerMutability,
+    SharedRef,
+    SharedReferenceMutability,
+} from '@unyt/datex/shared-container';
 
 export type Span = { start: number; end: number };
 export type SpannedInstruction<T> = { instruction: T; span: Span };
@@ -12,18 +16,17 @@ export type InstructionTree = { instruction: TreeInstruction; children?: Instruc
 /** Result tuple: [data, errorOrNull] */
 export type TreeResult = [InstructionTree, string | null];
 export type FlatResult = [FlatInstruction[], string | null];
-export type InterfaceDirection = Tagged<"In"> | Tagged<"Out"> | Tagged<"InOut">;
-
+export type InterfaceDirection = Tagged<'In'> | Tagged<'Out'> | Tagged<'InOut'>;
 
 /**
  * Represents the direction of a block, either incoming or outgoing, used in the block interceptor callback.
  */
-export type BlockDirection = Tagged<"Incoming"> | Tagged<"Outgoing">;
+export type BlockDirection = Tagged<'Incoming'> | Tagged<'Outgoing'>;
 
 /**
  * The priority of an interface, which determines the order in which interfaces are used for routing fallback logic.
  */
-export type InterfacePriority = Tagged<"None"> | Tagged<"Priority", number>;
+export type InterfacePriority = Tagged<'None'> | Tagged<'Priority', number>;
 
 /**
  * A generic interface configuration to setup a runtime interface.
@@ -58,10 +61,15 @@ export type ComInterfaceProperties = {
     connectable_interfaces: RuntimeConfigInterface[] | null;
 };
 
-export type ReconnectionConfig = Tagged<"NoReconnect"> | Tagged<"Reconnect", {
-    attempts: number | null;
-    interval: number | null;
-}>;
+export type ReconnectionConfig =
+    | Tagged<'NoReconnect'>
+    | Tagged<
+          'Reconnect',
+          {
+              attempts: number | null;
+              interval: number | null;
+          }
+      >;
 
 export type DynamicEndpointProperties = {
     known_since: number;
@@ -91,7 +99,6 @@ export type ComHubMetadata = {
     reconnecting_interfaces: ComHubMetadataInterface[];
 };
 
-
 export type RuntimeInfo = {
     datex_version: string;
     other_versions: Map<string, string>;
@@ -109,8 +116,12 @@ export type RuntimeStats = {
     heap: HeapStats | null;
 };
 
-
-export type LogLevel = Tagged<"Trace"> | Tagged<"Debug"> | Tagged<"Info"> | Tagged<"Warn"> | Tagged<"Error">;
+export type LogLevel =
+    | Tagged<'Trace'>
+    | Tagged<'Debug'>
+    | Tagged<'Info'>
+    | Tagged<'Warn'>
+    | Tagged<'Error'>;
 
 export type LogMessage = {
     level: LogLevel;
@@ -119,14 +130,11 @@ export type LogMessage = {
     message: string;
 };
 
-
-
 export type CapturedBlockData = {
     block: number[];
     socket_uuid: string;
     direction: BlockDirection;
 };
-
 
 /**
  * The Inspector is a built-in debug helper that provides access to the DATEX runtime and its properties.
@@ -137,10 +145,22 @@ export declare class Inspector {
     public info: RuntimeInfo;
     /**
      * Returns a stream of all global log messages of the endpoint.
-     */ public logs(): Promise<SharedRef<ReadableStream<LogMessage>, SharedContainerMutability.Mutable, SharedReferenceMutability.Mutable>>;
+     */ public logs(): Promise<
+        SharedRef<
+            ReadableStream<LogMessage>,
+            SharedContainerMutability.Mutable,
+            SharedReferenceMutability.Mutable
+        >
+    >;
     /**
      * Returns a stream of all incoming and outgoing blocks on the endpoint (excluding debug blocks).
-     */ public blocks(): Promise<SharedRef<ReadableStream<CapturedBlockData>, SharedContainerMutability.Mutable, SharedReferenceMutability.Mutable>>;
+     */ public blocks(): Promise<
+        SharedRef<
+            ReadableStream<CapturedBlockData>,
+            SharedContainerMutability.Mutable,
+            SharedReferenceMutability.Mutable
+        >
+    >;
     /**
      * Returns the current metadata information (connected interfaces, sockets) of the endpoint's com hub.
      */ public com_hub_metadata(): Promise<ComHubMetadata>;

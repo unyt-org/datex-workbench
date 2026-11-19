@@ -87,8 +87,8 @@ export function useDatexRepl(endpoint: MaybeRefOrGetter<Endpoint | null>) {
     watch(
         [entries, history],
         ([newEntries, newHistory]) => {
-          const endpointValue = toValue(endpoint);
-              if (endpointValue) {
+            const endpointValue = toValue(endpoint);
+            if (endpointValue) {
                 const state = cachedReplStates.get(endpointValue) ?? {
                     repl: repl.value,
                     entries: [],
@@ -199,7 +199,7 @@ export function useDatexRepl(endpoint: MaybeRefOrGetter<Endpoint | null>) {
         }
 
         try {
-            const result = await current.execute(code) ?? null;
+            const result = (await current.execute(code)) ?? null;
 
             entries.value.push({
                 type: 'output',
