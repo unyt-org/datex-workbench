@@ -1,0 +1,1 @@
+import o from"./BlockField.vue-BVHzS5uw.js";/* empty css                       */import t from"../../_virtual/_plugin-vue_export-helper-Bs0mvUEv.js";const f=t(o,[["__scopeId","data-v-5fc20a17"]]);export{f as default};

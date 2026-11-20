@@ -1,0 +1,144 @@
+{
+    "name": "@unyt/datex",
+    "version": "0.0.17",
+    "license": "MIT",
+    "exports": {
+        ".": "./src/mod.ts",
+        "./default": "./src/default.ts",
+        "./lib": "./src/lib/mod.ts",
+        "./runtime": "./src/runtime/mod.ts",
+        "./network": "./src/network/mod.ts",
+        "./repl": "./src/repl/mod.ts",
+        "./shared-container": "./src/shared-container/mod.ts",
+        "./interfaces/websocket-server-base": "./src/network/interfaces/websocket-server-base.ts",
+        "./interfaces/websocket-server-deno": "./src/network/interfaces/websocket-server-deno.ts"
+    },
+    "compilerOptions": {
+        "noImplicitOverride": true,
+        "lib": [
+            "deno.window",
+            "dom"
+        ]
+    },
+    "tasks": {
+        "build": {
+            "description": "Build the default debug WASM artifact.",
+            "dependencies": ["build:debug"]
+        },
+        "build:debug": {
+            "description": "Build the WASM package with the debug profile.",
+            "command": "deno run -A scripts/build-wasm.ts --profile debug"
+        },
+        "build:release": {
+            "description": "Build the WASM package with the release profile.",
+            "command": "deno run -A scripts/build-wasm.ts --profile release"
+        },
+        "build:debug:insecure": {
+            "description": "Build debug WASM with unsigned block support enabled.",
+            "command": "deno run -A scripts/build-wasm.ts --profile debug --features allow_unsigned_blocks"
+        },
+        "build:debug:no-opt": {
+            "description": "Build debug WASM without optimization.",
+            "command": "deno run -A scripts/build-wasm.ts --profile debug --no-opt"
+        },
+        "build:debug:no-opt:insecure": {
+            "description": "Build debug WASM without optimization.",
+            "command": "deno run -A scripts/build-wasm.ts --profile debug --no-opt --features allow_unsigned_blocks"
+        },
+        "types": {
+            "description": "Generate TypeScript declarations from the Rust type registry.",
+            "command": "cargo run -p rs-lib-generate -- ./src/datex-web/types"
+        },
+        "test": {
+            "description": "Build debug WASM without optimization, then run Deno tests.",
+            "dependencies": ["build:debug:no-opt"],
+            "command": "deno test -A --no-check"
+        },
+        "test:no-build": {
+            "description": "Run Deno tests without rebuilding WASM.",
+            "command": "deno test -A --no-check"
+        },
+        "build:npm": {
+            "description": "Build the npm package output.",
+            "command": "deno run -A scripts/build-npm.ts"
+        },
+        "build:bundle": {
+            "description": "Build the browser bundle.",
+            "command": "deno run -A scripts/build-bundle.ts"
+        },
+        "build:all:release": {
+            "description": "Build release WASM, npm package, and browser bundle.",
+            "dependencies": ["build:release"],
+            "command": "deno task build:npm && deno task build:bundle"
+        },
+        "serve-npm-watch": {
+            "description": "Build the npm package and watch for changes, rebuilding on change. Hosts a local server for the npm package.",
+            "command": "deno run -A scripts/serve-npm-watch.ts"
+        },
+        "serve-npm-watch:insecure": {
+            "description": "Build the npm package and watch for changes, rebuilding on change. Hosts a local server for the npm package.",
+            "command": "deno run -A scripts/serve-npm-watch.ts --insecure"
+        },
+        "fmt": {
+            "description": "Format Deno and Rust sources.",
+            "command": "deno fmt && cargo fmt"
+        },
+        "lint": {
+            "description": "Report Deno lint and Rust clippy issues without applying fixes.",
+            "command": "deno lint && cargo clippy --all-targets --all-features"
+        },
+        "check": {
+            "description": "Type-check TypeScript sources and tests.",
+            "command": "deno check -I ./src ./test"
+        },
+        "fix": {
+            "description": "Apply automatic formatting and lint fixes for Deno and Rust.",
+            "command": "deno fmt && cargo fmt && deno lint --fix && cargo clippy --fix --all-features --allow-dirty --allow-staged"
+        }
+    },
+    "fmt": {
+        "indentWidth": 4,
+        "lineWidth": 120,
+        "exclude": [
+            "./npm"
+        ]
+    },
+    "imports": {
+        "@david/path": "jsr:@david/path@^0.2.0",
+        "@david/temp": "jsr:@david/temp@^0.1.1",
+        "@deno/dnt": "jsr:@deno/dnt@^0.44.0",
+        "@qnighy/dedent": "jsr:@qnighy/dedent@^0.1.2",
+        "@std/assert": "jsr:@std/assert@^1.0.19",
+        "@std/cli": "jsr:@std/cli@^1.0.28",
+        "@std/encoding": "jsr:@std/encoding@^1.0.10",
+        "@std/fmt": "jsr:@std/fmt@^1.0.9",
+        "@std/fs": "jsr:@std/fs@^1.0.23",
+        "@std/tar": "jsr:@std/tar@^0.1.10",
+        "@std/uuid": "jsr:@std/uuid@^1.1.0",
+        "@unyt/speck": "jsr:@unyt/speck@^0.0.10",
+        "datex/": "./src/"
+    },
+    "test": {
+        "exclude": [
+            "./npm"
+        ]
+    },
+    "publish": {
+        "exclude": [
+            ".github",
+            ".gitmodules",
+            ".rustfmt.toml",
+            ".vscode",
+            "Cargo.toml",
+            "Cargo.lock",
+            ".cargo",
+            "rust-toolchain.toml",
+            "scripts",
+            "test",
+            "rs-lib",
+            "rs-lib-generate",
+            "!src/datex-web/datex_web.wasm",
+            "!src/datex-web/datex_web.internal.js"
+        ]
+    }
+}

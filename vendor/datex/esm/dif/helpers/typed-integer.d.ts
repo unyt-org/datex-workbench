@@ -1,0 +1,13 @@
+import type { DIFValue } from "../types/value.js";
+export declare function i8(value: number): DIFValue;
+export declare function i16(value: number): DIFValue;
+export declare function i32(value: number): DIFValue;
+export declare function i64(value: number): DIFValue;
+export declare function u8(value: number): DIFValue;
+export declare function u16(value: number): DIFValue;
+export declare function u32(value: number): DIFValue;
+export declare function u64(value: bigint): DIFValue;
+export declare function i128(value: bigint): DIFValue;
+export declare function u128(value: bigint): DIFValue;
+export declare function ibig(value: bigint): DIFValue;
+export declare function integer(value: number | bigint): DIFValue;

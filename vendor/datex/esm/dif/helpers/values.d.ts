@@ -1,0 +1,12 @@
+import type { DIFClassification, DIFCoreValue, DIFSharedValue, DIFValue, DIFValueContainer } from "../types/value.js";
+import type { PointerAddress } from "../../shared-container/mod.js";
+import type { PointerAddressWithOwnership } from "../../shared-container/mod.js";
+export declare function tryGetClassification(value: DIFValue): DIFClassification | null;
+export declare function hasImplClassification(value: DIFValue, implTypeAddress: PointerAddress): boolean;
+export declare function classificationHasImpl(classification: DIFClassification, implTypeAddress: PointerAddress): boolean;
+export declare function createDIFValueWithClassification(value: DIFCoreValue, classification: DIFClassification): DIFValue;
+export declare function createDIFValueWithImplClassification(value: DIFCoreValue, implTypeAddresses: PointerAddress[]): DIFValue;
+export declare function createDIFValueWithEntityClassification(value: DIFCoreValue, entityTypeAddress: PointerAddressWithOwnership): DIFValue;
+export declare function createDIFValueWithTag(value: DIFCoreValue, tag: string, is_empty?: true | null): DIFValue;
+export declare function isSharedValueContainer(value: DIFValueContainer): value is DIFSharedValue;
+export declare function isDIFCoreValue(value: DIFValue): value is DIFCoreValue;

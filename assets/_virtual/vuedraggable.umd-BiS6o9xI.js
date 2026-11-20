@@ -1,0 +1,1 @@
+import{getDefaultExportFromCjs as r}from"./_commonjsHelpers-C5mpvj56.js";import{__require as e}from"../node_modules/vuedraggable/dist/vuedraggable.umd-jIZLGlMF.js";var a=e();const u=r(a);export{u as default};
