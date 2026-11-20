@@ -19,24 +19,24 @@
         "format:check": "prettier --check src/"
     },
     "dependencies": {
+        "@lucide/vue": "^1.70.0",
         "@tailwindcss/vite": "^4.1.16",
         "@tanstack/vue-table": "^8.21.3",
         "@tanstack/vue-virtual": "^3.13.23",
-        "@unyt/datex": "0.0.15",
+        "@unyt/datex": "^0.0.17",
         "@unyt/speck": "^0.0.13",
-        "@vueuse/core": "^14.2.1",
+        "@vueuse/core": "^14.4.0",
         "ag-grid-community": "^35.0.0",
         "ag-grid-vue3": "^35.0.0",
+        "ansi_up": "^6.0.6",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "dagre": "^0.8.5",
-        "lucide-vue-next": "^0.548.0",
         "markdown-it": "^14.1.1",
         "modern-monaco": "^0.4.0",
-        "reka-ui": "^2.6.1",
+        "reka-ui": "^2.11.0",
         "search-query-parser": "^1.6.0",
-        "shadcn": "^3.5.0",
-        "shadcn-ui": "^0.9.5",
+        "shadcn": "^1.0.0",
         "shiki": "^4.0.2",
         "tailwind-merge": "^3.3.1",
         "tailwindcss": "^4.1.16",
@@ -48,32 +48,48 @@
         "vuedraggable": "^4.1.0"
     },
     "devDependencies": {
+        "@eslint/js": "^10.0.1",
         "@iconify-json/radix-icons": "^1.2.5",
         "@iconify/vue": "^5.0.0",
-        "@tailwindcss/typography": "^0.5.19",
+        "@tailwindcss/typography": "^0.5.4",
         "@tsconfig/node22": "^22.0.2",
         "@types/dagre": "^0.7.54",
         "@types/jsdom": "^27.0.0",
         "@types/markdown-it": "^14.1.2",
         "@types/node": "^22.18.13",
+        "@typescript-eslint/eslint-plugin": "^8.72.2",
+        "@typescript-eslint/parser": "^8.72.2",
         "@vitejs/plugin-vue": "^6.0.1",
         "@vitest/eslint-plugin": "^1.3.23",
         "@vue/eslint-config-prettier": "^10.2.0",
         "@vue/eslint-config-typescript": "^14.6.0",
-        "@vue/test-utils": "^2.4.6",
-        "@vue/tsconfig": "^0.8.1",
-        "eslint": "^9.39.1",
-        "eslint-plugin-vue": "~10.5.0",
+        "@vue/test-utils": "^2.6.0",
+        "@vue/tsconfig": "^0.9.1",
+        "eslint": "^10.15.0",
+        "eslint-plugin-vue": "^10.2.0",
         "jiti": "^2.6.1",
         "jsdom": "^27.0.1",
         "npm-run-all2": "^8.0.4",
         "prettier": "3.6.2",
         "prettier-plugin-tailwindcss": "^0.7.2",
-        "typescript": "~5.9.0",
+        "typescript": "~6.0.0",
+        "typescript-eslint": "^8.72.2",
         "vite": "^7.1.11",
-        "vite-plugin-pwa": "^1.2.0",
+        "vite-plugin-pwa": "^1.1.0",
+        "vite-plugin-static-copy": "^4.1.1",
         "vite-plugin-vue-devtools": "^8.0.3",
-        "vitest": "^3.2.4",
+        "vitest": "^5.1.0",
         "vue-tsc": "^3.1.1"
+    },
+    "overrides": {
+        "workbox-build": {
+            "glob": "^14.0.6"
+        },
+        "js-beautify": {
+            "glob": "^14.0.6"
+        },
+        "editorconfig": {
+            "minimatch": "11.0.8"
+        }
     }
 }

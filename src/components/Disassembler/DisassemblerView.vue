@@ -1,46 +1,52 @@
 <script setup lang="ts">
 import DecompilerView from '@/components/Decompiler/DecompilerView.vue';
 import { Datex } from '@/lib/runtime.ts';
-import { FoldVertical, GitFork, List, UnfoldVertical } from 'lucide-vue-next';
-import { computed, ref, type ComputedRef } from 'vue';
-import type { InstructionTree, FlatInstruction, Span } from '@/lib/_temp_types.ts';
+import { FoldVertical, GitFork, List, UnfoldVertical } from '@lucide/vue';
+import { computed, watch, type ComputedRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import InstructionFlatItem from './InstructionFlatItem.vue';
 import InstructionTreeNode from './InstructionTreeNode.vue';
+import { usePersistentRef } from '@/lib/composables/use-persistent-ref.ts';
+import type { Span } from '@unyt/datex/runtime';
 
 const { t } = useI18n();
 
-const viewType = ref<'disassembler' | 'decompiler'>('disassembler');
-
 type ViewMode = 'tree' | 'flat';
+
+const viewType = usePersistentRef<'disassembler' | 'decompiler'>(
+    'disassembler/viewType',
+    'disassembler',
+);
+const viewMode = usePersistentRef<ViewMode>('disassembler/viewMode', 'tree');
+const showNested = usePersistentRef<boolean>('disassembler/showNested', true);
 
 const props = defineProps<{
     /** Raw DXB body bytes to disassemble */
     dxb: Uint8Array;
 }>();
 
-const viewMode = ref<ViewMode>('tree');
-const showNested = ref(true);
-
 const selectedBodySpan = defineModel<null | Span>();
 
 // ─── Disassembly ────────────────────────────────────────────
-const treeData = computed(() => Datex.disassembleDXBTree(props.dxb)) as ComputedRef<
-    [InstructionTree, string | null]
->;
-const flatData = computed(() => Datex.disassembleDXBFlat(props.dxb)) as ComputedRef<
-    [FlatInstruction[], string | null]
->;
+const treeData = computed(() => Datex.disassembleDXBTree(props.dxb));
+const flatData = computed(() => Datex.disassembleDXBFlat(props.dxb));
 const error = computed(() => (viewMode.value === 'tree' ? treeData.value[1] : flatData.value[1]));
 
 let decompiledCode: ComputedRef<string> | string = '';
 try {
-    // @ts-expect-error xxxx
     decompiledCode = computed(() => Datex.decompileDXBBody(props.dxb));
 } catch (err) {
     console.error('Decompiler error:', err);
     decompiledCode = '// Error during decompilation';
 }
+
+watch(
+    flatData,
+    (newVal) => {
+        console.log('Flat data changed:', newVal[0]);
+    },
+    { immediate: true },
+);
 </script>
 
 <template>
@@ -160,7 +166,7 @@ try {
         <!-- Error banner -->
         <div
             v-if="error"
-            class="mx-4 mb-3 px-3 py-2 rounded-md border text-sm font-mono bg-red-950/40 border-red-900/60 text-red-300"
+            class="mx-4 mb-3 px-3 py-2 rounded-md border text-sm font-mono bg-rose-950/40 border-rose-900/60 text-rose-300"
         >
             ⚠ {{ error }}
         </div>

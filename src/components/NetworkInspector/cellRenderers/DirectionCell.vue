@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MoveLeft, MoveRight } from 'lucide-vue-next';
+import { MoveLeft, MoveRight } from '@lucide/vue';
 
 const props = defineProps<{
     value: string;

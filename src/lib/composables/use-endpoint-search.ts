@@ -1,0 +1,95 @@
+import {
+    connectedInspectorInstances,
+    availableInspectorEndpoints,
+    activeEndpoint,
+    setActiveEndpoint,
+} from '../../lib/inspector/mod.ts';
+import { Endpoint } from '@unyt/datex/lib';
+import { watch, ref, computed, type ComputedRef, type Ref, shallowRef } from 'vue';
+import { refDebounced } from '@vueuse/core';
+import { useDiscoveredEndpoints } from './use-discovered-endpoints.ts';
+
+export function useEndpointSearch(): {
+    groupedEndpoints: ComputedRef<
+        { label: string; endpoints: { endpoint: Endpoint }[]; editable: boolean }[]
+    >;
+    selectedEndpoint: Ref<{ endpoint: Endpoint | null }>;
+    search: Ref<string>;
+    searchEndpoint: ComputedRef<Endpoint | null>;
+} {
+    const discovered = useDiscoveredEndpoints();
+
+    const groupedEndpoints = computed(() => {
+        const endpoints = [
+            {
+                label: 'Active Inspector Sessions',
+                endpoints: Array.from(connectedInspectorInstances).map(([endpoint]) => ({
+                    endpoint,
+                })),
+                editable: true,
+            },
+            {
+                label: 'Recent Endpoints',
+                endpoints: Array.from(availableInspectorEndpoints.keys()).map((endpoint) => ({
+                    endpoint,
+                })),
+                editable: true,
+            },
+        ];
+
+        const discoveredEndpoints = Array.from(discovered.value).map((endpoint) => ({
+            endpoint,
+        }));
+        // remove any discovered endpoints that are already listed in active or recent endpoints
+        const existingEndpoints = new Set(
+            endpoints.flatMap((group) => group.endpoints.map((e) => e.endpoint)),
+        );
+        const filteredDiscoveredEndpoints = discoveredEndpoints.filter(
+            (e) => !existingEndpoints.has(e.endpoint),
+        );
+        endpoints.push({
+            label: 'Discovered Endpoints',
+            endpoints: filteredDiscoveredEndpoints,
+            editable: false,
+        });
+
+        return endpoints;
+    });
+
+    const selectedEndpoint = shallowRef({ endpoint: activeEndpoint.value });
+
+    // update selectedEndpoint when activeEndpoint changes
+    watch(activeEndpoint, (newVal) => {
+        selectedEndpoint.value = { endpoint: newVal };
+    });
+
+    watch(selectedEndpoint, (newVal) => {
+        if (newVal?.endpoint) {
+            setActiveEndpoint(newVal.endpoint).then((success) => {
+                if (!success) {
+                    console.error('Failed to set active endpoint', newVal.endpoint);
+                }
+            });
+        }
+    });
+
+    const search = ref('');
+    const debouncedSearch = refDebounced(search, 300);
+
+    const searchEndpoint = computed(() => {
+        if (!debouncedSearch.value || debouncedSearch.value.length < 3) {
+            return null;
+        }
+        if (debouncedSearch.value.startsWith('@')) {
+            return Endpoint.get(debouncedSearch.value);
+        }
+        return Endpoint.get('@' + debouncedSearch.value);
+    });
+
+    return {
+        groupedEndpoints,
+        selectedEndpoint,
+        search,
+        searchEndpoint,
+    };
+}

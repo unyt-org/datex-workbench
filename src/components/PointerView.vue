@@ -15,7 +15,7 @@ import { SidebarGroup, SidebarGroupContent, SidebarMenu } from '@/components/ui/
 import { usePointerPreferences } from '@/composable/usePointerPreferences';
 import { getTypeName, TYPE_CONFIGS } from '@/lib/pointer-types';
 import type { DIF } from '@unyt/datex';
-import { Filter, Search, Settings } from 'lucide-vue-next';
+import { Filter, Search, Settings } from '@lucide/vue';
 import type { HTMLAttributes } from 'vue';
 import { computed, nextTick, provide, ref, watchEffect } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -293,7 +293,7 @@ function resetTypeFilters() {
         </div>
 
         <!-- Tree Structure (Scrollable) -->
-        <ScrollArea class="flex-1.5 mb-15 no-drag">
+        <ScrollArea class="flex-1.5 mb-15">
             <SidebarGroup>
                 <SidebarGroupContent>
                     <SidebarMenu>

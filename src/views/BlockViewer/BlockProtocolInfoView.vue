@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/table';
 import type { FieldIdentifier } from '@/types/BlockViewer/FieldIdentifier';
 import { computed } from 'vue';
-import { X } from 'lucide-vue-next';
+import { X } from '@lucide/vue';
 import { useI18n } from 'vue-i18n';
 import { showSubfieldId } from '@/views/BlockViewer/settings';
 import { getColor } from '@/views/BlockViewer/settings';

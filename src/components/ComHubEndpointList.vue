@@ -1,81 +1,86 @@
 <template>
-    <div>
-        <div
-            v-for="[endpointId, sockets] in filteredEndpoints"
-            :key="endpointId"
-            class="card cursor-pointer transition hover:bg-neutral-100 dark:hover:bg-neutral-700/50"
+    <div class="flex flex-col gap-3 w-full">
+        <Card
+            class="p-0"
+            v-for="[endpoint, sockets] in filteredEndpoints"
+            :key="endpoint.toString()"
         >
-            <!-- Endpoint Header -->
-            <div
-                class="flex cursor-pointer items-center justify-between"
-                @click="toggle(endpointId)"
-            >
-                <div class="flex flex-col gap-1">
-                    <div class="flex items-center gap-2">
-                        <h3
-                            class="font-mono text-sm font-semibold text-blue-600 dark:text-blue-400"
-                        >
-                            {{ endpointId }}
-                        </h3>
-                        <span
-                            v-if="isDirect(sockets)"
-                            class="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900 dark:text-green-300"
-                            >direct</span
-                        >
-                    </div>
-                    <div class="text-dim text-xs">
-                        Connected via {{ sockets.length }}
-                        {{ sockets.length === 1 ? 'socket' : 'sockets' }}
-                        {{ getEndpointDirection(sockets) }}
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-xs text-neutral-400">{{
-                        expanded[endpointId] ? '▾' : '▸'
-                    }}</span>
-                </div>
-            </div>
-
-            <!-- Expanded Socket List -->
-            <div v-if="expanded[endpointId]" class="mt-3 flex flex-col gap-2 border-t pt-3">
-                <div v-for="(socket, idx) in sockets" :key="socket.uuid + idx" class="card-inner">
-                    <div class="flex items-start justify-between gap-2">
-                        <div class="flex flex-1 flex-col gap-1">
-                            <h4 class="text-sm font-semibold">
-                                {{ socket.interface.properties.interface_type }}
-                                <span
-                                    v-if="socket.interface.properties.name"
-                                    class="font-normal text-neutral-500"
-                                >
-                                    ({{ socket.interface.properties.name }})
-                                </span>
-                            </h4>
-                            <div class="text-faint mt-0.5 font-mono text-xs">{{ socket.uuid }}</div>
-                            <div class="dim mt-1 flex items-center gap-2 text-xs">
-                                <span
-                                    >Known since
-                                    {{ formatTime(Number(socket.properties.known_since)) }}</span
-                                >
-                                <span>·</span>
-                                <span>Distance: {{ socket.properties.distance }}</span>
-                                <span
-                                    v-if="socket.properties.is_direct"
-                                    class="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900 dark:text-green-300"
-                                    >direct</span
-                                >
-                            </div>
+            <CardContent class="p-4">
+                <!-- Endpoint Header -->
+                <div
+                    class="flex cursor-pointer items-center justify-between"
+                    @click="toggle(endpoint)"
+                >
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <EndpointLabel :connectionStatus="false" :endpoint="endpoint" />
+                            <span
+                                v-if="isDirect(sockets)"
+                                class="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900 dark:text-green-300"
+                                >direct</span
+                            >
                         </div>
-                        <button
-                            v-if="advancedMode"
-                            @click.stop="removeSocket(socket.uuid)"
-                            class="btn-danger w-24 text-center"
-                        >
-                            Disconnect
-                        </button>
+                        <div class="text-dim text-xs">
+                            Connected via {{ sockets.length }}
+                            {{ sockets.length === 1 ? 'socket' : 'sockets' }}
+                            {{ getEndpointDirection(sockets) }}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
+
+                <!-- Expanded Socket List -->
+                <div
+                    v-if="expanded[endpoint.toString()]"
+                    class="mt-3 flex flex-col gap-2 border-t pt-3"
+                >
+                    <div
+                        v-for="(socket, idx) in sockets"
+                        :key="socket.uuid + idx"
+                        class="card-inner"
+                    >
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex flex-1 flex-col gap-1">
+                                <h4 class="text-sm font-semibold">
+                                    {{ socket.interface.properties.interface_type }}
+                                    <span
+                                        v-if="socket.interface.properties.name"
+                                        class="font-normal text-neutral-500"
+                                    >
+                                        ({{ socket.interface.properties.name }})
+                                    </span>
+                                </h4>
+                                <div class="text-faint mt-0.5 font-mono text-xs">
+                                    {{ socket.uuid }}
+                                </div>
+                                <div class="dim mt-1 flex items-center gap-2 text-xs">
+                                    <span
+                                        >Known since
+                                        {{
+                                            formatTime(Number(socket.properties?.known_since))
+                                        }}</span
+                                    >
+                                    <span>·</span>
+                                    <span>Distance: {{ socket.properties?.distance }}</span>
+                                    <span
+                                        v-if="socket.properties?.is_direct"
+                                        class="rounded bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900 dark:text-green-300"
+                                        >direct</span
+                                    >
+                                </div>
+                            </div>
+                            <button
+                                v-if="advancedMode"
+                                @click.stop="removeSocket(socket.uuid)"
+                                class="btn-danger w-24 flex items-center gap-1"
+                            >
+                                <UnplugIcon class="h-5 w-5" />
+                                Disconnect
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
 
         <div v-if="filteredEndpoints.length === 0" class="text-dim text-sm">
             No matching endpoints found.
@@ -84,33 +89,39 @@
 </template>
 
 <script setup lang="ts">
-import type { ComHubInterface, ComHubSocket } from '@/components/ComHubOverviewWrapper.vue';
 import { removeSocket } from '@/lib/runtime';
-import { computed, reactive, watch } from 'vue';
+import { computed, markRaw, reactive, watch } from 'vue';
+import EndpointLabel from './Endpoints/EndpointLabel.vue';
+import { UnplugIcon } from '@lucide/vue';
+import Card from './ui/card/Card.vue';
+import CardContent from './ui/card/CardContent.vue';
+import { Endpoint, Tagged } from '@unyt/datex/lib';
+import type { ComHubMetadataInterface, ComHubMetadataInterfaceSocket } from '@unyt/datex';
 
-interface SocketWithInterface extends ComHubSocket {
+interface SocketWithInterface extends ComHubMetadataInterfaceSocket {
     interface: {
         uuid: string;
-        properties: ComHubInterface['properties'];
+        properties: ComHubMetadataInterface['properties'];
     };
 }
 
 const props = defineProps<{
-    interfaces: ComHubInterface[];
+    interfaces: ComHubMetadataInterface[];
     searchQuery: string;
     advancedMode: boolean;
 }>();
 
 const expanded = reactive<Record<string, boolean>>({});
 
-const endpointMap = computed((): Map<string, SocketWithInterface[]> => {
-    const map = new Map<string, SocketWithInterface[]>();
+const endpointMap = computed((): Map<Endpoint, SocketWithInterface[]> => {
+    const map = new Map<Endpoint, SocketWithInterface[]>();
     for (const iface of props.interfaces) {
         for (const socket of iface.sockets) {
-            const entry: SocketWithInterface = {
+            const entry: SocketWithInterface = markRaw({
                 ...socket,
                 interface: { uuid: iface.uuid, properties: iface.properties },
-            };
+            });
+            if (!socket.endpoint) continue;
             if (!map.has(socket.endpoint)) map.set(socket.endpoint, []);
             map.get(socket.endpoint)!.push(entry);
         }
@@ -118,17 +129,17 @@ const endpointMap = computed((): Map<string, SocketWithInterface[]> => {
     return map;
 });
 
-const filteredEndpoints = computed((): [string, SocketWithInterface[]][] => {
+const filteredEndpoints = computed((): [Endpoint, SocketWithInterface[]][] => {
     const query = props.searchQuery.trim().toLowerCase();
     const entries = Array.from(endpointMap.value.entries());
     if (!query) return entries;
-    return entries.filter(([endpointId]) => endpointId.toLowerCase().includes(query));
+    return entries.filter(([endpointId]) => endpointId.toString().toLowerCase().includes(query));
 });
 
 watch(filteredEndpoints, (entries) => {
     if (!props.searchQuery.trim()) return;
     for (const [endpointId] of entries) {
-        expanded[endpointId] = true;
+        expanded[endpointId.toString()] = true;
     }
 });
 
@@ -143,21 +154,25 @@ watch(
     },
 );
 
-function toggle(endpointId: string) {
-    expanded[endpointId] = !expanded[endpointId];
+function toggle(endpointId: Endpoint) {
+    expanded[endpointId.toString()] = !expanded[endpointId.toString()];
 }
+
+const InOut = new Tagged('InOut');
+const In = new Tagged('In');
+const Out = new Tagged('Out');
 
 function getEndpointDirection(sockets: SocketWithInterface[]): string {
     const dirs = new Set(sockets.map((s) => s.direction));
-    if (dirs.has('InOut')) return '↔';
-    if (dirs.has('In') && dirs.has('Out')) return '↔';
-    if (dirs.has('In')) return '←';
-    if (dirs.has('Out')) return '→';
+    if (dirs.has(InOut)) return '↔';
+    if (dirs.has(In) && dirs.has(Out)) return '↔';
+    if (dirs.has(In)) return '←';
+    if (dirs.has(Out)) return '→';
     return '↔';
 }
 
 function isDirect(sockets: SocketWithInterface[]): boolean {
-    return sockets.some((s) => s.properties.is_direct);
+    return sockets.some((s) => s.properties?.is_direct);
 }
 
 const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });

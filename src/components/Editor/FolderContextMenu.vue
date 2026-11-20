@@ -8,7 +8,7 @@ import {
     Copy,
     ClipboardPaste,
     Link,
-} from 'lucide-vue-next';
+} from '@lucide/vue';
 import { shortcuts } from '@/composable/usePlatform';
 import { ref, onMounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';

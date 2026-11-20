@@ -3,11 +3,13 @@ import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { datexSwap } from './vite-plugin-datex-swap';
 
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [
         vue(),
+        datexSwap(),
         tailwindcss(),
         VitePWA({
             registerType: 'autoUpdate',
@@ -59,4 +61,5 @@ export default defineConfig({
             },
         },
     },
+    assetsInclude: ['**/*.wasm']
 });

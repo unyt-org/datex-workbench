@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { type InstructionParts, getInstructionParts } from '@/types/disassembler';
-import type { Span, InstructionTree } from '@/lib/_temp_types.ts';
 import InstructionLabel from './InstructionLabel.vue';
-import { Plus, Minus } from 'lucide-vue-next';
+import { Plus, Minus } from '@lucide/vue';
+import type { InstructionTree, Span } from '@unyt/datex/runtime';
 
 const props = withDefaults(
     defineProps<{

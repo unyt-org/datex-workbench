@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { FieldIdentifier } from '@/types/BlockViewer/FieldIdentifier';
-import type { Span, FlatResult } from '@/lib/_temp_types.ts';
 import BlockProtocolBytes from '@/views/BlockViewer/BlockProtocolBytesView.vue';
 import BlockProtocolInfo from '@/views/BlockViewer/BlockProtocolInfoView.vue';
 import { parseStructure } from '@unyt/speck';
@@ -8,6 +7,7 @@ import { ref, computed } from 'vue';
 import { dxbDefinition } from '@/views/BlockViewer/settings';
 import DisassemblerView from '@/components/Disassembler/DisassemblerView.vue';
 import { Datex } from '@/lib/runtime';
+import type { Span } from '@unyt/datex/runtime';
 
 const props = defineProps<{
     blockData: Uint8Array;
@@ -20,7 +20,7 @@ const bodyDXB = bodySection?.fields[0]?.bytes;
 
 // augments parsed body with disassembler data to separate instructions into separate fields
 if (bodyDXB) {
-    const [instructions] = Datex.disassembleDXBFlat(bodyDXB) as FlatResult;
+    const [instructions] = Datex.disassembleDXBFlat(bodyDXB);
     bodySection.fields = [];
     for (const { instruction, span } of instructions) {
         const bytes = bodyDXB.slice(span.start, span.end);
@@ -58,10 +58,10 @@ const selectedBodySpan = ref<null | Span>(null);
 </script>
 
 <template>
-    <div class="flex flex-col h-full">
+    <div class="flex flex-col gap-3 h-full">
         <!-- Block sections: auto-size, max 50% height, scrolls if needed -->
         <BlockProtocolBytes
-            class="m-1 rounded-lg overflow-y-auto"
+            class="rounded-lg overflow-y-auto"
             style="max-height: 40%; flex-shrink: 0"
             :structure="parsedBlock"
             :structureDef="dxbDefinition"
@@ -72,13 +72,13 @@ const selectedBodySpan = ref<null | Span>(null);
         <!-- Details view: fills remaining height -->
         <DisassemblerView
             v-if="isBodySelected && bodyDXB"
-            class="m-1 flex-1 min-h-0 rounded-lg overflow-hidden bg-card"
+            class="flex-1 min-h-0 rounded-lg overflow-hidden bg-card"
             :dxb="bodyDXB"
             v-model="selectedBodySpan"
         />
         <BlockProtocolInfo
             v-else-if="selectedField"
-            class="m-1 flex-1 min-h-0 rounded-lg overflow-y-auto"
+            class="flex-1 min-h-0 rounded-lg overflow-y-auto"
             :structure="parsedBlock"
             :structureDef="dxbDefinition"
             :selectedField="selectedField"

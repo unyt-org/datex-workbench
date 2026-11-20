@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { type InstructionParts, getInstructionParts } from '@/types/disassembler';
-import type { FlatInstruction, Span } from '@/lib/_temp_types.ts';
 import InstructionLabel from './InstructionLabel.vue';
+import type { Span, FlatInstruction } from '@unyt/datex/runtime';
 
 const props = withDefaults(
     defineProps<{
@@ -21,7 +21,7 @@ const parts = computed<InstructionParts>(() => getInstructionParts(props.instruc
 const innerInstructions = computed<FlatInstruction[]>(() => {
     if (!props.showNested) return [];
     const inner = parts.value.inner;
-    if (Array.isArray(inner)) return inner as FlatInstruction[];
+    if (Array.isArray(inner)) return inner;
     return [];
 });
 
@@ -54,7 +54,7 @@ function focusSpan(span: Span | null) {
             <InstructionFlatItem
                 v-for="(nested, i) in innerInstructions"
                 :key="i"
-                :instruction="nested as FlatInstruction"
+                :instruction="nested"
                 :show-nested="showNested"
                 :indent-level="indentLevel + 1"
             />

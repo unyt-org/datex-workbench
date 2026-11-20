@@ -28,6 +28,7 @@
     "TRUE": "VALUE",
     "FALSE": "VALUE",
     "NULL": "VALUE",
+    "UNINITIALIZED": "VALUE",
     "SHARED_REF": "SHARED",
     "SHARED_REF_WITH_VALUE": "SHARED"
 }

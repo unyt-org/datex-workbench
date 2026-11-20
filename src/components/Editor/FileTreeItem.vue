@@ -1,12 +1,5 @@
 <script setup lang="ts">
-import {
-    File,
-    Folder,
-    FolderOpen,
-    ChevronRight,
-    ChevronDown,
-    TriangleAlert,
-} from 'lucide-vue-next';
+import { File, Folder, FolderOpen, ChevronRight, ChevronDown, TriangleAlert } from '@lucide/vue';
 import { cn } from '@/lib/utils';
 import { ref, nextTick, computed, watch } from 'vue';
 import type { FileTreeNode } from '@/types/FileTree';

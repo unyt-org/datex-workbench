@@ -10,6 +10,7 @@ export interface NetworkBlockTableRow {
     size: number;
     isEncrypted: boolean;
     isSigned: boolean;
+    isDebug: boolean;
     interface: string;
     capturedAt: number;
     blockId: BlockId;

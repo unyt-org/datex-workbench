@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Input } from '@/components/ui/input';
-import { Search, X } from 'lucide-vue-next';
+import { Search, X } from '@lucide/vue';
 import { computed, ref, watch, nextTick } from 'vue';
 import { watchDebounced, onClickOutside } from '@vueuse/core';
 import { tokenizeSearchQuery, tokensToStyledHtml } from '@/utils/searchParser';

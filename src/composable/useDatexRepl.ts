@@ -1,14 +1,19 @@
-import { ref } from 'vue';
+import { ref, shallowRef, watch, toValue, type MaybeRefOrGetter } from 'vue';
 import { Datex } from '@/lib/runtime';
+import type { Endpoint } from '@unyt/datex/lib';
+import { Repl } from '@unyt/datex/repl';
 
 export interface ReplEntry {
     type: 'input' | 'output' | 'error';
-    content: string;
+    content: string | null;
 }
 
-const entries = ref<ReplEntry[]>([]);
-const history = ref<string[]>([]);
-const suggestions = ref<string[]>([]);
+type ReplState = {
+    repl: InstanceType<typeof Repl> | null;
+    entries: ReplEntry[];
+    history: string[];
+    suggestions: string[];
+};
 
 // unused template for future LSP
 // function startLspTemplate() {
@@ -25,7 +30,109 @@ const suggestions = ref<string[]>([]);
 //     });
 // }
 
-export function useDatexRepl() {
+const cachedReplStates = new Map<Endpoint, ReplState>();
+
+const DEFAULT_SUGGESTIONS: string[] = [
+    'var',
+    'true',
+    'false',
+    'null',
+    'clear',
+    'reset',
+    'help',
+    'test',
+    'name',
+    'endpoint',
+];
+
+/**
+ * Stores entries and history in local storage for the given endpoint
+ * @param endpoint
+ * @param state
+ */
+function persistReplState(endpoint: Endpoint, state: ReplState) {
+    const key = `replState:${endpoint}`;
+    localStorage.setItem(
+        key,
+        JSON.stringify({
+            entries: state.entries,
+            history: state.history,
+        }),
+    );
+}
+
+function tryLoadPersistedReplState(endpoint: Endpoint): ReplState | null {
+    const key = `replState:${endpoint}`;
+    const data = localStorage.getItem(key);
+    if (!data) return null;
+    try {
+        const parsed = JSON.parse(data);
+        return {
+            repl: new Repl(Datex, endpoint),
+            entries: parsed.entries ?? [],
+            history: parsed.history ?? [],
+            suggestions: [],
+        };
+    } catch {
+        return null;
+    }
+}
+
+export function useDatexRepl(endpoint: MaybeRefOrGetter<Endpoint | null>) {
+    const repl = shallowRef<InstanceType<typeof Repl> | null>(null);
+    const entries = ref<ReplEntry[]>([]);
+    const history = ref<string[]>([]);
+    const suggestions = ref<string[]>([]);
+
+    watch(
+        [entries, history],
+        ([newEntries, newHistory]) => {
+            const endpointValue = toValue(endpoint);
+            if (endpointValue) {
+                const state = cachedReplStates.get(endpointValue) ?? {
+                    repl: repl.value,
+                    entries: [],
+                    history: [],
+                    suggestions: suggestions.value,
+                };
+
+                state.entries = newEntries;
+                state.history = newHistory;
+
+                cachedReplStates.set(endpointValue, state);
+                persistReplState(endpointValue, state);
+            }
+        },
+        { deep: true },
+    );
+
+    watch(
+        () => toValue(endpoint),
+        (ep) => {
+            if (ep) {
+                if (!cachedReplStates.has(ep)) {
+                    const persistedState = tryLoadPersistedReplState(ep);
+                    cachedReplStates.set(
+                        ep,
+                        persistedState ?? {
+                            repl: new Repl(Datex, ep),
+                            entries: [],
+                            history: [],
+                            suggestions: [],
+                        },
+                    );
+                }
+
+                const state = cachedReplStates.get(ep)!;
+                repl.value = state.repl ?? null;
+                entries.value = state.entries ?? [];
+                history.value = state.history ?? [];
+                suggestions.value = state.suggestions ?? [];
+            }
+        },
+        { immediate: true },
+    );
+
     function updateSuggestions(input: string) {
         const trimmed = input.trim();
 
@@ -42,7 +149,7 @@ export function useDatexRepl() {
 
         const lastToken = lastTokenMatch[0];
 
-        const keywords = ['var', 'true', 'false', 'null', 'clear', 'reset', 'help', 'test'];
+        const keywords = DEFAULT_SUGGESTIONS;
 
         suggestions.value = keywords.filter((k) => k.startsWith(lastToken)).slice(0, 8);
     }
@@ -59,11 +166,6 @@ export function useDatexRepl() {
         const cmd = code.trim().toLowerCase();
 
         if (cmd === 'clear') {
-            entries.value = [];
-            return;
-        }
-
-        if (cmd === 'reset') {
             reset();
             return;
         }
@@ -89,12 +191,19 @@ export function useDatexRepl() {
             return;
         }
 
+        // capture before await so a running command stays on its original endpoint
+        const current = repl.value;
+        if (!current) {
+            entries.value.push({ type: 'error', content: 'No endpoint available' });
+            return;
+        }
+
         try {
-            const result = await Datex.execute(code);
+            const result = (await current.execute(code)) ?? null;
 
             entries.value.push({
                 type: 'output',
-                content: formatOutput(Datex.valueToString(result)),
+                content: result,
             });
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : String(err);
@@ -108,21 +217,6 @@ export function useDatexRepl() {
 
     function reset() {
         entries.value = [];
-        history.value = [];
-        suggestions.value = [];
-    }
-
-    function formatOutput(val: unknown): string {
-        if (val === 'null' || val === undefined) {
-            return '<span class="opacity-40 italic">void</span>';
-        }
-
-        return String(val)
-            .replace(/\x1b\[32m/g, '<span class="text-emerald-400">')
-            .replace(/\x1b\[31m/g, '<span class="text-red-400">')
-            .replace(/\x1b\[33m/g, '<span class="text-yellow-400">')
-            .replace(/\x1b\[36m/g, '<span class="text-cyan-400">')
-            .replace(/\x1b\[0m/g, '</span>');
     }
 
     return {

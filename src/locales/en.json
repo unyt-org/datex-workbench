@@ -44,12 +44,13 @@
     },
     "nav": {
         "welcome": "Welcome",
+        "logs": "Logs",
         "block": "Block Viewer",
         "networkInspector": "Network Inspector",
         "nodeView": "Node View",
         "networkTree": "Network Tree",
         "collection": "Collection",
-        "about": "About",
+        "about": "Endpoint Status",
         "repl": "REPL",
         "comhub": "ComHub",
         "networkVisualizer": "Network Visualizer",
@@ -92,7 +93,8 @@
         "columnSize": "Size",
         "columns": "Columns",
         "notEncrypted": "Not encrypted",
-        "notSigned": "Not signed"
+        "notSigned": "Not signed",
+        "debugBlock": "Debug Block"
     },
     "trace": {
         "endpoint": "\\@endpoint",
@@ -118,9 +120,11 @@
         "next": "Next"
     },
     "about": {
-        "title": "About",
+        "title": "Endpoint Status",
         "datexVersion": "DATEX Version",
-        "jsVersion": "JS Version",
+        "device": "Device",
+        "otherVersions": "Other Versions",
+        "heapUsage": "Heap Usage",
         "endpoint": "Endpoint",
         "activeFeatures": "Active Features"
     },

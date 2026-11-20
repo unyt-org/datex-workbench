@@ -44,6 +44,7 @@ export function createColumns(
                     value: row.getValue<string>('blockType'),
                     isEncrypted: row.original.isEncrypted,
                     isSigned: row.original.isSigned,
+                    isDebug: row.original.isDebug,
                     searchTerms: parsedQuery ? getSearchTermsForField(parsedQuery, 'type') : [],
                 }),
         },

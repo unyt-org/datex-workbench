@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { usePreferences } from '@/preferences';
-import { RotateCcw, AlertTriangle } from 'lucide-vue-next';
+import { RotateCcw, AlertTriangle } from '@lucide/vue';
 import Button from '@/components/ui/button/Button.vue';
 
 const { preferences, resetSection, resetAll } = usePreferences();

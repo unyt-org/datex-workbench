@@ -1,5 +1,6 @@
-import type { InstructionTree, FlatInstruction, TreeInstruction } from '@/lib/_temp_types.ts';
 // ─── Helpers ────────────────────────────────────────────────
+
+import type { FlatInstruction, InstructionTree, TreeInstruction } from '@unyt/datex/runtime';
 
 export interface InstructionParts {
     name: string;

@@ -2,7 +2,7 @@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { TYPE_CONFIGS, extractPointerId, getTypeName } from '@/lib/pointer-types';
 import type { DIF } from '@unyt/datex';
-import { ChevronDown, ChevronRight } from 'lucide-vue-next';
+import { ChevronDown, ChevronRight } from '@lucide/vue';
 import { computed, nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import PointerRefInline from './PointerRefInline.vue';
