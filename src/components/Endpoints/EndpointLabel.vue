@@ -86,8 +86,12 @@ const hasInspectorSession = computed(() => connectedInspectorInstances.has(props
                 :class="variant == 'colored-name' ? 'text-foreground' : 'text-muted-foreground'"
             >
                 &nbsp;{{ endpointName }}
-                <span v-if="endpoint?.toString() == '@@local' && variant == 'colored-name'" class="text-muted-foreground">
-                  (<span class="select-all">{{Datex.endpoint.toString()}}</span>)
+                <span
+                    v-if="endpoint?.toString() == '@@local' && variant == 'colored-name'"
+                    class="text-muted-foreground"
+                >
+                    (<span class="select-all">{{ Datex.endpoint.toString() }}</span
+                    >)
                 </span>
             </span>
         </span>
