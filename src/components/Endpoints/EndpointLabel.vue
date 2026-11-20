@@ -3,6 +3,7 @@ import { useEndpointConnectionStatus } from '@/lib/composables/use-endpoint-conn
 import { Endpoint } from '@unyt/datex/lib';
 import { computed, ref, watch } from 'vue';
 import { connectedInspectorInstances } from '@/lib/inspector/mod.ts';
+import { Datex } from '@/lib/runtime';
 
 const props = withDefaults(
     defineProps<{
@@ -77,7 +78,7 @@ const hasInspectorSession = computed(() => connectedInspectorInstances.has(props
         <span v-if="!endpoint" class="relative flex select-none"> ... </span>
 
         <span>
-            <span :class="variant == 'colored-name' ? textColor : ''">{{
+            <span class="select-all" :class="variant == 'colored-name' ? textColor : ''">{{
                 endpoint?.toString()
             }}</span>
             <span
@@ -85,6 +86,9 @@ const hasInspectorSession = computed(() => connectedInspectorInstances.has(props
                 :class="variant == 'colored-name' ? 'text-foreground' : 'text-muted-foreground'"
             >
                 &nbsp;{{ endpointName }}
+                <span v-if="endpoint?.toString() == '@@local' && variant == 'colored-name'" class="text-muted-foreground">
+                  (<span class="select-all">{{Datex.endpoint.toString()}}</span>)
+                </span>
             </span>
         </span>
     </div>

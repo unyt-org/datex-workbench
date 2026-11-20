@@ -1,13 +1,16 @@
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import { fileURLToPath, URL } from 'node:url';
-import { defineConfig, searchForWorkspaceRoot } from 'vite';
+import { searchForWorkspaceRoot } from 'vite';
+import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { datexSwap } from './vite-plugin-datex-swap';
 
 // https://vite.dev/config/
 export default defineConfig({
     plugins: [
         vue(),
+        datexSwap(),
         tailwindcss(),
         VitePWA({
             registerType: 'autoUpdate',
@@ -59,17 +62,11 @@ export default defineConfig({
             },
         },
     },
-    optimizeDeps: {
-      exclude: ['@unyt/datex'],
-    },
     assetsInclude: ['**/*.wasm'],
     // FIXME: remove, only needed for tmp patch
       server: {
         fs: {
-            allow: [
-                searchForWorkspaceRoot(process.cwd()),
-                '../datex-web',
-            ],
+          allow: [searchForWorkspaceRoot(process.cwd()), '../datex-web'],
         },
     },
 });
