@@ -9,7 +9,7 @@ const VIRTUAL_BASE = 'https://datex.unyt/';
 const STORAGE_KEY = 'localDatexModuleUrl';
 const VENDOR_DIR = 'vendor/datex';
 
-const MIME_MAPPING = {
+const MIME_MAPPING: Record<string, string> = {
     '.js': 'text/javascript',
     '.mjs': 'text/javascript',
     '.json': 'application/json',
