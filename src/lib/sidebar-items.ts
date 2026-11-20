@@ -1,0 +1,76 @@
+import {
+    ArrowLeftRight,
+    SendToBack,
+    Terminal,
+    Box,
+    EthernetPort,
+    Database,
+    LogsIcon,
+    ChartColumn,
+} from '@lucide/vue';
+
+export const sidebarItems = [
+    {
+        icon: Terminal,
+        key: 'repl',
+        path: '/repl',
+        label: 'nav.repl',
+        description: 'welcome.replDesc',
+    },
+    {
+        icon: ChartColumn,
+        key: 'about',
+        path: '/status',
+        label: 'nav.about',
+        description: 'welcome.aboutDesc',
+    },
+    {
+        icon: ArrowLeftRight,
+        key: 'networkInspector',
+        path: '/network',
+        label: 'nav.networkInspector',
+        description: 'welcome.networkDesc',
+    },
+    {
+        icon: Database,
+        key: 'memory',
+        path: '/memory',
+        label: 'nav.memory',
+        description: 'welcome.memoryDesc',
+    },
+    {
+        icon: LogsIcon,
+        key: 'logs',
+        path: '/logs',
+        label: 'nav.logs',
+        description: 'welcome.logsDesc',
+    },
+    {
+        icon: EthernetPort,
+        key: 'comhub',
+        path: '/comhub',
+        label: 'nav.comhub',
+        description: 'welcome.comhubDesc',
+    },
+    {
+        icon: SendToBack,
+        key: 'networkVisualizer',
+        path: '/network-visualizer',
+        label: 'nav.networkVisualizer',
+        description: 'welcome.networkVisualizerDesc',
+    },
+    {
+        icon: Box,
+        key: 'block',
+        path: '/block',
+        label: 'nav.block',
+        description: 'welcome.blockDesc',
+    },
+    // {
+    //     icon: GitGraph,
+    //     key: 'nodeView',
+    //     path: '/node-view',
+    //     label: 'nav.nodeView',
+    //     description: 'welcome.nodeDesc',
+    // },
+];

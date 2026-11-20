@@ -28,6 +28,7 @@ export interface ParsedSearchQuery {
     sender: string[];
     receiver: string[];
     interface: string[];
+    blockId: string[];
     plainText: string;
 }
 
@@ -50,6 +51,7 @@ export function parseSearchQuery(query: string): ParsedSearchQuery {
         sender: [],
         receiver: [],
         interface: [],
+        blockId: [],
         plainText: '',
     };
 
@@ -59,7 +61,7 @@ export function parseSearchQuery(query: string): ParsedSearchQuery {
 
     // Configure parser to recognize our keywords
     const parsed = searchQuery.parse(query, {
-        keywords: ['type', 'sender', 'receiver', 'interface'],
+        keywords: ['type', 'sender', 'receiver', 'interface', 'blockId'],
         alwaysArray: true, // Always return arrays for consistency
         offsets: false, // We don't need offset tracking
     });
@@ -80,6 +82,7 @@ export function parseSearchQuery(query: string): ParsedSearchQuery {
     result.sender = normalizeToArray(parsed.sender as string | string[]);
     result.receiver = normalizeToArray(parsed.receiver as string | string[]);
     result.interface = normalizeToArray(parsed.interface as string | string[]);
+    result.blockId = normalizeToArray(parsed.blockId as string | string[]);
 
     // Extract plain text if present
     const textValue = parsed.text;
@@ -197,7 +200,7 @@ export function highlightMatches(text: string, searchTerms: string[]): string {
  */
 export function getSearchTermsForField(
     parsedQuery: ParsedSearchQuery,
-    field: 'type' | 'sender' | 'receiver' | 'interface',
+    field: 'type' | 'sender' | 'receiver' | 'interface' | 'blockId',
 ): string[] {
     const terms = [...parsedQuery[field]];
 
@@ -236,7 +239,7 @@ export function tokenizeSearchQuery(query: string): SearchToken[] {
         if (match[1] && match[2] && match[3]) {
             // Qualifier:value pattern
             const qualifier = match[1];
-            const validQualifiers = ['type', 'sender', 'receiver', 'interface'];
+            const validQualifiers = ['type', 'sender', 'receiver', 'interface', 'blockId'];
 
             if (validQualifiers.includes(qualifier.toLowerCase())) {
                 tokens.push({ type: 'qualifier', text: qualifier });

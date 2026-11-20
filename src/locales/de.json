@@ -5,10 +5,12 @@
         "networkDesc": "DATEX-Netzwerkblöcke in Echtzeit überwachen und untersuchen",
         "nodeDesc": "Den DATEX-Knotengraphen visualisieren und bearbeiten",
         "editorDesc": "DATEX-Dateien direkt in der Workbench bearbeiten",
+        "aboutDesc": "Runtime-Informationen anzeigen",
         "replDesc": "Interaktive DATEX-Runtime-Umgebung",
         "soon": "Bald",
         "fileEditor": "Datei-Editor",
-        "repl": "REPL"
+        "repl": "REPL",
+        "memoryDesc": "Shared Values im Cache und Speicher anzeigen und untersuchen"
     },
     "common": {
         "loading": "Lädt...",
@@ -28,7 +30,11 @@
         "unavailable": "Nicht verfügbar",
         "unlimited": "Unbegrenzt",
         "reset": "Zurücksetzen",
-        "searchPlaceholder": "Suchen: type:traceback sender:name"
+        "searchPlaceholder": "Suchen: type:traceback sender:name",
+        "cut": "Ausschneiden",
+        "copy": "Kopieren",
+        "paste": "Einfügen",
+        "rename": "Umbenennen"
     },
     "theme": {
         "toggle": "Design umschalten",
@@ -38,16 +44,18 @@
     },
     "nav": {
         "welcome": "Willkommen",
-        "block": "Block",
-        "network": "Netzwerk",
+        "logs": "Logs",
+        "block": "Block Viewer",
+        "networkInspector": "Netzwerk-Inspektor",
         "nodeView": "Knotenansicht",
         "networkTree": "Netzwerk-Baum",
         "collection": "Sammlung",
-        "about": "Über",
+        "about": "Endpoint-Status",
         "repl": "REPL",
         "comhub": "ComHub",
         "networkVisualizer": "Netzwerk-Visualisierer",
-        "preferences": "Einstellungen"
+        "preferences": "Einstellungen",
+        "memory": "Speicher"
     },
     "block": {
         "openFile": "Datei öffnen",
@@ -61,8 +69,8 @@
         "failedToLoadExample": "Beispielblock konnte nicht geladen werden"
     },
     "disassembler": {
-        "disassembler": "DISASSEMBLER",
-        "decompiler": "DECOMPILER",
+        "disassembler": "INSTRUCTIONS",
+        "decompiler": "DECOMPILED CODE",
         "tree": "Baum",
         "flat": "Flach",
         "nested": "Verschachtelt",
@@ -80,11 +88,13 @@
         "columnInterface": "Schnittstelle",
         "columnSender": "Absender",
         "columnReceiver": "Empfänger",
+        "blockId": "Block-ID",
         "columnTime": "Zeit",
         "columnSize": "Größe",
         "columns": "Spalten",
         "notEncrypted": "Nicht verschlüsselt",
-        "notSigned": "Nicht signiert"
+        "notSigned": "Nicht signiert",
+        "debugBlock": "Debug-Block"
     },
     "trace": {
         "endpoint": "\\@endpoint",
@@ -110,9 +120,11 @@
         "next": "Weiter"
     },
     "about": {
-        "title": "Über",
+        "title": "Endpoint-Status",
         "datexVersion": "DATEX-Version",
-        "jsVersion": "JS-Version",
+        "device": "Gerät",
+        "otherVersions": "Andere Versionen",
+        "heapUsage": "Heap-Nutzung",
         "endpoint": "Endpoint",
         "activeFeatures": "Aktive Funktionen"
     },
@@ -156,5 +168,17 @@
         "advancedMode": "Erweiterter Modus",
         "groupByEndpoint": "Nach Endpoint gruppieren",
         "searchPlaceholder": "Suchen (z. B. \\@beispiel)"
+    },
+    "editor": {
+        "files": "Dateien",
+        "newFile": "Neue Datei",
+        "newFolder": "Neuer Ordner",
+        "filenamePlaceholder": "dateiname.erw",
+        "foldernamePlaceholder": "ordnername",
+        "duplicateExists": "Eine Datei oder ein Ordner {name} existiert bereits. Bitte wählen Sie einen anderen Namen.",
+        "copyPath": "Pfad kopieren",
+        "copyRelativePath": "Relativen Pfad kopieren",
+        "dropToOpen": "Zum Öffnen der Datei ablegen",
+        "noFileOpen": "Keine Datei geöffnet"
     }
 }

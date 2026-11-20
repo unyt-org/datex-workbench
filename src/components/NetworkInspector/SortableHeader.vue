@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Column } from '@tanstack/vue-table';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-vue-next';
+import { ArrowUpDown, ArrowUp, ArrowDown } from '@lucide/vue';
 import type { NetworkBlockTableRow } from '@/types/NetworkInspector/TableRow';
 
 const props = defineProps<{

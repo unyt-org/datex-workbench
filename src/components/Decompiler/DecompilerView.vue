@@ -1,33 +1,20 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import { createHighlighter, type Highlighter } from 'shiki';
+import { useShikiHighlighter } from '../../composable/useShikiHighlighter';
 import { useColorMode } from '@vueuse/core';
-import datexGrammar from './datex.tmLanguage.json';
 
 const mode = useColorMode();
 
-const placeholderCode = `const example = [1,2,3,"test"];
-const sharedValue = shared 42;
-
-function myFunction() (
-    @example :: print "Hello DATEX";
-)
-
-myFunction();
-`;
+const props = defineProps<{
+    code: string;
+}>();
 
 const highlightedHtml = ref('');
-let highlighter: Highlighter | null = null;
+const highlighter = await useShikiHighlighter();
 
 async function highlight() {
-    if (!highlighter) {
-        highlighter = await createHighlighter({
-            themes: ['github-dark', 'github-light'],
-            langs: [datexGrammar as never],
-        });
-    }
-    const theme = mode.value === 'dark' ? 'github-dark' : 'github-light';
-    highlightedHtml.value = highlighter.codeToHtml(placeholderCode, {
+    const theme = mode.value === 'dark' ? 'DATEX Dark' : 'DATEX Light';
+    highlightedHtml.value = highlighter.codeToHtml(props.code, {
         lang: 'datex',
         theme,
     });

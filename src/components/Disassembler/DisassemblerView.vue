@@ -1,44 +1,52 @@
 <script setup lang="ts">
-import { ref, computed, shallowRef } from 'vue';
-import type { InstructionTree, FlatInstruction } from '@/types/disassembler';
-import InstructionTreeNode from './InstructionTreeNode.vue';
-import InstructionFlatItem from './InstructionFlatItem.vue';
-import { GitFork, List, UnfoldVertical, FoldVertical } from 'lucide-vue-next';
 import DecompilerView from '@/components/Decompiler/DecompilerView.vue';
+import { Datex } from '@/lib/runtime.ts';
+import { FoldVertical, GitFork, List, UnfoldVertical } from '@lucide/vue';
+import { computed, watch, type ComputedRef } from 'vue';
 import { useI18n } from 'vue-i18n';
+import InstructionFlatItem from './InstructionFlatItem.vue';
+import InstructionTreeNode from './InstructionTreeNode.vue';
+import { usePersistentRef } from '@/lib/composables/use-persistent-ref.ts';
+import type { Span } from '@unyt/datex/runtime';
 
 const { t } = useI18n();
 
-const viewType = ref<'disassembler' | 'decompiler'>('disassembler');
-
 type ViewMode = 'tree' | 'flat';
 
-defineProps<{
+const viewType = usePersistentRef<'disassembler' | 'decompiler'>(
+    'disassembler/viewType',
+    'disassembler',
+);
+const viewMode = usePersistentRef<ViewMode>('disassembler/viewMode', 'tree');
+const showNested = usePersistentRef<boolean>('disassembler/showNested', true);
+
+const props = defineProps<{
     /** Raw DXB body bytes to disassemble */
     dxb: Uint8Array;
 }>();
 
-const viewMode = ref<ViewMode>('tree');
-const showNested = ref(true);
+const selectedBodySpan = defineModel<null | Span>();
 
 // ─── Disassembly ────────────────────────────────────────────
-// TODO: Replace mock data with actual runtime calls once available:
-//   const [treeData, treeError] = Datex.Runtime.disassembleDXBTree(props.dxb)
-//   const [flatData, flatError] = Datex.Runtime.disassembleDXBFlat(props.dxb)
+const treeData = computed(() => Datex.disassembleDXBTree(props.dxb));
+const flatData = computed(() => Datex.disassembleDXBFlat(props.dxb));
+const error = computed(() => (viewMode.value === 'tree' ? treeData.value[1] : flatData.value[1]));
 
-const treeData = ref<InstructionTree | null>(null);
-const treeError = ref<string | null>(null);
-const flatData = shallowRef<FlatInstruction[] | null>(null);
-const flatError = ref<string | null>(null);
+let decompiledCode: ComputedRef<string> | string = '';
+try {
+    decompiledCode = computed(() => Datex.decompileDXBBody(props.dxb));
+} catch (err) {
+    console.error('Decompiler error:', err);
+    decompiledCode = '// Error during decompilation';
+}
 
-// Mock data for development — remove when wiring up real runtime
-import { MOCK_TREE, MOCK_FLAT } from '@/Mocks/disassemblerMocks';
-treeData.value = MOCK_TREE[0];
-treeError.value = MOCK_TREE[1];
-flatData.value = MOCK_FLAT[0];
-flatError.value = MOCK_FLAT[1];
-
-const error = computed(() => (viewMode.value === 'tree' ? treeError.value : flatError.value));
+watch(
+    flatData,
+    (newVal) => {
+        console.log('Flat data changed:', newVal[0]);
+    },
+    { immediate: true },
+);
 </script>
 
 <template>
@@ -124,17 +132,22 @@ const error = computed(() => (viewMode.value === 'tree' ? treeError.value : flat
             <!-- Instruction view -->
             <div>
                 <!-- Tree mode -->
-                <template v-if="viewMode === 'tree' && treeData">
-                    <InstructionTreeNode :node="treeData" :show-nested="showNested" />
+                <template v-if="viewMode === 'tree' && treeData[0]">
+                    <InstructionTreeNode
+                        :node="treeData[0]"
+                        :show-nested="showNested"
+                        v-model="selectedBodySpan"
+                    />
                 </template>
 
                 <!-- Flat mode -->
-                <template v-else-if="viewMode === 'flat' && flatData">
+                <template v-else-if="viewMode === 'flat' && flatData[0]">
                     <InstructionFlatItem
-                        v-for="(inst, i) in flatData"
+                        v-for="(inst, i) in flatData[0]"
                         :key="i"
                         :instruction="inst"
                         :show-nested="showNested"
+                        v-model="selectedBodySpan"
                     />
                 </template>
 
@@ -147,13 +160,13 @@ const error = computed(() => (viewMode.value === 'tree' ? treeError.value : flat
 
         <!-- Decompiler view -->
         <div v-else class="flex-1 min-h-0 overflow-y-auto">
-            <DecompilerView />
+            <DecompilerView :code="decompiledCode" />
         </div>
 
         <!-- Error banner -->
         <div
             v-if="error"
-            class="mx-4 mb-3 px-3 py-2 rounded-md border text-sm font-mono bg-red-950/40 border-red-900/60 text-red-300"
+            class="mx-4 mb-3 px-3 py-2 rounded-md border text-sm font-mono bg-rose-950/40 border-rose-900/60 text-rose-300"
         >
             ⚠ {{ error }}
         </div>

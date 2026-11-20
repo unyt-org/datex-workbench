@@ -10,6 +10,7 @@ const props = defineProps<{
     sectionId: number;
     fieldId: number;
     selectedField: FieldIdentifier | null;
+    grayOut: boolean;
 }>();
 
 const emit = defineEmits(['field-clicked']);
@@ -51,11 +52,17 @@ const subfieldsMatchByteLength =
                 :field="cutFieldBytes(field)"
                 :shortenWithDots="field.bytes.length > bytesCutoff"
                 :fieldDef="fieldDef"
+                :grayOut="grayOut"
             >
             </BlockField>
         </div>
         <div v-else-if="!subfieldsMatchByteLength" class="contents">
-            <BlockField :field="field" :shortenWithDots="false" :fieldDef="fieldDef"></BlockField>
+            <BlockField
+                :field="field"
+                :shortenWithDots="false"
+                :fieldDef="fieldDef"
+                :grayOut="grayOut"
+            ></BlockField>
         </div>
         <div v-else class="subfield-wrapper contents">
             <BlockField
@@ -64,6 +71,7 @@ const subfieldsMatchByteLength =
                 :field="subField"
                 :shortenWithDots="false"
                 :fieldDef="fieldDef"
+                :grayOut="grayOut"
             ></BlockField>
         </div>
     </div>

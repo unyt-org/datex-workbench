@@ -1,3 +1,4 @@
+import type { BlockId } from '@/composable/useNetworkInspector';
 import type { ParsedSection } from '@unyt/speck';
 
 export type BlockDirection = 'in' | 'out';
@@ -17,4 +18,6 @@ export interface RawBlockEntry {
     size: number;
     encryptionType: string;
     signatureType: string;
+    isDebug: boolean;
+    blockId: BlockId;
 }

@@ -1,13 +1,13 @@
-import PointerView from '@/components/PointerView.vue';
-import { getPointers } from '@/lib/runtime';
+import MemoryView from '@/components/Memory/MemoryView.vue';
+import LogsView from '@/components/Logs/LogsView.vue';
 // import WindowGeneralView from '@/views/WindowGeneralView.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import WelcomeView from '../views/WelcomeView.vue';
 import DatexRepl from '@/views/Repl/DatexRepl.vue';
-import AboutView from '@/views/AboutView.vue';
 import NetworkTraceView from '@/views/NetworkTrace/NetworkTraceView.vue';
 import ComHubOverviewWrapper from '@/components/ComHubOverviewWrapper.vue';
 import EndpointView from '@/components/endpoint/EndpointView.vue';
+import StatusView from '@/views/StatusView/StatusView.vue';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -53,9 +53,14 @@ const router = createRouter({
             component: EndpointView,
         },
         {
-            path: '/pointers',
-            component: PointerView,
-            props: { pointers: getPointers() },
+            path: '/logs',
+            name: 'logs',
+            component: LogsView,
+        },
+        {
+            path: '/memory',
+            name: 'memory',
+            component: MemoryView,
         },
         {
             path: '/repl',
@@ -63,9 +68,9 @@ const router = createRouter({
             component: DatexRepl,
         },
         {
-            path: '/about',
-            name: 'about',
-            component: AboutView,
+            path: '/status',
+            name: 'status',
+            component: StatusView,
         },
         {
             path: '/network-visualizer',
