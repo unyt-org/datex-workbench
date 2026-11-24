@@ -39,14 +39,6 @@ try {
     console.error('Decompiler error:', err);
     decompiledCode = '// Error during decompilation';
 }
-
-watch(
-    flatData,
-    (newVal) => {
-        console.log('Flat data changed:', newVal[0]);
-    },
-    { immediate: true },
-);
 </script>
 
 <template>
