@@ -1,1 +1,0 @@
-import{ref as a}from"../../node_modules/@vue/reactivity/dist/reactivity.esm-bundler-CmkSKHJe.js";import{watch as f}from"../../node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler-Bi8Ho3Kn.js";function i(e,o){const t=localStorage.getItem(e),r=a(t?JSON.parse(t):o);return f(r,s=>{localStorage.setItem(e,JSON.stringify(s))},{deep:!0}),r}export{i as usePersistentRef};

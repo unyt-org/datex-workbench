@@ -1,0 +1,1 @@
+import{d as e}from"./runtime-core.esm-bundler-Da0a6suM.js";const t=e({__name:"EnableLocalPatchView",setup(a){const o=new URLSearchParams(window.location.search).get("url");return console.log("url",o),o&&localStorage.setItem("localDatexModuleUrl",o),window.location.href="/",()=>{}}});export{t as default};
