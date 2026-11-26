@@ -1,17 +1,13 @@
-import { Endpoint, tagged } from '@unyt/datex/lib';
+import { tagged } from '@unyt/datex/lib';
 import { Runtime, type RuntimeConfig } from '@unyt/datex';
 
 const websocketServerEndpointURL =
     localStorage.getItem('websocketServerEndpoint') || 'wss://example.unyt.land';
 
-const endpointName =
-    sessionStorage.getItem('datexRuntimeEndpointName') ||
-    '@workbench_' + Math.floor(Math.random() * 1000);
-sessionStorage.setItem('datexRuntimeEndpointName', endpointName);
-
 const defaultConfig: RuntimeConfig = {
-    endpoint: Endpoint.get(endpointName),
+    endpoint: null,
     name: 'DATEX Workbench',
+    keys: null,
     interfaces: [
         {
             type: 'websocket-client',
@@ -22,6 +18,7 @@ const defaultConfig: RuntimeConfig = {
         },
     ],
     env: null,
+    vault_location: 'session_storage'
 };
 
 const logLevel = localStorage.getItem('datexRuntimeLogLevel') as
