@@ -4,6 +4,10 @@ import { Runtime, type RuntimeConfig } from '@unyt/datex';
 const websocketServerEndpointURL =
     localStorage.getItem('websocketServerEndpoint') || 'wss://example.unyt.land';
 
+/**
+ * Default configuration for the Datex runtime,
+ * initializes a random anonymous endpoint with keys stored in session storage
+ */
 const defaultConfig: RuntimeConfig = {
     endpoint: null,
     name: 'DATEX Workbench',
