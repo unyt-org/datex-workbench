@@ -23,23 +23,13 @@ function getBlockType(parsedBlock: ParsedSection[]): string {
         : 'Unknown';
 }
 
-// FIXME: only temporary workaround for anonymous endpoints, must be fixed in speck directly
-function normalizeEndpoint(endpoint: string): string {
-    if (endpoint.startsWith('@@')) {
-      const bytes = new TextEncoder().encode(endpoint.slice(2));
-      const hex = Array.from(bytes, b => b.toString(16).toUpperCase().padStart(2, "0")).join("");
-      return '@@' +hex;
-    }
-    return endpoint;
-}
-
 function getSender(parsedBlock: ParsedSection[]): string {
     const routingHeader = parsedBlock.find((section) => section.name === 'Routing Header');
     if (!routingHeader) return 'Unknown';
 
     const sender = routingHeader.fields.find((field) => field.name === 'Sender');
     return sender && 'parsedValue' in sender
-        ? normalizeEndpoint(sender.parsedValue?.toString() || 'Unknown')
+        ? (sender.parsedValue?.toString() || 'Unknown')
         : 'Unknown';
 }
 
@@ -49,7 +39,7 @@ function getReceivers(parsedBlock: ParsedSection[]): string[] {
 
     const receivers = routingHeader.fields.filter((field) => field.name === 'Receivers');
     return receivers.map((field) =>
-        'parsedValue' in field ? normalizeEndpoint(field.parsedValue?.toString() || '') : '',
+        'parsedValue' in field ? (field.parsedValue?.toString() || '') : '',
     );
 }
 

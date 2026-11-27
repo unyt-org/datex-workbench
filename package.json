@@ -24,7 +24,7 @@
         "@tanstack/vue-table": "^8.21.3",
         "@tanstack/vue-virtual": "^3.13.23",
         "@unyt/datex": "^0.0.17",
-        "@unyt/speck": "^0.0.13",
+        "@unyt/speck": "^0.0.14",
         "@vueuse/core": "^14.4.0",
         "ag-grid-community": "^35.0.0",
         "ag-grid-vue3": "^35.0.0",
